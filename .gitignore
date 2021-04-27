@@ -5,7 +5,13 @@ out/
 .idea/httpRequests
 ### Gradle template
 .gradle
+/.settings/
 /build/
+/bin/
+/data/
+/out/
+/temp/
+/tmp/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -19,3 +25,16 @@ gradle-app.setting
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
 
+hs_err_pid*
+
+.metadata
+*.iml
+local.properties
+
+/src/*/java/**/classDiagram.png
+/src/*/java/**/classDiagram.svg
+/src/*/scenarios/**/*.html
+/src/*/scenarios/**/*.png
+/src/*/scenarios/**/*.svg
+/src/*/scenarios/**/*.txt
+/src/*/scenarios/**/*.yaml

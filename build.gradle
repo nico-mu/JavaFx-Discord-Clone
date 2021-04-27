@@ -11,6 +11,8 @@ javafx {
     modules = ['javafx.graphics', 'javafx.fxml', 'javafx.base', 'javafx.controls']
 }
 
+mainClassName = 'de.uniks.stp.Launcher'
+
 group 'de.uniks.stp'
 version '1.0.0'
 
