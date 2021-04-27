@@ -5,7 +5,6 @@ import java.util.Objects;
 import java.util.Collections;
 import java.util.Collection;
 import java.beans.PropertyChangeSupport;
-import java.beans.PropertyChangeListener;
 
 public class Server
 {
@@ -226,42 +225,13 @@ public class Server
       return false;
    }
 
-   public boolean addPropertyChangeListener(PropertyChangeListener listener)
+   public PropertyChangeSupport listeners()
    {
       if (this.listeners == null)
       {
          this.listeners = new PropertyChangeSupport(this);
       }
-      this.listeners.addPropertyChangeListener(listener);
-      return true;
-   }
-
-   public boolean addPropertyChangeListener(String propertyName, PropertyChangeListener listener)
-   {
-      if (this.listeners == null)
-      {
-         this.listeners = new PropertyChangeSupport(this);
-      }
-      this.listeners.addPropertyChangeListener(propertyName, listener);
-      return true;
-   }
-
-   public boolean removePropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (this.listeners != null)
-      {
-         this.listeners.removePropertyChangeListener(listener);
-      }
-      return true;
-   }
-
-   public boolean removePropertyChangeListener(String propertyName, PropertyChangeListener listener)
-   {
-      if (this.listeners != null)
-      {
-         this.listeners.removePropertyChangeListener(propertyName, listener);
-      }
-      return true;
+      return this.listeners;
    }
 
    @Override

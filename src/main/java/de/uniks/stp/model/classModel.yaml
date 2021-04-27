@@ -1,4 +1,4 @@
-- c: 	ClassModel
+- c: 	org.fulib.classmodel.ClassModel
   classes: 	directMessage 	message 	user 	serverMessage 	channel 	category 	server 	accord
   defaultCollectionType: 	c1
   defaultPropertyStyle: 	Bean
@@ -7,7 +7,7 @@
   packageName: 	de.uniks.stp.model
   packageSrcFolder: 	"src/main/java/de/uniks/stp/model"
 
-- directMessage: 	Clazz
+- directMessage: 	org.fulib.classmodel.Clazz
   model: 	c
   modified: 	false
   name: 	DirectMessage
@@ -15,7 +15,7 @@
   roles: 	directMessage_receiver
   superClass: 	message
 
-- message: 	Clazz
+- message: 	org.fulib.classmodel.Clazz
   attributes: 	message_id 	message_timestamp 	message_message
   model: 	c
   modified: 	false
@@ -24,7 +24,7 @@
   roles: 	message_sender
   subClasses: 	directMessage 	serverMessage
 
-- user: 	Clazz
+- user: 	org.fulib.classmodel.Clazz
   attributes: 	user_id 	user_name 	user_status
   model: 	c
   modified: 	false
@@ -32,7 +32,7 @@
   propertyStyle: 	Bean
   roles: 	user_receivedMessages 	user_sentMessages 	user_availableServers 	user_ownedServers 	user_accord
 
-- serverMessage: 	Clazz
+- serverMessage: 	org.fulib.classmodel.Clazz
   model: 	c
   modified: 	false
   name: 	ServerMessage
@@ -40,7 +40,7 @@
   roles: 	serverMessage_channel
   superClass: 	message
 
-- channel: 	Clazz
+- channel: 	org.fulib.classmodel.Clazz
   attributes: 	channel_id 	channel_name 	channel_type 	channel_privileged
   model: 	c
   modified: 	false
@@ -48,7 +48,7 @@
   propertyStyle: 	Bean
   roles: 	channel_messages 	channel_category
 
-- category: 	Clazz
+- category: 	org.fulib.classmodel.Clazz
   attributes: 	category_id 	category_name
   model: 	c
   modified: 	false
@@ -56,7 +56,7 @@
   propertyStyle: 	Bean
   roles: 	category_channels 	category_server
 
-- server: 	Clazz
+- server: 	org.fulib.classmodel.Clazz
   attributes: 	server_id 	server_name
   model: 	c
   modified: 	false
@@ -64,7 +64,7 @@
   propertyStyle: 	Bean
   roles: 	server_categories 	server_users 	server_owner
 
-- accord: 	Clazz
+- accord: 	org.fulib.classmodel.Clazz
   attributes: 	accord_language 	accord_userKey
   model: 	c
   modified: 	false
@@ -72,14 +72,14 @@
   propertyStyle: 	Bean
   roles: 	accord_currentUser
 
-- c1: 	CollectionType
+- c1: 	org.fulib.classmodel.CollectionType
   implClass: 	class java.util.ArrayList
   implTemplate: 	"java.util.ArrayList<%s>"
   itf: 	org.fulib.classmodel.CollectionInterface.List
   qualifiedImplName: 	java.util.ArrayList
   simpleImplName: 	ArrayList
 
-- directMessage_receiver: 	AssocRole
+- directMessage_receiver: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	1
   clazz: 	directMessage
@@ -89,7 +89,7 @@
   other: 	user_receivedMessages
   propertyStyle: 	Bean
 
-- message_id: 	Attribute
+- message_id: 	org.fulib.classmodel.Attribute
   clazz: 	message
   id: 	Message_id
   modified: 	false
@@ -98,7 +98,7 @@
   type: 	String
   typeSignature: 	String
 
-- message_timestamp: 	Attribute
+- message_timestamp: 	org.fulib.classmodel.Attribute
   clazz: 	message
   id: 	Message_timestamp
   modified: 	false
@@ -107,7 +107,7 @@
   type: 	int
   typeSignature: 	int
 
-- message_message: 	Attribute
+- message_message: 	org.fulib.classmodel.Attribute
   clazz: 	message
   id: 	Message_message
   modified: 	false
@@ -116,7 +116,7 @@
   type: 	String
   typeSignature: 	String
 
-- message_sender: 	AssocRole
+- message_sender: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	1
   clazz: 	message
@@ -126,7 +126,7 @@
   other: 	user_sentMessages
   propertyStyle: 	Bean
 
-- user_id: 	Attribute
+- user_id: 	org.fulib.classmodel.Attribute
   clazz: 	user
   id: 	User_id
   modified: 	false
@@ -135,7 +135,7 @@
   type: 	String
   typeSignature: 	String
 
-- user_name: 	Attribute
+- user_name: 	org.fulib.classmodel.Attribute
   clazz: 	user
   id: 	User_name
   modified: 	false
@@ -144,7 +144,7 @@
   type: 	String
   typeSignature: 	String
 
-- user_status: 	Attribute
+- user_status: 	org.fulib.classmodel.Attribute
   clazz: 	user
   id: 	User_status
   modified: 	false
@@ -153,7 +153,7 @@
   type: 	boolean
   typeSignature: 	boolean
 
-- user_receivedMessages: 	AssocRole
+- user_receivedMessages: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	42
   clazz: 	user
@@ -165,7 +165,7 @@
   propertyStyle: 	Bean
   roleType: 	"java.util.ArrayList<%s>"
 
-- user_sentMessages: 	AssocRole
+- user_sentMessages: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	42
   clazz: 	user
@@ -177,7 +177,7 @@
   propertyStyle: 	Bean
   roleType: 	"java.util.ArrayList<%s>"
 
-- user_availableServers: 	AssocRole
+- user_availableServers: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	42
   clazz: 	user
@@ -189,7 +189,7 @@
   propertyStyle: 	Bean
   roleType: 	"java.util.ArrayList<%s>"
 
-- user_ownedServers: 	AssocRole
+- user_ownedServers: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	42
   clazz: 	user
@@ -201,7 +201,7 @@
   propertyStyle: 	Bean
   roleType: 	"java.util.ArrayList<%s>"
 
-- user_accord: 	AssocRole
+- user_accord: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	1
   clazz: 	user
@@ -211,7 +211,7 @@
   other: 	accord_currentUser
   propertyStyle: 	Bean
 
-- serverMessage_channel: 	AssocRole
+- serverMessage_channel: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	1
   clazz: 	serverMessage
@@ -221,7 +221,7 @@
   other: 	channel_messages
   propertyStyle: 	Bean
 
-- channel_id: 	Attribute
+- channel_id: 	org.fulib.classmodel.Attribute
   clazz: 	channel
   id: 	Channel_id
   modified: 	false
@@ -230,7 +230,7 @@
   type: 	String
   typeSignature: 	String
 
-- channel_name: 	Attribute
+- channel_name: 	org.fulib.classmodel.Attribute
   clazz: 	channel
   id: 	Channel_name
   modified: 	false
@@ -239,7 +239,7 @@
   type: 	String
   typeSignature: 	String
 
-- channel_type: 	Attribute
+- channel_type: 	org.fulib.classmodel.Attribute
   clazz: 	channel
   id: 	Channel_type
   modified: 	false
@@ -248,7 +248,7 @@
   type: 	String
   typeSignature: 	String
 
-- channel_privileged: 	Attribute
+- channel_privileged: 	org.fulib.classmodel.Attribute
   clazz: 	channel
   id: 	Channel_privileged
   modified: 	false
@@ -257,7 +257,7 @@
   type: 	boolean
   typeSignature: 	boolean
 
-- channel_messages: 	AssocRole
+- channel_messages: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	42
   clazz: 	channel
@@ -269,7 +269,7 @@
   propertyStyle: 	Bean
   roleType: 	"java.util.ArrayList<%s>"
 
-- channel_category: 	AssocRole
+- channel_category: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	1
   clazz: 	channel
@@ -279,7 +279,7 @@
   other: 	category_channels
   propertyStyle: 	Bean
 
-- category_id: 	Attribute
+- category_id: 	org.fulib.classmodel.Attribute
   clazz: 	category
   id: 	Category_id
   modified: 	false
@@ -288,7 +288,7 @@
   type: 	String
   typeSignature: 	String
 
-- category_name: 	Attribute
+- category_name: 	org.fulib.classmodel.Attribute
   clazz: 	category
   id: 	Category_name
   modified: 	false
@@ -297,7 +297,7 @@
   type: 	String
   typeSignature: 	String
 
-- category_channels: 	AssocRole
+- category_channels: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	42
   clazz: 	category
@@ -309,7 +309,7 @@
   propertyStyle: 	Bean
   roleType: 	"java.util.ArrayList<%s>"
 
-- category_server: 	AssocRole
+- category_server: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	1
   clazz: 	category
@@ -319,7 +319,7 @@
   other: 	server_categories
   propertyStyle: 	Bean
 
-- server_id: 	Attribute
+- server_id: 	org.fulib.classmodel.Attribute
   clazz: 	server
   id: 	Server_id
   modified: 	false
@@ -328,7 +328,7 @@
   type: 	String
   typeSignature: 	String
 
-- server_name: 	Attribute
+- server_name: 	org.fulib.classmodel.Attribute
   clazz: 	server
   id: 	Server_name
   modified: 	false
@@ -337,7 +337,7 @@
   type: 	String
   typeSignature: 	String
 
-- server_categories: 	AssocRole
+- server_categories: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	42
   clazz: 	server
@@ -349,7 +349,7 @@
   propertyStyle: 	Bean
   roleType: 	"java.util.ArrayList<%s>"
 
-- server_users: 	AssocRole
+- server_users: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	42
   clazz: 	server
@@ -361,7 +361,7 @@
   propertyStyle: 	Bean
   roleType: 	"java.util.ArrayList<%s>"
 
-- server_owner: 	AssocRole
+- server_owner: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	1
   clazz: 	server
@@ -371,7 +371,7 @@
   other: 	user_ownedServers
   propertyStyle: 	Bean
 
-- accord_language: 	Attribute
+- accord_language: 	org.fulib.classmodel.Attribute
   clazz: 	accord
   id: 	Accord_language
   modified: 	false
@@ -380,7 +380,7 @@
   type: 	String
   typeSignature: 	String
 
-- accord_userKey: 	Attribute
+- accord_userKey: 	org.fulib.classmodel.Attribute
   clazz: 	accord
   id: 	Accord_userKey
   modified: 	false
@@ -389,7 +389,7 @@
   type: 	String
   typeSignature: 	String
 
-- accord_currentUser: 	AssocRole
+- accord_currentUser: 	org.fulib.classmodel.AssocRole
   aggregation: 	false
   cardinality: 	1
   clazz: 	accord
