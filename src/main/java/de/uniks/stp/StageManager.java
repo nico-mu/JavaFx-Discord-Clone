@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 import java.util.Objects;
 
 public class StageManager extends Application {
+    private static Editor editor;
     private static Stage stage;
     private static ControllerInterface currentController;
 
@@ -20,6 +21,7 @@ public class StageManager extends Application {
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
+        editor = new Editor();
         stage.show();
     }
 }

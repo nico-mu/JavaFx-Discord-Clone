@@ -19,7 +19,7 @@ public class ViewLoader {
 
             //TODO: insert current used language here (accord.getLanguage?)
             //load resource bundle for given language
-            ResourceBundle resourceBundle = ResourceBundle.getBundle("language", new Locale("de"), loader);
+            ResourceBundle resourceBundle = ResourceBundle.getBundle("language", new Locale(Languages.GERMAN.key), loader);
 
             //load view with given resource bundle
             load = FXMLLoader.load(Objects.requireNonNull(ViewLoader.class.getResource(alias.path)), resourceBundle);
