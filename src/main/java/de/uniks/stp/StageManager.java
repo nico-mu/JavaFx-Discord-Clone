@@ -1,6 +1,7 @@
 package de.uniks.stp;
 
 import de.uniks.stp.controller.ControllerInterface;
+import de.uniks.stp.network.UserKeyProvider;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -22,6 +23,7 @@ public class StageManager extends Application {
     public void start(Stage primaryStage) {
         stage = primaryStage;
         editor = new Editor();
+        UserKeyProvider.setEditor(editor);
         stage.show();
     }
 }
