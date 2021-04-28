@@ -27,7 +27,7 @@ public class WebSocketClient extends Endpoint {
 
         try {
             ClientEndpointConfig clientConfig = ClientEndpointConfig.Builder.create()
-                    .configurator(new CustomWebSocketConfigurator(this.editor.getUserkey()))
+                    .configurator(new CustomWebSocketConfigurator(UserKeyProvider.getUserKey()))
                     .build();
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
