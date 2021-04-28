@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Text?>
+
+<HBox prefHeight="47.0" prefWidth="390.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Text id="user-name-text" strokeType="OUTSIDE" strokeWidth="0.0" text="&lt;UserName&gt;" />
+      <Text id="user-status-text" strokeType="OUTSIDE" strokeWidth="0.0" text="&lt;UserStatus&gt;" />
+   </children>
+</HBox>
