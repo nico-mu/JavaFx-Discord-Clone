@@ -1,9 +1,6 @@
 package de.uniks.stp.network;
 
-import kong.unirest.Callback;
-import kong.unirest.HttpRequest;
-import kong.unirest.JsonNode;
-import kong.unirest.Unirest;
+import kong.unirest.*;
 
 import static de.uniks.stp.Constants.REST_SERVER_BASE_URL;
 
@@ -15,7 +12,7 @@ public class RestClient {
             .interceptor(new HttpRequestInterceptor());
     }
 
-    private static void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
+    protected static void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
         req.asJsonAsync(callback);
     }
 }
