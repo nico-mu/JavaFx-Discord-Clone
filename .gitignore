@@ -38,3 +38,4 @@ local.properties
 /src/*/scenarios/**/*.svg
 /src/*/scenarios/**/*.txt
 /src/*/scenarios/**/*.yaml
+/src/main/java/de/uniks/stp/model/
