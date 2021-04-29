@@ -11,6 +11,8 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class ViewLoader {
+    private static ResourceBundle resourceBundle;
+
     public static Parent loadView(final Views alias) {
         Parent load = null;
         try {
@@ -19,7 +21,9 @@ public class ViewLoader {
 
             //TODO: insert current used language here (accord.getLanguage?)
             //load resource bundle for given language
-            ResourceBundle resourceBundle = ResourceBundle.getBundle("language", new Locale(Languages.GERMAN.key), loader);
+            resourceBundle = ResourceBundle.getBundle("language", new Locale(Languages.GERMAN.key), loader);
+
+            System.out.println(resourceBundle.getString("LBL_LOGIN"));
 
             //load view with given resource bundle
             load = FXMLLoader.load(Objects.requireNonNull(ViewLoader.class.getResource(alias.path)), resourceBundle);
@@ -28,5 +32,9 @@ public class ViewLoader {
             e.printStackTrace();
         }
         return load;
+    }
+
+    public static String loadLabel(String label) {
+        return resourceBundle.getString(label);
     }
 }

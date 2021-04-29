@@ -3,19 +3,21 @@ package de.uniks.stp.controller;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.network.HttpResponseHelper;
 import de.uniks.stp.network.auth.AuthClient;
+import de.uniks.stp.view.ViewLoader;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import java.util.Objects;
 
 public class LoginScreenController implements ControllerInterface {
-
     private final Parent view;
     private final Editor editor;
 
@@ -61,10 +63,24 @@ public class LoginScreenController implements ControllerInterface {
         return name.isEmpty() || password.isEmpty();
     }
 
+    private void setErrorMessage(String label) {
+        if (Objects.isNull(label)) {
+            Platform.runLater(() -> {
+                errorLabel.setText("");
+            });
+            return;
+        }
+        String message = ViewLoader.loadLabel(label);
+        Platform.runLater(() -> {
+            errorLabel.setText(message);
+        });
+    }
+
     public void onRegisterButtonClicked(ActionEvent event) {
         readInputFields();
 
         if (isEmptyInput()) {
+            setErrorMessage(Constants.LBL_MISSING_FIELDS);
             return;
         }
 
@@ -75,6 +91,7 @@ public class LoginScreenController implements ControllerInterface {
         readInputFields();
 
         if (isEmptyInput()) {
+            setErrorMessage(Constants.LBL_MISSING_FIELDS);
             return;
         }
 
@@ -84,21 +101,18 @@ public class LoginScreenController implements ControllerInterface {
     private void handleRegisterResponse(HttpResponse<JsonNode> response) {
         // log user in
         if (HttpResponseHelper.isSuccess(response.getStatus())) {
-            Platform.runLater(() -> {
-                errorLabel.setText("");
-            });
+            setErrorMessage(null);
             AuthClient.login(name, password, this::handleLoginResponse);
             return;
         }
         // Registration failed
-        Platform.runLater(() -> {
-            errorLabel.setText("Registration failed");
-        });
+        setErrorMessage(Constants.LBL_REGISTRATION_FAILED);
     }
 
     private void handleLoginResponse(HttpResponse<JsonNode> response) {
         // set currentUser + userKey and switch to HomeScreen
         if (HttpResponseHelper.isSuccess(response.getStatus())) {
+            setErrorMessage(null);
             String userKey = response.getBody().getObject().getJSONObject("data").getString("userKey");
             editor.setUserKey(userKey);
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
@@ -107,10 +121,7 @@ public class LoginScreenController implements ControllerInterface {
             return;
         }
         // Login failed
-        Platform.runLater(() -> {
-            errorLabel.setText("Login failed");
-        });
-        
+        setErrorMessage(Constants.LBL_LOGIN_FAILED);
     }
 
 }
