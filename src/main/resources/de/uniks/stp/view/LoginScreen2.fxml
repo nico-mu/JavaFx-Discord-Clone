@@ -13,6 +13,7 @@
             <TextField id="name-field" promptText="%LBL_USERNAME" styleClass="text_field" stylesheets="@style.css" />
             <PasswordField id="password-field" promptText="%LBL_PASSWORD" />
             <Button id="register-button" mnemonicParsing="false" text="%LBL_REGISTER" />
+            <Button id="login-button" mnemonicParsing="false" text="%LBL_LOGIN" />
          </children>
       </VBox>
    </children>
