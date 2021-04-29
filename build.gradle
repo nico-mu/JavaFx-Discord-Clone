@@ -24,7 +24,7 @@ repositories {
 dependencies {
     compile 'com.jfoenix:jfoenix:9.0.10'
 
-    implementation group: 'com.konghq', name: 'unirest-java', version: '2.3.02'
+    implementation group: 'com.konghq', name: 'unirest-java', version: '3.11.09'
     implementation group: 'javax.websocket', name: 'javax.websocket-api', version: '1.1'
     implementation group: 'org.glassfish', name: 'javax.json', version: '1.1'
 

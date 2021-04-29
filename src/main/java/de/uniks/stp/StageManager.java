@@ -4,17 +4,15 @@ import de.uniks.stp.controller.ControllerInterface;
 import de.uniks.stp.controller.LoginScreenController;
 import de.uniks.stp.view.ViewLoader;
 import de.uniks.stp.view.Views;
+import de.uniks.stp.network.UserKeyProvider;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import java.io.File;
-import java.net.URL;
 import java.util.Objects;
 
 public class StageManager extends Application {
+    private static Editor editor;
     private static Stage stage;
     private static ControllerInterface currentController;
 
@@ -28,6 +26,8 @@ public class StageManager extends Application {
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
+        editor = new Editor();
+        UserKeyProvider.setEditor(editor);
         showLoginScreen();
         stage.show();
     }
