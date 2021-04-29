@@ -16,9 +16,3 @@
     -fx-border-color: black;
     -fx-background-color: white
 }
-
-.text_field {
-    -fx-background-color: white;
-    -fx-border-color: black;
-    -fx-text-fill: black;
-}

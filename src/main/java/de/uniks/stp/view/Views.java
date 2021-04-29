@@ -1,8 +1,7 @@
 package de.uniks.stp.view;
 
 public enum Views {
-    LOGIN_SCREEN("LoginScreen.fxml"),
-    LOGIN_SCREEN2("LoginScreen2.fxml");
+    LOGIN_SCREEN("LoginScreen.fxml");
 
     public final String path;
 

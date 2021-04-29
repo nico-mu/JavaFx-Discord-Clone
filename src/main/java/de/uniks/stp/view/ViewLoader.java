@@ -12,18 +12,22 @@ import java.util.ResourceBundle;
 
 public class ViewLoader {
     private static ResourceBundle resourceBundle;
+    private static ClassLoader loader;
+
+    static {
+        loader = new URLClassLoader(new URL[]{ViewLoader.class.getResource("../bundle/")});
+        resourceBundle = ResourceBundle.getBundle("language", new Locale(Languages.GERMAN.key), loader);
+    }
 
     public static Parent loadView(final Views alias) {
         Parent load = null;
         try {
             //add classloader for bundle directory to load it into resource bundle
-            ClassLoader loader = new URLClassLoader(new URL[]{ViewLoader.class.getResource("../bundle/")});
+            loader = new URLClassLoader(new URL[]{ViewLoader.class.getResource("../bundle/")});
 
             //TODO: insert current used language here (accord.getLanguage?)
             //load resource bundle for given language
             resourceBundle = ResourceBundle.getBundle("language", new Locale(Languages.GERMAN.key), loader);
-
-            System.out.println(resourceBundle.getString("LBL_LOGIN"));
 
             //load view with given resource bundle
             load = FXMLLoader.load(Objects.requireNonNull(ViewLoader.class.getResource(alias.path)), resourceBundle);

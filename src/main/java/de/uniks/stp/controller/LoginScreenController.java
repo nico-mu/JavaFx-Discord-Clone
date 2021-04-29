@@ -6,7 +6,6 @@ import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
-import de.uniks.stp.network.HttpResponseHelper;
 import de.uniks.stp.network.auth.AuthClient;
 import de.uniks.stp.view.ViewLoader;
 import javafx.application.Platform;
@@ -100,7 +99,7 @@ public class LoginScreenController implements ControllerInterface {
 
     private void handleRegisterResponse(HttpResponse<JsonNode> response) {
         // log user in
-        if (HttpResponseHelper.isSuccess(response.getStatus())) {
+        if (response.isSuccess()) {
             setErrorMessage(null);
             AuthClient.login(name, password, this::handleLoginResponse);
             return;
@@ -111,7 +110,7 @@ public class LoginScreenController implements ControllerInterface {
 
     private void handleLoginResponse(HttpResponse<JsonNode> response) {
         // set currentUser + userKey and switch to HomeScreen
-        if (HttpResponseHelper.isSuccess(response.getStatus())) {
+        if (response.isSuccess()) {
             setErrorMessage(null);
             String userKey = response.getBody().getObject().getJSONObject("data").getString("userKey");
             editor.setUserKey(userKey);
