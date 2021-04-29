@@ -14,7 +14,7 @@ javafx {
 mainClassName = 'de.uniks.stp.Launcher'
 
 group 'de.uniks.stp'
-version '1.0.0'
+version '0.1.0'
 
 repositories {
     mavenCentral()

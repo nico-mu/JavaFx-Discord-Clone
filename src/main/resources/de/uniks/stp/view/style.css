@@ -1,0 +1,24 @@
+
+.jfx-button {
+    -jfx-button-type: FLAT;
+    -fx-background-color: #4059a9;
+    -fx-text-fill: white;
+}
+
+.text-field
+{
+    -fx-prompt-text-fill: #4059a9; /*Yellow - floating label*/
+    -fx-text-fill: white; /*Yellow - input color*/
+    -fx-highlight-fill: #4eb769; /*Green*/
+}
+
+.login-form {
+    -fx-border-color: black;
+    -fx-background-color: white
+}
+
+.text_field {
+    -fx-background-color: white;
+    -fx-border-color: black;
+    -fx-text-fill: black;
+}
