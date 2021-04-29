@@ -8,7 +8,7 @@
 .text-field
 {
     -fx-prompt-text-fill: #4059a9; /*Yellow - floating label*/
-    -fx-text-fill: white; /*Yellow - input color*/
+    -fx-text-fill: black; /*Yellow - input color*/
     -fx-highlight-fill: #4eb769; /*Green*/
 }
 

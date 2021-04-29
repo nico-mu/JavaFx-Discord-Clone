@@ -35,7 +35,7 @@ public class StageManager extends Application {
     public static void showLoginScreen() {
         cleanup();
 
-        Parent root = ViewLoader.loadView(Views.LOGIN_SCREEN2);
+        Parent root = ViewLoader.loadView(Views.LOGIN_SCREEN);
         if (Objects.isNull(root)) {
             System.err.println("Error while loading LoginScreen");
             return;

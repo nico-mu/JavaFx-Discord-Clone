@@ -1,18 +1,16 @@
 package de.uniks.stp.controller;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXPasswordField;
+import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
-import de.uniks.stp.model.User;
 import de.uniks.stp.network.HttpResponseHelper;
 import de.uniks.stp.network.auth.AuthClient;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.paint.Color;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 
@@ -21,10 +19,10 @@ public class LoginScreenController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;
 
-    private TextField nameField;
-    private PasswordField passwordField;
-    private Button registerButton;
-    private Button loginButton;
+    private JFXTextField nameField;
+    private JFXPasswordField passwordField;
+    private JFXButton registerButton;
+    private JFXButton loginButton;
     private Label errorLabel;
 
     private String name;
@@ -36,10 +34,10 @@ public class LoginScreenController implements ControllerInterface {
     }
 
     public void init() {
-        nameField = (TextField) view.lookup("#name-field");
-        passwordField = (PasswordField) view.lookup("#password-field");
-        registerButton = (Button) view.lookup("#register-button");
-        loginButton = (Button) view.lookup("#login-button");
+        nameField = (JFXTextField) view.lookup("#name-field");
+        passwordField = (JFXPasswordField) view.lookup("#password-field");
+        registerButton = (JFXButton) view.lookup("#register-button");
+        loginButton = (JFXButton) view.lookup("#login-button");
         errorLabel = (Label) view.lookup("#error-message");
 
         // Register button event handler
@@ -109,6 +107,9 @@ public class LoginScreenController implements ControllerInterface {
             return;
         }
         // Login failed
+        Platform.runLater(() -> {
+            errorLabel.setText("Login failed");
+        });
         
     }
 

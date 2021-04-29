@@ -4,11 +4,14 @@
 <?import com.jfoenix.controls.JFXPasswordField?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="314.0" prefWidth="218.0" stylesheets="@./style.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="314.0" prefWidth="218.0" style="-fx-background-color: #ffffff;" stylesheets="@./style.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
    <children>
       <VBox alignment="CENTER" layoutX="200.0" layoutY="49.0" prefHeight="249.0" prefWidth="232.0" styleClass="login-form" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -17,7 +20,7 @@
                   <Insets />
                </VBox.margin>
                <children>
-                  <JFXTextField labelFloat="true" prefHeight="80.0" prefWidth="0.0" promptText="%LBL_USERNAME">
+                  <JFXTextField id="name-field" labelFloat="true" promptText="%LBL_USERNAME">
                      <VBox.margin>
                         <Insets />
                      </VBox.margin>
@@ -35,7 +38,7 @@
                   <Insets />
                </VBox.margin>
                <children>
-                  <JFXPasswordField labelFloat="true" promptText="%LBL_PASSWORD">
+                  <JFXPasswordField id="password-field" labelFloat="true" promptText="%LBL_PASSWORD">
                      <VBox.margin>
                         <Insets />
                      </VBox.margin>
@@ -48,7 +51,18 @@
                   <Insets bottom="40.0" />
                </padding>
             </VBox>
-            <JFXButton prefHeight="28.0" prefWidth="83.0" text="%LBL_LOGIN_BUTTON" />
+            <HBox alignment="CENTER" prefHeight="60.0" prefWidth="186.0">
+               <children>
+                  <JFXButton id="login-button" prefHeight="28.0" prefWidth="83.0" text="%LBL_LOGIN" />
+                  <Pane prefHeight="92.0" prefWidth="18.0" />
+                  <JFXButton id="register-button" prefHeight="28.0" prefWidth="83.0" text="%LBL_REGISTER" />
+               </children>
+            </HBox>
+            <Label id="error-message" textFill="RED">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
          </children>
          <padding>
             <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
