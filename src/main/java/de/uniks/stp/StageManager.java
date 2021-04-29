@@ -42,11 +42,31 @@ public class StageManager extends Application {
         }
         Scene scene = new Scene(root);
 
-        currentController = new LoginScreenController(root);
+        currentController = new LoginScreenController(root, editor);
         currentController.init();
 
         stage.setTitle("Accord - Login");
         stage.setScene(scene);
         stage.centerOnScreen();
+    }
+
+    public static void showHomeScreen() {
+        cleanup();
+
+        /*
+        Parent root = ViewLoader.loadView(CONSTANT_HOMESCREEN);
+        if (Objects.isNull(root)) {
+            System.err.println("Error while loading HomeScreen");
+            return;
+        }
+        Scene scene = new Scene(root);
+
+        currentController = new HomeScreenController(root, editor);
+        currentController.init();
+
+        stage.setTitle("Accord");
+        stage.setScene(scene);
+        stage.centerOnScreen();
+         */
     }
 }
