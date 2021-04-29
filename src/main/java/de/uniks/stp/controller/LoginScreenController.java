@@ -5,11 +5,14 @@ import de.uniks.stp.StageManager;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.HttpResponseHelper;
 import de.uniks.stp.network.auth.AuthClient;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 
@@ -22,6 +25,7 @@ public class LoginScreenController implements ControllerInterface {
     private PasswordField passwordField;
     private Button registerButton;
     private Button loginButton;
+    private Label errorLabel;
 
     private String name;
     private String password;
@@ -36,6 +40,7 @@ public class LoginScreenController implements ControllerInterface {
         passwordField = (PasswordField) view.lookup("#password-field");
         registerButton = (Button) view.lookup("#register-button");
         loginButton = (Button) view.lookup("#login-button");
+        errorLabel = (Label) view.lookup("#error-message");
 
         // Register button event handler
         registerButton.setOnAction(this::onRegisterButtonClicked);
@@ -81,11 +86,16 @@ public class LoginScreenController implements ControllerInterface {
     private void handleRegisterResponse(HttpResponse<JsonNode> response) {
         // log user in
         if (HttpResponseHelper.isSuccess(response.getStatus())) {
+            Platform.runLater(() -> {
+                errorLabel.setText("");
+            });
             AuthClient.login(name, password, this::handleLoginResponse);
             return;
         }
         // Registration failed
-
+        Platform.runLater(() -> {
+            errorLabel.setText("Registration failed");
+        });
     }
 
     private void handleLoginResponse(HttpResponse<JsonNode> response) {
