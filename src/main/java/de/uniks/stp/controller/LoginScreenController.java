@@ -47,7 +47,6 @@ public class LoginScreenController implements ControllerInterface {
         name = nameField.getText();
         password = passwordField.getText();
 
-        nameField.clear();
         passwordField.clear();
     }
 
@@ -62,7 +61,7 @@ public class LoginScreenController implements ControllerInterface {
             return;
         }
 
-        AuthClient.tempRegister(this::handleRegisterResponse);
+        AuthClient.register(name, password, this::handleRegisterResponse);
     }
 
     public void onLoginButtonClicked(ActionEvent _event) {
@@ -82,6 +81,8 @@ public class LoginScreenController implements ControllerInterface {
             return;
         }
         // Registration failed
+        System.out.println("REGISTER " + response.getStatus());
+        System.out.println(response.getBody());
     }
 
     private void handleLoginResponse(HttpResponse<JsonNode> response) {
