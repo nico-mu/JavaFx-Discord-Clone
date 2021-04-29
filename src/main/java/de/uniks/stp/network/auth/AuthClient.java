@@ -14,7 +14,7 @@ import static de.uniks.stp.Constants.REST_SERVER_BASE_URL;
 public class AuthClient extends RestClient {
 
     private static void sendAuthRequest(String endpoint, String name, String password, Callback<JsonNode> callback) {
-        HttpRequest<?> postUserRegister = Unirest.post(REST_SERVER_BASE_URL + Constants.USERS_PATH + endpoint)
+        HttpRequest<?> postUserRegister = Unirest.post(Constants.USERS_PATH + endpoint)
             .body(buildLoginOrRegisterBody(name, password));
         RestClient.sendRequest(postUserRegister, callback);
     }
