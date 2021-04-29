@@ -96,8 +96,9 @@ public class LoginScreenController implements ControllerInterface {
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
 
             StageManager.showHomeScreen();
+            return;
         }
-        //Registration failed
+        // Login failed
         
     }
 
