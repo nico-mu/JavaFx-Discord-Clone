@@ -17,9 +17,17 @@ public class Editor {
         return accord;
     }
 
+    public void setUserKey(String userKey){
+        accord.setUserKey(userKey);
+    }
+
     public User getOrCreateUser(String name, boolean status) {
         User user = new User().setAccord(accord).setName(name).setStatus(status);
 
         return user;
+    }
+
+    public void setCurrentUser(User currentUser){
+        accord.setCurrentUser(currentUser);
     }
 }

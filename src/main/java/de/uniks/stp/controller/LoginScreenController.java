@@ -1,5 +1,8 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.Editor;
+import de.uniks.stp.StageManager;
+import de.uniks.stp.model.User;
 import de.uniks.stp.network.HttpResponseHelper;
 import de.uniks.stp.network.auth.AuthClient;
 import javafx.event.ActionEvent;
@@ -12,7 +15,9 @@ import kong.unirest.JsonNode;
 
 public class LoginScreenController implements ControllerInterface {
 
-    private Parent view;
+    private final Parent view;
+    private final Editor editor;
+
     private TextField nameField;
     private PasswordField passwordField;
     private Button registerButton;
@@ -21,8 +26,9 @@ public class LoginScreenController implements ControllerInterface {
     private String name;
     private String password;
 
-    public LoginScreenController(Parent view) {
+    public LoginScreenController(Parent view, Editor editor) {
         this.view = view;
+        this.editor = editor;
     }
 
     public void init() {
@@ -48,14 +54,14 @@ public class LoginScreenController implements ControllerInterface {
         passwordField.clear();
     }
 
-    private boolean isEmptyInput(String name, String password) {
+    private boolean isEmptyInput() {
         return name.isEmpty() || password.isEmpty();
     }
 
     public void onRegisterButtonClicked(ActionEvent event) {
         readInputFields();
 
-        if (isEmptyInput(name, password)) {
+        if (isEmptyInput()) {
             return;
         }
 
@@ -65,7 +71,7 @@ public class LoginScreenController implements ControllerInterface {
     public void onLoginButtonClicked(ActionEvent _event) {
         readInputFields();
 
-        if (isEmptyInput(name, password)) {
+        if (isEmptyInput()) {
             return;
         }
 
@@ -74,19 +80,25 @@ public class LoginScreenController implements ControllerInterface {
 
     private void handleRegisterResponse(HttpResponse<JsonNode> response) {
         // log user in
-        if(HttpResponseHelper.isSuccess(response.getStatus())) {
+        if (HttpResponseHelper.isSuccess(response.getStatus())) {
             AuthClient.login(name, password, this::handleLoginResponse);
             return;
         }
         // Registration failed
-        System.out.println("REGISTER " + response.getStatus());
-        System.out.println(response.getBody());
+
     }
 
     private void handleLoginResponse(HttpResponse<JsonNode> response) {
-        System.out.println(response.getBody());
+        // set currentUser + userKey and switch to HomeScreen
+        if (HttpResponseHelper.isSuccess(response.getStatus())) {
+            String userKey = response.getBody().getObject().getJSONObject("data").getString("userKey");
+            editor.setUserKey(userKey);
+            editor.setCurrentUser(editor.getOrCreateUser(name, true));
+
+            StageManager.showHomeScreen();
+        }
+        //Registration failed
+        
     }
 
 }
-
-
