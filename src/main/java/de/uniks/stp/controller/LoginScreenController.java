@@ -76,7 +76,7 @@ public class LoginScreenController implements ControllerInterface {
         });
     }
 
-    public void showSpinner() {
+    public void disableUserInput() {
         Platform.runLater(() -> {
             nameField.setDisable(true);
             passwordField.setDisable(true);
@@ -86,7 +86,7 @@ public class LoginScreenController implements ControllerInterface {
         });
     }
 
-    public void hideSpinner() {
+    public void enableUserInput() {
         Platform.runLater(() -> {
             nameField.setDisable(false);
             passwordField.setDisable(false);
@@ -105,7 +105,7 @@ public class LoginScreenController implements ControllerInterface {
         }
 
         setErrorMessage(null);
-        showSpinner();
+        disableUserInput();
         AuthClient.register(name, password, this::handleRegisterResponse);
     }
 
@@ -118,12 +118,13 @@ public class LoginScreenController implements ControllerInterface {
         }
 
         setErrorMessage(null);
-        showSpinner();
+        disableUserInput();
         AuthClient.login(name, password, this::handleLoginResponse);
     }
 
     private void handleRegisterResponse(HttpResponse<JsonNode> response) {
-        hideSpinner();
+        enableUserInput();
+        System.out.println(response.getBody());
         // log user in
         if (response.isSuccess()) {
             setErrorMessage(null);
@@ -132,11 +133,17 @@ public class LoginScreenController implements ControllerInterface {
         }
         // Registration failed
         passwordField.clear();
-        setErrorMessage(Constants.LBL_REGISTRATION_FAILED);
+        if (response.getBody().getObject().getString("message").equals("Name already taken")){
+            setErrorMessage(Constants.LBL_REGISTRATION_NAME_TAKEN);
+        }
+        else{
+            setErrorMessage(Constants.LBL_REGISTRATION_FAILED);
+        }
     }
 
     private void handleLoginResponse(HttpResponse<JsonNode> response) {
-        hideSpinner();
+        enableUserInput();
+        System.out.println(response.getBody());
         // set currentUser + userKey and switch to HomeScreen
         if (response.isSuccess()) {
             setErrorMessage(null);
@@ -149,7 +156,12 @@ public class LoginScreenController implements ControllerInterface {
         }
         // Login failed
         passwordField.clear();
-        setErrorMessage(Constants.LBL_LOGIN_FAILED);
+        if (response.getBody().getObject().getString("message").equals("Invalid credentials")){
+            setErrorMessage(Constants.LBL_LOGIN_WRONG_CREDENTIALS);
+        }
+        else{
+            setErrorMessage(Constants.LBL_LOGIN_FAILED);
+        }
     }
 
 }

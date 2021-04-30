@@ -14,6 +14,8 @@ public class Constants {
 
     // Labels for internalization
     public static final String LBL_REGISTRATION_FAILED = "LBL_REGISTRATION_FAILED";
+    public static final String LBL_REGISTRATION_NAME_TAKEN = "LBL_REGISTRATION_NAME_TAKEN";
     public static final String LBL_LOGIN_FAILED = "LBL_LOGIN_FAILED";
+    public static final String LBL_LOGIN_WRONG_CREDENTIALS = "LBL_LOGIN_WRONG_CREDENTIALS";
     public static final String LBL_MISSING_FIELDS = "LBL_MISSING_FIELDS";
 }
