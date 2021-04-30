@@ -7,12 +7,15 @@
 
 .text-field
 {
-    -fx-prompt-text-fill: #4059a9; /*Yellow - floating label*/
-    -fx-text-fill: black; /*Yellow - input color*/
-    -fx-highlight-fill: #4eb769; /*Green*/
+    -fx-prompt-text-fill: #4059a9;
+    -fx-text-fill: black;
+    -fx-highlight-fill: #4eb769;
 }
 
 .login-form {
-    -fx-border-color: black;
-    -fx-background-color: white
+    -fx-background-color: white;
+}
+
+#spinner .arc {
+     -fx-stroke: #4059a9;
 }

@@ -40,7 +40,6 @@ public class StageManager extends Application {
             super.stop();
             // Logout
 
-
             Unirest.shutDown();
 
         } catch (Exception e) {
