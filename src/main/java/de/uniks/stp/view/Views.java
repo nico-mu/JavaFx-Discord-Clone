@@ -3,7 +3,8 @@ package de.uniks.stp.view;
 import java.net.URL;
 
 public enum Views {
-    START_SCREEN("StartScreen.fxml"); // TODO: To be replaced
+    START_SCREEN("StartScreen.fxml"), // TODO: To be replaced
+    MAIN_SCREEN("MainScreen.fxml");
 
     public final URL path;
 

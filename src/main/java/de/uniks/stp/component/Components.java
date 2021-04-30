@@ -3,7 +3,8 @@ package de.uniks.stp.component;
 import java.net.URL;
 
 public enum Components {
-    USER_LIST_ENTRY("UserListEntry.fxml");
+    USER_LIST_ENTRY("UserListEntry.fxml"),
+    NAV_BAR_ELEMENT("NavBarElement.fxml");
 
     public final URL path;
 
