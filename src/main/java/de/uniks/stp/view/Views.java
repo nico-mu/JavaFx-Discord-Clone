@@ -1,7 +1,7 @@
 package de.uniks.stp.view;
 
 public enum Views {
-    START_SCREEN("StartScreen.fxml"); // TODO: To be replaced
+    LOGIN_SCREEN("LoginScreen.fxml");
 
     public final String path;
 
