@@ -13,6 +13,6 @@ public class RestClient {
     }
 
     protected static void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
-        req.asJsonAsync(callback);
+        new Thread(() -> req.asJsonAsync(callback)).start();
     }
 }

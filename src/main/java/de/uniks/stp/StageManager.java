@@ -9,6 +9,8 @@ import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import kong.unirest.Unirest;
+
 import java.util.Objects;
 
 public class StageManager extends Application {
@@ -30,6 +32,22 @@ public class StageManager extends Application {
         UserKeyProvider.setEditor(editor);
         showLoginScreen();
         stage.show();
+    }
+
+    @Override
+    public void stop() {
+        try {
+            super.stop();
+            // Logout
+
+
+            Unirest.shutDown();
+
+        } catch (Exception e) {
+            System.err.println("Error while trying to shutdown");
+            e.printStackTrace();
+        }
+
     }
 
     public static void showLoginScreen() {
