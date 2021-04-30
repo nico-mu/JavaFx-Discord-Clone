@@ -78,12 +78,20 @@ public class LoginScreenController implements ControllerInterface {
 
     public void showSpinner() {
         Platform.runLater(() -> {
+            nameField.setDisable(true);
+            passwordField.setDisable(true);
+            loginButton.setDisable(true);
+            registerButton.setDisable(true);
             spinner.setVisible(true);
         });
     }
 
     public void hideSpinner() {
         Platform.runLater(() -> {
+            nameField.setDisable(false);
+            passwordField.setDisable(false);
+            loginButton.setDisable(false);
+            registerButton.setDisable(false);
             spinner.setVisible(false);
         });
     }
