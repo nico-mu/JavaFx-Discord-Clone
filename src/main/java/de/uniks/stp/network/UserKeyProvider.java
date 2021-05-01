@@ -1,6 +1,7 @@
 package de.uniks.stp.network;
 
 import de.uniks.stp.Editor;
+import de.uniks.stp.model.Accord;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -34,6 +35,6 @@ public class UserKeyProvider {
         UserKeyProvider.editor = editor;
         editor.getOrCreateAccord()
             .listeners()
-            .addPropertyChangeListener(userKeyChangeListener);
+            .addPropertyChangeListener(Accord.PROPERTY_USER_KEY, userKeyChangeListener);
     }
 }
