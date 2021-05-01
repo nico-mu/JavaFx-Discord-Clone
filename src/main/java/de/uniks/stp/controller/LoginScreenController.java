@@ -47,6 +47,8 @@ public class LoginScreenController implements ControllerInterface {
         // Register button event handler
         registerButton.setOnAction(this::onRegisterButtonClicked);
         loginButton.setOnAction(this::onLoginButtonClicked);
+
+        loginButton.setDefaultButton(true);  // Allows to use Enter in order to press login button
     }
 
     public void stop() {
