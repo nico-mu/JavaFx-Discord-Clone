@@ -1,5 +1,6 @@
 package de.uniks.stp.view;
 
+import de.uniks.stp.component.Components;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
@@ -40,5 +41,17 @@ public class ViewLoader {
 
     public static String loadLabel(String label) {
         return resourceBundle.getString(label);
+    }
+
+    public static Parent loadComponent(final Components alias) {
+        Parent load = null;
+        try {
+            //load view with given resource bundle
+            load = FXMLLoader.load(alias.path, resourceBundle);
+        } catch (IOException e) {
+            System.err.println("Component " + alias.path.getPath() + " could not be loaded.");
+            e.printStackTrace();
+        }
+        return load;
     }
 }
