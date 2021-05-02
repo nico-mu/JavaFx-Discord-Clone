@@ -1,0 +1,71 @@
+package de.uniks.stp.controller;
+
+import de.uniks.stp.Editor;
+import de.uniks.stp.component.UserList;
+import de.uniks.stp.component.UserListEntry;
+import de.uniks.stp.model.Accord;
+import de.uniks.stp.model.User;
+import de.uniks.stp.network.RestClient;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.json.JSONArray;
+import kong.unirest.json.JSONObject;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.HashMap;
+import java.util.Objects;
+
+public class UserListController implements ControllerInterface {
+    private final HashMap<User, UserListEntry> userUserListEntryHashMap = new HashMap<>();
+    private final UserList userList;
+    private final Editor editor;
+
+    private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
+
+    public UserListController(final UserList userList, final Editor editor) {
+        this.userList = userList;
+        this.editor = editor;
+    }
+
+    private void onAvailableUsersPropertyChange(final PropertyChangeEvent propertyChangeEvent) {
+        final User oldValue = (User) propertyChangeEvent.getOldValue();
+        final User newValue = (User) propertyChangeEvent.getNewValue();
+
+        if (Objects.isNull(oldValue)) {
+            // user joined
+            final UserListEntry userListEntry = new UserListEntry(newValue);
+            userUserListEntryHashMap.put(newValue, userListEntry);
+            userList.addUserListEntry(userListEntry);
+        } else if (Objects.isNull(newValue)) {
+            // user left
+            final UserListEntry userListEntry = userUserListEntryHashMap.remove(oldValue);
+            userList.removeUserListEntry(userListEntry);
+        }
+    }
+
+    @Override
+    public void init() {
+        editor.getOrCreateAccord().listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
+
+        RestClient.requestOnlineUsers(this::handleUserOnlineRequest);
+    }
+
+    private void handleUserOnlineRequest(final HttpResponse<JsonNode> response) {
+        if (response.isSuccess()) {
+            final JSONArray data = response.getBody().getObject().getJSONArray("data");
+            data.forEach(o -> {
+                JSONObject user = (JSONObject) o;
+                String userId = user.getString("id");
+                String name = user.getString("name");
+
+                editor.getOrCreateOtherUser(userId, name);
+            });
+        }
+    }
+
+    @Override
+    public void stop() {
+        editor.getOrCreateAccord().listeners().removePropertyChangeListener(availableUsersPropertyChangeListener);
+    }
+}

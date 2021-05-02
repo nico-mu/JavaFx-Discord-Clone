@@ -20,4 +20,8 @@ public class RestClient {
     protected static void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
         executorService.execute(() -> req.asJsonAsync(callback));
     }
+
+    public static void requestOnlineUsers(final Callback<JsonNode> callback) {
+        sendRequest(Unirest.get(Constants.USERS_PATH), callback);
+    }
 }

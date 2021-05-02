@@ -4,7 +4,10 @@ import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
 import de.uniks.stp.view.Languages;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Editor {
     // Connection to model root object
@@ -29,5 +32,24 @@ public class Editor {
 
     public void setCurrentUser(User currentUser){
         accord.setCurrentUser(currentUser);
+    }
+
+    public User getOrCreateOtherUser(final String userId, final String name) {
+        User other = null;
+        final User currentUser = getOrCreateAccord().getCurrentUser();
+
+        if (! name.equals(currentUser.getName())) {
+            final List<User> otherUsers = accord.getOtherUsers();
+
+            final Map<String, User> userMap = otherUsers.stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+            if (userMap.containsKey(userId)) {
+                other = userMap.get(userId);
+            } else {
+                other = new User().setName(name);
+                accord.withOtherUsers(other);
+            }
+        }
+        return other;
     }
 }
