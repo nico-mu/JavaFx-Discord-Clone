@@ -11,6 +11,7 @@ public class Constants {
     public static final String LOGOUT_PATH = "/logout";
     public static final String USERS_PATH = "/users";
     public static final String USER_KEY_HEADER_NAME = "userKey";
+    public static final String MESSAGE = "message";
 
     // Labels for internalization
     public static final String LBL_REGISTRATION_FAILED = "LBL_REGISTRATION_FAILED";
