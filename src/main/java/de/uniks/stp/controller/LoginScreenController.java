@@ -20,6 +20,7 @@ import java.util.Objects;
 public class LoginScreenController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;
+    private final AuthClient authClient;
 
     private JFXTextField nameField;
     private JFXPasswordField passwordField;
@@ -34,6 +35,7 @@ public class LoginScreenController implements ControllerInterface {
     public LoginScreenController(Parent view, Editor editor) {
         this.view = view;
         this.editor = editor;
+        this.authClient = new AuthClient();
     }
 
     /**
@@ -131,7 +133,7 @@ public class LoginScreenController implements ControllerInterface {
         // prepare for and send register request
         setErrorMessage(null);
         disableUserInput();
-        AuthClient.register(name, password, this::handleRegisterResponse);
+        authClient.register(name, password, this::handleRegisterResponse);
     }
 
     /**
@@ -150,7 +152,7 @@ public class LoginScreenController implements ControllerInterface {
         // prepare for and send login request
         setErrorMessage(null);
         disableUserInput();
-        AuthClient.login(name, password, this::handleLoginResponse);
+        authClient.login(name, password, this::handleLoginResponse);
     }
 
     /**
@@ -165,7 +167,7 @@ public class LoginScreenController implements ControllerInterface {
         // log user in
         if (response.isSuccess()) {
             setErrorMessage(null);
-            AuthClient.login(name, password, this::handleLoginResponse);
+            authClient.login(name, password, this::handleLoginResponse);
             return;
         }
         // Registration failed

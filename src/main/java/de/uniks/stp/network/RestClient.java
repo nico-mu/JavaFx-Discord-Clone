@@ -6,13 +6,13 @@ import static de.uniks.stp.Constants.REST_SERVER_BASE_URL;
 
 public class RestClient {
 
-    static {
+    public RestClient(){
         Unirest.config()
             .defaultBaseUrl(REST_SERVER_BASE_URL)
             .interceptor(new HttpRequestInterceptor());
     }
 
-    protected static void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
+    public void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
         new Thread(() -> req.asJsonAsync(callback)).start();
     }
 }

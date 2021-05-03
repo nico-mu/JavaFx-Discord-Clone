@@ -12,27 +12,32 @@ import javax.json.Json;
 import static de.uniks.stp.Constants.REST_SERVER_BASE_URL;
 
 public class AuthClient extends RestClient {
+    RestClient restClient;
 
-    private static void sendAuthRequest(String endpoint, String name, String password, Callback<JsonNode> callback) {
-        HttpRequest<?> postUserRegister = Unirest.post(Constants.USERS_PATH + endpoint)
-            .body(buildLoginOrRegisterBody(name, password));
-        RestClient.sendRequest(postUserRegister, callback);
+    public AuthClient(){
+        this.restClient = new RestClient();
     }
 
-    public static String buildLoginOrRegisterBody(String name, String password) {
+    private void sendAuthRequest(String endpoint, String name, String password, Callback<JsonNode> callback) {
+        HttpRequest<?> postUserRegister = Unirest.post(Constants.USERS_PATH + endpoint)
+            .body(buildLoginOrRegisterBody(name, password));
+        restClient.sendRequest(postUserRegister, callback);
+    }
+
+    public String buildLoginOrRegisterBody(String name, String password) {
         return Json.createObjectBuilder().add("name", name).add("password", password).build().toString();
     }
 
-    public static void register(String name, String password, Callback<JsonNode> callback) {
+    public void register(String name, String password, Callback<JsonNode> callback) {
         sendAuthRequest(Constants.REGISTER_PATH, name, password, callback);
     }
 
-    public static void login(String name, String password, Callback<JsonNode> callback) {
+    public void login(String name, String password, Callback<JsonNode> callback) {
         sendAuthRequest(Constants.LOGIN_PATH, name, password, callback);
     }
 
-    public static void tempRegister(Callback<JsonNode> callback) {
+    public void tempRegister(Callback<JsonNode> callback) {
         HttpRequest<?> postUserRegister = Unirest.post(REST_SERVER_BASE_URL + Constants.USERS_PATH + Constants.TEMP_REGISTER_PATH);
-        RestClient.sendRequest(postUserRegister, callback);
+        restClient.sendRequest(postUserRegister, callback);
     }
 }
