@@ -5,11 +5,16 @@ import de.uniks.stp.view.Languages;
 import de.uniks.stp.view.Views;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.image.Image;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class ViewLoader {
@@ -28,6 +33,18 @@ public class ViewLoader {
 
     public static Parent loadComponent(final Components alias) {
         return getParent(alias.path);
+    }
+
+    public static Image loadImage(String name) {
+        FileInputStream file = null;
+        try {
+            file = new FileInputStream(Objects.requireNonNull(ViewLoader.class.getResource("./pictures/")).getPath() + name);
+            return new Image(file);
+        } catch (FileNotFoundException e) {
+            System.err.println("Picture " + name + "could not be loaded!");
+            e.printStackTrace();
+        }
+       return null;
     }
 
     private static Parent getParent(final URL path) {

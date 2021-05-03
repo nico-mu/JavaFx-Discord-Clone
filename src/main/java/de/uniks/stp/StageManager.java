@@ -1,8 +1,7 @@
 package de.uniks.stp;
 
-import de.uniks.stp.controller.ControllerInterface;
-import de.uniks.stp.controller.MainScreenController;
-import de.uniks.stp.controller.LoginScreenController;
+import com.sun.tools.javac.Main;
+import de.uniks.stp.controller.*;
 import de.uniks.stp.view.Views;
 import de.uniks.stp.network.UserKeyProvider;
 import javafx.application.Application;
@@ -11,6 +10,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import kong.unirest.Unirest;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class StageManager extends Application {
@@ -38,26 +39,12 @@ public class StageManager extends Application {
         Parent root = ViewLoader.loadView(Views.MAIN_SCREEN);
         Scene scene = new Scene(root);
 
-        currentController = new MainScreenController(root);
+        currentController = new MainScreenController(root, editor);
         currentController.init();
 
+        stage.setTitle("Accord");
         stage.setScene(scene);
         stage.centerOnScreen();
-    }
-
-    @Override
-    public void stop() {
-        try {
-            super.stop();
-            // Logout
-
-            Unirest.shutDown();
-
-        } catch (Exception e) {
-            System.err.println("Error while trying to shutdown");
-            e.printStackTrace();
-        }
-
     }
 
     public static void showLoginScreen() {
@@ -76,5 +63,20 @@ public class StageManager extends Application {
         stage.setTitle("Accord - Login");
         stage.setScene(scene);
         stage.centerOnScreen();
+    }
+
+    @Override
+    public void stop() {
+        try {
+            super.stop();
+            // Logout
+
+            Unirest.shutDown();
+
+        } catch (Exception e) {
+            System.err.println("Error while trying to shutdown");
+            e.printStackTrace();
+        }
+
     }
 }

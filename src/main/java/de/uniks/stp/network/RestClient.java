@@ -22,6 +22,11 @@ public class RestClient {
             .interceptor(new HttpRequestInterceptor());
     }
 
+    public static void getServers(Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.get(Constants.SERVER_PATH);
+        sendRequest(req, callback);
+    }
+
     protected static void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
         executorService.execute(() -> req.asJsonAsync(callback));
     }

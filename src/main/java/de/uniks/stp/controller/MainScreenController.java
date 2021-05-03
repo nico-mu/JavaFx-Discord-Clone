@@ -1,13 +1,8 @@
 package de.uniks.stp.controller;
 
-import de.uniks.stp.ViewLoader;
-import de.uniks.stp.component.Components;
-import de.uniks.stp.component.NavBarElement;
-import javafx.geometry.Insets;
+import de.uniks.stp.Editor;
 import javafx.scene.Parent;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 
 public class MainScreenController implements ControllerInterface {
 
@@ -15,44 +10,29 @@ public class MainScreenController implements ControllerInterface {
     private final String USER_SETTINGS_PANE_ID = "#user-settings-pane";
     private final String SUBVIEW_CONTAINER_ID = "#subview-container";
     private final Parent view;
+    private final Editor editor;
     private AnchorPane navBar;
     private AnchorPane userSettingsPane;
     private AnchorPane subViewContainer;
+    private NavBarListController navBarController;
 
-    public MainScreenController(Parent view) {
+    public MainScreenController(Parent view, Editor editor) {
         this.view = view;
+        this.editor = editor;
     }
 
     @Override
     public void init() {
-        this.navBar = (AnchorPane)view.lookup(NAV_BAR_ID);
-        this.userSettingsPane = (AnchorPane)view.lookup(USER_SETTINGS_PANE_ID);
-        this.subViewContainer = (AnchorPane)view.lookup(SUBVIEW_CONTAINER_ID);
+        this.navBar = (AnchorPane) view.lookup(NAV_BAR_ID);
+        this.userSettingsPane = (AnchorPane) view.lookup(USER_SETTINGS_PANE_ID);
+        this.subViewContainer = (AnchorPane) view.lookup(SUBVIEW_CONTAINER_ID);
 
-        VBox container = new VBox();
-        container.setPadding(new Insets(10.0d, 5.0d, 10.0d, 5.0d));
-        container.setSpacing(10.0d);
-        container.getStyleClass().add("nav-bar-vbox");
-        ScrollPane scroll = new ScrollPane(container);
-        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scroll.getStyleClass().add("nav-bar-vbox");
-        this.navBar.getChildren().add(scroll);
-        scroll.setPrefHeight(navBar.getPrefHeight());
-
-        for(int i = 0; i < 20; i++) {
-            Parent elem = ViewLoader.loadComponent(Components.NAV_BAR_ELEMENT);
-            container.getChildren().add(elem);
-            new NavBarElement(elem);
-        }
-
-
-
-
+        navBarController = new NavBarListController(navBar, editor);
+        navBarController.init();
     }
 
     @Override
     public void stop() {
-
+        navBarController.stop();
     }
 }

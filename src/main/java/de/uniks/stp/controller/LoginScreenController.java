@@ -7,14 +7,15 @@ import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
-import de.uniks.stp.network.auth.AuthClient;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.network.auth.AuthClient;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+
 import java.util.Objects;
 
 public class LoginScreenController implements ControllerInterface {
@@ -144,7 +145,7 @@ public class LoginScreenController implements ControllerInterface {
             editor.setUserKey(userKey);
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
 
-            StageManager.showMainScreen();
+            Platform.runLater(StageManager::showMainScreen);
             return;
         }
         // Login failed
