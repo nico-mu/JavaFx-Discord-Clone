@@ -9,5 +9,4 @@ public class JsonUtil {
     public static JsonObject parse(String json) {
         return Json.createReader(new StringReader(json)).readObject();
     }
-
 }

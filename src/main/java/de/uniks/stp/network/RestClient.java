@@ -1,13 +1,15 @@
 package de.uniks.stp.network;
 
-import kong.unirest.Callback;
-import kong.unirest.HttpRequest;
-import kong.unirest.JsonNode;
-import kong.unirest.Unirest;
+import de.uniks.stp.Constants;
+import kong.unirest.*;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static de.uniks.stp.Constants.REST_SERVER_BASE_URL;
 
 public class RestClient {
+    private static final ExecutorService executorService = Executors.newCachedThreadPool();
 
     /**
      * Sets config for every http request made with unirest. Sets default url so we don't need to set it
@@ -20,7 +22,7 @@ public class RestClient {
             .interceptor(new HttpRequestInterceptor());
     }
 
-    private static void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
-        req.asJsonAsync(callback);
+    protected static void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
+        executorService.execute(() -> req.asJsonAsync(callback));
     }
 }

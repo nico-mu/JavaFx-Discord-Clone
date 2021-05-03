@@ -3,9 +3,15 @@ package de.uniks.stp.model;
 import org.fulib.builder.ClassModelDecorator;
 import org.fulib.builder.ClassModelManager;
 import org.fulib.builder.reflect.Link;
+
 import java.util.List;
 
 public class GenModel implements ClassModelDecorator {
+
+    @Override
+    public void decorate(ClassModelManager mm) {
+        mm.haveNestedClasses(GenModel.class);
+    }
 
     class Accord {
         String language;
@@ -13,6 +19,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("accord")
         User currentUser;
+
+        @Link("accordInstance")
+        List<User> otherUsers;
     }
 
     class User {
@@ -22,6 +31,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("currentUser")
         Accord accord;
+
+        @Link("otherUsers")
+        Accord accordInstance;
 
         @Link("users")
         List<Server> availableServers;
@@ -88,14 +100,8 @@ public class GenModel implements ClassModelDecorator {
         Channel channel;
     }
 
-
     class DirectMessage extends Message {
         @Link("receivedMessages")
         User receiver;
-    }
-
-    @Override
-    public void decorate(ClassModelManager mm) {
-        mm.haveNestedClasses(GenModel.class);
     }
 }
