@@ -3,11 +3,13 @@ package de.uniks.stp.network;
 import de.uniks.stp.Constants;
 import kong.unirest.*;
 
-import javax.json.Json;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static de.uniks.stp.Constants.REST_SERVER_BASE_URL;
 
 public class RestClient {
+    private static final ExecutorService executorService = Executors.newCachedThreadPool();
 
     public RestClient(){
         Unirest.config()
@@ -15,8 +17,8 @@ public class RestClient {
             .interceptor(new HttpRequestInterceptor());
     }
 
-    public void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
-        new Thread(() -> req.asJsonAsync(callback)).start();
+    protected static void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
+        executorService.execute(() -> req.asJsonAsync(callback));
     }
 
     private void sendAuthRequest(String endpoint, String name, String password, Callback<JsonNode> callback) {
