@@ -20,4 +20,9 @@ public class RestClient {
     protected static void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
         executorService.execute(() -> req.asJsonAsync(callback));
     }
+
+    public static void sendLogoutRequest(Callback<JsonNode> callback, String key) {
+        HttpRequest<?> postUserLogout = Unirest.post(Constants.USERS_PATH + Constants.LOGOUT_PATH).header("userKey", key);
+        sendRequest(postUserLogout, callback);
+    }
 }

@@ -38,10 +38,10 @@ public class StageManager extends Application {
     public void stop() {
         try {
             super.stop();
-            // Logout
 
+            //TODO logout
+            editor.onLogoutButtonClicked();
             Unirest.shutDown();
-
         } catch (Exception e) {
             System.err.println("Error while trying to shutdown");
             e.printStackTrace();
