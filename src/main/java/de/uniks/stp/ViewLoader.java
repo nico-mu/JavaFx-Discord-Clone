@@ -35,6 +35,10 @@ public class ViewLoader {
         return getParent(alias.path);
     }
 
+    public static FXMLLoader getFXMLComponentLoader(final Components alias) {
+        return new FXMLLoader(alias.path, resourceBundle);
+    }
+
     public static Image loadImage(String name) {
         FileInputStream file = null;
         try {

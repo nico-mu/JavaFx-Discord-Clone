@@ -5,16 +5,16 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 
-<HBox prefHeight="70.0" prefWidth="70.0" spacing="5.0" styleClass="nav-bar-element-main" stylesheets="@../view/main.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="HBox" prefHeight="70.0" prefWidth="70.0" spacing="5.0" styleClass="nav-bar-element-main" stylesheets="@../view/main.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Pane id="nav-element-marker" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="70.0" prefWidth="6.0" styleClass="nav-element-marker" visible="false">
+      <Pane fx:id="navBarElementMarker" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="70.0" prefWidth="6.0" styleClass="nav-element-marker" visible="false">
          <HBox.margin>
             <Insets />
          </HBox.margin></Pane>
-      <Pane id="nav-bar-element" prefHeight="70.0" prefWidth="63.0" styleClass="nav-bar-element">
+      <Pane fx:id="navBarElement" prefHeight="70.0" prefWidth="63.0" styleClass="nav-bar-element">
          <children>
-            <ImageView id="nav-bar-image-view" fitHeight="50.0" fitWidth="50.0" layoutX="4.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imageView" fitHeight="50.0" fitWidth="50.0" layoutX="4.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true" />
          </children>
       </Pane>
    </children>
-</HBox>
+</fx:root>

@@ -1,15 +1,13 @@
 package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
-import de.uniks.stp.component.NavBarElement;
-import de.uniks.stp.component.NavBarHomeElement;
-import de.uniks.stp.component.NavBarServerElement;
+import de.uniks.stp.component.*;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.RestClient;
 import javafx.application.Platform;
 import javafx.scene.Parent;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.AnchorPane;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
@@ -20,29 +18,30 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class NavBarListController extends ListViewController {
+public class NavBarListController implements ControllerInterface {
+
+    private final Parent view;
+    private final Editor editor;
+    private final NavBarList navBarList;
+    private final String NAV_BAR_CONTAINER_ID = "#nav-bar";
+
+    private AnchorPane anchorPane;
 
     private final HashMap<Server, NavBarServerElement> navBarServerElementHashMap = new HashMap<>();
-    NavBarElement currentActiveElement;
     PropertyChangeListener availableServersPropertyChangeListener = this::onAvailableServersPropertyChange;
 
+
     public NavBarListController(Parent view, Editor editor) {
-        super(view, editor);
+        this.view = view;
+        this.editor = editor;
+        this.navBarList = new NavBarList();
     }
 
     @Override
     public void init() {
-        super.init();
-        container.getStyleClass().add("nav-bar-vbox");
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.getStyleClass().add("nav-bar-vbox");
-
-        //add home element
-        NavBarHomeElement homeElement = new NavBarHomeElement(this::setActiveElement);
-        container.getChildren().add(homeElement.getRootElement());
-        currentActiveElement = homeElement;
-        currentActiveElement.setActive(true);
+        anchorPane = (AnchorPane) this.view.lookup(NAV_BAR_CONTAINER_ID);
+        anchorPane.getChildren().add(navBarList);
+        navBarList.setPrefHeight(anchorPane.getPrefHeight());
 
         editor.getOrCreateAccord()
             .getCurrentUser()
@@ -78,29 +77,18 @@ public class NavBarListController extends ListViewController {
 
         if (Objects.isNull(oldValue)) {
             // server added
-            final NavBarServerElement serverElement = new NavBarServerElement(newValue, this::setActiveElement);
+            final NavBarServerElement serverElement = new NavBarServerElement(newValue);
             navBarServerElementHashMap.put(newValue, serverElement);
-            Platform.runLater(() -> container.getChildren().add(serverElement.getRootElement()));
+            Platform.runLater(() -> navBarList.addElement(serverElement));
         } else if (Objects.isNull(newValue)) {
             // server removed
             NavBarServerElement serverElement = navBarServerElementHashMap.remove(oldValue);
-            Platform.runLater(() -> container.getChildren().remove(serverElement.getRootElement()));
+            Platform.runLater(() -> navBarList.removeElement(serverElement));
         }
     }
-
-    private void setActiveElement(NavBarElement navBarElement) {
-        if (!navBarElement.equals(currentActiveElement)) {
-            currentActiveElement.setActive(false);
-            navBarElement.setActive(true);
-            currentActiveElement = navBarElement;
-        }
-    }
-
 
     @Override
     public void stop() {
-        super.stop();
-
         editor.getOrCreateAccord()
             .getCurrentUser()
             .listeners()
