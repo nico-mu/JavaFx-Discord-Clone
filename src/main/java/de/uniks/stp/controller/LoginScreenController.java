@@ -7,7 +7,7 @@ import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
-import de.uniks.stp.network.auth.AuthClient;
+import de.uniks.stp.network.RestClient;
 import de.uniks.stp.view.ViewLoader;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -20,7 +20,7 @@ import java.util.Objects;
 public class LoginScreenController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;
-    private final AuthClient authClient;
+    private final RestClient restClient;
 
     private JFXTextField nameField;
     private JFXPasswordField passwordField;
@@ -35,7 +35,7 @@ public class LoginScreenController implements ControllerInterface {
     public LoginScreenController(Parent view, Editor editor) {
         this.view = view;
         this.editor = editor;
-        this.authClient = new AuthClient();
+        this.restClient = new RestClient();
     }
 
     /**
@@ -133,7 +133,7 @@ public class LoginScreenController implements ControllerInterface {
         // prepare for and send register request
         setErrorMessage(null);
         disableUserInput();
-        authClient.register(name, password, this::handleRegisterResponse);
+        restClient.register(name, password, this::handleRegisterResponse);
     }
 
     /**
@@ -152,7 +152,7 @@ public class LoginScreenController implements ControllerInterface {
         // prepare for and send login request
         setErrorMessage(null);
         disableUserInput();
-        authClient.login(name, password, this::handleLoginResponse);
+        restClient.login(name, password, this::handleLoginResponse);
     }
 
     /**
@@ -167,7 +167,7 @@ public class LoginScreenController implements ControllerInterface {
         // log user in
         if (response.isSuccess()) {
             setErrorMessage(null);
-            authClient.login(name, password, this::handleLoginResponse);
+            restClient.login(name, password, this::handleLoginResponse);
             return;
         }
         // Registration failed
