@@ -60,6 +60,7 @@ public class LoginScreenController implements ControllerInterface {
     public void stop() {
         registerButton.setOnAction(null);
         loginButton.setOnAction(null);
+        restClient.stop();
     }
 
     private void readInputFields() {

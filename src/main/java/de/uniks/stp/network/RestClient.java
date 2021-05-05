@@ -3,6 +3,7 @@ package de.uniks.stp.network;
 import de.uniks.stp.Constants;
 import kong.unirest.*;
 
+import javax.json.Json;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -17,7 +18,11 @@ public class RestClient {
             .interceptor(new HttpRequestInterceptor());
     }
 
-    protected static void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
+    public void stop(){
+        executorService.shutdown();
+    }
+
+    private void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
         executorService.execute(() -> req.asJsonAsync(callback));
     }
 
@@ -27,7 +32,7 @@ public class RestClient {
         sendRequest(postUserRegister, callback);
     }
 
-    public String buildLoginOrRegisterBody(String name, String password) {
+    private String buildLoginOrRegisterBody(String name, String password) {
         return Json.createObjectBuilder().add("name", name).add("password", password).build().toString();
     }
 
