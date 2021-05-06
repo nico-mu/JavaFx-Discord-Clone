@@ -2,6 +2,8 @@ package de.uniks.stp;
 
 import de.uniks.stp.controller.ControllerInterface;
 import de.uniks.stp.controller.LoginScreenController;
+import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.WebSocketClient;
 import de.uniks.stp.view.ViewLoader;
 import de.uniks.stp.view.Views;
 import de.uniks.stp.network.UserKeyProvider;
@@ -38,10 +40,12 @@ public class StageManager extends Application {
     public void stop() {
         try {
             super.stop();
-            // Logout
+
+            if(currentController != null){
+                currentController.stop();
+            }
 
             Unirest.shutDown();
-
         } catch (Exception e) {
             System.err.println("Error while trying to shutdown");
             e.printStackTrace();
