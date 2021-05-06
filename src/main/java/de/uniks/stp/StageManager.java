@@ -2,6 +2,7 @@ package de.uniks.stp;
 
 import de.uniks.stp.controller.ControllerInterface;
 import de.uniks.stp.controller.LoginScreenController;
+import de.uniks.stp.controller.TestScreenController;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketClient;
 import de.uniks.stp.view.ViewLoader;
@@ -74,6 +75,9 @@ public class StageManager extends Application {
     public static void showHomeScreen() {
         cleanup();
 
+        //TODO remove testscreen and controller
+        currentController = new TestScreenController(editor);
+        currentController.init();
         /*
         Parent root = ViewLoader.loadView(CONSTANT_HOMESCREEN);
         if (Objects.isNull(root)) {

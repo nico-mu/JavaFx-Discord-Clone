@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 import static de.uniks.stp.Constants.REST_SERVER_BASE_URL;
 
 public class RestClient {
-    private static final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     public RestClient(){
         Unirest.config()
@@ -47,5 +47,17 @@ public class RestClient {
     public void tempRegister(Callback<JsonNode> callback) {
         HttpRequest<?> postUserRegister = Unirest.post(REST_SERVER_BASE_URL + Constants.USERS_PATH + Constants.TEMP_REGISTER_PATH);
         sendRequest(postUserRegister, callback);
+    }
+
+    public String buildCreateServerRequest(String name) {
+        System.out.println("buildCreateServerRequest called");
+        return Json.createObjectBuilder().add("name", name).build().toString();
+    }
+
+    public void createServer(String name, String key, Callback<JsonNode> callback) {
+        System.out.println("create server called");
+        HttpRequest<?> postCreateServer = Unirest.post(Constants.SERVERS_PATH).header("userKey", key)
+            .body(buildCreateServerRequest(name));
+        sendRequest(postCreateServer, callback);
     }
 }
