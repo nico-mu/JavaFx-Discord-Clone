@@ -11,6 +11,10 @@ javafx {
     modules = ['javafx.graphics', 'javafx.fxml', 'javafx.base', 'javafx.controls']
 }
 
+test {
+    useJUnitPlatform()
+}
+
 mainClassName = 'de.uniks.stp.Launcher'
 
 group 'de.uniks.stp'
