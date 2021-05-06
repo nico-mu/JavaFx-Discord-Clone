@@ -1,19 +1,30 @@
 package de.uniks.stp.component;
 
-import de.uniks.stp.model.User;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.model.User;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
-public class UserListEntry extends AbstractComponent<HBox> {
-    private static final String USER_NAME_TEXT_ID = "#user-name-text";
+import java.io.IOException;
 
-    private final Text userNameText;
+public class UserListEntry extends HBox {
+
+    @FXML
+    private Text userNameText;
 
     public UserListEntry(final User user) {
-        setRootElement((HBox) ViewLoader.loadComponent(Components.USER_LIST_ENTRY));
+        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
+        fxmlLoader.setRoot(this);
+        fxmlLoader.setController(this);
 
-        userNameText = (Text) getRootElement().lookup(USER_NAME_TEXT_ID);
+        try {
+            fxmlLoader.load();
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+
         setUserName(user.getName());
     }
 

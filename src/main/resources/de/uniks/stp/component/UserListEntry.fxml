@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Text?>
-
-
-<HBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <Text id="user-name-text" strokeType="OUTSIDE" strokeWidth="0.0" text="&lt;UserName&gt;" />
-   </children>
-</HBox>
+<fx:root xmlns:fx="http://javafx.com/fxml/1" type="HBox" xmlns="http://javafx.com/javafx/11.0.1">
+    <children>
+        <Text fx:id="userNameText" strokeType="OUTSIDE" strokeWidth="0.0" text="&lt;UserName&gt;"/>
+    </children>
+</fx:root>
