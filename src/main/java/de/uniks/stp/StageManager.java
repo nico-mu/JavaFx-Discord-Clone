@@ -3,15 +3,12 @@ package de.uniks.stp;
 import de.uniks.stp.controller.ControllerInterface;
 import de.uniks.stp.controller.LoginScreenController;
 import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.WebSocketClient;
-import de.uniks.stp.view.ViewLoader;
-import de.uniks.stp.view.Views;
 import de.uniks.stp.network.UserKeyProvider;
+import de.uniks.stp.view.Views;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import kong.unirest.Unirest;
 
 import java.util.Objects;
 
@@ -41,7 +38,7 @@ public class StageManager extends Application {
         try {
             super.stop();
 
-            if(currentController != null){
+            if (currentController != null){
                 currentController.stop();
             }
 

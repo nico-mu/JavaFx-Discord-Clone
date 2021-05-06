@@ -8,7 +8,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.network.RestClient;
-import de.uniks.stp.view.ViewLoader;
+import de.uniks.stp.ViewLoader;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;

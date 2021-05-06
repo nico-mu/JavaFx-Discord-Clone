@@ -22,6 +22,7 @@ public class UserListController implements ControllerInterface {
     private final Editor editor;
 
     private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
+    private RestClient restClient;
 
     public UserListController(final UserList userList, final Editor editor) {
         this.userList = userList;
@@ -48,7 +49,8 @@ public class UserListController implements ControllerInterface {
     public void init() {
         editor.getOrCreateAccord().listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
 
-        RestClient.requestOnlineUsers(this::handleUserOnlineRequest);
+        restClient = new RestClient();
+        restClient.requestOnlineUsers(this::handleUserOnlineRequest);
     }
 
     private void handleUserOnlineRequest(final HttpResponse<JsonNode> response) {

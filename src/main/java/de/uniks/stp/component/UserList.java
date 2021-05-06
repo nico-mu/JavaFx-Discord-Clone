@@ -1,6 +1,6 @@
 package de.uniks.stp.component;
 
-import de.uniks.stp.view.ViewLoader;
+import de.uniks.stp.ViewLoader;
 import javafx.application.Platform;
 import javafx.scene.layout.VBox;
 

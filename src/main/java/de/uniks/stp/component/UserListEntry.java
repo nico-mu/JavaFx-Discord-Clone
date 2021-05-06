@@ -1,7 +1,7 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.model.User;
-import de.uniks.stp.view.ViewLoader;
+import de.uniks.stp.ViewLoader;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
