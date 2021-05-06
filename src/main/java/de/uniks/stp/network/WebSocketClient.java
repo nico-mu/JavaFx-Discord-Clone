@@ -1,8 +1,5 @@
-//FIXME in CustomWebSocketConfigurator, might cause problems
-
 package de.uniks.stp.network;
 
-import de.uniks.stp.Editor;
 import de.uniks.stp.util.JsonUtil;
 
 import javax.json.JsonObject;
@@ -13,16 +10,18 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class WebSocketClient extends Endpoint {
-
-    private Editor editor;
-
     private Session session;
     private Timer noopTimer;
 
     private WSCallback callback;
 
-    public WebSocketClient(Editor editor, URI endpoint, WSCallback callback) {
-        this.editor = editor;
+    /**
+     * Intitilization chores
+     *
+     * @param endpoint URI with connection adress
+     * @param callback method to call when message is received
+     */
+    public WebSocketClient(URI endpoint, WSCallback callback) {
         this.noopTimer = new Timer();
 
         try {
@@ -43,6 +42,12 @@ public class WebSocketClient extends Endpoint {
         }
     }
 
+    /**
+     * Is called automatically, initializes and sets NOOP-timer
+     *
+     * @param session passed automatically
+     * @param config passed automatically
+     */
     @Override
     public void onOpen(Session session, EndpointConfig config) {
         // Store session
@@ -60,11 +65,18 @@ public class WebSocketClient extends Endpoint {
                     e.printStackTrace();
                 }
             }
-        }, 0, 1000 * 30);  // 1000*30 is just a guess
+        }, 0, 1000 * 30);  // 30s works, 1min is to much
     }
 
+    /**
+     * Is called automatically; cleanup and disables NOOP-timer
+     *
+     * @param session passed automatically
+     * @param closeReason passed automatically
+     */
     @Override
     public void onClose(Session session, CloseReason closeReason) {
+        System.out.println("onClose");
         super.onClose(session, closeReason);
         // cancel timer
         this.noopTimer.cancel();
@@ -72,6 +84,11 @@ public class WebSocketClient extends Endpoint {
         this.session = null;
     }
 
+    /**
+     * Is called when message is received
+     *
+     * @param message Json String that is received
+     */
     private void onMessage(String message) {
         // Process Message
         JsonObject jsonMessage = JsonUtil.parse(message);
@@ -79,6 +96,12 @@ public class WebSocketClient extends Endpoint {
         this.callback.handleMessage(jsonMessage);
     }
 
+    /**
+     * Sends message if possible.
+     *
+     * @param message JsonObject as a string
+     * @throws IOException session could cause problems
+     */
     public void sendMessage(String message) throws IOException {
         // check if session is still open
         if(this.session != null && this.session.isOpen()) {
@@ -88,7 +111,13 @@ public class WebSocketClient extends Endpoint {
         }
     }
 
+    /**
+     * Should be called when WebSocket is not used anymore; cancels Timer and closes session
+     *
+     * @throws IOException session could cause problems
+     */
     public void stop() throws IOException {
+        System.out.println("stop");
         // cancel timer
         this.noopTimer.cancel();
         // close session
