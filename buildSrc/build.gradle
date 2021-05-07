@@ -1,1 +1,15 @@
+plugins {
+    id 'java-gradle-plugin'
+}
 
+group 'de.uniks.stp'
+version '1.0.0'
+
+gradlePlugin {
+    plugins {
+        annotationReader {
+            id = 'annotation-reader'
+            implementationClass = 'de.uniks.stp.plugin.AnnotationReaderPlugin'
+        }
+    }
+}

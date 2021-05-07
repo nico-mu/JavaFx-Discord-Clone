@@ -13,7 +13,7 @@ out/
 /out/
 /temp/
 /tmp/
-/buildSrc/build
+/buildSrc/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting

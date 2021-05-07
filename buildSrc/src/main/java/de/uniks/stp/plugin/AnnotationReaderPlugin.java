@@ -21,10 +21,12 @@ public class AnnotationReaderPlugin implements Plugin<Project> {
         final SourceSet test = sourceSets.getByName("test");
 
         project.getTasks().register(taskName, RouteMapTask.class, (task) -> {
-            task.setExtension(extension);
             task.mustRunAfter(main.getCompileJavaTaskName());
             task.dependsOn(main.getCompileJavaTaskName());
-            task.setExtension(extension);
+            task.setAnnotationClass(extension.getAnnotationClass());
+            task.setInputPackage(extension.getInputPackage());
+            task.setOutputClass(extension.getOutputClass());
+            task.setSuperClass(extension.getSuperClass());
         });
     }
 }

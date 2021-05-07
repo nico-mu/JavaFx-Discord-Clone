@@ -1,77 +1,42 @@
 package de.uniks.stp.plugin;
 
 public class AnnotationReaderPluginExtension {
+    //new
+    private String inputPackage = "de.uniks.stp.controller";
+    private String annotationClass = "de.uniks.stp.annotation.Route";
+    private String outputClass = "de.uniks.stp.controller.RouteMapping";
+    private String superClass = "de.uniks.stp.controller.ControllerInterface";
 
-    private String controllerPackage = "de.uniks.stp.controller";
-    private String routeAnnotationClass = "de.uniks.stp.annotation.Route";
-    private String buildPath = "/classes/java/main";
-    private String classExtension = ".class";
-    private String ControllerSuperObjectName = ".ControllerInterface";
-    private String javaPath = "/java";
-    private String routeClassName = "RouteMapping";
-    private String routeFilePackage = "de.uniks.stp.controller";
 
-    public String getControllerPackage() {
-        return controllerPackage;
+    public String getInputPackage() {
+        return inputPackage;
     }
 
-    public void setControllerPackage(String controllerPackage) {
-        this.controllerPackage = controllerPackage;
+    public void setInputPackage(String inputPackage) {
+        this.inputPackage = inputPackage;
     }
 
-    public String getRouteAnnotationClass() {
-        return routeAnnotationClass;
+    public String getOutputClass() {
+        return outputClass;
     }
 
-    public void setRouteAnnotationClass(String routeAnnotationClass) {
-        this.routeAnnotationClass = routeAnnotationClass;
+    public void setOutputClass(String outputClass) {
+        this.outputClass = outputClass;
     }
 
-    public String getBuildPath() {
-        return buildPath;
+    public String getAnnotationClass() {
+        return annotationClass;
     }
 
-    public void setBuildPath(String buildPath) {
-        this.buildPath = buildPath;
+    public void setAnnotationClass(String annotationClass) {
+        this.annotationClass = annotationClass;
     }
 
-    public String getClassExtension() {
-        return classExtension;
+    public String getSuperClass() {
+        return superClass;
     }
 
-    public void setClassExtension(String classExtension) {
-        this.classExtension = classExtension;
-    }
-
-    public String getControllerSuperObjectName() {
-        return ControllerSuperObjectName;
-    }
-
-    public void setControllerSuperObjectName(String controllerSuperObjectName) {
-        ControllerSuperObjectName = controllerSuperObjectName;
-    }
-
-    public String getJavaPath() {
-        return javaPath;
-    }
-
-    public void setJavaPath(String javaPath) {
-        this.javaPath = javaPath;
-    }
-
-    public String getRouteClassName() {
-        return routeClassName;
-    }
-
-    public void setRouteClassName(String routeClassName) {
-        this.routeClassName = routeClassName;
-    }
-
-    public String getRouteFilePackage() {
-        return routeFilePackage;
-    }
-
-    public void setRouteFilePackage(String routeFilePackage) {
-        this.routeFilePackage = routeFilePackage;
+    public void setSuperClass(String superClass) {
+        this.superClass = superClass;
     }
 }
