@@ -20,7 +20,7 @@ public class Editor {
         return accord;
     }
 
-    public void setUserKey(String userKey){
+    public void setUserKey(String userKey) {
         accord.setUserKey(userKey);
     }
 
@@ -30,7 +30,7 @@ public class Editor {
         return user;
     }
 
-    public void setCurrentUser(User currentUser){
+    public void setCurrentUser(User currentUser) {
         accord.setCurrentUser(currentUser);
     }
 
@@ -38,7 +38,7 @@ public class Editor {
         User other = null;
         final User currentUser = getOrCreateAccord().getCurrentUser();
 
-        if (! name.equals(currentUser.getName())) {
+        if (!name.equals(currentUser.getName())) {
             final List<User> otherUsers = accord.getOtherUsers();
 
             final Map<String, User> userMap = otherUsers.stream()
@@ -46,8 +46,11 @@ public class Editor {
             if (userMap.containsKey(userId)) {
                 other = userMap.get(userId);
             } else {
-                other = new User().setName(name);
-                accord.withOtherUsers(other);
+                other = new User()
+                    .setId(userId)
+                    .setName(name)
+                    .setAccordInstance(accord)
+                    .setStatus(true);
             }
         }
         return other;
