@@ -3,8 +3,11 @@ package de.uniks.stp.network;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 
+import javax.json.JsonObject;
 import javax.json.JsonStructure;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class WebSocketService {
     private static final HashMap<String, WebSocketClient> pathWebSocketClientHashMap = new HashMap<>();
@@ -26,6 +29,26 @@ public class WebSocketService {
     }
 
     private static void onSystemMessage(final JsonStructure jsonStructure) {
-        System.out.println("Received system message with content: " + jsonStructure.toString());
+        System.out.println("[" + new Date() + "] Received system message with content: " + jsonStructure.toString());
+
+        final JsonObject jsonObject = jsonStructure.asJsonObject();
+
+        final String action = jsonObject.getString("action");
+        final JsonObject data = jsonObject.getJsonObject("data");
+
+        if (Objects.nonNull(data)) {
+            final String userId = data.getString("id");
+            final String userName = data.getString("name");
+            switch (action) {
+                case "userJoined":
+                    editor.getOrCreateOtherUser(userId, userName);
+                    break;
+                case "userLeft":
+                    editor.removeOtherUserById(userId);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

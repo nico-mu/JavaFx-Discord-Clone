@@ -39,10 +39,8 @@ public class Editor {
         final User currentUser = getOrCreateAccord().getCurrentUser();
 
         if (!name.equals(currentUser.getName())) {
-            final List<User> otherUsers = accord.getOtherUsers();
+            final Map<String, User> userMap = otherUsersAsIdUserMap();
 
-            final Map<String, User> userMap = otherUsers.stream()
-                .collect(Collectors.toMap(User::getId, user -> user));
             if (userMap.containsKey(userId)) {
                 other = userMap.get(userId);
             } else {
@@ -54,5 +52,19 @@ public class Editor {
             }
         }
         return other;
+    }
+
+    public void removeOtherUserById(String userId) {
+        final Map<String, User> userMap = otherUsersAsIdUserMap();
+        final User userToBeRemoved = userMap.get(userId);
+
+        accord.withoutOtherUsers(userToBeRemoved);
+    }
+
+    private Map<String, User> otherUsersAsIdUserMap() {
+        final List<User> otherUsers = accord.getOtherUsers();
+
+        return otherUsers.stream()
+            .collect(Collectors.toMap(User::getId, user -> user));
     }
 }
