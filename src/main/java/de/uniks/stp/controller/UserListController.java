@@ -6,6 +6,7 @@ import de.uniks.stp.component.UserListEntry;
 import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.RestClient;
+import javafx.application.Platform;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
@@ -20,6 +21,7 @@ public class UserListController implements ControllerInterface {
     private final HashMap<User, UserListEntry> userUserListEntryHashMap = new HashMap<>();
     private final UserList userList;
     private final Editor editor;
+
 
     private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
     private RestClient restClient;
@@ -37,11 +39,11 @@ public class UserListController implements ControllerInterface {
             // user joined
             final UserListEntry userListEntry = new UserListEntry(newValue);
             userUserListEntryHashMap.put(newValue, userListEntry);
-            userList.addUserListEntry(userListEntry);
+            Platform.runLater(() -> userList.addUserListEntry(userListEntry));
         } else if (Objects.isNull(newValue)) {
             // user left
             final UserListEntry userListEntry = userUserListEntryHashMap.remove(oldValue);
-            userList.removeUserListEntry(userListEntry);
+            Platform.runLater(() -> userList.removeUserListEntry(userListEntry));
         }
     }
 
@@ -57,9 +59,9 @@ public class UserListController implements ControllerInterface {
         if (response.isSuccess()) {
             final JSONArray data = response.getBody().getObject().getJSONArray("data");
             data.forEach(o -> {
-                JSONObject user = (JSONObject) o;
-                String userId = user.getString("id");
-                String name = user.getString("name");
+                final JSONObject user = (JSONObject) o;
+                final String userId = user.getString("id");
+                final String name = user.getString("name");
 
                 editor.getOrCreateOtherUser(userId, name);
             });
