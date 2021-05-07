@@ -1,5 +1,6 @@
 package de.uniks.stp.component;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.router.RouteArgs;
@@ -25,6 +26,6 @@ public class NavBarServerElement extends NavBarElement {
         RouteArgs args = new RouteArgs()
             .setKey(":id")
             .setValue(model.getId());
-        Router.route("/main/server/:id", args);
+        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args);
     }
 }

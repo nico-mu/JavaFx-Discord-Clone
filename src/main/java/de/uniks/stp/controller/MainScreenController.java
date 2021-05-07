@@ -47,12 +47,12 @@ public class MainScreenController implements ControllerInterface {
         cleanup();
         String subroute = routeInfo.getSubControllerRoute();
 
-        if(subroute.equals("/home")) {
+        if(subroute.equals(Constants.ROUTE_HOME)) {
             HomeScreenController homeScreenController = new HomeScreenController(this.subViewContainer, this.editor);
             homeScreenController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), homeScreenController);
         }
-        else if(subroute.equals("/server/:id") && args.getKey().equals(":id") && !args.getValue().isEmpty()) {
+        else if(subroute.equals(Constants.ROUTE_SERVER) && args.getKey().equals(":id") && !args.getValue().isEmpty()) {
             Server server = editor.getServer(args.getValue());
             if(Objects.nonNull(server)) {
                 ServerScreenController serverScreenController = new ServerScreenController(this.subViewContainer, this.editor, server);
