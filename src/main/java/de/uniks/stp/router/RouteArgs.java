@@ -1,7 +1,5 @@
 package de.uniks.stp.router;
 
-import java.util.HashMap;
-
 public class RouteArgs {
 
     private String key;

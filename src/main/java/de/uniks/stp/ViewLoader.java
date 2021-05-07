@@ -7,7 +7,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Locale;

@@ -1,7 +1,8 @@
 package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
-import de.uniks.stp.component.*;
+import de.uniks.stp.component.NavBarList;
+import de.uniks.stp.component.NavBarServerElement;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.RestClient;

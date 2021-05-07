@@ -1,10 +1,11 @@
 package de.uniks.stp.router;
 
-import java.util.HashMap;
-import de.uniks.stp.controller.MainScreenController;
-import de.uniks.stp.controller.LoginScreenController;
-import de.uniks.stp.controller.ServerScreenController;
 import de.uniks.stp.controller.HomeScreenController;
+import de.uniks.stp.controller.LoginScreenController;
+import de.uniks.stp.controller.MainScreenController;
+import de.uniks.stp.controller.ServerScreenController;
+
+import java.util.HashMap;
 
 public class RouteMapping {
     public HashMap<String, Class<?>> getRoutes() {

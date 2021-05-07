@@ -1,7 +1,10 @@
 package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
-import kong.unirest.*;
+import kong.unirest.Callback;
+import kong.unirest.HttpRequest;
+import kong.unirest.JsonNode;
+import kong.unirest.Unirest;
 
 import javax.json.Json;
 import java.util.concurrent.ExecutorService;

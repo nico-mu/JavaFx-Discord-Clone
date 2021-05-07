@@ -12,8 +12,6 @@ import javafx.scene.layout.AnchorPane;
 
 import java.util.Objects;
 
-import static de.uniks.stp.StageManager.cleanup;
-
 @Route(Constants.ROUTE_MAIN)
 public class MainScreenController implements ControllerInterface {
 

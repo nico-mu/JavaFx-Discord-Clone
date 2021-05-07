@@ -8,8 +8,6 @@ import de.uniks.stp.router.Router;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 
-import java.util.HashMap;
-
 public class NavBarServerElement extends NavBarElement {
 
     Server model;

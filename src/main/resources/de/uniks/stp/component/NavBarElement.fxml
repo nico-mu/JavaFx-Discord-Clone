@@ -2,9 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-
+<?import javafx.scene.layout.*?>
 <fx:root type="HBox" prefHeight="70.0" prefWidth="70.0" spacing="5.0" styleClass="nav-bar-element-main" stylesheets="@../view/main.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Pane fx:id="navBarElementMarker" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="70.0" prefWidth="6.0" styleClass="nav-element-marker" visible="false">
