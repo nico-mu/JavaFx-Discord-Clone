@@ -23,8 +23,8 @@ public class RestClient {
             .interceptor(new HttpRequestInterceptor());
     }
 
-    public static void getServers(Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.get(Constants.SERVER_PATH);
+    public  void getServers(Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.get(Constants.REST_SERVER_PATH);
         sendRequest(req, callback);
     }
 
@@ -38,7 +38,7 @@ public class RestClient {
     }
 
     private void sendAuthRequest(String endpoint, String name, String password, Callback<JsonNode> callback) {
-        HttpRequest<?> postUserRegister = Unirest.post(Constants.USERS_PATH + endpoint)
+        HttpRequest<?> postUserRegister = Unirest.post(Constants.REST_USERS_PATH + endpoint)
             .body(buildLoginOrRegisterBody(name, password));
         sendRequest(postUserRegister, callback);
     }
@@ -48,15 +48,15 @@ public class RestClient {
     }
 
     public void register(String name, String password, Callback<JsonNode> callback) {
-        sendAuthRequest(Constants.REGISTER_PATH, name, password, callback);
+        sendAuthRequest(Constants.REST_REGISTER_PATH, name, password, callback);
     }
 
     public void login(String name, String password, Callback<JsonNode> callback) {
-        sendAuthRequest(Constants.LOGIN_PATH, name, password, callback);
+        sendAuthRequest(Constants.REST_LOGIN_PATH, name, password, callback);
     }
 
     public void tempRegister(Callback<JsonNode> callback) {
-        HttpRequest<?> postUserRegister = Unirest.post(REST_SERVER_BASE_URL + Constants.USERS_PATH + Constants.TEMP_REGISTER_PATH);
+        HttpRequest<?> postUserRegister = Unirest.post(REST_SERVER_BASE_URL + Constants.REST_USERS_PATH + Constants.REST_TEMP_REGISTER_PATH);
         sendRequest(postUserRegister, callback);
     }
 }

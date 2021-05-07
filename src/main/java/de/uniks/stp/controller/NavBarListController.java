@@ -28,6 +28,7 @@ public class NavBarListController implements ControllerInterface {
     private final String NAV_BAR_CONTAINER_ID = "#nav-bar";
 
     private AnchorPane anchorPane;
+    private RestClient restClient;
 
     private final HashMap<Server, NavBarServerElement> navBarServerElementHashMap = new HashMap<>();
     PropertyChangeListener availableServersPropertyChangeListener = this::onAvailableServersPropertyChange;
@@ -37,6 +38,7 @@ public class NavBarListController implements ControllerInterface {
         this.view = view;
         this.editor = editor;
         this.navBarList = new NavBarList();
+        this.restClient = new RestClient();
     }
 
     @Override
@@ -51,7 +53,7 @@ public class NavBarListController implements ControllerInterface {
             .addPropertyChangeListener(User.PROPERTY_AVAILABLE_SERVERS, availableServersPropertyChangeListener);
 
         //TODO: show spinner
-        RestClient.getServers(this::callback);
+        restClient.getServers(this::callback);
     }
 
     @Override

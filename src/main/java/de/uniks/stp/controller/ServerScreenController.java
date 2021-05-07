@@ -1,5 +1,6 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.router.Route;
@@ -12,7 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-@Route("/main/server/:id")
+@Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER)
 public class ServerScreenController implements ControllerInterface {
 
     private Parent view;

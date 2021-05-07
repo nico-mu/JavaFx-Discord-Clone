@@ -26,11 +26,11 @@ public class HttpRequestInterceptor implements Interceptor {
         //get requested server path by stripping the base url at the beginning
         String baseUrl = config.getDefaultBaseUrl();
         String requestPath = requestUrl.substring(baseUrl.length());
-        String loginPath = USERS_PATH + LOGIN_PATH;
+        String loginPath = REST_USERS_PATH + REST_LOGIN_PATH;
 
         // if requested path is not login or register, add userKey header with value from model
         if(!(requestMethod == HttpMethod.POST &&
-            (requestPath.equals(loginPath) || requestPath.equals(USERS_PATH))))
+            (requestPath.equals(loginPath) || requestPath.equals(REST_USERS_PATH))))
         {
             request.header(USER_KEY_HEADER_NAME, UserKeyProvider.getUserKey());
         }

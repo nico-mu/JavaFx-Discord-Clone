@@ -1,5 +1,6 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.router.Route;
 import de.uniks.stp.router.RouteArgs;
@@ -10,7 +11,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-@Route("/main/home")
+@Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
 public class HomeScreenController implements ControllerInterface {
 
     private final AnchorPane view;

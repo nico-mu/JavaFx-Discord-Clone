@@ -21,7 +21,7 @@ import kong.unirest.JsonNode;
 
 import java.util.Objects;
 
-@Route(Constants.LOGIN_ROUTE)
+@Route(Constants.ROUTE_LOGIN)
 public class LoginScreenController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;

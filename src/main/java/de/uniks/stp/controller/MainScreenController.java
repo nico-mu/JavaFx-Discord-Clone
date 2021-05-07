@@ -1,5 +1,6 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.router.Route;
@@ -13,7 +14,7 @@ import java.util.Objects;
 
 import static de.uniks.stp.StageManager.cleanup;
 
-@Route("/main")
+@Route(Constants.ROUTE_MAIN)
 public class MainScreenController implements ControllerInterface {
 
     private final String NAV_BAR_ID = "#nav-bar";
