@@ -113,16 +113,18 @@ public class WebSocketClient extends Endpoint {
 
     /**
      * Should be called when WebSocket is not used anymore; cancels Timer and closes session
-     *
-     * @throws IOException session could cause problems
      */
-    public void stop() throws IOException {
+    public void stop() {
         System.out.println("stop");
         // cancel timer
         this.noopTimer.cancel();
         // close session
-        if(this.session != null) {
-            this.session.close();
+        if (this.session != null) {
+            try {
+                this.session.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             this.session = null;
         }
     }
