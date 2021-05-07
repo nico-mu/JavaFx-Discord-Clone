@@ -1,6 +1,0 @@
-de/uniks/stp/plugin/RouteMapTask.java
- de.uniks.stp.plugin.RouteMapTask
-de/uniks/stp/plugin/AnnotationReaderPluginExtension.java
- de.uniks.stp.plugin.AnnotationReaderPluginExtension
-de/uniks/stp/plugin/AnnotationReaderPlugin.java
- de.uniks.stp.plugin.AnnotationReaderPlugin

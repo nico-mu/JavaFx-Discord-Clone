@@ -14,17 +14,17 @@ public class AnnotationReaderPlugin implements Plugin<Project> {
         AnnotationReaderPluginExtension extension = project.getExtensions()
             .create("annotationReader", AnnotationReaderPluginExtension.class);
 
-        project.getTasks().register(taskName, RouteMapTask.class, (task) -> {
-            task.setExtension(extension);
-        });
-
         final SourceSetContainer sourceSets = project.getConvention().getPlugin(JavaPluginConvention.class)
             .getSourceSets();
 
         final SourceSet main = sourceSets.getByName("main");
         final SourceSet test = sourceSets.getByName("test");
 
-        project.getTasks().named(main.getCompileJavaTaskName(), task -> task.dependsOn(taskName));
-        project.getTasks().named(test.getCompileJavaTaskName(), task -> task.dependsOn(taskName));
+        project.getTasks().register(taskName, RouteMapTask.class, (task) -> {
+            task.setExtension(extension);
+            task.mustRunAfter(main.getCompileJavaTaskName());
+            task.dependsOn(main.getCompileJavaTaskName());
+            task.setExtension(extension);
+        });
     }
 }

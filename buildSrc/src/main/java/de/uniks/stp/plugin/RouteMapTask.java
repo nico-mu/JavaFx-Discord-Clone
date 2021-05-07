@@ -2,6 +2,7 @@ package de.uniks.stp.plugin;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskAction;
@@ -65,6 +66,8 @@ public class RouteMapTask extends DefaultTask {
             .getSourceSets();
 
         final SourceSet main = sourceSets.getByName("main");
+
+        System.out.println(main.getOutput().getClassesDirs().getAsPath());
 
         projectDir = this.getProject().getProjectDir().getPath()
             + File.separator
