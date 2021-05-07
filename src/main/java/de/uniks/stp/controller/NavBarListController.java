@@ -1,6 +1,7 @@
 package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
+import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.*;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
@@ -50,6 +51,11 @@ public class NavBarListController implements ControllerInterface {
 
         //TODO: show spinner
         RestClient.getServers(this::callback);
+    }
+
+    @Override
+    public void route(RouteInfo routeInfo) {
+
     }
 
     protected void callback(HttpResponse<JsonNode> response) {

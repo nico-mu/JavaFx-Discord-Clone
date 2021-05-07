@@ -6,6 +6,8 @@ plugins {
     id 'java'
 }
 
+apply plugin: 'annotationReader'
+
 javafx {
     version = "12"
     modules = ['javafx.graphics', 'javafx.fxml', 'javafx.base', 'javafx.controls']

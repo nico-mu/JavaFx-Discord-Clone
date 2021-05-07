@@ -8,6 +8,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.annotation.Route;
 import de.uniks.stp.network.auth.AuthClient;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -16,8 +17,10 @@ import javafx.scene.control.Label;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 
+import java.util.HashMap;
 import java.util.Objects;
 
+@Route(Constants.LOGIN_ROUTE)
 public class LoginScreenController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;
@@ -48,6 +51,11 @@ public class LoginScreenController implements ControllerInterface {
         // Register button event handler
         registerButton.setOnAction(this::onRegisterButtonClicked);
         loginButton.setOnAction(this::onLoginButtonClicked);
+    }
+
+    @Override
+    public void route(RouteInfo routeInfo) {
+        //no subroutes
     }
 
     public void stop() {
@@ -145,7 +153,7 @@ public class LoginScreenController implements ControllerInterface {
             editor.setUserKey(userKey);
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
 
-            Platform.runLater(StageManager::showMainScreen);
+            Platform.runLater(()-> Router.route("/main/home"));
             return;
         }
         // Login failed

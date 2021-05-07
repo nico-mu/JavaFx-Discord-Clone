@@ -1,6 +1,7 @@
 package de.uniks.stp;
 
 import com.sun.tools.javac.Main;
+import de.uniks.stp.annotation.Route;
 import de.uniks.stp.controller.*;
 import de.uniks.stp.view.Views;
 import de.uniks.stp.network.UserKeyProvider;
@@ -31,38 +32,37 @@ public class StageManager extends Application {
         stage = primaryStage;
         editor = new Editor();
         UserKeyProvider.setEditor(editor);
-        showLoginScreen();
+        //showLoginScreen();
+        Router.route("/login");
         stage.show();
     }
 
-    public static void showMainScreen() {
-        Parent root = ViewLoader.loadView(Views.MAIN_SCREEN);
-        Scene scene = new Scene(root);
-
-        currentController = new MainScreenController(root, editor);
-        currentController.init();
-
-        stage.setTitle("Accord");
-        stage.setScene(scene);
-        stage.centerOnScreen();
-    }
-
-    public static void showLoginScreen() {
+    public static void route(RouteInfo routeInfo) {
         cleanup();
+        Parent root;
+        Scene scene;
+        String subroute = routeInfo.getSubroute();
 
-        Parent root = ViewLoader.loadView(Views.LOGIN_SCREEN);
-        if (Objects.isNull(root)) {
-            System.err.println("Error while loading LoginScreen");
-            return;
+        if(subroute.equals("/main")) {
+            root = ViewLoader.loadView(Views.MAIN_SCREEN);
+            currentController = new MainScreenController(root, editor);
+            currentController.init();
+            scene = new Scene(root);
+            stage.setTitle("Accord");
+            stage.setScene(scene);
+            stage.centerOnScreen();
         }
-        Scene scene = new Scene(root);
+        else if(subroute.equals("/login")) {
+            root = ViewLoader.loadView(Views.LOGIN_SCREEN);
+            currentController = new LoginScreenController(root, editor);
+            currentController.init();
+            scene = new Scene(root);
+            stage.setTitle("Accord");
+            stage.setScene(scene);
+            stage.centerOnScreen();
+        }
 
-        currentController = new LoginScreenController(root, editor);
-        currentController.init();
-
-        stage.setTitle("Accord - Login");
-        stage.setScene(scene);
-        stage.centerOnScreen();
+        Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
     }
 
     @Override

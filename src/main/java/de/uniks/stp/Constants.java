@@ -19,4 +19,5 @@ public class Constants {
     public static final String LBL_MISSING_FIELDS = "LBL_MISSING_FIELDS";
     public static final String LBL_HOME = "LBL_HOME";
 
+    public static final String LOGIN_ROUTE = "/login";
 }
