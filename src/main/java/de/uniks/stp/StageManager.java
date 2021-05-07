@@ -3,6 +3,7 @@ package de.uniks.stp;
 import de.uniks.stp.controller.ControllerInterface;
 import de.uniks.stp.controller.LoginScreenController;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.network.UserKeyProvider;
 import de.uniks.stp.view.Views;
 import javafx.application.Application;
