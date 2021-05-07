@@ -1,4 +1,4 @@
-package de.uniks.stp.annotation;
+package de.uniks.stp.router;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
