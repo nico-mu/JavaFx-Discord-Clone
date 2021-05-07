@@ -1,5 +1,6 @@
 package de.uniks.stp.network;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.util.JsonUtil;
 
 import javax.json.JsonObject;
@@ -10,9 +11,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class WebSocketClient extends Endpoint {
+    private final Timer noopTimer;
     private Session session;
-    private Timer noopTimer;
-
     private WSCallback callback;
 
     /**
@@ -21,19 +21,23 @@ public class WebSocketClient extends Endpoint {
      * @param endpoint URI with connection adress
      * @param callback method to call when message is received
      */
-    public WebSocketClient(URI endpoint, WSCallback callback) {
+    public WebSocketClient(String endpoint, WSCallback callback) {
         this.noopTimer = new Timer();
 
         try {
             ClientEndpointConfig clientConfig = ClientEndpointConfig.Builder.create()
-                    .configurator(new CustomWebSocketConfigurator(UserKeyProvider.getUserKey()))
-                    .build();
+                .configurator(new CustomWebSocketConfigurator(UserKeyProvider.getUserKey()))
+                .build();
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+
+            final String path = endpoint.startsWith("/") ?
+                Constants.WEBSOCKET_BASE_URL + endpoint : Constants.WEBSOCKET_BASE_URL + "/" + endpoint;
+
             container.connectToServer(
-                    this,
-                    clientConfig,
-                    endpoint
+                this,
+                clientConfig,
+                URI.create(path)
             );
             this.callback = callback;
         } catch (Exception e) {
@@ -46,7 +50,7 @@ public class WebSocketClient extends Endpoint {
      * Is called automatically, initializes and sets NOOP-timer
      *
      * @param session passed automatically
-     * @param config passed automatically
+     * @param config  passed automatically
      */
     @Override
     public void onOpen(Session session, EndpointConfig config) {
@@ -71,7 +75,7 @@ public class WebSocketClient extends Endpoint {
     /**
      * Is called automatically; cleanup and disables NOOP-timer
      *
-     * @param session passed automatically
+     * @param session     passed automatically
      * @param closeReason passed automatically
      */
     @Override
@@ -104,7 +108,7 @@ public class WebSocketClient extends Endpoint {
      */
     public void sendMessage(String message) throws IOException {
         // check if session is still open
-        if(this.session != null && this.session.isOpen()) {
+        if (this.session != null && this.session.isOpen()) {
             // send message
             this.session.getBasicRemote().sendText(message);
             this.session.getBasicRemote().flushBatch();

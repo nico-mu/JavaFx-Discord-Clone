@@ -19,4 +19,8 @@ public class Constants {
     public static final String LBL_LOGIN_FAILED = "LBL_LOGIN_FAILED";
     public static final String LBL_LOGIN_WRONG_CREDENTIALS = "LBL_LOGIN_WRONG_CREDENTIALS";
     public static final String LBL_MISSING_FIELDS = "LBL_MISSING_FIELDS";
+
+    // Websocket
+    public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";
+    public static final String WS_SYSTEM_PATH = "/system";
 }

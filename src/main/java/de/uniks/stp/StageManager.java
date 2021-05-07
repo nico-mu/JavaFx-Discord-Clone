@@ -24,32 +24,6 @@ public class StageManager extends Application {
         currentController = null;
     }
 
-    @Override
-    public void start(Stage primaryStage) {
-        stage = primaryStage;
-        editor = new Editor();
-        UserKeyProvider.setEditor(editor);
-        showLoginScreen();
-        stage.show();
-    }
-
-    @Override
-    public void stop() {
-        try {
-            super.stop();
-
-            if (currentController != null){
-                currentController.stop();
-            }
-
-            RestClient.stop();
-        } catch (Exception e) {
-            System.err.println("Error while trying to shutdown");
-            e.printStackTrace();
-        }
-
-    }
-
     public static void showLoginScreen() {
         cleanup();
 
@@ -86,5 +60,34 @@ public class StageManager extends Application {
         stage.setScene(scene);
         stage.centerOnScreen();
          */
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        stage = primaryStage;
+        editor = new Editor();
+        UserKeyProvider.setEditor(editor);
+        WebSocketService.setEditor(editor);
+
+        showLoginScreen();
+        stage.show();
+    }
+
+    @Override
+    public void stop() {
+        try {
+            super.stop();
+
+            if (currentController != null) {
+                currentController.stop();
+            }
+
+            RestClient.stop();
+            WebSocketService.stop();
+        } catch (Exception e) {
+            System.err.println("Error while trying to shutdown");
+            e.printStackTrace();
+        }
+
     }
 }
