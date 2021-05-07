@@ -1,6 +1,7 @@
 package de.uniks.stp;
 
 import de.uniks.stp.model.Accord;
+import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.view.Languages;
 
@@ -29,5 +30,14 @@ public class Editor {
 
     public void setCurrentUser(User currentUser){
         accord.setCurrentUser(currentUser);
+    }
+
+    public Server getServer(String id) {
+        for(Server server : accord.getCurrentUser().getAvailableServers()) {
+            if(server.getId().equals(id)) {
+                return server;
+            }
+        }
+        return null;
     }
 }

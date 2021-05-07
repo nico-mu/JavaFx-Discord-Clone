@@ -1,11 +1,12 @@
 package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
-import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.*;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.router.RouteArgs;
+import de.uniks.stp.router.RouteInfo;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
@@ -54,7 +55,7 @@ public class NavBarListController implements ControllerInterface {
     }
 
     @Override
-    public void route(RouteInfo routeInfo) {
+    public void route(RouteInfo routeInfo, RouteArgs args) {
 
     }
 
@@ -85,7 +86,7 @@ public class NavBarListController implements ControllerInterface {
             // server added
             final NavBarServerElement serverElement = new NavBarServerElement(newValue);
             navBarServerElementHashMap.put(newValue, serverElement);
-            Platform.runLater(() -> navBarList.addElement(serverElement));
+            Platform.runLater(() -> navBarList.addServerElement(serverElement));
         } else if (Objects.isNull(newValue)) {
             // server removed
             NavBarServerElement serverElement = navBarServerElementHashMap.remove(oldValue);

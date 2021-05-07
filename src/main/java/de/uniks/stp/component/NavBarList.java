@@ -39,6 +39,10 @@ public class NavBarList extends ScrollPane {
         NavBarElement homeElement = new NavBarHomeElement();
         this.addElement(homeElement);
         this.setActiveElement(homeElement);
+
+        //add create server button
+        NavBarElement createServer = new NavBarCreateServer();
+        this.addElement(createServer);
     }
 
     public void setActiveElement(NavBarElement element) {
@@ -51,9 +55,14 @@ public class NavBarList extends ScrollPane {
         }
     }
 
+    public void addServerElement(NavBarElement element) {
+        element.addOnClickHandler(this::setActiveElement);
+        container.getChildren().add(container.getChildren().size() - 1, element);
+    }
+
     public void addElement(NavBarElement element) {
         element.addOnClickHandler(this::setActiveElement);
-        this.container.getChildren().add(element);
+        container.getChildren().add(element);
     }
 
     public void removeElement(NavBarElement element) {

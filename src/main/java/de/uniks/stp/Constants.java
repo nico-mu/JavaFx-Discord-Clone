@@ -20,4 +20,5 @@ public class Constants {
     public static final String LBL_HOME = "LBL_HOME";
 
     public static final String LOGIN_ROUTE = "/login";
+    public static final String LBL_CREATE_SERVER = "LBL_CREATE_SERVER";
 }

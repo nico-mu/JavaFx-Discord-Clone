@@ -1,8 +1,8 @@
 package de.uniks.stp;
 
-import com.sun.tools.javac.Main;
-import de.uniks.stp.annotation.Route;
 import de.uniks.stp.controller.*;
+import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
 import de.uniks.stp.network.UserKeyProvider;
 import javafx.application.Application;
@@ -11,8 +11,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import kong.unirest.Unirest;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 public class StageManager extends Application {
@@ -41,7 +39,7 @@ public class StageManager extends Application {
         cleanup();
         Parent root;
         Scene scene;
-        String subroute = routeInfo.getSubroute();
+        String subroute = routeInfo.getSubControllerRoute();
 
         if(subroute.equals("/main")) {
             root = ViewLoader.loadView(Views.MAIN_SCREEN);
@@ -62,7 +60,7 @@ public class StageManager extends Application {
             stage.centerOnScreen();
         }
 
-        Router.addToControllerCache(routeInfo.getSubroute(), currentController);
+        Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
     }
 
     @Override

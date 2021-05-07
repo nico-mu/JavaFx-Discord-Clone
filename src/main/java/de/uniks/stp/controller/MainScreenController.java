@@ -1,10 +1,17 @@
 package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
-import de.uniks.stp.annotation.Route;
+import de.uniks.stp.model.Server;
+import de.uniks.stp.router.Route;
+import de.uniks.stp.router.RouteArgs;
+import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.router.Router;
 import javafx.scene.Parent;
-import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+
+import java.util.Objects;
+
+import static de.uniks.stp.StageManager.cleanup;
 
 @Route("/main")
 public class MainScreenController implements ControllerInterface {
@@ -35,14 +42,27 @@ public class MainScreenController implements ControllerInterface {
     }
 
     @Override
-    public void route(RouteInfo routeInfo) {
-        String subroute = routeInfo.getSubroute();
+    public void route(RouteInfo routeInfo, RouteArgs args) {
+        cleanup();
+        String subroute = routeInfo.getSubControllerRoute();
 
         if(subroute.equals("/home")) {
             HomeScreenController homeScreenController = new HomeScreenController(this.subViewContainer, this.editor);
             homeScreenController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), homeScreenController);
         }
+        else if(subroute.equals("/server/:id") && args.getKey().equals(":id") && !args.getValue().isEmpty()) {
+            Server server = editor.getServer(args.getValue());
+            if(Objects.nonNull(server)) {
+                ServerScreenController serverScreenController = new ServerScreenController(this.subViewContainer, this.editor, server);
+                serverScreenController.init();
+                Router.addToControllerCache(routeInfo.getFullRoute(), serverScreenController);
+            }
+        }
+    }
+
+    private void cleanup() {
+        this.subViewContainer.getChildren().clear();
     }
 
     @Override

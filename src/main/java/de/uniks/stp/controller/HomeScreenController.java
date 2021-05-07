@@ -1,7 +1,9 @@
 package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
-import de.uniks.stp.annotation.Route;
+import de.uniks.stp.router.Route;
+import de.uniks.stp.router.RouteArgs;
+import de.uniks.stp.router.RouteInfo;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
@@ -30,7 +32,7 @@ public class HomeScreenController implements ControllerInterface {
     }
 
     @Override
-    public void route(RouteInfo routeInfo) {
+    public void route(RouteInfo routeInfo, RouteArgs args) {
         //no subroutes
     }
 
