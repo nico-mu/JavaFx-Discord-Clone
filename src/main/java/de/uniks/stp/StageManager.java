@@ -45,9 +45,7 @@ public class StageManager extends Application {
                 currentController.stop();
             }
 
-            //TODO logout
-            editor.onLogoutButtonClicked();
-            Unirest.shutDown();
+            RestClient.stop();
         } catch (Exception e) {
             System.err.println("Error while trying to shutdown");
             e.printStackTrace();
