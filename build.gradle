@@ -12,6 +12,10 @@ javafx {
     modules = ['javafx.graphics', 'javafx.fxml', 'javafx.base', 'javafx.controls']
 }
 
+test {
+    useJUnitPlatform()
+}
+
 mainClassName = 'de.uniks.stp.Launcher'
 
 group 'de.uniks.stp'
@@ -28,6 +32,7 @@ dependencies {
     implementation group: 'com.konghq', name: 'unirest-java', version: '3.11.09'
     implementation group: 'javax.websocket', name: 'javax.websocket-api', version: '1.1'
     implementation group: 'org.glassfish', name: 'javax.json', version: '1.1'
+    implementation group: 'org.glassfish.tyrus', name: 'tyrus-container-grizzly-client', version: '1.15'
 
     // https://mvnrepository.com/artifact/org.fulib/fulibScenarios
     fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.7.0'
@@ -51,4 +56,6 @@ dependencies {
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.1'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.1'
+
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.5.13'
 }
