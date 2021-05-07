@@ -1,0 +1,12 @@
+plugins {
+    id 'java-gradle-plugin'
+}
+
+gradlePlugin {
+    plugins {
+        annotationReader {
+            id = 'annotation-reader'
+            implementationClass = 'de.uniks.stp.plugin.AnnotationReaderPlugin'
+        }
+    }
+}
