@@ -52,7 +52,7 @@ public class NavBarList extends ScrollPane {
     }
 
     public void addElement(NavBarElement element) {
-        element.onClick(this::setActiveElement);
+        element.addOnClickHandler(this::setActiveElement);
         this.container.getChildren().add(element);
     }
 

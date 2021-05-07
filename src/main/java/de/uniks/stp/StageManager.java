@@ -62,7 +62,7 @@ public class StageManager extends Application {
             stage.centerOnScreen();
         }
 
-        Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
+        Router.addToControllerCache(routeInfo.getSubroute(), currentController);
     }
 
     @Override

@@ -77,14 +77,6 @@ public class Router {
         StringBuilder currentRelativeRoute = new StringBuilder();
         RouteInfo info = new RouteInfo();
 
-        if(isBaseRoute(route)) {
-            requirements.push(info.setFullRoute(route).setSubroute(route));
-            remainingRoute = "";
-        }
-
-        // '' '/main'
-        // '/main' '/home'
-
         while(remainingRoute.length() != 0) {
 
             int index = remainingRoute.lastIndexOf('/');
@@ -95,7 +87,7 @@ public class Router {
             remainingRoute = remainingRoute.substring(0, index);
             currentRelativeRoute.insert(0, relativeRoutePart);
 
-            if(!routeMap.containsKey(remainingRoute)) {
+            if(!routeMap.containsKey(remainingRoute) && !remainingRoute.isEmpty()) {
                 continue;
             }
             else {
@@ -112,13 +104,15 @@ public class Router {
             info = new RouteInfo();
         }
 
-        for(int i = 0; i < requirements.size(); i++) {
+        int requirementCount = requirements.size();
+
+        for(int i = 0; i < requirementCount; i++) {
             RouteInfo nextRoute = requirements.pop();
 
-            if(isBaseRoute(nextRoute.getFullRoute()) && !controllerCache.containsKey(nextRoute.getFullRoute())) {
+            if(isBaseRoute(nextRoute.getFullRoute()) && !controllerCache.containsKey(nextRoute.getSubroute())) {
                 StageManager.route(nextRoute);
-                if(!controllerCache.containsKey(nextRoute.getFullRoute())) {
-                    throw new RuntimeException("Controller for route " + nextRoute.getFullRoute() + "was not added to cache by StageManager");
+                if(!controllerCache.containsKey(nextRoute.getSubroute())) {
+                    throw new RuntimeException("Controller for route " + nextRoute.getSubroute() + " was not added to cache by StageManager");
                 }
             }
             else {
@@ -142,17 +136,8 @@ public class Router {
      * @return a boolean representing whether a route is a route that must be handled by the stageManager or not
      */
     public static boolean isBaseRoute(String route) {
-        return route.chars().filter(ch -> ch == '/').count() == 1;
+        return route.isEmpty();
     }
-
-
-    /*public static String getParentRoute(String routeString) {
-        int index = routeString.lastIndexOf('/');
-        if(index == -1) {
-            index = 0;
-        }
-        return routeString.substring(0, index);
-    }*/
 
     public static void addToControllerCache(String routeName, ControllerInterface controller) {
         controllerCache.put(routeName, controller);

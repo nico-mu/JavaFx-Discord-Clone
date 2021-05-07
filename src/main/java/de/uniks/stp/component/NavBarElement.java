@@ -38,7 +38,7 @@ abstract public class NavBarElement extends HBox {
         navBarElement.setOnMouseClicked(this::onMouseClicked);
     }
 
-    private void onMouseClicked(MouseEvent mouseEvent) {
+    protected void onMouseClicked(MouseEvent mouseEvent) {
         eventCallback.handleEvent(this);
     }
 
@@ -46,7 +46,7 @@ abstract public class NavBarElement extends HBox {
         navBarElementMarker.setVisible(active);
     }
 
-    public void onClick(CustomEventCallback eventCallback) {
+    public void addOnClickHandler(CustomEventCallback eventCallback) {
         this.eventCallback = eventCallback;
     }
 }
