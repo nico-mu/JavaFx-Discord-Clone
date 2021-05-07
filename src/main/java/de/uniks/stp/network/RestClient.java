@@ -12,14 +12,15 @@ import static de.uniks.stp.Constants.REST_SERVER_BASE_URL;
 public class RestClient {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public RestClient(){
+    static {
         Unirest.config()
             .defaultBaseUrl(REST_SERVER_BASE_URL)
             .interceptor(new HttpRequestInterceptor());
     }
 
-    public void stop(){
+    public static void stop(){
         executorService.shutdown();
+        Unirest.shutDown();
     }
 
     private void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {

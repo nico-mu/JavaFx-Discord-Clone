@@ -46,7 +46,7 @@ public class StageManager extends Application {
                 currentController.stop();
             }
 
-            Unirest.shutDown();
+            RestClient.stop();
         } catch (Exception e) {
             System.err.println("Error while trying to shutdown");
             e.printStackTrace();
