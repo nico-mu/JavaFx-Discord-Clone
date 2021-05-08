@@ -1,11 +1,14 @@
 package de.uniks.stp.view;
 
+import java.net.URL;
+
 public enum Views {
+    MAIN_SCREEN("MainScreen.fxml"),
     LOGIN_SCREEN("LoginScreen.fxml");
 
-    public final String path;
+    public final URL path;
 
     Views(String path) {
-        this.path = path;
+        this.path = Views.class.getResource(path);
     }
 }

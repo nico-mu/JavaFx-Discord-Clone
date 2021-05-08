@@ -4,10 +4,11 @@ plugins {
     id 'org.fulib.fulibGradle' version '0.4.0'
     id 'org.openjfx.javafxplugin' version '0.0.9'
     id 'java'
+    id 'annotation-reader'
 }
 
 javafx {
-    version = "11"
+    version = "12"
     modules = ['javafx.graphics', 'javafx.fxml', 'javafx.base', 'javafx.controls']
 }
 
