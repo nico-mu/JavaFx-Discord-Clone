@@ -5,7 +5,8 @@ import java.net.URL;
 public enum Components {
     USER_LIST_ENTRY("UserListEntry.fxml"),
     NAV_BAR_ELEMENT("NavBarElement.fxml"),
-    NAV_BAR_LIST("NavBarList.fxml");
+    NAV_BAR_LIST("NavBarList.fxml"),
+    CHAT_VIEW("ChatView.fxml");
 
     public final URL path;
 

@@ -2,9 +2,11 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.component.ChatView;
 import de.uniks.stp.router.Route;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.router.Router;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
@@ -16,20 +18,26 @@ public class HomeScreenController implements ControllerInterface {
 
     private final AnchorPane view;
     private final Editor editor;
+    private ChatView chatView;
+    private AnchorPane container;
 
     HomeScreenController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
         this.editor = editor;
+        this.chatView = new ChatView();
     }
 
     @Override
     public void init() {
-        Label label = new Label("Home Screen");
-        label.setTextFill(new Color(1, 1, 1, 1));
-        label.setFont(new Font(50));
-        label.setPrefHeight(200);
-        label.setPrefWidth(400);
-        view.getChildren().add(label);
+        container = (AnchorPane) view.lookup("#subview-container");
+        container.getChildren().add(chatView.getComponent());
+
+        chatView.onMessageSubmit((message) -> {
+            chatView.appendMessage(message);
+
+            // send message to the server
+
+        });
     }
 
     @Override

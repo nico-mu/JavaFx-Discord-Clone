@@ -14,6 +14,7 @@ public class RouteMapping {
         routes.put("/login", LoginScreenController.class);
         routes.put("/main/server/:id", ServerScreenController.class);
         routes.put("/main/home", HomeScreenController.class);
+        // routes.put("/main/home/:userId", HomeScreenController.class);
         return routes;
     }
 }
