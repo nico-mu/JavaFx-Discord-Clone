@@ -2,9 +2,12 @@ package de.uniks.stp;
 
 import de.uniks.stp.controller.ControllerInterface;
 import de.uniks.stp.controller.LoginScreenController;
+import de.uniks.stp.controller.MainScreenController;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.network.UserKeyProvider;
+import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
 import javafx.application.Application;
 import javafx.scene.Parent;
@@ -25,53 +28,42 @@ public class StageManager extends Application {
         currentController = null;
     }
 
-    public static void showLoginScreen() {
-        cleanup();
-
-        Parent root = ViewLoader.loadView(Views.LOGIN_SCREEN);
-        if (Objects.isNull(root)) {
-            System.err.println("Error while loading LoginScreen");
-            return;
-        }
-        Scene scene = new Scene(root);
-
-        currentController = new LoginScreenController(root, editor);
-        currentController.init();
-
-        stage.setTitle("Accord - Login");
-        stage.setScene(scene);
-        stage.centerOnScreen();
-    }
-
-    public static void showHomeScreen() {
-        cleanup();
-
-        /*
-        Parent root = ViewLoader.loadView(CONSTANT_HOMESCREEN);
-        if (Objects.isNull(root)) {
-            System.err.println("Error while loading HomeScreen");
-            return;
-        }
-        Scene scene = new Scene(root);
-
-        currentController = new HomeScreenController(root, editor);
-        currentController.init();
-
-        stage.setTitle("Accord");
-        stage.setScene(scene);
-        stage.centerOnScreen();
-         */
-    }
-
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
         editor = new Editor();
         UserKeyProvider.setEditor(editor);
         WebSocketService.setEditor(editor);
-
-        showLoginScreen();
+        Router.route(Constants.ROUTE_LOGIN);
         stage.show();
+    }
+
+    public static void route(RouteInfo routeInfo) {
+        cleanup();
+        Parent root;
+        Scene scene;
+        String subroute = routeInfo.getSubControllerRoute();
+
+        if(subroute.equals(Constants.ROUTE_MAIN)) {
+            root = ViewLoader.loadView(Views.MAIN_SCREEN);
+            currentController = new MainScreenController(root, editor);
+            currentController.init();
+            scene = new Scene(root);
+            stage.setTitle("Accord");
+            stage.setScene(scene);
+            stage.centerOnScreen();
+        }
+        else if(subroute.equals(Constants.ROUTE_LOGIN)) {
+            root = ViewLoader.loadView(Views.LOGIN_SCREEN);
+            currentController = new LoginScreenController(root, editor);
+            currentController.init();
+            scene = new Scene(root);
+            stage.setTitle("Accord");
+            stage.setScene(scene);
+            stage.centerOnScreen();
+        }
+
+        Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
     }
 
     @Override
@@ -79,7 +71,7 @@ public class StageManager extends Application {
         try {
             super.stop();
 
-            if (currentController != null) {
+            if(currentController != null){
                 currentController.stop();
             }
 

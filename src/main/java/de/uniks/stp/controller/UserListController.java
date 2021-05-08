@@ -6,6 +6,8 @@ import de.uniks.stp.component.UserListEntry;
 import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.router.RouteArgs;
+import de.uniks.stp.router.RouteInfo;
 import javafx.application.Platform;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
@@ -53,6 +55,11 @@ public class UserListController implements ControllerInterface {
 
         restClient = new RestClient();
         restClient.requestOnlineUsers(this::handleUserOnlineRequest);
+    }
+
+    @Override
+    public void route(RouteInfo routeInfo, RouteArgs args) {
+        // no subroutes
     }
 
     private void handleUserOnlineRequest(final HttpResponse<JsonNode> response) {

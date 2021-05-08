@@ -7,9 +7,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Locale;
@@ -39,11 +38,10 @@ public class ViewLoader {
     }
 
     public static Image loadImage(String name) {
-        FileInputStream file = null;
         try {
-            file = new FileInputStream(Objects.requireNonNull(ViewLoader.class.getResource("./pictures/")).getPath() + name);
-            return new Image(file);
-        } catch (FileNotFoundException e) {
+            final InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResource("./pictures/" + name)).openStream();
+            return new Image(inputStream);
+        } catch (IOException e) {
             System.err.println("Picture " + name + "could not be loaded!");
             e.printStackTrace();
         }
