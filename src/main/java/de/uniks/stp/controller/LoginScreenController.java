@@ -6,17 +6,22 @@ import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
+import de.uniks.stp.ViewLoader;
 import de.uniks.stp.network.RestClient;
-import de.uniks.stp.view.ViewLoader;
+import de.uniks.stp.router.Route;
+import de.uniks.stp.router.RouteArgs;
+import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+
 import java.util.Objects;
 
+@Route(Constants.ROUTE_LOGIN)
 public class LoginScreenController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;
@@ -55,6 +60,11 @@ public class LoginScreenController implements ControllerInterface {
         loginButton.setOnAction(this::onLoginButtonClicked);
 
         loginButton.setDefaultButton(true);  // Allows to use Enter in order to press login button
+    }
+
+    @Override
+    public void route(RouteInfo routeInfo, RouteArgs args) {
+        //no subroutes
     }
 
     public void stop() {
@@ -197,7 +207,7 @@ public class LoginScreenController implements ControllerInterface {
             editor.setUserKey(userKey);
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
 
-            StageManager.showHomeScreen();
+            Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
             return;
         }
         // Login failed

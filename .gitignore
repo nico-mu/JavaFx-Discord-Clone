@@ -1,5 +1,6 @@
 .idea
 out/
+.DS_Store
 
 # Editor-based Rest Client
 .idea/httpRequests
@@ -12,6 +13,7 @@ out/
 /out/
 /temp/
 /tmp/
+/buildSrc/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
