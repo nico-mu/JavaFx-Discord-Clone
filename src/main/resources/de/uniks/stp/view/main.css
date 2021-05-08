@@ -89,17 +89,3 @@
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
 }
-
-.nav-bar-element {
-    -fx-background-radius: 20px;
-    -fx-background-color: white;
-    -fx-border-radius: 15px;
-}
-
-.nav-element-marker {
-    -fx-background-color: #7289da;
-}
-
-.nav-bar-element-main {
-    -fx-background-color: transparent;
-}
