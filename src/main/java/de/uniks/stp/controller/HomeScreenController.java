@@ -33,8 +33,6 @@ public class HomeScreenController implements ControllerInterface {
         container.getChildren().add(chatView.getComponent());
 
         chatView.onMessageSubmit((message) -> {
-            chatView.appendMessage(message);
-
             // send message to the server
 
         });

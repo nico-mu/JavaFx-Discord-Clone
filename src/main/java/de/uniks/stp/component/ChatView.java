@@ -3,6 +3,7 @@ package de.uniks.stp.component;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.model.Message;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
@@ -54,14 +55,14 @@ public class ChatView {
      * Appends a message at the end of the messages list.
      * @param message
      */
-    public void appendMessage(String message) {
+    public void appendMessage(Message message) {
         if (Objects.isNull(messageList)) {
             System.err.println("message list not set");
             return;
         }
 
         Platform.runLater(() -> {
-            messageList.getChildren().add(new Text(message));
+            messageList.getChildren().add(new Text(message.getMessage()));
         });
 
     }
@@ -78,6 +79,8 @@ public class ChatView {
         submitListener.forEach(callback -> {
             callback.accept(message);
         });
+
+        appendMessage(new Message().setMessage(message));
     }
 
 }
