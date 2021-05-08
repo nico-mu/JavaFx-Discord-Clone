@@ -27,7 +27,7 @@ public class HomeScreenController implements ControllerInterface {
     HomeScreenController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
         this.editor = editor;
-        this.chatView = new ChatView();
+        this.chatView = new ChatView(view);
     }
 
     @Override

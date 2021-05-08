@@ -27,6 +27,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.jetbrains:annotations:20.1.0'
     compile 'com.jfoenix:jfoenix:9.0.10'
 
     implementation group: 'com.konghq', name: 'unirest-java', version: '3.11.09'

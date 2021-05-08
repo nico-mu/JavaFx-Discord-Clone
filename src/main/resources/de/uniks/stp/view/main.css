@@ -49,7 +49,6 @@
     -fx-background-color :transparent;
     -fx-background-radius : 0.0em;
     -fx-padding :0.0 0.0 10.0 0.0;
-
 }
 
 .scroll-bar:vertical .increment-button ,
@@ -103,3 +102,19 @@
 .nav-bar-element-main {
     -fx-background-color: transparent;
 }
+
+#chatview__submit-button {
+    -jfx-button-type: FLAT;
+    -fx-background-color: rgb(77, 102, 204);
+    -fx-text-fill: white;
+}
+
+#chatview__message-input {
+    -fx-text-fill: white;
+    -fx-background-color: #23272a;
+}
+#chatview__message-list {
+    text-area-background: #2c2f33;
+    -fx-background-color: #2c2f33;
+}
+
