@@ -3,6 +3,7 @@ package de.uniks.stp.controller;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ChatView;
+import de.uniks.stp.model.Message;
 import de.uniks.stp.router.Route;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
@@ -12,6 +13,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+
+import java.util.Date;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
 public class HomeScreenController implements ControllerInterface {
@@ -33,6 +36,11 @@ public class HomeScreenController implements ControllerInterface {
         container.getChildren().add(chatView.getComponent());
 
         chatView.onMessageSubmit((message) -> {
+            chatView.appendMessage(new Message()
+                .setMessage(message)
+                .setSender(editor.getOrCreateAccord().getCurrentUser())
+                .setTimestamp(new Date().getTime()));
+
             // send message to the server
 
         });

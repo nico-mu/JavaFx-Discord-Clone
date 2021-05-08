@@ -88,7 +88,7 @@ public class GenModel implements ClassModelDecorator {
 
     class Message {
         String id;
-        int timestamp;
+        long timestamp;
         String message;
 
         @Link("sentMessages")
