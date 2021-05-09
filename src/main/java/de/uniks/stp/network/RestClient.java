@@ -26,12 +26,12 @@ public class RestClient {
             .interceptor(new HttpRequestInterceptor());
     }
 
-    public  void getServers(Callback<JsonNode> callback) {
+    public void getServers(Callback<JsonNode> callback) {
         HttpRequest<?> req = Unirest.get(Constants.REST_SERVER_PATH);
         sendRequest(req, callback);
     }
 
-    public static void stop(){
+    public static void stop() {
         executorService.shutdown();
         Unirest.shutDown();
     }
@@ -61,6 +61,11 @@ public class RestClient {
     public void tempRegister(Callback<JsonNode> callback) {
         HttpRequest<?> postUserRegister = Unirest.post(REST_SERVER_BASE_URL + Constants.REST_USERS_PATH + Constants.REST_TEMP_REGISTER_PATH);
         sendRequest(postUserRegister, callback);
+    }
+
+    public void sendLogoutRequest(Callback<JsonNode> callback, String key) {
+        HttpRequest<?> postUserLogout = Unirest.post(Constants.REST_USERS_PATH + Constants.REST_LOGOUT_PATH).header("userKey", key);
+        sendRequest(postUserLogout, callback);
     }
 
     public void requestOnlineUsers(final Callback<JsonNode> callback) {

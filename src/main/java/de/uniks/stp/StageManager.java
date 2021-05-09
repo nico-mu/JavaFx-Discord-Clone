@@ -44,7 +44,7 @@ public class StageManager extends Application {
         Scene scene;
         String subroute = routeInfo.getSubControllerRoute();
 
-        if(subroute.equals(Constants.ROUTE_MAIN)) {
+        if (subroute.equals(Constants.ROUTE_MAIN)) {
             root = ViewLoader.loadView(Views.MAIN_SCREEN);
             currentController = new MainScreenController(root, editor);
             currentController.init();
@@ -52,8 +52,7 @@ public class StageManager extends Application {
             stage.setTitle("Accord");
             stage.setScene(scene);
             stage.centerOnScreen();
-        }
-        else if(subroute.equals(Constants.ROUTE_LOGIN)) {
+        } else if (subroute.equals(Constants.ROUTE_LOGIN)) {
             root = ViewLoader.loadView(Views.LOGIN_SCREEN);
             currentController = new LoginScreenController(root, editor);
             currentController.init();
@@ -71,7 +70,7 @@ public class StageManager extends Application {
         try {
             super.stop();
 
-            if(currentController != null){
+            if (currentController != null) {
                 currentController.stop();
             }
 
