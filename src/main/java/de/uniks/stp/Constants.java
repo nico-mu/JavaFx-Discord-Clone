@@ -24,6 +24,10 @@ public class Constants {
     public static final String LBL_HOME = "LBL_HOME";
     public static final String LBL_CREATE_SERVER = "LBL_CREATE_SERVER";
 
+    // Websocket
+    public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";
+    public static final String WS_SYSTEM_PATH = "/system";
+
     //route names
     public static final String ROUTE_LOGIN = "/login";
     public static final String ROUTE_MAIN = "/main";

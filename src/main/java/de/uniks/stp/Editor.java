@@ -5,7 +5,10 @@ import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.view.Languages;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Editor {
     // Connection to model root object
@@ -18,7 +21,7 @@ public class Editor {
         return accord;
     }
 
-    public void setUserKey(String userKey){
+    public void setUserKey(String userKey) {
         accord.setUserKey(userKey);
     }
 
@@ -28,7 +31,7 @@ public class Editor {
         return user;
     }
 
-    public void setCurrentUser(User currentUser){
+    public void setCurrentUser(User currentUser) {
         accord.setCurrentUser(currentUser);
     }
 
@@ -39,5 +42,39 @@ public class Editor {
             }
         }
         return null;
+    }
+
+    public User getOrCreateOtherUser(final String userId, final String name) {
+        User other = null;
+        final User currentUser = getOrCreateAccord().getCurrentUser();
+
+        if (!name.equals(currentUser.getName())) {
+            final Map<String, User> userMap = otherUsersAsIdUserMap();
+
+            if (userMap.containsKey(userId)) {
+                other = userMap.get(userId);
+            } else {
+                other = new User()
+                    .setId(userId)
+                    .setName(name)
+                    .setAccordInstance(accord)
+                    .setStatus(true);
+            }
+        }
+        return other;
+    }
+
+    public void removeOtherUserById(String userId) {
+        final Map<String, User> userMap = otherUsersAsIdUserMap();
+        final User userToBeRemoved = userMap.get(userId);
+
+        accord.withoutOtherUsers(userToBeRemoved);
+    }
+
+    private Map<String, User> otherUsersAsIdUserMap() {
+        final List<User> otherUsers = accord.getOtherUsers();
+
+        return otherUsers.stream()
+            .collect(Collectors.toMap(User::getId, user -> user));
     }
 }

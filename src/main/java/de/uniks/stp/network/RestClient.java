@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 import static de.uniks.stp.Constants.REST_SERVER_BASE_URL;
 
 public class RestClient {
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private static final ExecutorService executorService = Executors.newCachedThreadPool();
 
     /**
      * Sets config for every http request made with unirest. Sets default url so we don't need to set it
@@ -26,12 +26,12 @@ public class RestClient {
             .interceptor(new HttpRequestInterceptor());
     }
 
-    public  void getServers(Callback<JsonNode> callback) {
+    public void getServers(Callback<JsonNode> callback) {
         HttpRequest<?> req = Unirest.get(Constants.REST_SERVER_PATH);
         sendRequest(req, callback);
     }
 
-    public static void stop(){
+    public static void stop() {
         executorService.shutdown();
         Unirest.shutDown();
     }
@@ -63,15 +63,12 @@ public class RestClient {
         sendRequest(postUserRegister, callback);
     }
 
-    public String buildCreateServerRequest(String name) {
-        System.out.println("buildCreateServerRequest called");
-        return Json.createObjectBuilder().add("name", name).build().toString();
+    public void sendLogoutRequest(Callback<JsonNode> callback, String key) {
+        HttpRequest<?> postUserLogout = Unirest.post(Constants.REST_USERS_PATH + Constants.REST_LOGOUT_PATH).header("userKey", key);
+        sendRequest(postUserLogout, callback);
     }
 
-    public void createServer(String name, String key, Callback<JsonNode> callback) {
-        System.out.println("create server called");
-        HttpRequest<?> postCreateServer = Unirest.post(Constants.SERVERS_PATH).header("userKey", key)
-            .body(buildCreateServerRequest(name));
-        sendRequest(postCreateServer, callback);
+    public void requestOnlineUsers(final Callback<JsonNode> callback) {
+        sendRequest(Unirest.get(Constants.REST_USERS_PATH), callback);
     }
 }
