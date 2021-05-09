@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+<fx:root xmlns:fx="http://javafx.com/fxml/1" type="ScrollPane" stylesheets="@user-list.css"
+         styleClass="container" xmlns="http://javafx.com/javafx/11.0.1" prefHeight="472.0" prefWidth="696.0">
+    <VBox fx:id="container" styleClass="container"/>
+</fx:root>

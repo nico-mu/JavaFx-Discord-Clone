@@ -67,4 +67,8 @@ public class RestClient {
         HttpRequest<?> postUserLogout = Unirest.post(Constants.REST_USERS_PATH + Constants.REST_LOGOUT_PATH).header("userKey", key);
         sendRequest(postUserLogout, callback);
     }
+
+    public void requestOnlineUsers(final Callback<JsonNode> callback) {
+        sendRequest(Unirest.get(Constants.REST_USERS_PATH), callback);
+    }
 }

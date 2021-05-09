@@ -1,39 +1,34 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
-import javafx.scene.Parent;
+import de.uniks.stp.model.User;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
-public class UserListEntry {
-    private static final String USER_NAME_TEXT_ID = "#user-name-text";
-    private static final String USER_STATUS_TEXT_ID = "#user-status-text";
+import java.io.IOException;
 
-    private final Text userNameText;
-    private final Text userStatusText;
+public class UserListEntry extends HBox {
 
-    UserListEntry() {
-        final Parent viewElement = ViewLoader.loadComponent(Components.USER_LIST_ENTRY);
+    @FXML
+    private Text userNameText;
 
-        userNameText = (Text) viewElement.lookup(USER_NAME_TEXT_ID);
-        userStatusText = (Text) viewElement.lookup(USER_STATUS_TEXT_ID);
+    public UserListEntry(final User user) {
+        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
+        fxmlLoader.setRoot(this);
+        fxmlLoader.setController(this);
+
+        try {
+            fxmlLoader.load();
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+
+        setUserName(user.getName());
     }
 
     public void setUserName(final String userName) {
         userNameText.setText(userName);
-    }
-
-    public void setUserStatusText(final UserStatus userStatus) {
-        switch (userStatus) {
-            case ONLINE:
-                userStatusText.setText("online"); // TODO: Enable language-change
-                break;
-            case OFFLINE:
-                userStatusText.setText("offline"); // TODO: Enable language-change
-                break;
-        }
-    }
-
-    public enum UserStatus {
-        ONLINE, OFFLINE
     }
 }
