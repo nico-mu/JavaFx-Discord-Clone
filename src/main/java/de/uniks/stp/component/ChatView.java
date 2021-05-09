@@ -2,21 +2,15 @@ package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
-import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
-import de.uniks.stp.model.User;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;
@@ -29,7 +23,7 @@ public class ChatView {
 
     private final Parent component;
     private JFXTextArea messageInput;
-    private TextArea messageList;
+    private JFXTextArea messageList;
     private VBox chatViewContainer;
     private LinkedList<Consumer<String>> submitListener = new LinkedList<>();
 
@@ -49,7 +43,7 @@ public class ChatView {
 
         JFXButton submitButton = (JFXButton) component.lookup(SUBMIT_BUTTON_ID);
         messageInput = (JFXTextArea) component.lookup(MESSAGE_INPUT_ID);
-        messageList = (TextArea) component.lookup(MESSAGE_LIST_ID);
+        messageList = (JFXTextArea) component.lookup(MESSAGE_LIST_ID);
         messageList.setFont(Font.font(16));
 
         submitButton.setOnMouseClicked(this::onSubmitClicked);
@@ -82,7 +76,7 @@ public class ChatView {
 
         Platform.runLater(() -> {
             messageList.setText(messageList.getText()
-                + "\n"
+                + (messageList.getText().isEmpty() ? "" : "\n")
                 + formatTime(message.getTimestamp()) + " " + message.getSender().getName() + ": " + message.getMessage());
         });
 
