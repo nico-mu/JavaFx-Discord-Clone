@@ -82,6 +82,7 @@ public class MainScreenController implements ControllerInterface {
     }
 
     private void handleLogoutResponse(HttpResponse<JsonNode> response) {
+        System.out.println(response.getBody());
         if (!response.isSuccess()) {
             System.err.println("logout failed");
         }
