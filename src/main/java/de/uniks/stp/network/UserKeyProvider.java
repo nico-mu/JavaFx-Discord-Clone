@@ -10,20 +10,24 @@ import java.util.Objects;
 public class UserKeyProvider {
 
     private static String userKey;
-    private static Editor editor;
     //listener doesn't need to be removed, we wait for gc to collect it, when app is closed
     private static final PropertyChangeListener userKeyChangeListener = UserKeyProvider::onUserKeyChanged;
+    private static Editor editor;
 
     private static void onUserKeyChanged(PropertyChangeEvent propertyChangeEvent) {
         Object newValue = propertyChangeEvent.getNewValue();
 
-        if(Objects.nonNull(newValue) && newValue instanceof String) {
-            String userKey = (String)newValue;
-            if(!userKey.isEmpty()) {
+        if (Objects.nonNull(newValue) && newValue instanceof String) {
+            String userKey = (String) newValue;
+            if (!userKey.isEmpty()) {
+                WebSocketService.stop();
                 UserKeyProvider.userKey = userKey;
+
+                WebSocketService.init();
                 return;
             }
         }
+        WebSocketService.stop();
         UserKeyProvider.userKey = null;
     }
 

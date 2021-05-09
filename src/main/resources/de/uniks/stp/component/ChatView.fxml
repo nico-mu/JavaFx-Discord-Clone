@@ -3,17 +3,18 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXTextArea?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <VBox id="chatview__container" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <JFXTextArea id="chatview__message-list" editable="false" focusColor="#405aa800" prefHeight="400.0" prefWidth="600.0" unFocusColor="#4d4d4d00" wrapText="true" VBox.vgrow="ALWAYS">
-         <font>
-            <Font size="15.0" />
-         </font>
-      </JFXTextArea>
+      <ScrollPane id="chatview__message-list" prefHeight="400.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
+         <content>
+            <VBox />
+         </content>
+      </ScrollPane>
       <HBox alignment="CENTER_RIGHT" prefHeight="15.0" prefWidth="200.0" VBox.vgrow="SOMETIMES">
          <children>
             <JFXTextArea id="chatview__message-input" promptText="Write your message" unFocusColor="#23272a" HBox.hgrow="ALWAYS">
@@ -27,7 +28,7 @@
                   <Insets />
                </opaqueInsets>
             </JFXTextArea>
-            <JFXButton id="chatview__submit-button" prefWidth="200.0" text="Send" textFill="WHITE" HBox.hgrow="ALWAYS">
+            <JFXButton id="chatview__submit-button" minWidth="100.0" prefWidth="150.0" text="Send" textFill="WHITE" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets left="60.0" />
                </HBox.margin>

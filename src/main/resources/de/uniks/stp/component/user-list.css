@@ -1,0 +1,8 @@
+.container {
+    -fx-background-color: transparent;
+}
+
+.user-name {
+    -fx-font-size: 16px;
+    -fx-fill: white;
+}
