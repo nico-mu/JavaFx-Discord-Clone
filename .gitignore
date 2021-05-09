@@ -41,3 +41,4 @@ local.properties
 /src/*/scenarios/**/*.txt
 /src/*/scenarios/**/*.yaml
 /src/main/java/de/uniks/stp/model/
+/src/main/java/de/uniks/stp/router/RouteMapping.java
