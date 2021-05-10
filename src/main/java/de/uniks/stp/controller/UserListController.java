@@ -19,6 +19,7 @@ import kong.unirest.json.JSONObject;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -27,7 +28,7 @@ public class UserListController implements ControllerInterface {
     private final HashMap<User, UserListEntry> userUserListEntryHashMap = new HashMap<>();
     private final UserList userList;
     private final Editor editor;
-
+    private final LinkedList<Consumer<String>> userSelectListener = new LinkedList<>();
 
     private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
     private RestClient restClient;
@@ -44,6 +45,7 @@ public class UserListController implements ControllerInterface {
         if (Objects.isNull(oldValue)) {
             // user joined
             final UserListEntry userListEntry = new UserListEntry(newValue);
+            registerUserSelectListener(userListEntry);
             userUserListEntryHashMap.put(newValue, userListEntry);
             Platform.runLater(() -> userList.addUserListEntry(userListEntry));
         } else if (Objects.isNull(newValue)) {
@@ -60,6 +62,7 @@ public class UserListController implements ControllerInterface {
         // Add users in current model
         for (User user : editor.getOtherUsers()) {
             final UserListEntry userListEntry = new UserListEntry(user);
+            registerUserSelectListener(userListEntry);
             userUserListEntryHashMap.put(user, userListEntry);
             Platform.runLater(() -> userList.addUserListEntry(userListEntry));
         }
@@ -91,9 +94,13 @@ public class UserListController implements ControllerInterface {
         editor.getOrCreateAccord().listeners().removePropertyChangeListener(availableUsersPropertyChangeListener);
     }
 
+    public void registerUserSelectListener(UserListEntry entry) {
+        for (Consumer<String> listener : userSelectListener) {
+            entry.onClick(listener);
+        }
+    }
+
     public void onUserSelected(Consumer<String> callback) {
-        userUserListEntryHashMap.forEach((s, entry) -> {
-            entry.onClick(callback::accept);
-        });
+        userSelectListener.add(callback);
     }
 }

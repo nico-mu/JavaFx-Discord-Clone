@@ -23,10 +23,12 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
 public class HomeScreenController implements ControllerInterface {
-    private static final String ACTIVE_CHATS_CONTAINER_ID = "#active-chats-container";
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String TOGGLE_ONLINE_BUTTON_ID = "#toggle-online-button";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
@@ -35,13 +37,13 @@ public class HomeScreenController implements ControllerInterface {
     private final AnchorPane view;
     private final Editor editor;
     private ChatView chatView;
-    private AnchorPane activeChatsContainer;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
     private VBox availableDmUsers;
 
     private UserListController userListController;
-    private boolean showOnlineUsers = true;
+    private final Map<String, Boolean> knownUsers = new LinkedHashMap<>();
+    private User selectedOnlineUser;
 
     HomeScreenController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
@@ -54,43 +56,40 @@ public class HomeScreenController implements ControllerInterface {
         AnchorPane homeScreenView = (AnchorPane) ViewLoader.loadView(Views.HOME_SCREEN);
         view.getChildren().add(homeScreenView);
 
-        JFXButton toggleOnlineUsersButton = (JFXButton) homeScreenView.lookup(TOGGLE_ONLINE_BUTTON_ID);
-        activeChatsContainer = (AnchorPane) homeScreenView.lookup(ACTIVE_CHATS_CONTAINER_ID);
+        JFXButton showOnlineUsersButton = (JFXButton) homeScreenView.lookup(TOGGLE_ONLINE_BUTTON_ID);
         onlineUsersContainer = (VBox) homeScreenView.lookup(ONLINE_USERS_CONTAINER_ID);
         homeScreenLabel = (Label) homeScreenView.lookup(HOME_SCREEN_LABEL_ID);
         availableDmUsers = (VBox) ((ScrollPane) homeScreenView.lookup(AVAILABLE_DM_USERS_ID)).getContent();
 
+        showOnlineUsersButton.setOnMouseClicked((mouseEvent) -> {
+            if (!Objects.isNull(selectedOnlineUser)) {
+                showOnlineUserList();
+            }
+        });
+
         showOnlineUserList();
-
-        toggleOnlineUsersButton.setOnMouseClicked(this::toggleShowOnlineUsers);
-    }
-
-    public void toggleShowOnlineUsers(MouseEvent mouseEvent) {
-        showOnlineUsers = !showOnlineUsers;
-
-        if (showOnlineUsers) {
-            showOnlineUserList();
-            // Router.route("/main/home");
-            chatView = null;
-            return;
-        }
-
-        // Router.route("/main/home/chat/:userId", new RouteArgs().setKey(":userId").setValue("Bob"));
-
-        showPrivateChatView(new User().setName("Bob"));
     }
 
     private void showOnlineUserList() {
         if (onlineUsersContainer.getChildren().size() > 0) {
             onlineUsersContainer.getChildren().clear();
         }
+        selectedOnlineUser = null;
 
         UserList userList = new UserList();
         userListController = new UserListController(userList, editor);
-        userListController.init();
+        // TODO: The order matters here, init has to be called after onUserSelected. Change that order doesn't matter anymore.
         userListController.onUserSelected(id -> {
-            showOnlineUsers = false;
             User user = editor.getUserById(id);
+            showPrivateChatView(user);
+
+            // Check if user is already in the list
+            if (knownUsers.containsKey(id)) {
+                return;
+            }
+            knownUsers.put(id, true);
+
+            // Add to known users sidebar
             Text text = new Text(user.getName());
             text.setFill(Color.WHITE);
             text.setFont(Font.font(16));
@@ -98,16 +97,24 @@ public class HomeScreenController implements ControllerInterface {
                 showPrivateChatView(user);
             });
             availableDmUsers.getChildren().add(text);
-            showPrivateChatView(user);
         });
+
+        userListController.init();
+
         onlineUsersContainer.getChildren().add(userList);
         homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_ONLINE_USERS));
     }
 
     private void showPrivateChatView(User otherUser) {
+        if (!Objects.isNull(selectedOnlineUser) && selectedOnlineUser.equals(otherUser)) {
+            return;
+        }
+
         if (onlineUsersContainer.getChildren().size() > 0) {
             onlineUsersContainer.getChildren().clear();
         }
+
+        selectedOnlineUser = otherUser;
 
         homeScreenLabel.setText(otherUser.getName());
         chatView = new ChatView(view);
@@ -127,14 +134,6 @@ public class HomeScreenController implements ControllerInterface {
     @Override
     public void route(RouteInfo routeInfo, RouteArgs args) {
         //no subroutes
-        String subroute = routeInfo.getSubControllerRoute();
-
-        /* if (subroute.equals("/chat/:userId")) {
-            PrivateChatController privateScreenController = new PrivateChatController(this.onlineUsersContainer, this.editor);
-            privateScreenController.init();
-            showPrivateChatView(new User().setName("Bob"));
-            Router.addToControllerCache(routeInfo.getFullRoute(), privateScreenController);
-        } */
     }
 
     @Override
