@@ -1,5 +1,6 @@
 package de.uniks.stp.component;
 
+import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,12 +15,15 @@ public class NavBarList extends ScrollPane {
     @FXML
     protected VBox container;
 
+    private Editor editor;
     private NavBarElement currentActiveElement;
 
-    public NavBarList() {
+    public NavBarList(Editor editor) {
+
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.NAV_BAR_LIST);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+        this.editor = editor;
 
         try {
             fxmlLoader.load();
@@ -40,7 +44,7 @@ public class NavBarList extends ScrollPane {
         this.setActiveElement(homeElement);
 
         //add create server button
-        NavBarElement createServer = new NavBarCreateServer();
+        NavBarElement createServer = new NavBarCreateServer(editor);
         this.addElement(createServer);
     }
 

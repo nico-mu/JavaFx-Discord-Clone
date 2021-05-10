@@ -7,13 +7,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Router {
 
     private static final HashMap<String, Class<?>> routeMap;
-    private static HashMap<String, ControllerInterface> controllerCache = new HashMap<>();
+    private static ConcurrentHashMap<String, ControllerInterface> controllerCache = new ConcurrentHashMap<>();
     private static String currentRoute;
-
+    private static RouteArgs currentArgs;
 
     static {
         routeMap = new RouteMapping().getRoutes();
@@ -108,7 +109,12 @@ public class Router {
         }
 
         if(controllerCache.containsKey(route)) {
-            return;
+            if(!args.compareTo(currentArgs)) {
+                controllerCache.remove(route);
+            }
+            else {
+                return;
+            }
         }
 
         //shutdown controllers that are not needed for the new route
@@ -140,6 +146,7 @@ public class Router {
             }
         }
         currentRoute = route;
+        currentArgs = args;
     }
 
     /**
@@ -152,6 +159,6 @@ public class Router {
     }
 
     public static void addToControllerCache(String routeName, ControllerInterface controller) {
-        controllerCache.put(routeName, controller);
+        controllerCache.putIfAbsent(routeName, controller);
     }
 }

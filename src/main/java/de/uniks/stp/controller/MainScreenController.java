@@ -37,6 +37,8 @@ public class MainScreenController implements ControllerInterface {
     private Label usernameLabel;
     private Button logoutButton;
 
+    private ControllerInterface currentController;
+
     public MainScreenController(Parent view, Editor editor) {
         this.view = view;
         this.editor = editor;
@@ -64,24 +66,25 @@ public class MainScreenController implements ControllerInterface {
         String subroute = routeInfo.getSubControllerRoute();
 
         if (subroute.equals(Constants.ROUTE_HOME)) {
-            HomeScreenController homeScreenController = new HomeScreenController(this.subViewContainer, this.editor);
-            homeScreenController.init();
-            Router.addToControllerCache(routeInfo.getFullRoute(), homeScreenController);
+            currentController = new HomeScreenController(this.subViewContainer, this.editor);
+            currentController.init();
+            Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
         } else if (subroute.equals(Constants.ROUTE_SERVER) && args.getKey().equals(":id") && !args.getValue().isEmpty()) {
             Server server = editor.getServer(args.getValue());
             if (Objects.nonNull(server)) {
-                ServerScreenController serverScreenController = new ServerScreenController(this.subViewContainer, this.editor, server);
-                serverScreenController.init();
-                Router.addToControllerCache(routeInfo.getFullRoute(), serverScreenController);
+                currentController = new ServerScreenController(this.subViewContainer, this.editor, server);
+                currentController.init();
+                Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
             }
         }
     }
 
     private void onLogoutButtonClicked(ActionEvent actionEvent) {
-        restClient.sendLogoutRequest(this::handleLogoutResponse, this.editor.getOrCreateAccord().getUserKey());
+        restClient.sendLogoutRequest(this::handleLogoutResponse);
     }
 
     private void handleLogoutResponse(HttpResponse<JsonNode> response) {
+        System.out.println(response.getBody());
         if (!response.isSuccess()) {
             System.err.println("logout failed");
         }
@@ -97,5 +100,9 @@ public class MainScreenController implements ControllerInterface {
     public void stop() {
         navBarController.stop();
         logoutButton.setOnAction(null);
+
+        if (Objects.nonNull(currentController)) {
+            currentController.stop();
+        }
     }
 }
