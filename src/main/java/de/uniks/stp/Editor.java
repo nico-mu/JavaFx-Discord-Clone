@@ -5,6 +5,7 @@ import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.view.Languages;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -64,11 +65,19 @@ public class Editor {
         return other;
     }
 
-    public void removeOtherUserById(String userId) {
-        final Map<String, User> userMap = otherUsersAsIdUserMap();
-        final User userToBeRemoved = userMap.get(userId);
+    public List<User> getOtherUsers() {
+        LinkedList<User> otherUsers = new LinkedList<>();
+        otherUsersAsIdUserMap().forEach(((s, user) -> otherUsers.add(user)));
+        return otherUsers;
+    }
 
-        accord.withoutOtherUsers(userToBeRemoved);
+    public User getUserById(String userId) {
+        final Map<String, User> userMap = otherUsersAsIdUserMap();
+        return userMap.get(userId);
+    }
+
+    public void removeOtherUserById(String userId) {
+        accord.withoutOtherUsers(getUserById(userId));
     }
 
     private Map<String, User> otherUsersAsIdUserMap() {

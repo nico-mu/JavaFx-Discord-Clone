@@ -1,11 +1,13 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.UserList;
 import de.uniks.stp.component.UserListEntry;
 import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.router.Route;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import javafx.application.Platform;
@@ -18,6 +20,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.function.Consumer;
+
 
 public class UserListController implements ControllerInterface {
     private final HashMap<User, UserListEntry> userUserListEntryHashMap = new HashMap<>();
@@ -53,6 +57,13 @@ public class UserListController implements ControllerInterface {
     public void init() {
         editor.getOrCreateAccord().listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
 
+        // Add users in current model
+        for (User user : editor.getOtherUsers()) {
+            final UserListEntry userListEntry = new UserListEntry(user);
+            userUserListEntryHashMap.put(user, userListEntry);
+            Platform.runLater(() -> userList.addUserListEntry(userListEntry));
+        }
+
         restClient = new RestClient();
         restClient.requestOnlineUsers(this::handleUserOnlineRequest);
     }
@@ -78,5 +89,11 @@ public class UserListController implements ControllerInterface {
     @Override
     public void stop() {
         editor.getOrCreateAccord().listeners().removePropertyChangeListener(availableUsersPropertyChangeListener);
+    }
+
+    public void onUserSelected(Consumer<String> callback) {
+        userUserListEntryHashMap.forEach((s, entry) -> {
+            entry.onClick(callback::accept);
+        });
     }
 }

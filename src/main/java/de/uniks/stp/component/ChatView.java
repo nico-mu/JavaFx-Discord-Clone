@@ -30,16 +30,15 @@ public class ChatView {
     final static String CONTAINER = "#chatview__container";
 
     private final Parent component;
-    private JFXTextArea messageInput;
-    private VBox messageList;
-    private VBox chatViewContainer;
-    private ScrollPane chatViewScrollPane;
-    private LinkedList<Consumer<String>> submitListener = new LinkedList<>();
+    private final JFXTextArea messageInput;
+    private final VBox messageList;
+    private final ScrollPane chatViewScrollPane;
+    private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
 
     public ChatView(Parent parent) {
         component = ViewLoader.loadComponent(Components.CHAT_VIEW);
 
-        chatViewContainer = (VBox) component.lookup(CONTAINER);
+        VBox chatViewContainer = (VBox) component.lookup(CONTAINER);
         AnchorPane wrapper = (AnchorPane) parent.lookup(SUBVIEW_CONTAINER_ID);
         chatViewContainer.setPrefWidth(wrapper.getWidth());
         chatViewContainer.setPrefHeight(wrapper.getHeight());
