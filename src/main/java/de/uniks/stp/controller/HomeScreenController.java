@@ -5,23 +5,24 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ChatView;
 import de.uniks.stp.model.Message;
-import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.Route;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.UserList;
-import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 import java.util.Date;
-import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
 public class HomeScreenController implements ControllerInterface {
@@ -29,6 +30,7 @@ public class HomeScreenController implements ControllerInterface {
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String TOGGLE_ONLINE_BUTTON_ID = "#toggle-online-button";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
+    private static final String AVAILABLE_DM_USERS_ID = "#dm-user-list";
 
     private final AnchorPane view;
     private final Editor editor;
@@ -36,6 +38,7 @@ public class HomeScreenController implements ControllerInterface {
     private AnchorPane activeChatsContainer;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
+    private VBox availableDmUsers;
 
     private UserListController userListController;
     private boolean showOnlineUsers = true;
@@ -55,6 +58,7 @@ public class HomeScreenController implements ControllerInterface {
         activeChatsContainer = (AnchorPane) homeScreenView.lookup(ACTIVE_CHATS_CONTAINER_ID);
         onlineUsersContainer = (VBox) homeScreenView.lookup(ONLINE_USERS_CONTAINER_ID);
         homeScreenLabel = (Label) homeScreenView.lookup(HOME_SCREEN_LABEL_ID);
+        availableDmUsers = (VBox) ((ScrollPane) homeScreenView.lookup(AVAILABLE_DM_USERS_ID)).getContent();
 
         showOnlineUserList();
 
@@ -86,7 +90,15 @@ public class HomeScreenController implements ControllerInterface {
         userListController.init();
         userListController.onUserSelected(id -> {
             showOnlineUsers = false;
-            showPrivateChatView(editor.getUserById(id));
+            User user = editor.getUserById(id);
+            Text text = new Text(user.getName());
+            text.setFill(Color.WHITE);
+            text.setFont(Font.font(16));
+            text.setOnMouseClicked((mouseEvent) -> {
+                showPrivateChatView(user);
+            });
+            availableDmUsers.getChildren().add(text);
+            showPrivateChatView(user);
         });
         onlineUsersContainer.getChildren().add(userList);
         homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_ONLINE_USERS));
