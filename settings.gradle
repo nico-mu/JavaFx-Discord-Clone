@@ -1,5 +1,5 @@
 rootProject.name = 'AccordTeamG'
 
 include 'app'
-includeBuild('plugin')
+include 'plugin'
 
