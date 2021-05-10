@@ -22,4 +22,8 @@ public class RouteArgs {
         this.value = value;
         return this;
     }
+
+    public boolean compareTo(RouteArgs other) {
+        return key.equals(other.getKey()) && value.equals(other.getValue());
+    }
 }
