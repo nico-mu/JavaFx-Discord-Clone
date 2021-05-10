@@ -35,11 +35,21 @@ public class Editor {
         accord.setCurrentUser(currentUser);
     }
 
-    public Server getServer(String id) {
-        for(Server server : accord.getCurrentUser().getAvailableServers()) {
-            if(server.getId().equals(id)) {
-                return server;
-            }
+    public Server getOrCreateServer(final String id, final String name) {
+        final User currentUser = getOrCreateAccord().getCurrentUser();
+        final Map<String, Server> serverMap = availableServersAsServerIdMap();
+
+        if(serverMap.containsKey(id)) {
+            return serverMap.get(id);
+        }
+        return new Server().setName(name).setId(id).withUsers(currentUser);
+    }
+
+    public Server getServer(final String id) {
+        final Map<String, Server> serverMap = availableServersAsServerIdMap();
+
+        if(serverMap.containsKey(id)) {
+            return serverMap.get(id);
         }
         return null;
     }
@@ -76,5 +86,11 @@ public class Editor {
 
         return otherUsers.stream()
             .collect(Collectors.toMap(User::getId, user -> user));
+    }
+
+    private Map<String, Server> availableServersAsServerIdMap() {
+        final List<Server> servers = getOrCreateAccord().getCurrentUser().getAvailableServers();
+        return servers.stream()
+            .collect(Collectors.toMap(Server::getId, server -> server));
     }
 }

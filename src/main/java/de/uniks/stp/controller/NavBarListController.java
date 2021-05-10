@@ -1,8 +1,10 @@
 package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
+import de.uniks.stp.component.NavBarElement;
 import de.uniks.stp.component.NavBarList;
 import de.uniks.stp.component.NavBarServerElement;
+import de.uniks.stp.component.UserListEntry;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.RestClient;
@@ -18,8 +20,8 @@ import kong.unirest.json.JSONObject;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class NavBarListController implements ControllerInterface {
 
@@ -31,7 +33,7 @@ public class NavBarListController implements ControllerInterface {
     private AnchorPane anchorPane;
     private RestClient restClient;
 
-    private final HashMap<Server, NavBarServerElement> navBarServerElementHashMap = new HashMap<>();
+    private final ConcurrentHashMap<Server, NavBarServerElement> navBarServerElementHashMap = new ConcurrentHashMap<>();
     PropertyChangeListener availableServersPropertyChangeListener = this::onAvailableServersPropertyChange;
 
 
@@ -57,9 +59,24 @@ public class NavBarListController implements ControllerInterface {
         restClient.getServers(this::callback);
     }
 
+    private void serverAdded(final Server server) {
+        if (!navBarServerElementHashMap.containsKey(server)) {
+            final NavBarServerElement navBarElement = new NavBarServerElement(server);
+            navBarServerElementHashMap.put(server, navBarElement);
+            Platform.runLater(() -> navBarList.addServerElement(navBarElement));
+        }
+    }
+
+    private void serverRemoved(final Server server) {
+        if (navBarServerElementHashMap.containsKey(server)) {
+            final NavBarServerElement navBarElement = navBarServerElementHashMap.remove(server);
+            Platform.runLater(() -> navBarList.removeElement(navBarElement));
+        }
+    }
+
     @Override
     public void route(RouteInfo routeInfo, RouteArgs args) {
-
+        //no subroutes
     }
 
     protected void callback(HttpResponse<JsonNode> response) {
@@ -68,12 +85,11 @@ public class NavBarListController implements ControllerInterface {
             JSONArray jsonArray = response.getBody().getObject().getJSONArray("data");
             for (Object element : jsonArray) {
                 JSONObject jsonObject = (JSONObject) element;
-                String name = jsonObject.getString("name");
-                String serverId = jsonObject.getString("id");
+                final String name = jsonObject.getString("name");
+                final String serverId = jsonObject.getString("id");
 
-                editor.getOrCreateAccord()
-                    .getCurrentUser()
-                    .withAvailableServers(new Server().setName(name).setId(serverId));
+                final Server server = editor.getOrCreateServer(serverId, name);
+                serverAdded(server);
             }
         }
         else {
@@ -87,13 +103,10 @@ public class NavBarListController implements ControllerInterface {
 
         if (Objects.isNull(oldValue)) {
             // server added
-            final NavBarServerElement serverElement = new NavBarServerElement(newValue);
-            navBarServerElementHashMap.put(newValue, serverElement);
-            Platform.runLater(() -> navBarList.addServerElement(serverElement));
+            serverAdded(newValue);
         } else if (Objects.isNull(newValue)) {
             // server removed
-            NavBarServerElement serverElement = navBarServerElementHashMap.remove(oldValue);
-            Platform.runLater(() -> navBarList.removeElement(serverElement));
+           serverRemoved(oldValue);
         }
     }
 
@@ -103,5 +116,6 @@ public class NavBarListController implements ControllerInterface {
             .getCurrentUser()
             .listeners()
             .removePropertyChangeListener(availableServersPropertyChangeListener);
+        navBarServerElementHashMap.clear();
     }
 }
