@@ -38,7 +38,7 @@ public class NavBarListController implements ControllerInterface {
     public NavBarListController(Parent view, Editor editor) {
         this.view = view;
         this.editor = editor;
-        this.navBarList = new NavBarList();
+        this.navBarList = new NavBarList(editor);
         this.restClient = new RestClient();
     }
 
@@ -75,8 +75,7 @@ public class NavBarListController implements ControllerInterface {
                     .getCurrentUser()
                     .withAvailableServers(new Server().setName(name).setId(serverId));
             }
-        }
-        else {
+        } else {
             //TODO: show error message
         }
     }

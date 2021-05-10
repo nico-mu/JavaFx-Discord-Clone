@@ -63,12 +63,23 @@ public class RestClient {
         sendRequest(postUserRegister, callback);
     }
 
-    public void sendLogoutRequest(Callback<JsonNode> callback, String key) {
-        HttpRequest<?> postUserLogout = Unirest.post(Constants.REST_USERS_PATH + Constants.REST_LOGOUT_PATH).header("userKey", key);
+    public void sendLogoutRequest(Callback<JsonNode> callback) {
+        //
+        HttpRequest<?> postUserLogout = Unirest.post(Constants.REST_USERS_PATH + Constants.REST_LOGOUT_PATH);
         sendRequest(postUserLogout, callback);
     }
 
     public void requestOnlineUsers(final Callback<JsonNode> callback) {
         sendRequest(Unirest.get(Constants.REST_USERS_PATH), callback);
+    }
+
+    public String buildCreateServerRequest(String name) {
+        return Json.createObjectBuilder().add("name", name).build().toString();
+    }
+
+    public void createServer(String name, Callback<JsonNode> callback) {
+        HttpRequest<?> postCreateServer = Unirest.post(Constants.SERVERS_PATH)
+            .body(buildCreateServerRequest(name));
+        sendRequest(postCreateServer, callback);
     }
 }
