@@ -5,12 +5,14 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ChatView;
 import de.uniks.stp.model.Message;
+import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.Route;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.UserList;
+import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
@@ -36,12 +38,9 @@ public class HomeScreenController implements ControllerInterface {
     private static final String TOGGLE_ONLINE_BUTTON_ID = "#toggle-online-button";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
     private static final String AVAILABLE_DM_USERS_ID = "#dm-user-list";
-    
-    private final EventHandler<MouseEvent> handleShowOnlineUsersClicked = this::handleShowOnlineUsersClicked;
 
     private final AnchorPane view;
     private final Editor editor;
-    private ChatView chatView;
     private VBox onlineUsersContainer;
     private JFXButton showOnlineUsersButton;
     private Label homeScreenLabel;
@@ -66,15 +65,49 @@ public class HomeScreenController implements ControllerInterface {
         homeScreenLabel = (Label) homeScreenView.lookup(HOME_SCREEN_LABEL_ID);
         directMessageUsersList = (VBox) ((ScrollPane) homeScreenView.lookup(AVAILABLE_DM_USERS_ID)).getContent();
 
-        showOnlineUsersButton.setOnMouseClicked(handleShowOnlineUsersClicked);
+        showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
 
-        showOnlineUserList();
     }
 
-    private void handleShowOnlineUsersClicked(MouseEvent mouseEvent) {
-        if (!Objects.isNull(selectedOnlineUser)) {
-            showOnlineUserList();
+    @Override
+    public void route(RouteInfo routeInfo, RouteArgs args) {
+        String subRoute = routeInfo.getSubControllerRoute();
+
+        if (subRoute.equals("/chat/:userId")) {
+            User otherUser = editor.getUserById(args.getValue());
+            if (!Objects.isNull(selectedOnlineUser) && selectedOnlineUser.equals(otherUser)) {
+                return;
+            }
+
+            subviewCleanup();
+            selectedOnlineUser = otherUser;
+
+            PrivateChatController privateChatController = new PrivateChatController(view, editor, otherUser);
+            privateChatController.init();
+            Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
+
+            addUserToSidebar(otherUser);
+        } else if (subRoute.equals("/online")) {
+            subviewCleanup();
+
+            selectedOnlineUser = null;
+
+            UserList userList = new UserList();
+            userListController = new UserListController(userList, editor);
+            userListController.init();
+
+            onlineUsersContainer.getChildren().add(userList);
+            homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_ONLINE_USERS));
+
+            Router.addToControllerCache(routeInfo.getFullRoute(), userListController);
         }
+    }
+
+    @Override
+    public void stop() {
+        subviewCleanup();
+        userListController.stop();
+        showOnlineUsersButton.setOnMouseClicked(null);
     }
 
     private void subviewCleanup() {
@@ -83,93 +116,29 @@ public class HomeScreenController implements ControllerInterface {
         }
     }
 
-    private void showOnlineUserList() {
-        subviewCleanup();
-
-
-        /* if (availableDmUsers.getChildren().size() > 0) {
-            availableDmUsers.getChildren().forEach(node -> {
-                Text textNode = (Text) node;
-                if (textNode.getText().equals(selectedOnlineUser.getName())) {
-                    textNode.setUnderline(false);
-                    textNode.setFill(Color.WHITE);
-                };
-            });
-        } */
-
-        selectedOnlineUser = null;
-
-
-        UserList userList = new UserList();
-        userListController = new UserListController(userList, editor);
-        // TODO: The order matters here, init has to be called after onUserSelected. Change so that order doesn't matter anymore.
-        userListController.onUserSelected(id -> {
-            User user = editor.getUserById(id);
-            showPrivateChatView(user);
-
-            // Check if user is already in the list
-            if (knownUsers.containsKey(id)) {
-                return;
-            }
-            knownUsers.put(id, true);
-
-            // Add to known users sidebar
-            Text text = new Text(user.getName());
-            text.setFill(Color.WHITE);
-            text.setFont(Font.font(16));
-            text.setOnMouseClicked((mouseEvent) -> {
-                showPrivateChatView(user);
-            });
-            directMessageUsersList.getChildren().add(text);
-        });
-
-        userListController.init();
-
-        onlineUsersContainer.getChildren().add(userList);
-        homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_ONLINE_USERS));
+    private void handleShowOnlineUsersClicked(MouseEvent mouseEvent) {
+        if (!Objects.isNull(selectedOnlineUser)) {
+            // showOnlineUserList();
+            Router.route("/main/home/online");
+        }
     }
 
-    private void showPrivateChatView(User otherUser) {
-        if (!Objects.isNull(selectedOnlineUser) && selectedOnlineUser.equals(otherUser)) {
+    private void addUserToSidebar(User otherUser) {
+        String id = otherUser.getId();
+
+        // Check if user is already in the list
+        if (knownUsers.containsKey(id)) {
             return;
         }
+        knownUsers.put(id, true);
 
-        subviewCleanup();
-
-        selectedOnlineUser = otherUser;
-
-        homeScreenLabel.setText(otherUser.getName());
-        chatView = new ChatView(view);
-
-        chatView.onMessageSubmit((message) -> {
-            chatView.appendMessage(new Message()
-                .setMessage(message)
-                .setSender(editor.getOrCreateAccord().getCurrentUser())
-                .setTimestamp(new Date().getTime()));
-
-            // send message to the server
-
+        // Add to known users sidebar
+        Text text = new Text(otherUser.getName());
+        text.setFill(Color.WHITE);
+        text.setFont(Font.font(16));
+        text.setOnMouseClicked((mouseEvent) -> {
+            Router.route("/main/home/chat/:userId", new RouteArgs().setKey(":userId").setValue(otherUser.getId()));
         });
-        onlineUsersContainer.getChildren().add(chatView.getComponent());
-
-        /* availableDmUsers.getChildren().forEach(node -> {
-            Text textNode = (Text) node;
-            if (textNode.getText().equals(otherUser.getName())) {
-                textNode.setUnderline(true);
-                textNode.setFill(Color.BLUE);
-            };
-        }); */
-    }
-
-    @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
-        //no subroutes
-    }
-
-    @Override
-    public void stop() {
-        userListController.stop();
-        showOnlineUsersButton.setOnMouseClicked(handleShowOnlineUsersClicked);
-        chatView = null;
+        directMessageUsersList.getChildren().add(text);
     }
 }

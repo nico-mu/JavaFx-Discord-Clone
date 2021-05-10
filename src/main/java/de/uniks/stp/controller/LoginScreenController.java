@@ -208,7 +208,7 @@ public class LoginScreenController implements ControllerInterface {
             editor.setUserKey(userKey);
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
 
-            Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
+            Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + "/online"));
             return;
         }
         // Login failed

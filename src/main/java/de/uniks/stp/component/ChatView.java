@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Message;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
@@ -29,6 +30,7 @@ public class ChatView {
     final static String MESSAGE_LIST_ID = "#chatview__message-list";
     final static String CONTAINER = "#chatview__container";
 
+    private final JFXButton submitButton;
     private final Parent component;
     private final JFXTextArea messageInput;
     private final VBox messageList;
@@ -43,12 +45,19 @@ public class ChatView {
         chatViewContainer.setPrefWidth(wrapper.getWidth());
         chatViewContainer.setPrefHeight(wrapper.getHeight());
 
-        JFXButton submitButton = (JFXButton) component.lookup(SUBMIT_BUTTON_ID);
+        submitButton = (JFXButton) component.lookup(SUBMIT_BUTTON_ID);
         messageInput = (JFXTextArea) component.lookup(MESSAGE_INPUT_ID);
         chatViewScrollPane = (ScrollPane) component.lookup(MESSAGE_LIST_ID);
         messageList = (VBox) chatViewScrollPane.getContent();
 
         submitButton.setOnMouseClicked(this::onSubmitClicked);
+    }
+
+    /**
+     * Clears the view
+     */
+    public void stop() {
+        submitButton.setOnMouseClicked(null);
     }
 
     /**

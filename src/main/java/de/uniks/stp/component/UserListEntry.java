@@ -2,6 +2,8 @@ package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.User;
+import de.uniks.stp.router.RouteArgs;
+import de.uniks.stp.router.Router;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.input.MouseEvent;
@@ -17,7 +19,6 @@ public class UserListEntry extends HBox {
     @FXML
     private Text userNameText;
     private final User user;
-    private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
 
     public UserListEntry(final User user) {
         final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
@@ -37,14 +38,8 @@ public class UserListEntry extends HBox {
         userNameText.setOnMouseClicked(this::handleClick);
     }
 
-    public void onClick(Consumer<String> callback) {
-        submitListener.add(callback);
-    }
-
     private void handleClick(MouseEvent mouseEvent) {
-        submitListener.forEach(callback -> {
-            callback.accept(user.getId());
-        });
+        Router.route("/main/home/chat/:userId", new RouteArgs().setKey(":userId").setValue(user.getId()));
     }
 
     public void setUserName(final String userName) {
