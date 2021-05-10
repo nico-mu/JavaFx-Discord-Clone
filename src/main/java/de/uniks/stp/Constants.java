@@ -13,6 +13,7 @@ public class Constants {
 
     public static final String USER_KEY_HEADER_NAME = "userKey";
     public static final String MESSAGE = "message";
+    public static final String SERVERS_PATH = "/servers";
 
     // Labels for internalization
     public static final String LBL_REGISTRATION_FAILED = "LBL_REGISTRATION_FAILED";

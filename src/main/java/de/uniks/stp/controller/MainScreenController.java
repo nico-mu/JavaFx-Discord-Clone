@@ -80,7 +80,7 @@ public class MainScreenController implements ControllerInterface {
     }
 
     private void onLogoutButtonClicked(ActionEvent actionEvent) {
-        restClient.sendLogoutRequest(this::handleLogoutResponse, this.editor.getOrCreateAccord().getUserKey());
+        restClient.sendLogoutRequest(this::handleLogoutResponse);
     }
 
     private void handleLogoutResponse(HttpResponse<JsonNode> response) {
