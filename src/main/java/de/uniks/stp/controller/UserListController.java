@@ -20,17 +20,17 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class UserListController implements ControllerInterface {
-    private final HashMap<User, UserListEntry> userUserListEntryHashMap = new HashMap<>();
+    private final HashMap<User, UserListEntry> userUserListEntryHashMap;
     private final UserList userList;
     private final Editor editor;
 
-
     private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
-    private RestClient restClient;
 
     public UserListController(final UserList userList, final Editor editor) {
         this.userList = userList;
         this.editor = editor;
+
+        userUserListEntryHashMap = new HashMap<>();
     }
 
     private void onAvailableUsersPropertyChange(final PropertyChangeEvent propertyChangeEvent) {
@@ -38,22 +38,33 @@ public class UserListController implements ControllerInterface {
         final User newValue = (User) propertyChangeEvent.getNewValue();
 
         if (Objects.isNull(oldValue)) {
-            // user joined
-            final UserListEntry userListEntry = new UserListEntry(newValue);
-            userUserListEntryHashMap.put(newValue, userListEntry);
-            Platform.runLater(() -> userList.addUserListEntry(userListEntry));
+            userJoined(newValue);
         } else if (Objects.isNull(newValue)) {
-            // user left
-            final UserListEntry userListEntry = userUserListEntryHashMap.remove(oldValue);
+            userLeft(oldValue);
+        }
+    }
+
+    private void userLeft(final User user) {
+        if (userUserListEntryHashMap.containsKey(user)) {
+            final UserListEntry userListEntry = userUserListEntryHashMap.remove(user);
             Platform.runLater(() -> userList.removeUserListEntry(userListEntry));
+        }
+    }
+
+    private void userJoined(final User user) {
+        if (!userUserListEntryHashMap.containsKey(user)) {
+            final UserListEntry userListEntry = new UserListEntry(user);
+            userUserListEntryHashMap.put(user, userListEntry);
+            Platform.runLater(() -> userList.addUserListEntry(userListEntry));
         }
     }
 
     @Override
     public void init() {
-        editor.getOrCreateAccord().listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
+        final Accord accord = editor.getOrCreateAccord();
+        accord.listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
 
-        restClient = new RestClient();
+        final RestClient restClient = new RestClient();
         restClient.requestOnlineUsers(this::handleUserOnlineRequest);
     }
 
@@ -66,17 +77,20 @@ public class UserListController implements ControllerInterface {
         if (response.isSuccess()) {
             final JSONArray data = response.getBody().getObject().getJSONArray("data");
             data.forEach(o -> {
-                final JSONObject user = (JSONObject) o;
-                final String userId = user.getString("id");
-                final String name = user.getString("name");
+                final JSONObject jsonUser = (JSONObject) o;
+                final String userId = jsonUser.getString("id");
+                final String name = jsonUser.getString("name");
 
-                editor.getOrCreateOtherUser(userId, name);
+                final User user = editor.getOrCreateOtherUser(userId, name);
+                userJoined(user);
             });
         }
     }
 
     @Override
     public void stop() {
-        editor.getOrCreateAccord().listeners().removePropertyChangeListener(availableUsersPropertyChangeListener);
+        final Accord accord = editor.getOrCreateAccord();
+        accord.listeners().removePropertyChangeListener(availableUsersPropertyChangeListener);
+        userUserListEntryHashMap.clear();
     }
 }
