@@ -65,12 +65,12 @@ public class HomeScreenController implements ControllerInterface {
     public void route(RouteInfo routeInfo, RouteArgs args) {
         String subRoute = routeInfo.getSubControllerRoute();
 
-        // TODO: add constants
-        if (subRoute.equals("/chat/:userId")) {
+        if (subRoute.equals(Constants.ROUTE_PRIVATE_CHAT)) {
 
             isShowingOnlineUserList = false;
 
             User otherUser = editor.getUserById(args.getValue());
+            // Don't open private chat view which is already open
             if (!Objects.isNull(selectedOnlineUser) && selectedOnlineUser.equals(otherUser)) {
                 return;
             }
@@ -84,7 +84,12 @@ public class HomeScreenController implements ControllerInterface {
             Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
 
             addUserToSidebar(otherUser);
+
         } else if (subRoute.equals(Constants.ROUTE_LIST_ONLINE_USERS)) {
+            if (isShowingOnlineUserList) {
+                return;
+            }
+
             subviewCleanup();
 
             selectedOnlineUser = null;
@@ -140,7 +145,8 @@ public class HomeScreenController implements ControllerInterface {
         text.setFill(Color.WHITE);
         text.setFont(Font.font(16));
         text.setOnMouseClicked((mouseEvent) -> {
-            Router.route("/main/home/chat/:userId", new RouteArgs().setKey(":userId").setValue(otherUser.getId()));
+            Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT,
+                new RouteArgs().setKey(Constants.ROUTE_PRIVATE_CHAT_ARGS).setValue(otherUser.getId()));
         });
         directMessageUsersList.getChildren().add(text);
     }

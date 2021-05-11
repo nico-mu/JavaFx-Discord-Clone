@@ -1,5 +1,6 @@
 package de.uniks.stp.component;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.RouteArgs;
@@ -36,7 +37,8 @@ public class UserListEntry extends HBox {
     }
 
     private void handleClick(MouseEvent mouseEvent) {
-        Router.route("/main/home/chat/:userId", new RouteArgs().setKey(":userId").setValue(user.getId()));
+        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT,
+            new RouteArgs().setKey(Constants.ROUTE_PRIVATE_CHAT_ARGS).setValue(user.getId()));
     }
 
     public void setUserName(final String userName) {

@@ -2,8 +2,9 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.ChatView;
-import de.uniks.stp.model.Message;
+import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.Route;
 import de.uniks.stp.router.RouteArgs;
@@ -14,7 +15,7 @@ import javafx.scene.layout.VBox;
 import java.util.Date;
 import java.util.Objects;
 
-@Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + "/chat/:userId")
+@Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT)
 public class PrivateChatController implements ControllerInterface {
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
@@ -55,8 +56,7 @@ public class PrivateChatController implements ControllerInterface {
     private void showPrivateChatView(User otherUser) {
         // Block chat for now when user offline
         if (Objects.isNull(otherUser)) {
-            // TODO: add label
-            homeScreenLabel.setText("Offline User");
+            homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE));
             return;
         }
 
@@ -64,7 +64,9 @@ public class PrivateChatController implements ControllerInterface {
         chatView = new ChatView(view);
 
         chatView.onMessageSubmit((message) -> {
-            chatView.appendMessage(new Message()
+            // TODO: Cache messages
+            chatView.appendMessage(new DirectMessage()
+                .setReceiver(otherUser)
                 .setMessage(message)
                 .setSender(editor.getOrCreateAccord().getCurrentUser())
                 .setTimestamp(new Date().getTime()));

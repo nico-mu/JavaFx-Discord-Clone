@@ -24,6 +24,7 @@ public class Constants {
     public static final String LBL_HOME = "LBL_HOME";
     public static final String LBL_CREATE_SERVER = "LBL_CREATE_SERVER";
     public static final String LBL_ONLINE_USERS = "LBL_ONLINE_USERS";
+    public static final String LBL_USER_OFFLINE = "LBL_USER_OFFLINE";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";
@@ -35,4 +36,6 @@ public class Constants {
     public static final String ROUTE_HOME = "/home";
     public static final String ROUTE_LIST_ONLINE_USERS = "/online";
     public static final String ROUTE_SERVER = "/server/:id";
+    public static final String ROUTE_PRIVATE_CHAT_ARGS = ":userId";
+    public static final String ROUTE_PRIVATE_CHAT = "/chat/" + ROUTE_PRIVATE_CHAT_ARGS;
 }
