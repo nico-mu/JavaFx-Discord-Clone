@@ -47,13 +47,11 @@ public class PrivateChatController implements ControllerInterface {
             chatView.appendMessage(message);
         }
 
-
         user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, (propertyChangeEvent) -> {
             DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
 
             chatView.appendMessage(directMessage);
         });
-
     }
 
     @Override

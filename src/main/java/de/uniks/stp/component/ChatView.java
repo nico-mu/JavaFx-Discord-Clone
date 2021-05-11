@@ -5,6 +5,10 @@ import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Message;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -38,6 +42,7 @@ public class ChatView extends VBox {
     private final VBox messageList;
 
     private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
+    private final InvalidationListener heightChangedListener = this::onHeightChanged;
 
     public ChatView(Parent parent) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_VIEW);
@@ -57,6 +62,12 @@ public class ChatView extends VBox {
         messageList = (VBox) chatViewMessageScrollPane.getContent();
 
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
+
+        messageList.heightProperty().addListener(heightChangedListener);
+    }
+
+    private void onHeightChanged(Observable observable) {
+        chatViewMessageScrollPane.setVvalue(1.0);
     }
 
     /**
@@ -64,6 +75,7 @@ public class ChatView extends VBox {
      */
     public void stop() {
         chatViewSubmitButton.setOnMouseClicked(null);
+        messageList.heightProperty().removeListener(heightChangedListener);
     }
 
     /**
@@ -91,7 +103,6 @@ public class ChatView extends VBox {
 
         Platform.runLater(() -> {
             messageList.getChildren().add(text);
-            // chatViewMessageScrollPane.setVvalue(1.0);
         });
     }
 
