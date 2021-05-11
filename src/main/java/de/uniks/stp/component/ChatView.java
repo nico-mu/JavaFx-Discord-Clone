@@ -91,8 +91,8 @@ public class ChatView extends VBox {
 
         Platform.runLater(() -> {
             messageList.getChildren().add(text);
+            // chatViewMessageScrollPane.setVvalue(1.0);
         });
-
     }
 
     private void onSubmitClicked(MouseEvent mouseEvent) {

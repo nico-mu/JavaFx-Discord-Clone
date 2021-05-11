@@ -74,7 +74,6 @@ public class UserListController implements ControllerInterface {
             Platform.runLater(() -> userList.addUserListEntry(userListEntry));
         }
 
-
         final RestClient restClient = new RestClient();
         restClient.requestOnlineUsers(this::handleUserOnlineRequest);
     }

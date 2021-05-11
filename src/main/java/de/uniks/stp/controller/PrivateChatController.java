@@ -5,6 +5,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.ChatView;
 import de.uniks.stp.model.DirectMessage;
+import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.Route;
@@ -40,6 +41,19 @@ public class PrivateChatController implements ControllerInterface {
         homeScreenLabel = (Label) view.lookup(HOME_SCREEN_LABEL_ID);
 
         showPrivateChatView(user);
+
+        // Load messages from model
+        for (Message message : user.getPrivateChatMessages()) {
+            chatView.appendMessage(message);
+        }
+
+
+        user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, (propertyChangeEvent) -> {
+            DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
+
+            chatView.appendMessage(directMessage);
+        });
+
     }
 
     @Override
@@ -69,9 +83,6 @@ public class PrivateChatController implements ControllerInterface {
             DirectMessage msg = new DirectMessage();
             msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser()).setTimestamp(new Date().getTime());
             user.withPrivateChatMessages(msg);
-
-            // show message
-            chatView.appendMessage(msg);
 
             // send message to the server
             WebSocketService.sendPrivateMessage(otherUser.getName(),message);
