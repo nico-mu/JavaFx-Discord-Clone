@@ -42,10 +42,13 @@ public class GenModel implements ClassModelDecorator {
         List<Server> ownedServers;
 
         @Link("receiver")
-        List<DirectMessage> receivedMessages;
+        List<DirectMessage> privateChatMessages;
 
         @Link("sender")
         List<Message> sentMessages;
+
+        @Link("chatPartner")
+        List<User> chatPartner;
     }
 
     class Server {
@@ -101,7 +104,7 @@ public class GenModel implements ClassModelDecorator {
     }
 
     class DirectMessage extends Message {
-        @Link("receivedMessages")
+        @Link("privateChatMessages")
         User receiver;
     }
 }

@@ -68,7 +68,7 @@ public class PrivateChatController implements ControllerInterface {
             // save message
             DirectMessage msg = new DirectMessage();
             msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser()).setTimestamp(new Date().getTime());
-            user.withReceivedMessages(msg);
+            user.withPrivateChatMessages(msg);
 
             // show message
             chatView.appendMessage(msg);
