@@ -36,6 +36,10 @@ public class Editor {
         accord.setCurrentUser(currentUser);
     }
 
+    public User getCurrentUser() {
+        return accord.getCurrentUser();
+    }
+
     public Server getOrCreateServer(final String id, final String name) {
         final User currentUser = getOrCreateAccord().getCurrentUser();
         final Map<String, Server> serverMap = availableServersAsServerIdMap();
@@ -79,6 +83,16 @@ public class Editor {
         LinkedList<User> otherUsers = new LinkedList<>();
         otherUsersAsIdUserMap().forEach(((s, user) -> otherUsers.add(user)));
         return otherUsers;
+    }
+
+    public User getOtherUser(String username) {
+        List<User> otherUsers = accord.getOtherUsers();
+        for(User user: otherUsers){
+            if(user.getName().equals(username)){
+                return user;
+            }
+        }
+        return null;
     }
 
     public User getUserById(String userId) {

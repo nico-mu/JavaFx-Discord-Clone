@@ -28,6 +28,9 @@ public class Constants {
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";
     public static final String WS_SYSTEM_PATH = "/system";
+    public static final String WS_USER_PATH = "/chat?user=";
+    public static final String WS_SERVER_SYSTEM_PATH = "?serverId=";
+    public static final String WS_SERVER_CHAT_PATH = "&serverId=";
 
     //route names
     public static final String ROUTE_LOGIN = "/login";
