@@ -7,12 +7,12 @@ import de.uniks.stp.model.Message;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
@@ -64,10 +64,28 @@ public class ChatView extends VBox {
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
 
         messageList.heightProperty().addListener(heightChangedListener);
+
+        chatViewMessageInput.setOnKeyPressed(this::checkforEnter);
     }
 
     private void onHeightChanged(Observable observable) {
         chatViewMessageScrollPane.setVvalue(1.0);
+    }
+
+    /**
+     * Enter typed -> press send Button | Shift-Enter typed -> add new line
+     * @param keyEvent
+     */
+    private void checkforEnter(KeyEvent keyEvent) {
+        if (keyEvent.getCode() == KeyCode.ENTER)  {
+            if (keyEvent.isShiftDown()) {
+                chatViewMessageInput.appendText(System.getProperty("line.separator"));
+            } else {
+                String text = chatViewMessageInput.getText();
+                chatViewMessageInput.setText(text.substring(0, text.length() - 1));
+                onSubmitClicked(null);
+            }
+        }
     }
 
     /**
