@@ -123,7 +123,7 @@ public class WebSocketService {
         msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender);
 
         //Namen in DirectMessages Liste hinzufügen
-        sender.withReceivedMessages(msg);
+        sender.withPrivateChatMessages(msg);
     }
 
     private static void onSystemMessage(final JsonStructure jsonStructure) {
