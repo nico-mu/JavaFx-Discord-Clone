@@ -3,7 +3,9 @@ package de.uniks.stp.controller;
 import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.UserKeyProvider;
 import de.uniks.stp.router.Route;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
@@ -11,6 +13,7 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.UserList;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
+import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -20,6 +23,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +49,7 @@ public class HomeScreenController implements ControllerInterface {
     private UserListController userListController;
     private User selectedOnlineUser;
     private boolean isShowingOnlineUserList;
+    private final PropertyChangeListener chatPartnerChangeListener = this::onChatPartnerChanged;
 
     HomeScreenController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
@@ -59,6 +67,17 @@ public class HomeScreenController implements ControllerInterface {
         directMessageUsersList = (VBox) ((ScrollPane) homeScreenView.lookup(AVAILABLE_DM_USERS_ID)).getContent();
 
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
+
+        // init direct messages list
+        // TODO: offlineUser Chat
+        for(User user: editor.getOrCreateAccord().getCurrentUser().getChatPartner()){
+            addUserToSidebar(user);
+        }
+
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .listeners()
+            .addPropertyChangeListener(User.PROPERTY_CHAT_PARTNER, chatPartnerChangeListener);
     }
 
     @Override
@@ -148,6 +167,13 @@ public class HomeScreenController implements ControllerInterface {
             Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT,
                 new RouteArgs().setKey(Constants.ROUTE_PRIVATE_CHAT_ARGS).setValue(otherUser.getId()));
         });
-        directMessageUsersList.getChildren().add(text);
+        Platform.runLater(() -> {
+            directMessageUsersList.getChildren().add(text);
+        });
+    }
+
+    private void onChatPartnerChanged(PropertyChangeEvent propertyChangeEvent) {
+        User user = (User) propertyChangeEvent.getNewValue();
+        addUserToSidebar(user);
     }
 }
