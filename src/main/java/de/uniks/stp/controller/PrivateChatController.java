@@ -65,10 +65,16 @@ public class PrivateChatController implements ControllerInterface {
         chatView = new ChatView(view);
 
         chatView.onMessageSubmit((message) -> {
-            // save message
+            // create & save message
             DirectMessage msg = new DirectMessage();
             msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser()).setTimestamp(new Date().getTime());
             user.withPrivateChatMessages(msg);
+
+            // add user to chatPartner list if not already in it
+            User currentUser = editor.getOrCreateAccord().getCurrentUser();
+            if(!currentUser.getChatPartner().contains(user)){
+                currentUser.withChatPartner(user);
+            }
 
             // show message
             chatView.appendMessage(msg);
