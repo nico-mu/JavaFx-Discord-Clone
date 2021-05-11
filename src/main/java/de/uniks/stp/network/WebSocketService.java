@@ -20,6 +20,7 @@ import java.util.Objects;
 public class WebSocketService {
     private static final HashMap<String, WebSocketClient> pathWebSocketClientHashMap = new HashMap<>();
     private static Editor editor;
+    private static User currentUser;
 
     public static void setEditor(Editor editor) {
         WebSocketService.editor = editor;
@@ -33,11 +34,13 @@ public class WebSocketService {
     }
 
     public static void init() {
+        currentUser = editor.getOrCreateAccord().getCurrentUser();
+
         final WebSocketClient systemWebSocketClient = new WebSocketClient(Constants.WS_SYSTEM_PATH, WebSocketService::onSystemMessage);
         pathWebSocketClientHashMap.put(Constants.WS_SYSTEM_PATH, systemWebSocketClient);
 
 
-        String endpoint = Constants.WS_USER_PATH + editor.getCurrentUser().getName();
+        String endpoint = Constants.WS_USER_PATH + currentUser.getName();
         final WebSocketClient privateWebSocketClient = new WebSocketClient(endpoint, WebSocketService::onPrivateMessage);
         pathWebSocketClientHashMap.put(endpoint, privateWebSocketClient);
     }
@@ -47,7 +50,7 @@ public class WebSocketService {
         final WebSocketClient systemServerWSC = new WebSocketClient(endpoint, WebSocketService::onServerSystemMessage);
         pathWebSocketClientHashMap.put(endpoint, systemServerWSC);
 
-        endpoint = Constants.WS_USER_PATH + editor.getCurrentUser().getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
+        endpoint = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
         final WebSocketClient chatServerWSC = new WebSocketClient(endpoint, WebSocketService::onServerChatMessage);
         pathWebSocketClientHashMap.put(endpoint, chatServerWSC);
     }
@@ -71,7 +74,7 @@ public class WebSocketService {
             .build();
 
         try {
-            String endpointKey = Constants.WS_USER_PATH + editor.getCurrentUser().getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
+            String endpointKey = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
             pathWebSocketClientHashMap.get(endpointKey).sendMessage(msgObject.toString());
             System.out.println("Message sent: " + msgObject.toString());
         } catch (IOException e) {
@@ -88,7 +91,7 @@ public class WebSocketService {
             .build();
 
         try {
-            String endpointKey = Constants.WS_USER_PATH + editor.getCurrentUser().getName();
+            String endpointKey = Constants.WS_USER_PATH + currentUser.getName();
             pathWebSocketClientHashMap.get(endpointKey).sendMessage(msgObject.toString());
             System.out.println("Message sent: " + msgObject.toString());
         } catch (IOException e) {
@@ -107,8 +110,8 @@ public class WebSocketService {
         final String msgText = jsonObject.getString("message");
         final String to = jsonObject.getString("to");
 
-        //if it's sent by you
-        if (from.equals(editor.getCurrentUser().getName())) {
+        // in case it's sent by you
+        if (from.equals(currentUser.getName())) {
             return;
         }
 
@@ -117,13 +120,15 @@ public class WebSocketService {
             System.out.println("ERROR:WebSocketService: Sender \"" + from + "\" of received message is not in editor");
             return;
         }
-        User receiver = editor.getCurrentUser();
 
-        DirectMessage msg = new DirectMessage().setReceiver(receiver);
+        DirectMessage msg = new DirectMessage().setReceiver(currentUser);
         msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender);
 
-        //Namen in DirectMessages Liste hinzufügen
+        // show message
         sender.withPrivateChatMessages(msg);
+        if(!currentUser.getChatPartner().contains(sender)){
+            currentUser.withChatPartner(sender);
+        }
     }
 
     private static void onSystemMessage(final JsonStructure jsonStructure) {

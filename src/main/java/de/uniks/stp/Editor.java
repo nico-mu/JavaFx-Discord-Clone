@@ -36,10 +36,6 @@ public class Editor {
         accord.setCurrentUser(currentUser);
     }
 
-    public User getCurrentUser() {
-        return accord.getCurrentUser();
-    }
-
     public Server getOrCreateServer(final String id, final String name) {
         final User currentUser = getOrCreateAccord().getCurrentUser();
         final Map<String, Server> serverMap = availableServersAsServerIdMap();
