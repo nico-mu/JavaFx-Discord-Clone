@@ -2,20 +2,17 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.StageManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class Router {
 
-    private static final HashMap<String, Class<?>> routeMap;
-    private static HashMap<String, ControllerInterface> controllerCache = new HashMap<>();
+    private static final Map<String, Class<?>> routeMap;
+    private static final HashMap<String, ControllerInterface> controllerCache = new HashMap<>();
     private static String currentRoute;
 
 
     static {
-        routeMap = new RouteMapping().getRoutes();
+        routeMap = Collections.unmodifiableMap(new RouteMap().getRoutes());
     }
 
     public static String compareRoutes(String newRoute, String oldRoute) {
