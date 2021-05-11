@@ -45,14 +45,14 @@ public class UserListController implements ControllerInterface {
     }
 
     private void userLeft(final User user) {
-        if (userUserListEntryHashMap.containsKey(user)) {
+        if (Objects.nonNull(user) && userUserListEntryHashMap.containsKey(user)) {
             final UserListEntry userListEntry = userUserListEntryHashMap.remove(user);
             Platform.runLater(() -> userList.removeUserListEntry(userListEntry));
         }
     }
 
     private void userJoined(final User user) {
-        if (!userUserListEntryHashMap.containsKey(user)) {
+        if (Objects.nonNull(user) && !userUserListEntryHashMap.containsKey(user)) {
             final UserListEntry userListEntry = new UserListEntry(user);
             userUserListEntryHashMap.put(user, userListEntry);
             Platform.runLater(() -> userList.addUserListEntry(userListEntry));
