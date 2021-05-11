@@ -7,7 +7,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 
 import static de.uniks.stp.Constants.LBL_HOME;
-import static de.uniks.stp.Constants.ROUTE_HOME;
 
 public class NavBarHomeElement extends NavBarElement {
 
@@ -19,6 +18,6 @@ public class NavBarHomeElement extends NavBarElement {
     @Override
     protected void onMouseClicked(MouseEvent mouseEvent) {
         super.onMouseClicked(mouseEvent);
-        Router.route(Constants.ROUTE_MAIN + ROUTE_HOME);
+        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
     }
 }

@@ -33,5 +33,6 @@ public class Constants {
     public static final String ROUTE_LOGIN = "/login";
     public static final String ROUTE_MAIN = "/main";
     public static final String ROUTE_HOME = "/home";
+    public static final String ROUTE_LIST_ONLINE_USERS = "/online";
     public static final String ROUTE_SERVER = "/server/:id";
 }

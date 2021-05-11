@@ -66,13 +66,13 @@ public class HomeScreenController implements ControllerInterface {
         directMessageUsersList = (VBox) ((ScrollPane) homeScreenView.lookup(AVAILABLE_DM_USERS_ID)).getContent();
 
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
-
     }
 
     @Override
     public void route(RouteInfo routeInfo, RouteArgs args) {
         String subRoute = routeInfo.getSubControllerRoute();
 
+        // TODO: add constants
         if (subRoute.equals("/chat/:userId")) {
             User otherUser = editor.getUserById(args.getValue());
             if (!Objects.isNull(selectedOnlineUser) && selectedOnlineUser.equals(otherUser)) {
@@ -87,7 +87,7 @@ public class HomeScreenController implements ControllerInterface {
             Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
 
             addUserToSidebar(otherUser);
-        } else if (subRoute.equals("/online")) {
+        } else if (subRoute.equals(Constants.ROUTE_LIST_ONLINE_USERS)) {
             subviewCleanup();
 
             selectedOnlineUser = null;
@@ -106,7 +106,9 @@ public class HomeScreenController implements ControllerInterface {
     @Override
     public void stop() {
         subviewCleanup();
-        userListController.stop();
+        if (Objects.isNull(userListController)) {
+            userListController.stop();
+        }
         showOnlineUsersButton.setOnMouseClicked(null);
     }
 
@@ -118,8 +120,7 @@ public class HomeScreenController implements ControllerInterface {
 
     private void handleShowOnlineUsersClicked(MouseEvent mouseEvent) {
         if (!Objects.isNull(selectedOnlineUser)) {
-            // showOnlineUserList();
-            Router.route("/main/home/online");
+            Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
         }
     }
 

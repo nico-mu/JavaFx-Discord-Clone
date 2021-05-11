@@ -49,7 +49,7 @@ public class PrivateChatController implements ControllerInterface {
 
     }
 
-    public void showPrivateChatView(User otherUser) {
+    private void showPrivateChatView(User otherUser) {
         homeScreenLabel.setText(otherUser.getName());
         chatView = new ChatView(view);
 

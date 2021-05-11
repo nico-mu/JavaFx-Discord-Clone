@@ -6,7 +6,6 @@ import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.router.Route;
@@ -208,7 +207,7 @@ public class LoginScreenController implements ControllerInterface {
             editor.setUserKey(userKey);
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
 
-            Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + "/online"));
+            Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
             return;
         }
         // Login failed
