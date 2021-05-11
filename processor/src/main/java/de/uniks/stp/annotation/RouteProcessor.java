@@ -16,14 +16,14 @@ import static javax.tools.Diagnostic.Kind.NOTE;
 public class RouteProcessor extends AbstractProcessor {
 
     static final String ANNOTATION_ROUTE = "de.uniks.stp.annotation.Route";
-    private static final String PACKAGE_NAME = "de.uniks.stp.controller";
+    private static final String PACKAGE_NAME = "de.uniks.stp.router";
     private static final String CLASS_NAME = "RouteMap";
     private static final String CLASS_EXTENSION = ".class";
 
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment env) {
         try {
-            final JavaFileObject builderFile = processingEnv.getFiler().createSourceFile("de.uniks.stp.controller.RouteMap");
+            final JavaFileObject builderFile = processingEnv.getFiler().createSourceFile(PACKAGE_NAME + "." + CLASS_NAME);
 
             final Messager messager = processingEnv.getMessager();
 

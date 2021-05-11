@@ -6,9 +6,12 @@ import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
-import de.uniks.stp.network.auth.AuthClient;
+import de.uniks.stp.network.RestClient;
+import de.uniks.stp.ViewLoader;
+import de.uniks.stp.router.RouteArgs;
+import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -18,10 +21,11 @@ import kong.unirest.JsonNode;
 
 import java.util.Objects;
 
-@Route(Constants.LOGIN_ROUTE)
+@Route(Constants.ROUTE_LOGIN)
 public class LoginScreenController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;
+    private final RestClient restClient;
 
     private JFXTextField nameField;
     private JFXPasswordField passwordField;
@@ -36,8 +40,13 @@ public class LoginScreenController implements ControllerInterface {
     public LoginScreenController(Parent view, Editor editor) {
         this.view = view;
         this.editor = editor;
+        this.restClient = new RestClient();
     }
 
+    /**
+     * Looks up View Objects, activates Buttons and sets default button.
+     * Should be called in StageManager::showLoginScreen.
+     */
     public void init() {
         nameField = (JFXTextField) view.lookup("#name-field");
         passwordField = (JFXPasswordField) view.lookup("#password-field");
@@ -49,10 +58,12 @@ public class LoginScreenController implements ControllerInterface {
         // Register button event handler
         registerButton.setOnAction(this::onRegisterButtonClicked);
         loginButton.setOnAction(this::onLoginButtonClicked);
+
+        loginButton.setDefaultButton(true);  // Allows to use Enter in order to press login button
     }
 
     @Override
-    public void route(RouteInfo routeInfo) {
+    public void route(RouteInfo routeInfo, RouteArgs args) {
         //no subroutes
     }
 
@@ -70,6 +81,11 @@ public class LoginScreenController implements ControllerInterface {
         return name.isEmpty() || password.isEmpty();
     }
 
+    /**
+     * Changes ErrorLabel to display given error.
+     *
+     * @param label Constant of resource label
+     */
     private void setErrorMessage(String label) {
         if (Objects.isNull(label)) {
             Platform.runLater(() -> {
@@ -83,7 +99,11 @@ public class LoginScreenController implements ControllerInterface {
         });
     }
 
-    public void showSpinner() {
+    /**
+     * Disables TextFields and Buttons and shows Spinner.
+     * Should be called when waiting for server response.
+     */
+    private void disableUserInput() {
         Platform.runLater(() -> {
             nameField.setDisable(true);
             passwordField.setDisable(true);
@@ -93,7 +113,11 @@ public class LoginScreenController implements ControllerInterface {
         });
     }
 
-    public void hideSpinner() {
+    /**
+     * Enables TextFields and Buttons and hides Spinner.
+     * Should be called when server response is received.
+     */
+    private void enableUserInput() {
         Platform.runLater(() -> {
             nameField.setDisable(false);
             passwordField.setDisable(false);
@@ -103,47 +127,79 @@ public class LoginScreenController implements ControllerInterface {
         });
     }
 
-    public void onRegisterButtonClicked(ActionEvent event) {
+    /**
+     * Reads TextFields and sends register request.
+     *
+     * @param event (passed automatically)
+     */
+    private void onRegisterButtonClicked(ActionEvent event) {
+        // read/check TextFields
         readInputFields();
-
         if (isEmptyInput()) {
             setErrorMessage(Constants.LBL_MISSING_FIELDS);
             return;
         }
 
+        // prepare for and send register request
         setErrorMessage(null);
-        showSpinner();
-        AuthClient.register(name, password, this::handleRegisterResponse);
+        disableUserInput();
+        restClient.register(name, password, this::handleRegisterResponse);
     }
 
-    public void onLoginButtonClicked(ActionEvent _event) {
+    /**
+     * Reads TextFields and sends login request.
+     *
+     * @param event (passed automatically)
+     */
+    private void onLoginButtonClicked(ActionEvent event) {
+        // read/check TextFields
         readInputFields();
-
         if (isEmptyInput()) {
             setErrorMessage(Constants.LBL_MISSING_FIELDS);
             return;
         }
 
+        // prepare for and send login request
         setErrorMessage(null);
-        showSpinner();
-        AuthClient.login(name, password, this::handleLoginResponse);
+        disableUserInput();
+        restClient.login(name, password, this::handleLoginResponse);
     }
 
+    /**
+     * Checks whether register was successful.
+     * If so, user will be logged in.
+     * Else, matching error will be shown.
+     *
+     * @param response contains server response
+     */
     private void handleRegisterResponse(HttpResponse<JsonNode> response) {
-        hideSpinner();
+        System.out.println(response.getBody());
         // log user in
         if (response.isSuccess()) {
             setErrorMessage(null);
-            AuthClient.login(name, password, this::handleLoginResponse);
+            restClient.login(name, password, this::handleLoginResponse);
             return;
         }
         // Registration failed
         passwordField.clear();
-        setErrorMessage(Constants.LBL_REGISTRATION_FAILED);
+        enableUserInput();
+        if (response.getBody().getObject().getString(Constants.MESSAGE).equals("Name already taken")){
+            setErrorMessage(Constants.LBL_REGISTRATION_NAME_TAKEN);
+        }
+        else{
+            setErrorMessage(Constants.LBL_REGISTRATION_FAILED);
+        }
     }
 
+    /**
+     * Checks whether login was successful.
+     * If so, HomeScreen will be shown.
+     * Else, matching error will be shown.
+     *
+     * @param response contains server response
+     */
     private void handleLoginResponse(HttpResponse<JsonNode> response) {
-        hideSpinner();
+        System.out.println(response.getBody());
         // set currentUser + userKey and switch to HomeScreen
         if (response.isSuccess()) {
             setErrorMessage(null);
@@ -151,12 +207,18 @@ public class LoginScreenController implements ControllerInterface {
             editor.setUserKey(userKey);
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
 
-            Platform.runLater(()-> Router.route("/main/home"));
+            Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
             return;
         }
         // Login failed
         passwordField.clear();
-        setErrorMessage(Constants.LBL_LOGIN_FAILED);
+        enableUserInput();
+        if (response.getBody().getObject().getString(Constants.MESSAGE).equals("Invalid credentials")){
+            setErrorMessage(Constants.LBL_LOGIN_WRONG_CREDENTIALS);
+        }
+        else{
+            setErrorMessage(Constants.LBL_LOGIN_FAILED);
+        }
     }
 
 }

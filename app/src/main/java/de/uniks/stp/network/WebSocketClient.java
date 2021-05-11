@@ -1,8 +1,6 @@
-//FIXME in CustomWebSocketConfigurator, might cause problems
-
 package de.uniks.stp.network;
 
-import de.uniks.stp.Editor;
+import de.uniks.stp.Constants;
 import de.uniks.stp.util.JsonUtil;
 
 import javax.json.JsonObject;
@@ -13,28 +11,33 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class WebSocketClient extends Endpoint {
-
-    private Editor editor;
-
+    private final Timer noopTimer;
     private Session session;
-    private Timer noopTimer;
-
     private WSCallback callback;
 
-    public WebSocketClient(Editor editor, URI endpoint, WSCallback callback) {
-        this.editor = editor;
+    /**
+     * Intitilization chores
+     *
+     * @param endpoint URI with connection adress
+     * @param callback method to call when message is received
+     */
+    public WebSocketClient(String endpoint, WSCallback callback) {
         this.noopTimer = new Timer();
 
         try {
             ClientEndpointConfig clientConfig = ClientEndpointConfig.Builder.create()
-                    .configurator(new CustomWebSocketConfigurator(UserKeyProvider.getUserKey()))
-                    .build();
+                .configurator(new CustomWebSocketConfigurator(UserKeyProvider.getUserKey()))
+                .build();
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+
+            final String path = endpoint.startsWith("/") ?
+                Constants.WEBSOCKET_BASE_URL + endpoint : Constants.WEBSOCKET_BASE_URL + "/" + endpoint;
+
             container.connectToServer(
-                    this,
-                    clientConfig,
-                    endpoint
+                this,
+                clientConfig,
+                URI.create(path)
             );
             this.callback = callback;
         } catch (Exception e) {
@@ -43,6 +46,12 @@ public class WebSocketClient extends Endpoint {
         }
     }
 
+    /**
+     * Is called automatically, initializes and sets NOOP-timer
+     *
+     * @param session passed automatically
+     * @param config  passed automatically
+     */
     @Override
     public void onOpen(Session session, EndpointConfig config) {
         // Store session
@@ -60,11 +69,18 @@ public class WebSocketClient extends Endpoint {
                     e.printStackTrace();
                 }
             }
-        }, 0, 1000 * 30);  // 1000*30 is just a guess
+        }, 0, 1000 * 30);  // 30s works, 1min is to much
     }
 
+    /**
+     * Is called automatically; cleanup and disables NOOP-timer
+     *
+     * @param session     passed automatically
+     * @param closeReason passed automatically
+     */
     @Override
     public void onClose(Session session, CloseReason closeReason) {
+        System.out.println("onClose");
         super.onClose(session, closeReason);
         // cancel timer
         this.noopTimer.cancel();
@@ -72,6 +88,11 @@ public class WebSocketClient extends Endpoint {
         this.session = null;
     }
 
+    /**
+     * Is called when message is received
+     *
+     * @param message Json String that is received
+     */
     private void onMessage(String message) {
         // Process Message
         JsonObject jsonMessage = JsonUtil.parse(message);
@@ -79,21 +100,35 @@ public class WebSocketClient extends Endpoint {
         this.callback.handleMessage(jsonMessage);
     }
 
+    /**
+     * Sends message if possible.
+     *
+     * @param message JsonObject as a string
+     * @throws IOException session could cause problems
+     */
     public void sendMessage(String message) throws IOException {
         // check if session is still open
-        if(this.session != null && this.session.isOpen()) {
+        if (this.session != null && this.session.isOpen()) {
             // send message
             this.session.getBasicRemote().sendText(message);
             this.session.getBasicRemote().flushBatch();
         }
     }
 
-    public void stop() throws IOException {
+    /**
+     * Should be called when WebSocket is not used anymore; cancels Timer and closes session
+     */
+    public void stop() {
+        System.out.println("stop");
         // cancel timer
         this.noopTimer.cancel();
         // close session
-        if(this.session != null) {
-            this.session.close();
+        if (this.session != null) {
+            try {
+                this.session.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             this.session = null;
         }
     }

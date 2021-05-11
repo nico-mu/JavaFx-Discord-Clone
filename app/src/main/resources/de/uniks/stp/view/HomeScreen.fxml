@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="472.0" prefWidth="696.0" styleClass="container" stylesheets="@home.css"
+            xmlns="http://javafx.com/javafx/11.0.1">
+    <HBox prefHeight="472.0" prefWidth="696.0">
+        <AnchorPane id="active-chats-container" prefHeight="442.0" prefWidth="167.0" styleClass="active-chats"/>
+        <Pane prefHeight="442.0" prefWidth="20.0" styleClass="mid-pane"/>
+        <AnchorPane prefHeight="442.0" prefWidth="477.0" styleClass="online-users">
+            <VBox id="online-users-container" layoutX="2.0" layoutY="30.0" prefHeight="411.0" prefWidth="477.0"/>
+            <Label layoutX="186.0" layoutY="5.0" prefHeight="25.0" styleClass="available-users-label"
+                   text="%LBL_ONLINE_USERS"/>
+        </AnchorPane>
+    </HBox>
+</AnchorPane>

@@ -1,18 +1,23 @@
-package de.uniks.stp.controller;
+package de.uniks.stp.router;
 
 import de.uniks.stp.StageManager;
+import de.uniks.stp.controller.ControllerInterface;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Router {
 
-    private static final Map<String, Class<?>> routeMap;
-    private static final HashMap<String, ControllerInterface> controllerCache = new HashMap<>();
+    private static final HashMap<String, Class<?>> routeMap;
+    private static ConcurrentHashMap<String, ControllerInterface> controllerCache = new ConcurrentHashMap<>();
     private static String currentRoute;
-
+    private static RouteArgs currentArgs;
 
     static {
-        routeMap = Collections.unmodifiableMap(new RouteMap().getRoutes());
+        routeMap = new RouteMap().getRoutes();
     }
 
     public static String compareRoutes(String newRoute, String oldRoute) {
@@ -54,20 +59,7 @@ public class Router {
         }
     }
 
-    public static void route(String route) {
-        if(!routeMap.containsKey(route)) {
-            throw new RuntimeException("Unknown route " + route);
-        }
-
-        if(controllerCache.containsKey(route)) {
-            return;
-        }
-
-        if(currentRoute != null) {
-            String intersection = compareRoutes(route, currentRoute);
-            shutdownControllers(intersection);
-        }
-
+    private static Stack<RouteInfo> getRequirements(String route) {
         Stack<RouteInfo> requirements = new Stack<>();
         String remainingRoute = route;
         String relativeRoutePart;
@@ -89,45 +81,75 @@ public class Router {
             }
             else {
                 //add new Route Info Object
-                info.setSubroute(currentRelativeRoute.toString());
+                info.setSubControllerRoute(currentRelativeRoute.toString());
                 currentRelativeRoute.setLength(0);
             }
+
+            requirements.push(info.setCurrentControllerRoute(remainingRoute));
+            info = new RouteInfo();
 
             if(controllerCache.containsKey(remainingRoute)) {
                 break;
             }
+        }
+        return requirements;
+    }
 
-            requirements.push(info.setFullRoute(remainingRoute));
-            info = new RouteInfo();
+    public static void route(String route) {
+        routeWithArgs(route, new RouteArgs());
+    }
+
+    public static void route(String route, RouteArgs args) {
+        routeWithArgs(route, args);
+    }
+
+    public static void routeWithArgs(String route, RouteArgs args) {
+        if(!routeMap.containsKey(route)) {
+            throw new RuntimeException("Unknown route " + route);
         }
 
+        if(controllerCache.containsKey(route)) {
+            if(!args.compareTo(currentArgs)) {
+                controllerCache.remove(route);
+            }
+            else {
+                return;
+            }
+        }
+
+        //shutdown controllers that are not needed for the new route
+        if(currentRoute != null) {
+            String intersection = compareRoutes(route, currentRoute);
+            shutdownControllers(intersection);
+        }
+
+        Stack<RouteInfo> requirements = getRequirements(route);
         int requirementCount = requirements.size();
 
         for(int i = 0; i < requirementCount; i++) {
             RouteInfo nextRoute = requirements.pop();
 
-            if(isBaseRoute(nextRoute.getFullRoute()) && !controllerCache.containsKey(nextRoute.getSubroute())) {
+            if(isBaseRoute(nextRoute.getCurrentControllerRoute()) && !controllerCache.containsKey(nextRoute.getSubControllerRoute())) {
                 StageManager.route(nextRoute);
-                if(!controllerCache.containsKey(nextRoute.getSubroute())) {
-                    throw new RuntimeException("Controller for route " + nextRoute.getSubroute() + " was not added to cache by StageManager");
+                if(!controllerCache.containsKey(nextRoute.getSubControllerRoute())) {
+                    throw new RuntimeException("Controller for route " + nextRoute.getSubControllerRoute() + " was not added to cache by StageManager");
                 }
             }
             else {
                 //get controller from cache and use its route method
-                ControllerInterface currentController = controllerCache.get(nextRoute.getFullRoute());
-                currentController.route(nextRoute);
+                ControllerInterface currentController = controllerCache.get(nextRoute.getCurrentControllerRoute());
+                currentController.route(nextRoute, args);
 
-                if(!controllerCache.containsKey(nextRoute.getFullRoute())) {
-                    throw new RuntimeException("Controller for route " + nextRoute.getFullRoute() + "was not added to cache by " + currentController.getClass().getName());
+                if(!controllerCache.containsKey(nextRoute.getCurrentControllerRoute())) {
+                    throw new RuntimeException("Controller for route " + nextRoute.getCurrentControllerRoute() + "was not added to cache by " + currentController.getClass().getName());
                 }
             }
         }
         currentRoute = route;
+        currentArgs = args;
     }
 
     /**
-     * by definition base routes can't handle parameters
-     * -> '/main' as base route is allowed, '/main/:id' is not allowed
      *
      * @param route the given route string as full route
      * @return a boolean representing whether a route is a route that must be handled by the stageManager or not
@@ -137,6 +159,6 @@ public class Router {
     }
 
     public static void addToControllerCache(String routeName, ControllerInterface controller) {
-        controllerCache.put(routeName, controller);
+        controllerCache.putIfAbsent(routeName, controller);
     }
 }

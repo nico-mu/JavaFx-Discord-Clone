@@ -1,13 +1,18 @@
 package de.uniks.stp;
 
-import de.uniks.stp.controller.*;
-import de.uniks.stp.view.Views;
+import de.uniks.stp.controller.ControllerInterface;
+import de.uniks.stp.controller.LoginScreenController;
+import de.uniks.stp.controller.MainScreenController;
+import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.network.UserKeyProvider;
+import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.router.Router;
+import de.uniks.stp.view.Views;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import kong.unirest.Unirest;
 
 import java.util.Objects;
 
@@ -28,8 +33,8 @@ public class StageManager extends Application {
         stage = primaryStage;
         editor = new Editor();
         UserKeyProvider.setEditor(editor);
-        //showLoginScreen();
-        Router.route("/login");
+        WebSocketService.setEditor(editor);
+        Router.route(Constants.ROUTE_LOGIN);
         stage.show();
     }
 
@@ -37,9 +42,9 @@ public class StageManager extends Application {
         cleanup();
         Parent root;
         Scene scene;
-        String subroute = routeInfo.getSubroute();
+        String subroute = routeInfo.getSubControllerRoute();
 
-        if(subroute.equals("/main")) {
+        if (subroute.equals(Constants.ROUTE_MAIN)) {
             root = ViewLoader.loadView(Views.MAIN_SCREEN);
             currentController = new MainScreenController(root, editor);
             currentController.init();
@@ -47,8 +52,7 @@ public class StageManager extends Application {
             stage.setTitle("Accord");
             stage.setScene(scene);
             stage.centerOnScreen();
-        }
-        else if(subroute.equals("/login")) {
+        } else if (subroute.equals(Constants.ROUTE_LOGIN)) {
             root = ViewLoader.loadView(Views.LOGIN_SCREEN);
             currentController = new LoginScreenController(root, editor);
             currentController.init();
@@ -58,17 +62,20 @@ public class StageManager extends Application {
             stage.centerOnScreen();
         }
 
-        Router.addToControllerCache(routeInfo.getSubroute(), currentController);
+        Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
     }
 
     @Override
     public void stop() {
         try {
             super.stop();
-            // Logout
 
-            Unirest.shutDown();
+            if (currentController != null) {
+                currentController.stop();
+            }
 
+            RestClient.stop();
+            WebSocketService.stop();
         } catch (Exception e) {
             System.err.println("Error while trying to shutdown");
             e.printStackTrace();

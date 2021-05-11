@@ -1,10 +1,11 @@
 package de.uniks.stp.network;
 
-import de.uniks.stp.Constants;
 import kong.unirest.Config;
 import kong.unirest.HttpMethod;
 import kong.unirest.HttpRequest;
 import kong.unirest.Interceptor;
+
+import static de.uniks.stp.Constants.*;
 
 public class HttpRequestInterceptor implements Interceptor {
 
@@ -25,13 +26,13 @@ public class HttpRequestInterceptor implements Interceptor {
         //get requested server path by stripping the base url at the beginning
         String baseUrl = config.getDefaultBaseUrl();
         String requestPath = requestUrl.substring(baseUrl.length());
-        String loginPath = Constants.USERS_PATH + Constants.LOGIN_PATH;
+        String loginPath = REST_USERS_PATH + REST_LOGIN_PATH;
 
         // if requested path is not login or register, add userKey header with value from model
         if(!(requestMethod == HttpMethod.POST &&
-            (requestPath.equals(loginPath) || requestPath.equals(Constants.USERS_PATH))))
+            (requestPath.equals(loginPath) || requestPath.equals(REST_USERS_PATH))))
         {
-            request.header(Constants.USER_KEY_HEADER_NAME, UserKeyProvider.getUserKey());
+            request.header(USER_KEY_HEADER_NAME, UserKeyProvider.getUserKey());
         }
 
         Interceptor.super.onRequest(request, config);

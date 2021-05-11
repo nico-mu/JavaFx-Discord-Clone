@@ -1,12 +1,12 @@
 package de.uniks.stp.component;
 
+import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
-
 
 import java.io.IOException;
 
@@ -15,12 +15,15 @@ public class NavBarList extends ScrollPane {
     @FXML
     protected VBox container;
 
+    private Editor editor;
     private NavBarElement currentActiveElement;
 
-    public NavBarList() {
+    public NavBarList(Editor editor) {
+
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.NAV_BAR_LIST);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+        this.editor = editor;
 
         try {
             fxmlLoader.load();
@@ -39,6 +42,10 @@ public class NavBarList extends ScrollPane {
         NavBarElement homeElement = new NavBarHomeElement();
         this.addElement(homeElement);
         this.setActiveElement(homeElement);
+
+        //add create server button
+        NavBarElement createServer = new NavBarCreateServer(editor);
+        this.addElement(createServer);
     }
 
     public void setActiveElement(NavBarElement element) {
@@ -51,9 +58,14 @@ public class NavBarList extends ScrollPane {
         }
     }
 
+    public void addServerElement(NavBarElement element) {
+        element.addOnClickHandler(this::setActiveElement);
+        container.getChildren().add(container.getChildren().size() - 1, element);
+    }
+
     public void addElement(NavBarElement element) {
         element.addOnClickHandler(this::setActiveElement);
-        this.container.getChildren().add(element);
+        container.getChildren().add(element);
     }
 
     public void removeElement(NavBarElement element) {
