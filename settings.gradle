@@ -1,5 +1,5 @@
 rootProject.name = 'AccordTeamG'
 
 include 'app'
-include 'plugin'
+include 'processor'
 

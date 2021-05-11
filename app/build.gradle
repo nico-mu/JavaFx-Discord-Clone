@@ -13,6 +13,8 @@ javafx {
 }
 
 dependencies {
+    compile project(':processor')
+
     compile 'com.jfoenix:jfoenix:9.0.10'
 
     implementation group: 'com.konghq', name: 'unirest-java', version: '3.11.09'
@@ -28,7 +30,7 @@ dependencies {
 
     testImplementation 'org.testfx:testfx-junit:4.0.15-alpha'
     testCompile 'org.mockito:mockito-core:2.11.0'
-    annotationProcessor project(':plugin')
+    annotationProcessor project(':processor')
 }
 
 run.doFirst {
