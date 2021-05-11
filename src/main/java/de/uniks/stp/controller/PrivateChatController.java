@@ -12,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import java.util.Date;
+import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + "/chat/:userId")
 public class PrivateChatController implements ControllerInterface {
@@ -41,7 +42,9 @@ public class PrivateChatController implements ControllerInterface {
 
     @Override
     public void stop() {
-        chatView.stop();
+        if (!Objects.isNull(chatView)) {
+            chatView.stop();
+        }
     }
 
     @Override
@@ -50,6 +53,13 @@ public class PrivateChatController implements ControllerInterface {
     }
 
     private void showPrivateChatView(User otherUser) {
+        // Block chat for now when user offline
+        if (Objects.isNull(otherUser)) {
+            // TODO: add label
+            homeScreenLabel.setText("Offline User");
+            return;
+        }
+
         homeScreenLabel.setText(otherUser.getName());
         chatView = new ChatView(view);
 

@@ -49,6 +49,7 @@ public class HomeScreenController implements ControllerInterface {
     private final Map<String, Boolean> knownUsers = new ConcurrentHashMap<>();
     private UserListController userListController;
     private User selectedOnlineUser;
+    private boolean isShowingOnlineUserList;
 
     HomeScreenController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
@@ -74,12 +75,16 @@ public class HomeScreenController implements ControllerInterface {
 
         // TODO: add constants
         if (subRoute.equals("/chat/:userId")) {
+
+            isShowingOnlineUserList = false;
+
             User otherUser = editor.getUserById(args.getValue());
             if (!Objects.isNull(selectedOnlineUser) && selectedOnlineUser.equals(otherUser)) {
                 return;
             }
 
             subviewCleanup();
+
             selectedOnlineUser = otherUser;
 
             PrivateChatController privateChatController = new PrivateChatController(view, editor, otherUser);
@@ -91,6 +96,7 @@ public class HomeScreenController implements ControllerInterface {
             subviewCleanup();
 
             selectedOnlineUser = null;
+            isShowingOnlineUserList = true;
 
             UserList userList = new UserList();
             userListController = new UserListController(userList, editor);
@@ -106,7 +112,7 @@ public class HomeScreenController implements ControllerInterface {
     @Override
     public void stop() {
         subviewCleanup();
-        if (Objects.isNull(userListController)) {
+        if (!Objects.isNull(userListController)) {
             userListController.stop();
         }
         showOnlineUsersButton.setOnMouseClicked(null);
@@ -119,12 +125,16 @@ public class HomeScreenController implements ControllerInterface {
     }
 
     private void handleShowOnlineUsersClicked(MouseEvent mouseEvent) {
-        if (!Objects.isNull(selectedOnlineUser)) {
+        if (!isShowingOnlineUserList) {
             Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
         }
     }
 
     private void addUserToSidebar(User otherUser) {
+        if (Objects.isNull(otherUser)) {
+            return;
+        }
+
         String id = otherUser.getId();
 
         // Check if user is already in the list
