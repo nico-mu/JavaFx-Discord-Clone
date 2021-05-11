@@ -3,9 +3,6 @@ package de.uniks.stp.controller;
 import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.component.ChatView;
-import de.uniks.stp.model.Message;
-import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.Route;
 import de.uniks.stp.router.RouteArgs;
@@ -14,7 +11,6 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.UserList;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
-import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -24,13 +20,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-
-import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
 public class HomeScreenController implements ControllerInterface {

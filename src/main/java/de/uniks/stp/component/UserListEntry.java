@@ -9,10 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
-
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.function.Consumer;
 
 public class UserListEntry extends HBox {
 

@@ -75,8 +75,6 @@ public class ChatView {
         submitListener.add(callback);
     }
 
-
-
     /**
      * Appends a message at the end of the messages list.
      * @param message
