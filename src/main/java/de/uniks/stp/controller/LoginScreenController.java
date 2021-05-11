@@ -204,8 +204,8 @@ public class LoginScreenController implements ControllerInterface {
         if (response.isSuccess()) {
             setErrorMessage(null);
             String userKey = response.getBody().getObject().getJSONObject("data").getString("userKey");
-            editor.setUserKey(userKey);
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
+            editor.setUserKey(userKey);
 
             Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
             return;

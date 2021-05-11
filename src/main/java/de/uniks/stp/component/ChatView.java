@@ -5,8 +5,8 @@ import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Message;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
@@ -17,54 +17,53 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class ChatView {
+public class ChatView extends VBox {
     final static String SUBVIEW_CONTAINER_ID = "#subview-container";
-    final static String SUBMIT_BUTTON_ID = "#chatview__submit-button";
-    final static String MESSAGE_INPUT_ID = "#chatview__message-input";
-    final static String MESSAGE_LIST_ID = "#chatview__message-list";
-    final static String CONTAINER = "#chatview__container";
 
-    private final JFXButton submitButton;
-    private final Parent component;
-    private final JFXTextArea messageInput;
+    @FXML
+    private VBox chatViewContainer;
+    @FXML
+    private JFXButton chatViewSubmitButton;
+    @FXML
+    private JFXTextArea chatViewMessageInput;
+    @FXML
+    private ScrollPane chatViewMessageScrollPane;
     private final VBox messageList;
-    private final ScrollPane chatViewScrollPane;
+
     private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
 
     public ChatView(Parent parent) {
-        component = ViewLoader.loadComponent(Components.CHAT_VIEW);
+        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_VIEW);
+        fxmlLoader.setRoot(this);
+        fxmlLoader.setController(this);
 
-        VBox chatViewContainer = (VBox) component.lookup(CONTAINER);
+        try {
+            fxmlLoader.load();
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+
         AnchorPane wrapper = (AnchorPane) parent.lookup(SUBVIEW_CONTAINER_ID);
         chatViewContainer.setPrefWidth(wrapper.getWidth());
         chatViewContainer.setPrefHeight(wrapper.getHeight());
 
-        submitButton = (JFXButton) component.lookup(SUBMIT_BUTTON_ID);
-        messageInput = (JFXTextArea) component.lookup(MESSAGE_INPUT_ID);
-        chatViewScrollPane = (ScrollPane) component.lookup(MESSAGE_LIST_ID);
-        messageList = (VBox) chatViewScrollPane.getContent();
+        messageList = (VBox) chatViewMessageScrollPane.getContent();
 
-        submitButton.setOnMouseClicked(this::onSubmitClicked);
+        chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
     }
 
     /**
      * Clears the view
      */
     public void stop() {
-        submitButton.setOnMouseClicked(null);
-    }
-
-    /**
-     * Returns the view reference for putting the component onto the screen.
-     */
-    public final Parent getComponent() {
-        return component;
+        chatViewSubmitButton.setOnMouseClicked(null);
     }
 
     /**
@@ -88,7 +87,7 @@ public class ChatView {
         text.setFont(Font.font(16));
         text.setFill(Color.WHITE);
         // 20px padding
-        text.setWrappingWidth(chatViewScrollPane.getWidth() - 20);
+        text.setWrappingWidth(chatViewMessageScrollPane.getWidth() - 20);
 
         Platform.runLater(() -> {
             messageList.getChildren().add(text);
@@ -97,13 +96,13 @@ public class ChatView {
     }
 
     private void onSubmitClicked(MouseEvent mouseEvent) {
-        String message = messageInput.getText();
+        String message = chatViewMessageInput.getText();
 
         if (message.isEmpty()) {
             return;
         }
 
-        messageInput.clear();
+        chatViewMessageInput.clear();
 
         submitListener.forEach(callback -> {
             callback.accept(message);

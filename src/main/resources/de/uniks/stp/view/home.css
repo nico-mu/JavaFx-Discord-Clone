@@ -23,21 +23,6 @@
     -fx-text-fill: white;
 }
 
-#chatview__submit-button {
-    -jfx-button-type: FLAT;
-    -fx-background-color: rgb(77, 102, 204);
-    -fx-text-fill: white;
-}
-
-#chatview__message-input {
-    -fx-text-fill: white;
-    -fx-background-color: #23272a;
-}
-#chatview__message-list {
-    -fx-text-fill: white;
-    -fx-background-color: #2c2f33;
-}
-
 #toggle-online-button {
     -jfx-button-type: FLAT;
     -fx-background-color: rgb(77, 102, 204);

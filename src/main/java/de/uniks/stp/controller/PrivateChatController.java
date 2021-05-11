@@ -6,6 +6,7 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.ChatView;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.Route;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
@@ -64,16 +65,17 @@ public class PrivateChatController implements ControllerInterface {
         chatView = new ChatView(view);
 
         chatView.onMessageSubmit((message) -> {
-            // TODO: Cache messages
-            chatView.appendMessage(new DirectMessage()
-                .setReceiver(otherUser)
-                .setMessage(message)
-                .setSender(editor.getOrCreateAccord().getCurrentUser())
-                .setTimestamp(new Date().getTime()));
+            // save message
+            DirectMessage msg = new DirectMessage();
+            msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser()).setTimestamp(new Date().getTime());
+            user.withReceivedMessages(msg);
+
+            // show message
+            chatView.appendMessage(msg);
 
             // send message to the server
-
+            WebSocketService.sendPrivateMessage(otherUser.getName(),message);
         });
-        onlineUsersContainer.getChildren().add(chatView.getComponent());
+        onlineUsersContainer.getChildren().add(chatView);
     }
 }
