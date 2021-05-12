@@ -130,7 +130,7 @@ public class HomeScreenController implements ControllerInterface {
     @Override
     public void stop() {
         subviewCleanup();
-        if (!Objects.isNull(userListController)) {
+        if (Objects.nonNull(userListController)) {
             userListController.stop();
         }
         showOnlineUsersButton.setOnMouseClicked(null);

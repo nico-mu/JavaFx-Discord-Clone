@@ -24,7 +24,7 @@ public class PrivateChatController implements ControllerInterface {
 
     private final Parent view;
     private final Editor editor;
-    private final User user;
+    private User user;
     private ChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
@@ -53,14 +53,14 @@ public class PrivateChatController implements ControllerInterface {
 
                 chatView.appendMessage(directMessage);
             });
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
             System.out.println("User already logged out");
         }
     }
 
     @Override
     public void stop() {
-        if (!Objects.isNull(chatView)) {
+        if (Objects.nonNull(chatView)) {
             chatView.stop();
         }
     }
@@ -70,17 +70,23 @@ public class PrivateChatController implements ControllerInterface {
 
     }
 
-    private void showPrivateChatView(User otherUser) {
+    private void showPrivateChatView(User user) {
         // Block chat for now when user offline
-        if (Objects.isNull(otherUser)) {
+        if (Objects.isNull(user)) {
             homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE));
             return;
         }
 
-        homeScreenLabel.setText(otherUser.getName());
+        this.user = user;
+
+        homeScreenLabel.setText(user.getName());
         chatView = new ChatView(view);
 
-        chatView.onMessageSubmit((message) -> {
+        chatView.onMessageSubmit(this::handleMessageSubmit);
+        onlineUsersContainer.getChildren().add(chatView);
+    }
+
+    private void handleMessageSubmit(String message) {
             // create & save message
             DirectMessage msg = new DirectMessage();
             msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser()).setTimestamp(new Date().getTime());
@@ -93,8 +99,6 @@ public class PrivateChatController implements ControllerInterface {
             }
 
             // send message to the server
-            WebSocketService.sendPrivateMessage(otherUser.getName(),message);
-        });
-        onlineUsersContainer.getChildren().add(chatView);
+            WebSocketService.sendPrivateMessage(user.getName(),message);
     }
 }

@@ -59,14 +59,13 @@ public class ChatView extends VBox {
         AnchorPane wrapper = (AnchorPane) parent.lookup(SUBVIEW_CONTAINER_ID);
         chatViewContainer.setPrefWidth(wrapper.getWidth());
         chatViewContainer.setPrefHeight(wrapper.getHeight());
-
         messageList = (VBox) chatViewMessageScrollPane.getContent();
 
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
 
         messageList.heightProperty().addListener(heightChangedListener);
 
-        chatViewMessageInput.setOnKeyPressed(this::checkforEnter);
+        chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
     }
 
     private void onHeightChanged(Observable observable) {
@@ -77,7 +76,7 @@ public class ChatView extends VBox {
      * Enter typed -> press send Button | Shift-Enter typed -> add new line
      * @param keyEvent
      */
-    private void checkforEnter(KeyEvent keyEvent) {
+    private void checkForEnter(KeyEvent keyEvent) {
         if (keyEvent.getCode() == KeyCode.ENTER)  {
             if (keyEvent.isShiftDown()) {
                 chatViewMessageInput.appendText(System.getProperty("line.separator"));

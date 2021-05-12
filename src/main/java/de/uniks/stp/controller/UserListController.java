@@ -21,7 +21,7 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Objects;
 
-@Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + "/online")
+@Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE_USER_LIST)
 public class UserListController implements ControllerInterface {
     private final HashMap<User, UserListEntry> userUserListEntryHashMap;
     private final UserList userList;
@@ -66,13 +66,6 @@ public class UserListController implements ControllerInterface {
     public void init() {
         final Accord accord = editor.getOrCreateAccord();
         accord.listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
-
-        // Add users in current model
-        for (User user : editor.getOtherUsers()) {
-            final UserListEntry userListEntry = new UserListEntry(user);
-            userUserListEntryHashMap.put(user, userListEntry);
-            Platform.runLater(() -> userList.addUserListEntry(userListEntry));
-        }
 
         final RestClient restClient = new RestClient();
         restClient.requestOnlineUsers(this::handleUserOnlineRequest);
