@@ -17,6 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.jetbrains.annotations.NotNull;
@@ -112,10 +113,16 @@ public class ChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
+        String infoPart = formatTime(message.getTimestamp()) + " " + message.getSender().getName() + ": ";
         Text text = new Text();
-        text.setText(formatTime(message.getTimestamp()) + " " + message.getSender().getName() + ": " + message.getMessage());
+        text.setText( infoPart + message.getMessage());
         text.setFont(Font.font(16));
         text.setFill(Color.WHITE);
+
+        // change color of infoPart
+        text.setSelectionStart(0);
+        text.setSelectionEnd(infoPart.length());
+        text.setSelectionFill(Paint.valueOf("#AAAAAA"));  // greyish-white
         // 20px padding
         text.setWrappingWidth(chatViewMessageScrollPane.getWidth() - 20);
 

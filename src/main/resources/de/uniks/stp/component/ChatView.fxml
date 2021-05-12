@@ -8,17 +8,17 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<fx:root xmlns:fx="http://javafx.com/fxml/1" type="VBox" xmlns="http://javafx.com/javafx/11.0.1" stylesheets="@chat-view.css">
+<fx:root stylesheets="@chat-view.css" type="VBox" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
 <VBox fx:id="chatViewContainer" styleClass="container" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <ScrollPane fx:id="chatViewMessageScrollPane" styleClass="message-list" prefHeight="400.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
+      <ScrollPane fx:id="chatViewMessageScrollPane" prefHeight="400.0" prefWidth="600.0" styleClass="message-list" VBox.vgrow="ALWAYS">
          <content>
             <VBox />
          </content>
       </ScrollPane>
       <HBox alignment="CENTER_RIGHT" prefHeight="15.0" prefWidth="200.0" VBox.vgrow="SOMETIMES">
          <children>
-            <JFXTextArea fx:id="chatViewMessageInput" styleClass="message-input" promptText="Write your message" unFocusColor="#23272a" HBox.hgrow="ALWAYS">
+            <JFXTextArea fx:id="chatViewMessageInput" promptText="Write your message" styleClass="message-input" unFocusColor="#23272a" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
@@ -29,9 +29,9 @@
                   <Insets />
                </opaqueInsets>
             </JFXTextArea>
-            <JFXButton fx:id="chatViewSubmitButton" styleClass="submit-button" minWidth="100.0" prefWidth="150.0" text="Send" textFill="WHITE" HBox.hgrow="ALWAYS">
+            <JFXButton fx:id="chatViewSubmitButton" minWidth="100.0" prefHeight="38.0" prefWidth="150.0" styleClass="submit-button" text="Send" textFill="WHITE" HBox.hgrow="ALWAYS">
                <HBox.margin>
-                  <Insets left="60.0" />
+                  <Insets left="10.0" />
                </HBox.margin>
                <font>
                   <Font name="System Bold" size="12.0" />
