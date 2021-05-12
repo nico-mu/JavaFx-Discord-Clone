@@ -23,6 +23,9 @@ public class Constants {
     public static final String LBL_MISSING_FIELDS = "LBL_MISSING_FIELDS";
     public static final String LBL_HOME = "LBL_HOME";
     public static final String LBL_CREATE_SERVER = "LBL_CREATE_SERVER";
+    public static final String LBL_SERVERNAME_TITLE = "LBL_SERVERNAME_TITLE";
+    public static final String LBL_ENTER_SERVERNAME_PROMPT = "LBL_ENTER_SERVERNAME_PROMPT";
+    public static final String LBL_SERVERNAME = "LBL_SERVERNAME";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";

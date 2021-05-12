@@ -5,6 +5,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.RestClient;
+import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
@@ -31,9 +32,15 @@ public class NavBarCreateServer extends NavBarElement {
 
     private void openServerNamePopup() {
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Server name");
-        dialog.setHeaderText("Please enter the servername: ");
-        dialog.setContentText("Servername: ");
+        String title = ViewLoader.loadLabel(Constants.LBL_SERVERNAME_TITLE);
+        String headerText = ViewLoader.loadLabel(Constants.LBL_ENTER_SERVERNAME_PROMPT);
+        String contentText = ViewLoader.loadLabel(Constants.LBL_SERVERNAME);
+        Platform.runLater(() -> {
+            dialog.setWidth(280);
+            dialog.setTitle(title);
+            dialog.setHeaderText(headerText);
+            dialog.setContentText(contentText);
+        });
 
         dialog.showAndWait().ifPresent((name) -> {
             if (name != null && !name.equals("")) {
