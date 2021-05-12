@@ -50,6 +50,7 @@ public class HomeScreenController implements ControllerInterface {
     private User selectedOnlineUser;
     private boolean isShowingOnlineUserList;
     private final PropertyChangeListener chatPartnerChangeListener = this::onChatPartnerChanged;
+    private ScrollPane directMessageUsersListScroll;
 
     HomeScreenController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
@@ -64,13 +65,14 @@ public class HomeScreenController implements ControllerInterface {
         showOnlineUsersButton = (JFXButton) homeScreenView.lookup(TOGGLE_ONLINE_BUTTON_ID);
         onlineUsersContainer = (VBox) homeScreenView.lookup(ONLINE_USERS_CONTAINER_ID);
         homeScreenLabel = (Label) homeScreenView.lookup(HOME_SCREEN_LABEL_ID);
-        directMessageUsersList = (VBox) ((ScrollPane) homeScreenView.lookup(AVAILABLE_DM_USERS_ID)).getContent();
+        directMessageUsersListScroll = (ScrollPane) homeScreenView.lookup(AVAILABLE_DM_USERS_ID);
+        directMessageUsersList = (VBox) directMessageUsersListScroll.getContent();
 
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
 
         // init direct messages list
         // TODO: offlineUser Chat
-        for(User user: editor.getOrCreateAccord().getCurrentUser().getChatPartner()){
+        for (User user: editor.getOrCreateAccord().getCurrentUser().getChatPartner()){
             addUserToSidebar(user);
         }
 
@@ -163,6 +165,9 @@ public class HomeScreenController implements ControllerInterface {
         Text text = new Text(otherUser.getName());
         text.setFill(Color.WHITE);
         text.setFont(Font.font(16));
+        // TODO: Long user names break the view
+        // text.setWrappingWidth(directMessageUsersList.getWidth() - 5);
+
         text.setOnMouseClicked((mouseEvent) -> {
             Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT,
                 new RouteArgs().setKey(Constants.ROUTE_PRIVATE_CHAT_ARGS).setValue(otherUser.getId()));

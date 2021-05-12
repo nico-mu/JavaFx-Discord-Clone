@@ -43,15 +43,19 @@ public class PrivateChatController implements ControllerInterface {
         showPrivateChatView(user);
 
         // Load messages from model
-        for (Message message : user.getPrivateChatMessages()) {
-            chatView.appendMessage(message);
+        try {
+            for (Message message : user.getPrivateChatMessages()) {
+                chatView.appendMessage(message);
+            }
+
+            user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, (propertyChangeEvent) -> {
+                DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
+
+                chatView.appendMessage(directMessage);
+            });
+        } catch (NullPointerException e) {
+            System.out.println("User already logged out");
         }
-
-        user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, (propertyChangeEvent) -> {
-            DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
-
-            chatView.appendMessage(directMessage);
-        });
     }
 
     @Override
