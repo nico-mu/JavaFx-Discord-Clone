@@ -9,19 +9,15 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
@@ -30,8 +26,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ChatView extends VBox {
-    final static String SUBVIEW_CONTAINER_ID = "#subview-container";
-
     @FXML
     private VBox chatViewContainer;
     @FXML
@@ -45,7 +39,7 @@ public class ChatView extends VBox {
     private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
 
-    public ChatView(Parent parent) {
+    public ChatView() {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_VIEW);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -56,9 +50,6 @@ public class ChatView extends VBox {
             throw new RuntimeException(exception);
         }
 
-        AnchorPane wrapper = (AnchorPane) parent.lookup(SUBVIEW_CONTAINER_ID);
-        chatViewContainer.setPrefWidth(wrapper.getWidth());
-        chatViewContainer.setPrefHeight(wrapper.getHeight());
         messageList = (VBox) chatViewMessageScrollPane.getContent();
 
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
@@ -94,6 +85,12 @@ public class ChatView extends VBox {
     public void stop() {
         chatViewSubmitButton.setOnMouseClicked(null);
         messageList.heightProperty().removeListener(heightChangedListener);
+        submitListener.clear();
+    }
+
+    public void setSize(double width, double height) {
+        chatViewContainer.setPrefWidth(width);
+        chatViewContainer.setPrefHeight(height);
     }
 
     /**
@@ -108,25 +105,15 @@ public class ChatView extends VBox {
      * Appends a message at the end of the messages list.
      * @param message
      */
-    public void appendMessage(@NotNull Message message) {
+    public void appendMessage(Message message) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        String infoPart = formatTime(message.getTimestamp()) + " " + message.getSender().getName() + ": ";
-        Text text = new Text();
-        text.setText( infoPart + message.getMessage());
-        text.setFont(Font.font(16));
-        text.setFill(Color.WHITE);
-
-        // change color of infoPart
-        text.setSelectionStart(0);
-        text.setSelectionEnd(infoPart.length());
-        text.setSelectionFill(Paint.valueOf("#AAAAAA"));  // greyish-white
-        // 20px padding
-        text.setWrappingWidth(chatViewMessageScrollPane.getWidth() - 20);
+        ChatMessage chatMessage = new ChatMessage(message);
+        chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
 
         Platform.runLater(() -> {
-            messageList.getChildren().add(text);
+            messageList.getChildren().add(chatMessage);
         });
     }
 
@@ -142,13 +129,6 @@ public class ChatView extends VBox {
         submitListener.forEach(callback -> {
             callback.accept(message);
         });
-    }
-
-    private @NotNull String formatTime(long time) {
-        Date date = new Date();
-        date.setTime(time);
-
-        return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date);
     }
 
 }

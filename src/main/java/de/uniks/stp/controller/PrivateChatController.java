@@ -11,16 +11,24 @@ import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.Route;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Date;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT)
 public class PrivateChatController implements ControllerInterface {
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
+    private PropertyChangeListener handleNewPrivateMessage = this::handleNewPrivateMessage;
+    final static String SUBVIEW_CONTAINER_ID = "#subview-container";
 
     private final Parent view;
     private final Editor editor;
@@ -28,6 +36,7 @@ public class PrivateChatController implements ControllerInterface {
     private ChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
+    private AnchorPane chatViewContainer;
 
     public PrivateChatController(Parent view, Editor editor, User user) {
         this.view = view;
@@ -39,29 +48,36 @@ public class PrivateChatController implements ControllerInterface {
     public void init() {
         onlineUsersContainer = (VBox) view.lookup(ONLINE_USERS_CONTAINER_ID);
         homeScreenLabel = (Label) view.lookup(HOME_SCREEN_LABEL_ID);
+        chatViewContainer = (AnchorPane) view.lookup(SUBVIEW_CONTAINER_ID);
+
+        // Block chat for now when user offline
+        if (Objects.isNull(user)) {
+            homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE));
+            return;
+        }
 
         showPrivateChatView(user);
 
-        // Load messages from model
-        try {
-            for (Message message : user.getPrivateChatMessages()) {
-                chatView.appendMessage(message);
-            }
-
-            user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, (propertyChangeEvent) -> {
-                DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
-
-                chatView.appendMessage(directMessage);
-            });
-        } catch (Exception e) {
-            System.out.println("User already logged out");
+        for (Message message : user.getPrivateChatMessages()) {
+            chatView.appendMessage(message);
         }
+
+        user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, handleNewPrivateMessage);
+    }
+
+    private void handleNewPrivateMessage(PropertyChangeEvent propertyChangeEvent) {
+       DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
+
+       chatView.appendMessage(directMessage);
     }
 
     @Override
     public void stop() {
         if (Objects.nonNull(chatView)) {
             chatView.stop();
+        }
+        if (Objects.nonNull(user)) {
+            user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, handleNewPrivateMessage);
         }
     }
 
@@ -71,16 +87,11 @@ public class PrivateChatController implements ControllerInterface {
     }
 
     private void showPrivateChatView(User user) {
-        // Block chat for now when user offline
-        if (Objects.isNull(user)) {
-            homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE));
-            return;
-        }
-
         this.user = user;
 
         homeScreenLabel.setText(user.getName());
-        chatView = new ChatView(view);
+        chatView = new ChatView();
+        // chatView.setSize(chatViewContainer.getWidth(), chatViewContainer.getHeight());
 
         chatView.onMessageSubmit(this::handleMessageSubmit);
         onlineUsersContainer.getChildren().add(chatView);
@@ -94,7 +105,7 @@ public class PrivateChatController implements ControllerInterface {
 
             // add user to chatPartner list if not already in it
             User currentUser = editor.getOrCreateAccord().getCurrentUser();
-            if(!currentUser.getChatPartner().contains(user)){
+            if (!currentUser.getChatPartner().contains(user)){
                 currentUser.withChatPartner(user);
             }
 

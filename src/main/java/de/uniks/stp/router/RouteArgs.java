@@ -1,5 +1,7 @@
 package de.uniks.stp.router;
 
+import java.util.Objects;
+
 public class RouteArgs {
 
     private String key;
@@ -24,6 +26,9 @@ public class RouteArgs {
     }
 
     public boolean compareTo(RouteArgs other) {
-        return key.equals(other.getKey()) && value.equals(other.getValue());
+        if (Objects.nonNull(key) && Objects.nonNull(value)) {
+            return key.equals(other.getKey()) && value.equals(other.getValue());
+        }
+        return Objects.isNull(key) && Objects.isNull(value) && Objects.isNull(other.getKey()) && Objects.isNull(other.getValue());
     }
 }

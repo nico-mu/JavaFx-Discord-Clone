@@ -14,7 +14,7 @@ public class Router {
     private static final HashMap<String, Class<?>> routeMap;
     private static ConcurrentHashMap<String, ControllerInterface> controllerCache = new ConcurrentHashMap<>();
     private static String currentRoute;
-    private static RouteArgs currentArgs;
+    private static RouteArgs currentArgs = new RouteArgs();
 
     static {
         routeMap = new RouteMapping().getRoutes();

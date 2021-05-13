@@ -3,6 +3,7 @@ package de.uniks.stp.controller;
 import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.component.UserListEntry;
 import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.UserKeyProvider;
@@ -47,10 +48,7 @@ public class HomeScreenController implements ControllerInterface {
 
     private final Map<String, Boolean> knownUsers = new ConcurrentHashMap<>();
     private UserListController userListController;
-    private User selectedOnlineUser;
-    private boolean isShowingOnlineUserList;
     private final PropertyChangeListener chatPartnerChangeListener = this::onChatPartnerChanged;
-    private ScrollPane directMessageUsersListScroll;
 
     HomeScreenController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
@@ -65,7 +63,7 @@ public class HomeScreenController implements ControllerInterface {
         showOnlineUsersButton = (JFXButton) homeScreenView.lookup(TOGGLE_ONLINE_BUTTON_ID);
         onlineUsersContainer = (VBox) homeScreenView.lookup(ONLINE_USERS_CONTAINER_ID);
         homeScreenLabel = (Label) homeScreenView.lookup(HOME_SCREEN_LABEL_ID);
-        directMessageUsersListScroll = (ScrollPane) homeScreenView.lookup(AVAILABLE_DM_USERS_ID);
+        ScrollPane directMessageUsersListScroll = (ScrollPane) homeScreenView.lookup(AVAILABLE_DM_USERS_ID);
         directMessageUsersList = (VBox) directMessageUsersListScroll.getContent();
 
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
@@ -85,20 +83,10 @@ public class HomeScreenController implements ControllerInterface {
     @Override
     public void route(RouteInfo routeInfo, RouteArgs args) {
         String subRoute = routeInfo.getSubControllerRoute();
+        subviewCleanup();
 
         if (subRoute.equals(Constants.ROUTE_PRIVATE_CHAT)) {
-
-            isShowingOnlineUserList = false;
-
             User otherUser = editor.getUserById(args.getValue());
-            // Don't open private chat view which is already open
-            if (!Objects.isNull(selectedOnlineUser) && selectedOnlineUser.equals(otherUser)) {
-                return;
-            }
-
-            subviewCleanup();
-
-            selectedOnlineUser = otherUser;
 
             PrivateChatController privateChatController = new PrivateChatController(view, editor, otherUser);
             privateChatController.init();
@@ -107,23 +95,13 @@ public class HomeScreenController implements ControllerInterface {
             addUserToSidebar(otherUser);
 
         } else if (subRoute.equals(Constants.ROUTE_LIST_ONLINE_USERS)) {
-            if (isShowingOnlineUserList) {
-                return;
-            }
-
-            subviewCleanup();
-
-            selectedOnlineUser = null;
-            isShowingOnlineUserList = true;
-
             UserList userList = new UserList();
             userListController = new UserListController(userList, editor);
             userListController.init();
-
-            onlineUsersContainer.getChildren().add(userList);
-            homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_ONLINE_USERS));
-
             Router.addToControllerCache(routeInfo.getFullRoute(), userListController);
+            onlineUsersContainer.getChildren().add(userList);
+
+            homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_ONLINE_USERS));
         }
     }
 
@@ -143,9 +121,7 @@ public class HomeScreenController implements ControllerInterface {
     }
 
     private void handleShowOnlineUsersClicked(MouseEvent mouseEvent) {
-        if (!isShowingOnlineUserList) {
-            Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
-        }
+        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
     }
 
     private void addUserToSidebar(User otherUser) {
@@ -162,18 +138,10 @@ public class HomeScreenController implements ControllerInterface {
         knownUsers.put(id, true);
 
         // Add to known users sidebar
-        Text text = new Text(otherUser.getName());
-        text.setFill(Color.WHITE);
-        text.setFont(Font.font(16));
-        // TODO: Long user names break the view
-        // text.setWrappingWidth(directMessageUsersList.getWidth() - 5);
+        UserListEntry userListEntry = new UserListEntry(otherUser);
 
-        text.setOnMouseClicked((mouseEvent) -> {
-            Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT,
-                new RouteArgs().setKey(Constants.ROUTE_PRIVATE_CHAT_ARGS).setValue(otherUser.getId()));
-        });
         Platform.runLater(() -> {
-            directMessageUsersList.getChildren().add(text);
+            directMessageUsersList.getChildren().add(userListEntry);
         });
     }
 
