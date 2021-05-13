@@ -60,7 +60,7 @@ public class NavBarListController implements ControllerInterface {
     }
 
     private void serverAdded(final Server server) {
-        if (!navBarServerElementHashMap.containsKey(server)) {
+        if (Objects.nonNull(server) && !navBarServerElementHashMap.containsKey(server)) {
             final NavBarServerElement navBarElement = new NavBarServerElement(server);
             navBarServerElementHashMap.put(server, navBarElement);
             Platform.runLater(() -> navBarList.addServerElement(navBarElement));
@@ -68,7 +68,7 @@ public class NavBarListController implements ControllerInterface {
     }
 
     private void serverRemoved(final Server server) {
-        if (navBarServerElementHashMap.containsKey(server)) {
+        if (Objects.nonNull(server) && navBarServerElementHashMap.containsKey(server)) {
             final NavBarServerElement navBarElement = navBarServerElementHashMap.remove(server);
             Platform.runLater(() -> navBarList.removeElement(navBarElement));
         }
