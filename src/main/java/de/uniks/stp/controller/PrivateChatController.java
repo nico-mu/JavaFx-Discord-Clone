@@ -14,6 +14,9 @@ import de.uniks.stp.router.RouteInfo;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Date;
 import java.util.Objects;
 
@@ -28,6 +31,8 @@ public class PrivateChatController implements ControllerInterface {
     private ChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
+
+    private final PropertyChangeListener messagesChangeListener = this::onMessagesChanged;
 
     public PrivateChatController(Parent view, Editor editor, User user) {
         this.view = view;
@@ -47,12 +52,8 @@ public class PrivateChatController implements ControllerInterface {
             for (Message message : user.getPrivateChatMessages()) {
                 chatView.appendMessage(message);
             }
+            user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
 
-            user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, (propertyChangeEvent) -> {
-                DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
-
-                chatView.appendMessage(directMessage);
-            });
         } catch (NullPointerException e) {
             System.out.println("User already logged out");
         }
@@ -60,14 +61,20 @@ public class PrivateChatController implements ControllerInterface {
 
     @Override
     public void stop() {
-        if (!Objects.isNull(chatView)) {
+        if (Objects.nonNull(chatView)) {
             chatView.stop();
         }
+        user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
     }
 
     @Override
     public void route(RouteInfo routeInfo, RouteArgs args) {
 
+    }
+
+    private void onMessagesChanged(PropertyChangeEvent propertyChangeEvent) {
+        DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
+        chatView.appendMessage(directMessage);
     }
 
     private void showPrivateChatView(User otherUser) {

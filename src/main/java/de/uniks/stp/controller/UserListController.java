@@ -21,7 +21,7 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Objects;
 
-@Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + "/online")
+@Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE)
 public class UserListController implements ControllerInterface {
     private final HashMap<User, UserListEntry> userUserListEntryHashMap;
     private final UserList userList;
