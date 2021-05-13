@@ -40,6 +40,8 @@ local.properties
 /app/src/*/scenarios/**/*.svg
 /app/src/*/scenarios/**/*.txt
 /app/src/*/scenarios/**/*.yaml
+
 /app/src/main/java/de/uniks/stp/model/
 /*/build/
 /*/buildSrc/build/
+/app/src/main/resources/de/uniks/stp/style/css

@@ -5,13 +5,11 @@ import de.uniks.stp.controller.ControllerInterface;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Router {
 
     private static final HashMap<String, Class<?>> routeMap;
-    private static ConcurrentHashMap<String, ControllerInterface> controllerCache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, ControllerInterface> controllerCache = new ConcurrentHashMap<>();
     private static String currentRoute;
     private static RouteArgs currentArgs;
 

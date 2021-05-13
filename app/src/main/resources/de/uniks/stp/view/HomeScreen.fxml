@@ -3,7 +3,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="472.0" prefWidth="696.0" styleClass="container" stylesheets="@home.css"
+            prefHeight="472.0" prefWidth="696.0" styleClass="container" stylesheets="@../style/css/view/home.css"
             xmlns="http://javafx.com/javafx/11.0.1">
     <HBox prefHeight="472.0" prefWidth="696.0">
         <AnchorPane id="active-chats-container" prefHeight="442.0" prefWidth="167.0" styleClass="active-chats"/>

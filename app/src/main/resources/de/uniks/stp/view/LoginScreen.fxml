@@ -5,7 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="320.0" prefWidth="400.0" style="-fx-background-color: #ffffff;" stylesheets="@login.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="320.0" prefWidth="400.0" stylesheets="@../style/css/view/login.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <VBox alignment="CENTER" layoutX="200.0" layoutY="49.0" prefHeight="249.0" prefWidth="232.0" styleClass="login-form" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -57,12 +57,12 @@
             </HBox>
             <StackPane prefHeight="150.0" prefWidth="200.0">
                <children>
-                  <Label id="error-message" textFill="RED">
+                  <Label id="error-message">
                      <font>
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <JFXSpinner id="spinner" prefHeight="29.0" prefWidth="368.0" radius="12.0" stylesheets="@login.css" visible="false" />
+                  <JFXSpinner id="spinner" prefHeight="29.0" prefWidth="368.0" radius="12.0"  visible="false" />
                </children>
             </StackPane>
          </children>

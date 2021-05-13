@@ -1,0 +1,18 @@
+@import "../base";
+
+.mid-pane {
+  @include main-container-mixin;
+}
+
+.active-chats {
+  @include secondary-container-mixin;
+}
+
+.online-users {
+  @include secondary-container-mixin;
+}
+
+.available-users-label {
+  -fx-font-size: 24px;
+  -fx-text-fill: $primary-text-fill;
+}

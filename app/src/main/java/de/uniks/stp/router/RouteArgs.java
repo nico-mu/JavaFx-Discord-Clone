@@ -1,10 +1,11 @@
 package de.uniks.stp.router;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class RouteArgs {
 
-    private HashMap<String, String> argMap = new HashMap<>();
+    private final HashMap<String, String> argMap = new HashMap<>();
 
     public RouteArgs addArgument(String key, String value) {
         argMap.put(key, value);
@@ -21,6 +22,7 @@ public class RouteArgs {
     }
 
     public boolean compareTo(RouteArgs other) {
+        Objects.requireNonNull(other);
         HashMap<String, String> otherMap = other.getArguments();
         for(String argName : argMap.keySet()) {
             if (!otherMap.containsKey(argName) || !otherMap.get(argName).equals(argMap.get(argName))) {
