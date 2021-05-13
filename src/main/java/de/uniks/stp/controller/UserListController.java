@@ -67,13 +67,6 @@ public class UserListController implements ControllerInterface {
         final Accord accord = editor.getOrCreateAccord();
         accord.listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
 
-        // Add users in current model
-        for (User user : editor.getOtherUsers()) {
-            final UserListEntry userListEntry = new UserListEntry(user);
-            userUserListEntryHashMap.put(user, userListEntry);
-            Platform.runLater(() -> userList.addUserListEntry(userListEntry));
-        }
-
         final RestClient restClient = new RestClient();
         restClient.requestOnlineUsers(this::handleUserOnlineRequest);
     }
