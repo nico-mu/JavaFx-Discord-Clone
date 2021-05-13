@@ -1,0 +1,26 @@
+@import "../base";
+
+.mid-pane {
+    @include main-container-mixin;
+}
+
+.server-channel-overview {
+    @include secondary-container-mixin;
+}
+
+.server-chat {
+    @include secondary-container-mixin;
+}
+
+.server-user-list {
+    @include secondary-container-mixin;
+}
+
+.server-name-label {
+    -fx-font-size: 20px;
+    -fx-text-fill: $primary-text-fill;
+}
+
+.server-name-container {
+    -fx-border-color:transparent transparent $button-color transparent;
+}

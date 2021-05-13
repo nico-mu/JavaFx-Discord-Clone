@@ -35,6 +35,7 @@ dependencies {
 }
 
 task cloneCssFiles(type: Copy) {
+    delete "$projectDir/src/main/resources/de/uniks/stp/style/css"
     from "$buildDir/jsass/main/de/uniks/stp/style/scss"
     include "**/*.css"
     into "$projectDir/src/main/resources/de/uniks/stp/style/css"
