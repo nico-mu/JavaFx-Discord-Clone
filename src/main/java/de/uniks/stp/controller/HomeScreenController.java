@@ -112,6 +112,10 @@ public class HomeScreenController implements ControllerInterface {
             userListController.stop();
         }
         showOnlineUsersButton.setOnMouseClicked(null);
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .listeners()
+            .removePropertyChangeListener(User.PROPERTY_CHAT_PARTNER, chatPartnerChangeListener);
     }
 
     private void subviewCleanup() {

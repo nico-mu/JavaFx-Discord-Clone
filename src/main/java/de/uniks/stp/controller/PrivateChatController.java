@@ -27,8 +27,6 @@ import java.util.function.Consumer;
 public class PrivateChatController implements ControllerInterface {
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
-    private PropertyChangeListener handleNewPrivateMessage = this::handleNewPrivateMessage;
-    final static String SUBVIEW_CONTAINER_ID = "#subview-container";
 
     private final Parent view;
     private final Editor editor;
@@ -36,7 +34,8 @@ public class PrivateChatController implements ControllerInterface {
     private ChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
-    private AnchorPane chatViewContainer;
+
+    private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
 
     public PrivateChatController(Parent view, Editor editor, User user) {
         this.view = view;
@@ -48,7 +47,6 @@ public class PrivateChatController implements ControllerInterface {
     public void init() {
         onlineUsersContainer = (VBox) view.lookup(ONLINE_USERS_CONTAINER_ID);
         homeScreenLabel = (Label) view.lookup(HOME_SCREEN_LABEL_ID);
-        chatViewContainer = (AnchorPane) view.lookup(SUBVIEW_CONTAINER_ID);
 
         // Block chat for now when user offline
         if (Objects.isNull(user)) {
@@ -62,12 +60,11 @@ public class PrivateChatController implements ControllerInterface {
             chatView.appendMessage(message);
         }
 
-        user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, handleNewPrivateMessage);
+        user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
     }
 
     private void handleNewPrivateMessage(PropertyChangeEvent propertyChangeEvent) {
        DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
-
        chatView.appendMessage(directMessage);
     }
 
@@ -77,7 +74,7 @@ public class PrivateChatController implements ControllerInterface {
             chatView.stop();
         }
         if (Objects.nonNull(user)) {
-            user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, handleNewPrivateMessage);
+            user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
         }
     }
 
@@ -91,7 +88,6 @@ public class PrivateChatController implements ControllerInterface {
 
         homeScreenLabel.setText(user.getName());
         chatView = new ChatView();
-        // chatView.setSize(chatViewContainer.getWidth(), chatViewContainer.getHeight());
 
         chatView.onMessageSubmit(this::handleMessageSubmit);
         onlineUsersContainer.getChildren().add(chatView);
