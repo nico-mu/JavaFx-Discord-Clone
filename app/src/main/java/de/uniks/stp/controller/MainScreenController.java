@@ -36,6 +36,7 @@ public class MainScreenController implements ControllerInterface {
     private NavBarListController navBarController;
     private Label usernameLabel;
     private Button logoutButton;
+    private Button settingsButton;
 
     private ControllerInterface currentController;
 
@@ -52,8 +53,10 @@ public class MainScreenController implements ControllerInterface {
         this.subViewContainer = (AnchorPane) view.lookup(SUBVIEW_CONTAINER_ID);
         this.usernameLabel = (Label) view.lookup(USERNAME_LABEL_ID);
         this.logoutButton = (Button) view.lookup(LOGOUT_BUTTON_ID);
+        this.settingsButton = (Button) view.lookup("#settings-button");
 
         logoutButton.setOnAction(this::onLogoutButtonClicked);
+        settingsButton.setOnAction(this::onSettingsButtonClicked);
         usernameLabel.setText(editor.getOrCreateAccord().getCurrentUser().getName());
 
         navBarController = new NavBarListController(navBar, editor);
@@ -92,6 +95,10 @@ public class MainScreenController implements ControllerInterface {
         Platform.runLater(() -> Router.route(Constants.ROUTE_LOGIN));
     }
 
+    private void onSettingsButtonClicked(ActionEvent actionEvent) {
+        System.out.println("settings button clicked");
+    }
+
     private void cleanup() {
         this.subViewContainer.getChildren().clear();
     }
@@ -100,7 +107,7 @@ public class MainScreenController implements ControllerInterface {
     public void stop() {
         navBarController.stop();
         logoutButton.setOnAction(null);
-
+        settingsButton.setOnAction(null);
         if (Objects.nonNull(currentController)) {
             currentController.stop();
         }

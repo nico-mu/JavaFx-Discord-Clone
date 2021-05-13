@@ -97,6 +97,12 @@
     -fx-text-fill: white;
 }
 
+.settings-button {
+    -fx-background-color: #7289da;
+    -fx-font-size: 18px;
+    -fx-text-fill: white;
+}
+
 .current-user-label {
     -fx-font-size: 18px;
     -fx-text-fill: white;
