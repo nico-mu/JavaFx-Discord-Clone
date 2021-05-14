@@ -3,6 +3,7 @@ package de.uniks.stp;
 import de.uniks.stp.controller.ControllerInterface;
 import de.uniks.stp.controller.LoginScreenController;
 import de.uniks.stp.controller.MainScreenController;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.network.UserKeyProvider;
@@ -30,6 +31,8 @@ public class StageManager extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        DatabaseService.init();
+
         stage = primaryStage;
         editor = new Editor();
         UserKeyProvider.setEditor(editor);
@@ -78,6 +81,7 @@ public class StageManager extends Application {
             });
 
             WebSocketService.stop();
+            DatabaseService.stop();
         } catch (Exception e) {
             System.err.println("Error while trying to shutdown");
             e.printStackTrace();
