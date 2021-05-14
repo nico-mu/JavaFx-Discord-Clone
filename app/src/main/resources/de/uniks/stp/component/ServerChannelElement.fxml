@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+
+
+<fx:root type="HBox" id="channel-container" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="170.0" styleClass="channel-container" stylesheets="@../style/css/component/server-category-list.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label fx:id="channelLabel" id="channel-label" prefHeight="39.0" prefWidth="180.0" styleClass="channel-label" text="Label" />
+   </children>
+</fx:root>
