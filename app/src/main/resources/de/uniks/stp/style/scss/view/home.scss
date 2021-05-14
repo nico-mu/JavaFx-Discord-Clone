@@ -16,3 +16,13 @@
   -fx-font-size: 24px;
   -fx-text-fill: $primary-text-fill;
 }
+
+#toggle-online-button {
+  -jfx-button-type: FLAT;
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+}
+
+#dm-user-list {
+  -fx-background-color: $secondary-background-color;
+}
