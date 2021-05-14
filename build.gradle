@@ -1,61 +1,40 @@
-plugins {
-    id 'application'
-    // https://plugins.gradle.org/plugin/org.fulib.fulibGradle
-    id 'org.fulib.fulibGradle' version '0.4.0'
-    id 'org.openjfx.javafxplugin' version '0.0.9'
-    id 'java'
-    id 'annotation-reader'
+apply plugin: 'idea'
+
+ext {
+    log4jVersion = '2.9.1'
 }
 
-javafx {
-    version = "12"
-    modules = ['javafx.graphics', 'javafx.fxml', 'javafx.base', 'javafx.controls']
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
 }
 
-test {
-    useJUnitPlatform()
+allprojects {
+    repositories {
+        mavenCentral() // maven { url: 'http://jcenter.bintray.com' }
+    }
 }
 
-mainClassName = 'de.uniks.stp.Launcher'
+//apply from: file('gradle/check.gradle')
 
-group 'de.uniks.stp'
-version '1.0.0'
+subprojects {
+//    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'java'
 
-repositories {
-    mavenCentral()
-    jcenter()
-}
+    group = "de.uniks.stp.${rootProject.name}"
 
-dependencies {
-    compile 'com.jfoenix:jfoenix:9.0.10'
+    dependencies {
+        implementation 'com.google.guava:guava:30.1.1-jre'
 
-    implementation group: 'com.konghq', name: 'unirest-java', version: '3.11.09'
-    implementation group: 'javax.websocket', name: 'javax.websocket-api', version: '1.1'
-    implementation group: 'org.glassfish', name: 'javax.json', version: '1.1'
-    implementation group: 'org.glassfish.tyrus', name: 'tyrus-container-grizzly-client', version: '1.15'
+        compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
+        compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+        compile "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
 
-    // https://mvnrepository.com/artifact/org.fulib/fulibScenarios
-    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.7.0'
-
-    // https://mvnrepository.com/artifact/org.fulib/fulibYaml
-    implementation group: 'org.fulib', name: 'fulibYaml', version: '1.4.0'
-
-    // https://mvnrepository.com/artifact/org.fulib/fulibTools
-    testImplementation group: 'org.fulib', name: 'fulibTools', version: '1.4.1'
-
-    // https://mvnrepository.com/artifact/org.fulib/fulibTables
-    testImplementation group: 'org.fulib', name: 'fulibTables', version: '1.4.0'
-
-    // https://mvnrepository.com/artifact/org.fulib/fulibMockups
-    testImplementation group: 'org.fulib', name: 'fulibMockups', version: '0.3.1'
-
-    // https://mvnrepository.com/artifact/org.slf4j/slf4j-nop
-    testImplementation group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.30'
-
-    testImplementation 'org.testfx:testfx-junit:4.0.16-alpha'
-
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.1'
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.1'
-
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.5.13'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.1'
+        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.1'
+    }
 }

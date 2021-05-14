@@ -9,7 +9,7 @@ Accord is the client you'll need to communicate with your peers and friends via 
 Grab the latest application state from our GitHub repository, create a new branch from the master following our naming
 conventions and start coding!
 
-It is advised that you use the buildRouteMap Gradle-Task on evey pull of the master branch. You'll create the latest
+It is advised that you use the buildRouteMap Gradle-Task on every pull of the master branch. You'll create the latest
 RouteMapping and allow the routing system to work properly.
 
 ### Prerequisites
@@ -18,7 +18,7 @@ The things you need before installing the software.
 
 * Java 11+ AdoptOpenJDK (HotSpot) 11.0.1 is recommended
 * JavaFX Scene Builder 11.0.0
-* An IDE that will make your coding much easier IntelliJ IDEA Ultimate 2021.1.1 is recoomended
+* An IDE that will make your coding much easier IntelliJ IDEA Ultimate 2021.1.1 is recommended
 * Oh, and don't forget a warm cup of coffee
 
 ### Server

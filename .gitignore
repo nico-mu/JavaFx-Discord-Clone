@@ -33,11 +33,13 @@ hs_err_pid*
 *.iml
 local.properties
 
-/src/*/java/**/classDiagram.png
-/src/*/java/**/classDiagram.svg
-/src/*/scenarios/**/*.html
-/src/*/scenarios/**/*.png
-/src/*/scenarios/**/*.svg
-/src/*/scenarios/**/*.txt
-/src/*/scenarios/**/*.yaml
-/src/main/java/de/uniks/stp/model/
+/app/src/*/java/**/classDiagram.png
+/app/src/*/java/**/classDiagram.svg
+/app/src/*/scenarios/**/*.html
+/app/src/*/scenarios/**/*.png
+/app/src/*/scenarios/**/*.svg
+/app/src/*/scenarios/**/*.txt
+/app/src/*/scenarios/**/*.yaml
+/app/src/main/java/de/uniks/stp/model/
+/*/build/
+/*/buildSrc/build/
