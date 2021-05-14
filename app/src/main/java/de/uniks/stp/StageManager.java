@@ -73,8 +73,10 @@ public class StageManager extends Application {
             if (currentController != null) {
                 currentController.stop();
             }
+            new RestClient().sendLogoutRequest(response -> {
+                RestClient.stop();
+            });
 
-            RestClient.stop();
             WebSocketService.stop();
         } catch (Exception e) {
             System.err.println("Error while trying to shutdown");

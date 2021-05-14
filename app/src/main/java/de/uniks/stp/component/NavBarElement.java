@@ -14,7 +14,7 @@ import java.io.IOException;
 abstract public class NavBarElement extends HBox {
 
     @FXML
-    protected  Pane navBarElementMarker;
+    protected Pane navBarElementMarker;
 
     @FXML
     protected Pane navBarElement;

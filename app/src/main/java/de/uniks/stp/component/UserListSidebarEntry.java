@@ -13,14 +13,14 @@ import javafx.scene.text.Text;
 
 import java.io.IOException;
 
-public class UserListEntry extends HBox {
+public class UserListSidebarEntry extends HBox {
 
     @FXML
     private Text userNameText;
     private final User user;
 
-    public UserListEntry(final User user) {
-        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
+    public UserListSidebarEntry(final User user) {
+        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST_SIDEBAR_ENTRY);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
