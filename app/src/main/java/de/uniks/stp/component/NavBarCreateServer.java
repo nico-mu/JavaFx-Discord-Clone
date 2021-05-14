@@ -13,6 +13,9 @@ import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 public class NavBarCreateServer extends NavBarElement {
 
     private RestClient restClient = new RestClient();
@@ -55,16 +58,12 @@ public class NavBarCreateServer extends NavBarElement {
         System.out.println(response.getBody());
         if (response.isSuccess()) {
             JSONObject jsonObject = response.getBody().getObject().getJSONObject("data");
-
-
             String name = jsonObject.getString("name");
             String serverId = jsonObject.getString("id");
 
             editor.getOrCreateAccord()
                 .getCurrentUser()
                 .withAvailableServers(new Server().setName(name).setId(serverId));
-
-
         } else {
             System.err.println("create server failed!");
         }

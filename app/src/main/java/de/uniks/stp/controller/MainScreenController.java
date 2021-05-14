@@ -9,6 +9,7 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -16,13 +17,20 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN)
@@ -44,6 +52,7 @@ public class MainScreenController implements ControllerInterface {
     private Button logoutButton;
     //todo: replace settings-button
     private Button settingsButton;
+    private final PropertyChangeListener languageChangedListener = this::onLanguageChanged;
 
     private ControllerInterface currentController;
 
@@ -104,33 +113,37 @@ public class MainScreenController implements ControllerInterface {
 
     private void onSettingsButtonClicked(ActionEvent actionEvent) {
         System.out.println("settings button clicked");
-        Stage popupwindow = new Stage();
-        popupwindow.initModality(Modality.APPLICATION_MODAL);
-        popupwindow.setTitle("Sprache wählen");
+        HBox layout = new HBox(15);
+        Stage selectLanguageWindow = new Stage();
+        Scene scene = new Scene(layout, 200, 100);
+        Button closeWindowButton = new Button("Schlie\u00DFen");
 
-        Button button1 = new Button("Close this pop up window");
-        Button button2 = new Button("Select chosen language");
+        layout.setAlignment(Pos.CENTER);
+        selectLanguageWindow.initModality(Modality.APPLICATION_MODAL);
+        selectLanguageWindow.setTitle("Sprache w\u00E4hlen");
+        selectLanguageWindow.initStyle(StageStyle.UTILITY);
+        selectLanguageWindow.setScene(scene);
 
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
         choiceBox.getItems().addAll("Deutsch", "English");
         //set inital value of dropdown menu, should be current language
         choiceBox.setValue("Deutsch");
 
-        button1.setOnAction(e -> popupwindow.close());
-        button2.setOnAction(event -> getChosenLanguage(choiceBox));
+        //listen for language changes
+        choiceBox.getSelectionModel().selectedItemProperty().addListener((language, oldValue, newValue) ->
+            System.out.println(newValue + " selected!"));
 
-        VBox layout = new VBox(10);
-        layout.getChildren().addAll(choiceBox, button1, button2);
-        layout.setAlignment(Pos.CENTER);
+        //todo: remove listener
+        //choiceBox.getSelectionModel().selectedItemProperty().removeListener();
 
-        Scene scene1 = new Scene(layout, 300, 250);
-        popupwindow.setScene(scene1);
-        popupwindow.showAndWait();
+        closeWindowButton.setOnAction(e -> selectLanguageWindow.close());
+
+        layout.getChildren().addAll(choiceBox, closeWindowButton);
+        selectLanguageWindow.showAndWait();
     }
 
-    private void getChosenLanguage(ChoiceBox<String> choiceBox) {
-        String language = choiceBox.getValue();
-        System.out.println(language + " language has been chosen!");
+    private void onLanguageChanged(PropertyChangeEvent propertyChangeEvent) {
+
     }
 
     private void cleanup() {
