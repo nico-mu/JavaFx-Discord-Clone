@@ -59,6 +59,14 @@ public class Router {
         }
     }
 
+    public static void forceReload() {
+        final String route = currentRoute;
+        final RouteArgs args = currentArgs.clone();
+        shutdownControllers("");
+        route(route, args);
+    }
+
+
     private static Stack<RouteInfo> getRequirements(String route) {
         Stack<RouteInfo> requirements = new Stack<>();
         String remainingRoute = route;

@@ -2,7 +2,7 @@ package de.uniks.stp.router;
 
 import java.util.Objects;
 
-public class RouteArgs {
+public class RouteArgs implements Cloneable {
 
     private String key;
     private String value;
@@ -30,5 +30,16 @@ public class RouteArgs {
             return key.equals(other.getKey()) && value.equals(other.getValue());
         }
         return Objects.isNull(key) && Objects.isNull(value) && Objects.isNull(other.getKey()) && Objects.isNull(other.getValue());
+    }
+
+    @Override
+    public RouteArgs clone() {
+        try {
+            super.clone();
+        } catch (CloneNotSupportedException ignored) {
+        }
+        return new RouteArgs()
+            .setKey(getKey())
+            .setValue(getValue());
     }
 }
