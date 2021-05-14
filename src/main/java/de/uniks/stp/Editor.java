@@ -75,12 +75,6 @@ public class Editor {
         return other;
     }
 
-    public List<User> getOtherUsers() {
-        LinkedList<User> otherUsers = new LinkedList<>();
-        otherUsersAsIdUserMap().forEach(((s, user) -> otherUsers.add(user)));
-        return otherUsers;
-    }
-
     public User getOtherUser(String username) {
         List<User> otherUsers = accord.getOtherUsers();
         for(User user: otherUsers){

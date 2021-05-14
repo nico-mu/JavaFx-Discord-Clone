@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.UserListEntry;
+import de.uniks.stp.component.UserListSidebarEntry;
 import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.UserKeyProvider;
@@ -142,7 +143,7 @@ public class HomeScreenController implements ControllerInterface {
         knownUsers.put(id, true);
 
         // Add to known users sidebar
-        UserListEntry userListEntry = new UserListEntry(otherUser);
+        UserListSidebarEntry userListEntry = new UserListSidebarEntry(otherUser);
 
         Platform.runLater(() -> {
             directMessageUsersList.getChildren().add(userListEntry);
