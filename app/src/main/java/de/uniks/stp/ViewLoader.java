@@ -6,6 +6,8 @@ import de.uniks.stp.view.Views;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +18,8 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class ViewLoader {
+    private static final Logger log = LoggerFactory.getLogger(ViewLoader.class);
+
     private static ResourceBundle resourceBundle;
     private static ClassLoader loader;
 
@@ -42,7 +46,7 @@ public class ViewLoader {
             final InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResource("./pictures/" + name)).openStream();
             return new Image(inputStream);
         } catch (IOException e) {
-            System.err.println("Picture " + name + "could not be loaded!");
+            log.error("Picture " + name + " could not be loaded!", e);
             e.printStackTrace();
         }
        return null;
@@ -54,8 +58,7 @@ public class ViewLoader {
             //load view with given resource bundle
             load = FXMLLoader.load(path, resourceBundle);
         } catch (IOException e) {
-            System.err.println("View " + path.getPath() + " could not be loaded.");
-            e.printStackTrace();
+            log.error("View " + path.getPath() + " could not be loaded.", e);
         }
         return load;
     }

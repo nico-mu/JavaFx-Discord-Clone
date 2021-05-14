@@ -2,6 +2,8 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.util.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.json.JsonObject;
 import javax.websocket.*;
@@ -11,6 +13,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class WebSocketClient extends Endpoint {
+    private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
+
     private final Timer noopTimer;
     private Session session;
     private WSCallback callback;
@@ -41,8 +45,7 @@ public class WebSocketClient extends Endpoint {
             );
             this.callback = callback;
         } catch (Exception e) {
-            System.err.println("Error during establishing websocket connection:");
-            e.printStackTrace();
+            log.error("Error during establishing websocket connection:", e);
         }
     }
 
@@ -66,7 +69,7 @@ public class WebSocketClient extends Endpoint {
                 try {
                     session.getBasicRemote().sendText("noop");
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("Failed to send noop", e);
                 }
             }
         }, 0, 1000 * 30);  // 30s works, 1min is to much
@@ -80,7 +83,7 @@ public class WebSocketClient extends Endpoint {
      */
     @Override
     public void onClose(Session session, CloseReason closeReason) {
-        System.out.println("onClose");
+        log.debug("onClose");
         super.onClose(session, closeReason);
         // cancel timer
         this.noopTimer.cancel();
@@ -119,7 +122,7 @@ public class WebSocketClient extends Endpoint {
      * Should be called when WebSocket is not used anymore; cancels Timer and closes session
      */
     public void stop() {
-        System.out.println("stop");
+        log.debug("stop");
         // cancel timer
         this.noopTimer.cancel();
         // close session
@@ -127,7 +130,7 @@ public class WebSocketClient extends Endpoint {
             try {
                 this.session.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to close the session", e);
             }
             this.session = null;
         }
