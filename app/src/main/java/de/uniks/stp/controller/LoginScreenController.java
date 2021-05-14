@@ -18,11 +18,15 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
 @Route(Constants.ROUTE_LOGIN)
 public class LoginScreenController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(LoginScreenController.class);
+
     private final Parent view;
     private final Editor editor;
     private final RestClient restClient;
@@ -173,7 +177,7 @@ public class LoginScreenController implements ControllerInterface {
      * @param response contains server response
      */
     private void handleRegisterResponse(HttpResponse<JsonNode> response) {
-        System.out.println(response.getBody());
+        log.debug(response.getBody().toPrettyString());
         // log user in
         if (response.isSuccess()) {
             setErrorMessage(null);
@@ -199,7 +203,7 @@ public class LoginScreenController implements ControllerInterface {
      * @param response contains server response
      */
     private void handleLoginResponse(HttpResponse<JsonNode> response) {
-        System.out.println(response.getBody());
+        log.debug(response.getBody().toPrettyString());
         // set currentUser + userKey and switch to HomeScreen
         if (response.isSuccess()) {
             setErrorMessage(null);

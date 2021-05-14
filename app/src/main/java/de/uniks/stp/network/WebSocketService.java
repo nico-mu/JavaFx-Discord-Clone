@@ -8,6 +8,8 @@ import de.uniks.stp.model.User;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import kong.unirest.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -18,6 +20,8 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class WebSocketService {
+    private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
+
     private static final HashMap<String, WebSocketClient> pathWebSocketClientHashMap = new HashMap<>();
     private static Editor editor;
     private static User currentUser;
@@ -56,13 +60,13 @@ public class WebSocketService {
     }
 
     private static void onServerSystemMessage(JsonStructure jsonStructure) {
-        System.out.println("server system message: " + jsonStructure.toString());
+        log.debug("server system message: {}", jsonStructure.toString());
 
         //TODO...
     }
 
     private static void onServerChatMessage(JsonStructure jsonStructure) {
-        System.out.println("server chat message: " + jsonStructure.toString());
+        log.debug("server chat message: {}", jsonStructure.toString());
 
         //TODO...
     }
@@ -76,10 +80,9 @@ public class WebSocketService {
         try {
             String endpointKey = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
             pathWebSocketClientHashMap.get(endpointKey).sendMessage(msgObject.toString());
-            System.out.println("Message sent: " + msgObject.toString());
+            log.debug("Message sent: {}", msgObject.toString());
         } catch (IOException e) {
-            System.out.println("ERROR:WebSocketService: sendServerMessage failed");
-            e.printStackTrace();
+            log.error("WebSocketService: sendServerMessage failed", e);
         }
     }
 
@@ -93,15 +96,14 @@ public class WebSocketService {
         try {
             String endpointKey = Constants.WS_USER_PATH + currentUser.getName();
             pathWebSocketClientHashMap.get(endpointKey).sendMessage(msgObject.toString());
-            System.out.println("Message sent: " + msgObject.toString());
+            log.debug("Message sent: {}", msgObject);
         } catch (IOException e) {
-            System.out.println("ERROR:WebSocketService: sendPrivateMessage failed");
-            e.printStackTrace();
+            log.error("WebSocketService: sendPrivateMessage failed", e);
         }
     }
 
     private static void onPrivateMessage(JsonStructure jsonStructure) {
-        System.out.println("[" + new Date() + "] Received private message with content: " + jsonStructure.toString());
+        log.debug("Received private message with content: {}", jsonStructure.toString());
 
         final JSONObject jsonObject = new JSONObject(jsonStructure.asJsonObject().toString());
 
@@ -117,7 +119,7 @@ public class WebSocketService {
 
         User sender = editor.getOtherUser(from);
         if (Objects.isNull(sender)) {
-            System.out.println("ERROR:WebSocketService: Sender \"" + from + "\" of received message is not in editor");
+            log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
             return;
         }
 
@@ -132,7 +134,7 @@ public class WebSocketService {
     }
 
     private static void onSystemMessage(final JsonStructure jsonStructure) {
-        System.out.println("[" + new Date() + "] Received system message with content: " + jsonStructure.toString());
+        log.debug("Received system message with content: {}", jsonStructure.toString());
 
         final JsonObject jsonObject = jsonStructure.asJsonObject();
 

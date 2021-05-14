@@ -13,10 +13,14 @@ import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
 public class StageManager extends Application {
+    private static final Logger log = LoggerFactory.getLogger(StageManager.class);
+
     private static Editor editor;
     private static Stage stage;
     private static ControllerInterface currentController;
@@ -79,8 +83,7 @@ public class StageManager extends Application {
 
             WebSocketService.stop();
         } catch (Exception e) {
-            System.err.println("Error while trying to shutdown");
-            e.printStackTrace();
+            log.error("Error while trying to shutdown", e);
         }
 
     }
