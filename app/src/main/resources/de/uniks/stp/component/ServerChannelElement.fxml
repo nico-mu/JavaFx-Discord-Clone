@@ -2,10 +2,11 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 
-
-<fx:root type="HBox" id="channel-container" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="170.0" styleClass="channel-container" stylesheets="@../style/css/component/server-category-list.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root id="channel-container" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="170.0" spacing="5.0" styleClass="channel-container" stylesheets="@../style/css/component/server-category-list.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label fx:id="channelLabel" id="channel-label" prefHeight="39.0" prefWidth="180.0" styleClass="channel-label" text="Label" />
+      <Pane id="channel-element-marker" fx:id="channelElementMarker" prefHeight="30.0" prefWidth="23.0" styleClass="channel-element-marker" visible="false" />
+      <Label id="channel-label" fx:id="channelLabel" prefHeight="39.0" prefWidth="180.0" styleClass="channel-label" text="Label" />
    </children>
 </fx:root>
