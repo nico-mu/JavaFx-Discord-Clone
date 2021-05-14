@@ -16,11 +16,14 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN)
 public class MainScreenController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(MainScreenController.class);
 
     private final String NAV_BAR_ID = "#nav-bar";
     private final String USER_SETTINGS_PANE_ID = "#user-settings-pane";
@@ -84,9 +87,9 @@ public class MainScreenController implements ControllerInterface {
     }
 
     private void handleLogoutResponse(HttpResponse<JsonNode> response) {
-        System.out.println(response.getBody());
+        log.debug(response.getBody().toPrettyString());
         if (!response.isSuccess()) {
-            System.err.println("logout failed");
+            log.error("logout failed");
         }
         this.editor.getOrCreateAccord().setUserKey("");
         Platform.runLater(() -> Router.route(Constants.ROUTE_LOGIN));
