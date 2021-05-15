@@ -51,6 +51,21 @@ public class ServerChatController implements ControllerInterface {
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
     }
 
+    @Override
+    public void stop() {
+        if (Objects.nonNull(chatView)) {
+            chatView.stop();
+        }
+        if (Objects.nonNull(model)) {
+            model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
+        }
+    }
+
+    @Override
+    public void route(RouteInfo routeInfo, RouteArgs args) {
+
+    }
+
     private void showChatView() {
         chatView = new ChatView();
 
@@ -65,17 +80,7 @@ public class ServerChatController implements ControllerInterface {
         msg.setChannel(model);  // triggers PropertyChangeListener that shows Message in Chat
 
         // send message
-        WebSocketService.sendServerMessage(model.getCategory().getServer().getId(), model.getName(), message);
-    }
-
-    @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
-
-    }
-
-    @Override
-    public void stop() {
-        model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
+        WebSocketService.sendServerMessage(model.getCategory().getServer().getId(), model.getId(), message);
     }
 
     private void handleNewMessage(PropertyChangeEvent propertyChangeEvent) {

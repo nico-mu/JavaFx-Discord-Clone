@@ -60,56 +60,6 @@ public class WebSocketService {
         pathWebSocketClientHashMap.put(endpoint, chatServerWSC);
     }
 
-    private static void onServerSystemMessage(JsonStructure jsonStructure) {
-        log.debug("server system message: {}", jsonStructure.toString());
-
-        //TODO...
-    }
-
-    private static void onServerChatMessage(JsonStructure jsonStructure, String serverId) {
-        log.debug("server chat message: {}", jsonStructure.toString());
-
-        final JSONObject jsonObject = new JSONObject(jsonStructure.asJsonObject().toString());
-
-        final String id = jsonObject.getString("id");  //TODO server id??
-        final String channelId = jsonObject.getString("channel");
-        final long timestamp = jsonObject.getLong("timestamp");
-        final String from = jsonObject.getString("from");
-        final String msgText = jsonObject.getString("text");
-
-        // in case it's sent by you
-        if (from.equals(currentUser.getName())) {
-            return;
-        }
-
-        User sender = editor.getOtherUser(from);
-        if (Objects.isNull(sender)) {
-            log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
-            return;
-        }
-
-        ServerMessage msg = new ServerMessage();
-        msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender);
-
-        // setChannel triggers PropertyChangeListener that shows Message in Chat
-        msg.setChannel(editor.getChannel(channelId, editor.getServer(serverId)));
-    }
-
-    public static void sendServerMessage(String serverId, String channel, String message) {
-        JsonObject msgObject = Json.createObjectBuilder()
-            .add("channel", channel)
-            .add("message", message)
-            .build();
-
-        try {
-            String endpointKey = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
-            pathWebSocketClientHashMap.get(endpointKey).sendMessage(msgObject.toString());
-            log.debug("Message sent: {}", msgObject.toString());
-        } catch (IOException e) {
-            log.error("WebSocketService: sendServerMessage failed", e);
-        }
-    }
-
     public static void sendPrivateMessage(String receiver, String message) {
         JsonObject msgObject = Json.createObjectBuilder()
             .add("channel", "private")
@@ -179,5 +129,55 @@ public class WebSocketService {
                     break;
             }
         }
+    }
+
+    public static void sendServerMessage(String serverId, String channelId, String message) {
+        JsonObject msgObject = Json.createObjectBuilder()
+            .add("channel", channelId)
+            .add("message", message)
+            .build();
+
+        try {
+            String endpointKey = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
+            pathWebSocketClientHashMap.get(endpointKey).sendMessage(msgObject.toString());
+            log.debug("Message sent: {}", msgObject.toString());
+        } catch (IOException e) {
+            log.error("WebSocketService: sendServerMessage failed", e);
+        }
+    }
+
+    private static void onServerChatMessage(JsonStructure jsonStructure, String serverId) {
+        log.debug("server chat message: {}", jsonStructure.toString());
+
+        final JSONObject jsonObject = new JSONObject(jsonStructure.asJsonObject().toString());
+
+        final String id = jsonObject.getString("id");  //TODO server id??
+        final String channelId = jsonObject.getString("channel");
+        final long timestamp = jsonObject.getLong("timestamp");
+        final String from = jsonObject.getString("from");
+        final String msgText = jsonObject.getString("text");
+
+        // in case it's sent by you
+        if (from.equals(currentUser.getName())) {
+            return;
+        }
+
+        User sender = editor.getOtherUser(from);
+        if (Objects.isNull(sender)) {
+            log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
+            return;
+        }
+
+        ServerMessage msg = new ServerMessage();
+        msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender);
+
+        // setChannel triggers PropertyChangeListener that shows Message in Chat
+        msg.setChannel(editor.getChannel(channelId, editor.getServer(serverId)));
+    }
+
+    private static void onServerSystemMessage(JsonStructure jsonStructure) {
+        log.debug("server system message: {}", jsonStructure.toString());
+
+        //TODO...
     }
 }
