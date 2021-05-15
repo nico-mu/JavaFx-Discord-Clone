@@ -1,0 +1,19 @@
+@import "../base";
+
+.nav-bar-element {
+  -fx-background-radius: 20px;
+  -fx-background-color: $primary-text-fill;
+  -fx-border-radius: 15px;
+}
+
+.nav-element-marker {
+  -fx-background-color: $button-color;
+}
+
+.nav-bar-vbox {
+  -fx-background-color: $secondary-background-color;
+}
+
+.nav-bar-element-main {
+  -fx-background-color: transparent;
+}

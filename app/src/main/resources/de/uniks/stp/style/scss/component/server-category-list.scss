@@ -1,0 +1,33 @@
+@import "../base";
+
+.scrollable-list-background {
+  -fx-background-color: $secondary-background-color;
+}
+
+.channel-list-element {
+  -fx-background-color: $secondary-background-color;
+}
+
+.category-head-label {
+  -fx-background-color: $secondary-background-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 12px;
+}
+
+.category-channel-list {
+  -fx-background-color: $secondary-background-color;
+}
+
+.channel-container {
+  -fx-background-color: $secondary-background-color;
+}
+
+.channel-label {
+  -fx-background-color: $secondary-background-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 12px;
+}
+
+.channel-element-marker {
+  -fx-background-color: $button-color;
+}

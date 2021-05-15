@@ -1,0 +1,21 @@
+/* base colors */
+$button-color: #4059a9;  //#7289da
+$main-background-color: #23272a;
+$secondary-background-color: #2c2f33;
+$primary-text-fill: white;
+
+@mixin main-container-mixin {
+    -fx-background-color: $main-background-color;
+    -fx-opacity: 0.8;
+}
+
+@mixin secondary-container-mixin {
+    -fx-background-color: $secondary-background-color;
+    -fx-background-radius: 10px;
+}
+
+.container {
+    -fx-background-color: transparent;
+}
+
+@import "scrollbar";

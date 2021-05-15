@@ -1,0 +1,28 @@
+@import "../base";
+
+.mid-pane {
+  @include main-container-mixin;
+}
+
+.active-chats {
+  @include secondary-container-mixin;
+}
+
+.online-users {
+  @include secondary-container-mixin;
+}
+
+.available-users-label {
+  -fx-font-size: 24px;
+  -fx-text-fill: $primary-text-fill;
+}
+
+#toggle-online-button {
+  -jfx-button-type: FLAT;
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+}
+
+#dm-user-list {
+  -fx-background-color: $secondary-background-color;
+}

@@ -1,0 +1,40 @@
+@import "../base";
+
+.mid-pane {
+  @include main-container-mixin;
+}
+
+.bottom-pane {
+  @include main-container-mixin
+}
+
+.user-settings-pane {
+  @include secondary-container-mixin;
+  -fx-border-radius: 10px;
+}
+
+.nav-bar {
+  @include secondary-container-mixin;
+}
+
+.subview-container {
+  @include secondary-container-mixin;
+}
+
+.window-container {
+  -fx-background-color: $main-background-color;
+}
+
+.logout-button {
+  -fx-background-color: $button-color;
+  -fx-font-size: 18px;
+  -fx-text-fill: $primary-text-fill;
+}
+
+.current-user-label {
+  -fx-font-size: 18px;
+  -fx-text-fill: $primary-text-fill;
+}
+
+
+
