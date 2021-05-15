@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -21,11 +20,8 @@ public class ViewLoader {
     private static final Logger log = LoggerFactory.getLogger(ViewLoader.class);
 
     private static ResourceBundle resourceBundle;
-    private static ClassLoader loader;
 
     static {
-        //add classloader for bundle directory to load it into resource bundle
-        loader = new URLClassLoader(new URL[]{ViewLoader.class.getResource("./bundle/")});
         changeLanguage(Languages.GERMAN);
     }
 
@@ -42,14 +38,8 @@ public class ViewLoader {
     }
 
     public static Image loadImage(String name) {
-        try {
-            final InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResource("./img/" + name)).openStream();
-            return new Image(inputStream);
-        } catch (IOException e) {
-            log.error("Picture " + name + " could not be loaded!", e);
-            e.printStackTrace();
-        }
-       return null;
+        final InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("img/" + name));
+        return new Image(inputStream);
     }
 
     private static Parent getParent(final URL path) {
@@ -66,7 +56,7 @@ public class ViewLoader {
     public static void changeLanguage(Languages language) {
         //TODO: insert current used language here (accord.getLanguage?)
         //load resource bundle for given language
-        resourceBundle = ResourceBundle.getBundle("language", new Locale(language.key), loader);
+        resourceBundle = ResourceBundle.getBundle("de.uniks.stp.bundle.language", new Locale(language.key));
     }
 
     public static String loadLabel(String label) {

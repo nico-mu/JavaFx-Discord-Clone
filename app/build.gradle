@@ -5,7 +5,10 @@ plugins {
     id 'application'
 }
 
+
 mainClassName = 'de.uniks.stp.Launcher'
+group = 'de.uniks.stp'
+version '1.0.0'
 
 javafx {
     version = "12"
@@ -41,3 +44,13 @@ task cloneCssFiles(type: Copy) {
     into "$projectDir/src/main/resources/de/uniks/stp/style/css"
 }
 compileSass.finalizedBy(cloneCssFiles)
+
+jar {
+    manifest {
+        attributes "Main-Class": "$mainClassName"
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
