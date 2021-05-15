@@ -2,7 +2,6 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.RestClient;
@@ -13,7 +12,6 @@ import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -21,6 +19,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
@@ -34,12 +33,6 @@ import java.util.Objects;
 @Route(Constants.ROUTE_MAIN)
 public class MainScreenController implements ControllerInterface {
 
-    @FXML
-    protected HBox settingsWindowLayout;
-
-    @FXML
-    protected ImageView imageView;
-
     private final String NAV_BAR_ID = "#nav-bar";
     private final String USER_SETTINGS_PANE_ID = "#user-settings-pane";
     private final String SUBVIEW_CONTAINER_ID = "#subview-container";
@@ -52,13 +45,12 @@ public class MainScreenController implements ControllerInterface {
     private AnchorPane userSettingsPane;
     private AnchorPane subViewContainer;
     private NavBarListController navBarController;
+    private HBox settingsWindowLayout;
     private Label usernameLabel;
     private Button logoutButton;
-
-    private Button settingsButton;
+    private ImageView imageView = new ImageView();
     private ChoiceBox<String> languageSelectChoiceBox;
     private final InvalidationListener languageChangedListener = this::onLanguageChanged;
-
     private ControllerInterface currentController;
 
     public MainScreenController(Parent view, Editor editor) {
@@ -74,10 +66,10 @@ public class MainScreenController implements ControllerInterface {
         this.subViewContainer = (AnchorPane) view.lookup(SUBVIEW_CONTAINER_ID);
         this.usernameLabel = (Label) view.lookup(USERNAME_LABEL_ID);
         this.logoutButton = (Button) view.lookup(LOGOUT_BUTTON_ID);
-        this.settingsButton = (Button) view.lookup("#settings-button");
+        this.imageView = (ImageView) view.lookup("#settings-gear");
 
+        imageView.setOnMouseClicked(this::onSettingsButtonClicked);
         logoutButton.setOnAction(this::onLogoutButtonClicked);
-        settingsButton.setOnAction(this::onSettingsButtonClicked);
         usernameLabel.setText(editor.getOrCreateAccord().getCurrentUser().getName());
 
         navBarController = new NavBarListController(navBar, editor);
@@ -116,7 +108,7 @@ public class MainScreenController implements ControllerInterface {
         Platform.runLater(() -> Router.route(Constants.ROUTE_LOGIN));
     }
 
-    private void onSettingsButtonClicked(ActionEvent actionEvent) {
+    private void onSettingsButtonClicked(MouseEvent mouseEvent) {
         settingsWindowLayout = new HBox(15);
         settingsWindowLayout.setAlignment(Pos.CENTER);
 
@@ -136,7 +128,10 @@ public class MainScreenController implements ControllerInterface {
         //listen for language changes
         languageSelectChoiceBox.getSelectionModel().selectedItemProperty().addListener(languageChangedListener);
 
-        closeSettingsWindowButton.setOnAction(e -> selectLanguageWindow.close());
+        closeSettingsWindowButton.setOnAction(e -> {
+            languageSelectChoiceBox.getSelectionModel().selectedItemProperty().removeListener(languageChangedListener);
+            selectLanguageWindow.close();
+        });
         settingsWindowLayout.getChildren().addAll(languageSelectChoiceBox, closeSettingsWindowButton);
         selectLanguageWindow.showAndWait();
     }
@@ -153,8 +148,7 @@ public class MainScreenController implements ControllerInterface {
     public void stop() {
         navBarController.stop();
         logoutButton.setOnAction(null);
-        settingsButton.setOnAction(null);
-        languageSelectChoiceBox.getSelectionModel().selectedItemProperty().removeListener(languageChangedListener);
+        imageView.setOnMouseClicked(null);
         if (Objects.nonNull(currentController)) {
             currentController.stop();
         }
