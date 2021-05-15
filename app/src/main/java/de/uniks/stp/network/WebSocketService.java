@@ -4,6 +4,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
+import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
@@ -55,7 +56,7 @@ public class WebSocketService {
         pathWebSocketClientHashMap.put(endpoint, systemServerWSC);
 
         endpoint = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
-        final WebSocketClient chatServerWSC = new WebSocketClient(endpoint, WebSocketService::onServerChatMessage);
+        final WebSocketClient chatServerWSC = new WebSocketClient(endpoint, (msg)-> onServerChatMessage(msg, serverId));
         pathWebSocketClientHashMap.put(endpoint, chatServerWSC);
     }
 
@@ -65,10 +66,33 @@ public class WebSocketService {
         //TODO...
     }
 
-    private static void onServerChatMessage(JsonStructure jsonStructure) {
+    private static void onServerChatMessage(JsonStructure jsonStructure, String serverId) {
         log.debug("server chat message: {}", jsonStructure.toString());
 
-        //TODO...
+        final JSONObject jsonObject = new JSONObject(jsonStructure.asJsonObject().toString());
+
+        final String id = jsonObject.getString("id");  //TODO server id??
+        final String channelId = jsonObject.getString("channel");
+        final long timestamp = jsonObject.getLong("timestamp");
+        final String from = jsonObject.getString("from");
+        final String msgText = jsonObject.getString("text");
+
+        // in case it's sent by you
+        if (from.equals(currentUser.getName())) {
+            return;
+        }
+
+        User sender = editor.getOtherUser(from);
+        if (Objects.isNull(sender)) {
+            log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
+            return;
+        }
+
+        ServerMessage msg = new ServerMessage();
+        msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender);
+
+        // setChannel triggers PropertyChangeListener that shows Message in Chat
+        msg.setChannel(editor.getChannel(channelId, editor.getServer(serverId)));
     }
 
     public static void sendServerMessage(String serverId, String channel, String message) {
