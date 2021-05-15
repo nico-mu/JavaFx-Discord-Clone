@@ -38,8 +38,8 @@ public class UserListSidebarEntry extends HBox {
     }
 
     private void handleClick(MouseEvent mouseEvent) {
-        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT,
-            new RouteArgs().setKey(Constants.ROUTE_PRIVATE_CHAT_ARGS).setValue(user.getId()));
+        RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, user.getId());
+        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args);
     }
 
     public void setUserName(final String userName) {

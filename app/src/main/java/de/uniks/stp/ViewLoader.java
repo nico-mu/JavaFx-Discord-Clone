@@ -43,7 +43,7 @@ public class ViewLoader {
 
     public static Image loadImage(String name) {
         try {
-            final InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResource("./pictures/" + name)).openStream();
+            final InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResource("./img/" + name)).openStream();
             return new Image(inputStream);
         } catch (IOException e) {
             log.error("Picture " + name + " could not be loaded!", e);

@@ -5,7 +5,8 @@ import java.net.URL;
 public enum Views {
     MAIN_SCREEN("MainScreen.fxml"),
     HOME_SCREEN("HomeScreen.fxml"),
-    LOGIN_SCREEN("LoginScreen.fxml");
+    LOGIN_SCREEN("LoginScreen.fxml"),
+    SERVER_SCREEN("ServerScreen.fxml");
 
     public final URL path;
 
