@@ -2,6 +2,7 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.RestClient;
@@ -10,31 +11,34 @@ import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN)
 public class MainScreenController implements ControllerInterface {
+
+    @FXML
+    protected HBox settingsWindowLayout;
+
+    @FXML
+    protected ImageView imageView;
 
     private final String NAV_BAR_ID = "#nav-bar";
     private final String USER_SETTINGS_PANE_ID = "#user-settings-pane";
@@ -50,9 +54,10 @@ public class MainScreenController implements ControllerInterface {
     private NavBarListController navBarController;
     private Label usernameLabel;
     private Button logoutButton;
-    //todo: replace settings-button
+
     private Button settingsButton;
-    private final PropertyChangeListener languageChangedListener = this::onLanguageChanged;
+    private ChoiceBox<String> languageSelectChoiceBox;
+    private final InvalidationListener languageChangedListener = this::onLanguageChanged;
 
     private ControllerInterface currentController;
 
@@ -112,38 +117,32 @@ public class MainScreenController implements ControllerInterface {
     }
 
     private void onSettingsButtonClicked(ActionEvent actionEvent) {
-        System.out.println("settings button clicked");
-        HBox layout = new HBox(15);
-        Stage selectLanguageWindow = new Stage();
-        Scene scene = new Scene(layout, 200, 100);
-        Button closeWindowButton = new Button("Schlie\u00DFen");
+        settingsWindowLayout = new HBox(15);
+        settingsWindowLayout.setAlignment(Pos.CENTER);
 
-        layout.setAlignment(Pos.CENTER);
+        Scene scene = new Scene(settingsWindowLayout, 200, 100);
+        Button closeSettingsWindowButton = new Button("Schlie\u00DFen");
+        Stage selectLanguageWindow = new Stage();
         selectLanguageWindow.initModality(Modality.APPLICATION_MODAL);
         selectLanguageWindow.setTitle("Sprache w\u00E4hlen");
         selectLanguageWindow.initStyle(StageStyle.UTILITY);
         selectLanguageWindow.setScene(scene);
 
-        ChoiceBox<String> choiceBox = new ChoiceBox<>();
-        choiceBox.getItems().addAll("Deutsch", "English");
+        languageSelectChoiceBox = new ChoiceBox<>();
+        languageSelectChoiceBox.getItems().addAll("Deutsch", "English");
         //set inital value of dropdown menu, should be current language
-        choiceBox.setValue("Deutsch");
+        languageSelectChoiceBox.setValue("Deutsch");
 
         //listen for language changes
-        choiceBox.getSelectionModel().selectedItemProperty().addListener((language, oldValue, newValue) ->
-            System.out.println(newValue + " selected!"));
+        languageSelectChoiceBox.getSelectionModel().selectedItemProperty().addListener(languageChangedListener);
 
-        //todo: remove listener
-        //choiceBox.getSelectionModel().selectedItemProperty().removeListener();
-
-        closeWindowButton.setOnAction(e -> selectLanguageWindow.close());
-
-        layout.getChildren().addAll(choiceBox, closeWindowButton);
+        closeSettingsWindowButton.setOnAction(e -> selectLanguageWindow.close());
+        settingsWindowLayout.getChildren().addAll(languageSelectChoiceBox, closeSettingsWindowButton);
         selectLanguageWindow.showAndWait();
     }
 
-    private void onLanguageChanged(PropertyChangeEvent propertyChangeEvent) {
-
+    private void onLanguageChanged(Observable observable) {
+        //do something
     }
 
     private void cleanup() {
@@ -155,6 +154,7 @@ public class MainScreenController implements ControllerInterface {
         navBarController.stop();
         logoutButton.setOnAction(null);
         settingsButton.setOnAction(null);
+        languageSelectChoiceBox.getSelectionModel().selectedItemProperty().removeListener(languageChangedListener);
         if (Objects.nonNull(currentController)) {
             currentController.stop();
         }
