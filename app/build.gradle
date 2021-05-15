@@ -5,7 +5,10 @@ plugins {
 
 apply plugin: 'application'
 
+
 mainClassName = 'de.uniks.stp.Launcher'
+group = 'de.uniks.stp'
+version '1.0.0'
 
 javafx {
     version = "12"
@@ -36,4 +39,14 @@ dependencies {
 
 run.doFirst {
     // Environment variables go here.
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "$mainClassName"
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
