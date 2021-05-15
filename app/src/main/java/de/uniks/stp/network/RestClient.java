@@ -56,6 +56,17 @@ public class RestClient {
         sendAuthRequest(Constants.REST_LOGIN_PATH, name, password, callback);
     }
 
+    public void getCategories(String serverId, Callback<JsonNode> callback) {
+        HttpRequest<?> request = Unirest.get(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH);
+        sendRequest(request, callback);
+    }
+
+    public void getChannels(String serverId, String categoryId,  Callback<JsonNode> callback) {
+        String requestPath = Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH;
+        HttpRequest<?> request = Unirest.get(requestPath);
+        sendRequest(request, callback);
+    }
+
     public void tempRegister(Callback<JsonNode> callback) {
         HttpRequest<?> postUserRegister = Unirest.post(Constants.REST_SERVER_BASE_URL + Constants.REST_USERS_PATH + Constants.REST_TEMP_REGISTER_PATH);
         sendRequest(postUserRegister, callback);

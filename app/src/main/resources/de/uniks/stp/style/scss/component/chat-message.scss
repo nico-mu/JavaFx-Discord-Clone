@@ -1,0 +1,7 @@
+@import "../base";
+
+.text {
+  -fx-text-fill: $primary-text-fill;
+  -fx-fill: $primary-text-fill;
+  -fx-font-size: 16px;
+}

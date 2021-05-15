@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<FlowPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="472.0" prefWidth="696.0" styleClass="container" stylesheets="@../style/css/view/server.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <HBox prefHeight="472.0" prefWidth="698.0">
+        <FlowPane id="server-overview-container" alignment="TOP_CENTER" prefHeight="472.0" prefWidth="221.0" styleClass="server-overview">
+         <children>
+            <VBox id="server-name-container" alignment="CENTER" prefHeight="54.0" prefWidth="198.0" styleClass="server-name-container">
+               <children>
+                  <Label id="server-name-label" prefHeight="32.0" prefWidth="189.0" styleClass="server-name-label" text="Label" />
+               </children>
+               <FlowPane.margin>
+                  <Insets bottom="15.0" />
+               </FlowPane.margin>
+            </VBox>
+            <VBox id="server-channel-overview" prefHeight="399.0" prefWidth="197.0" styleClass="server-channel-overview" />
+         </children></FlowPane>
+        <Pane prefHeight="472.0" prefWidth="70.0" styleClass="mid-pane" />
+        <FlowPane id="server-chat-container" prefHeight="472.0" prefWidth="322.0" styleClass="server-chat">
+            <Label id="channel-name-label" layoutX="186.0" layoutY="5.0" prefHeight="53.0" prefWidth="190.0" styleClass="channel-name-label" />
+            <VBox id="server-chat-vbox" alignment="CENTER" layoutX="2.0" layoutY="30.0" prefHeight="420.0" prefWidth="343.0" styleClass="server-chat-vbox" />
+        </FlowPane>
+      <Pane prefHeight="472.0" prefWidth="70.0" styleClass="mid-pane" />
+      <FlowPane id="server-user-list-container" prefHeight="472.0" prefWidth="187.0" styleClass="server-user-list" />
+    </HBox>
+</FlowPane>

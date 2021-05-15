@@ -72,8 +72,8 @@ public class MainScreenController implements ControllerInterface {
             currentController = new HomeScreenController(this.subViewContainer, this.editor);
             currentController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
-        } else if (subroute.equals(Constants.ROUTE_SERVER) && args.getKey().equals(":id") && !args.getValue().isEmpty()) {
-            Server server = editor.getServer(args.getValue());
+        } else if (subroute.equals(Constants.ROUTE_SERVER)) {
+            Server server = editor.getServer(args.getArguments().get(":id"));
             if (Objects.nonNull(server)) {
                 currentController = new ServerScreenController(this.subViewContainer, this.editor, server);
                 currentController.init();

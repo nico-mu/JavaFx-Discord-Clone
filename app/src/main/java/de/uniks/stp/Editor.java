@@ -1,8 +1,6 @@
 package de.uniks.stp;
 
-import de.uniks.stp.model.Accord;
-import de.uniks.stp.model.Server;
-import de.uniks.stp.model.User;
+import de.uniks.stp.model.*;
 import de.uniks.stp.view.Languages;
 
 import java.util.LinkedList;
@@ -105,5 +103,55 @@ public class Editor {
         final List<Server> servers = getOrCreateAccord().getCurrentUser().getAvailableServers();
         return servers.stream()
             .collect(Collectors.toMap(Server::getId, server -> server));
+    }
+
+    public Category getOrCreateCategory(final String categoryId, final String name, final Server server) {
+        if(Objects.nonNull(server)) {
+            for (Category category : server.getCategories()) {
+                if(category.getId().equals(categoryId)) {
+                    return category;
+                }
+            }
+            Category newCategory = new Category().setName(name).setId(categoryId);
+            server.withCategories(newCategory);
+            return newCategory;
+        }
+        return null;
+    }
+
+    public Category getCategory(final String categoryId, final Server server) {
+        if(Objects.nonNull(server)) {
+            for (Category category : server.getCategories()) {
+                if(category.getId().equals(categoryId)) {
+                    return category;
+                }
+            }
+        }
+        return null;
+    }
+
+    public Channel getOrCreateChannel(final String channelId, final String name, final Category category) {
+        if(Objects.nonNull(category)) {
+            for(Channel channel: category.getChannels()) {
+                if(channel.getId().equals(channelId)) {
+                    return channel;
+                }
+            }
+            Channel newChannel = new Channel().setId(channelId).setName(name);
+            category.withChannels(newChannel);
+            return newChannel;
+        }
+        return null;
+    }
+
+    public Channel getChannel(final String channelId, final Category category) {
+        if(Objects.nonNull(category)) {
+            for (Channel channel : category.getChannels()) {
+                if(channel.getId().equals(channelId)) {
+                    return channel;
+                }
+            }
+        }
+        return null;
     }
 }

@@ -1,11 +1,14 @@
 plugins {
     id 'org.fulib.fulibGradle' version '0.4.0'
     id 'org.openjfx.javafxplugin' version '0.0.9'
+    id "io.freefair.jsass-java" version "6.0.0-m2"
+    id 'application'
 }
 
-apply plugin: 'application'
 
 mainClassName = 'de.uniks.stp.Launcher'
+group = 'de.uniks.stp'
+version '1.0.0'
 
 javafx {
     version = "12"
@@ -36,6 +39,20 @@ dependencies {
     annotationProcessor project(':processor')
 }
 
-run.doFirst {
-    // Environment variables go here.
+task cloneCssFiles(type: Copy) {
+    delete "$projectDir/src/main/resources/de/uniks/stp/style/css"
+    from "$buildDir/jsass/main/de/uniks/stp/style/scss"
+    include "**/*.css"
+    into "$projectDir/src/main/resources/de/uniks/stp/style/css"
+}
+compileSass.finalizedBy(cloneCssFiles)
+
+jar {
+    manifest {
+        attributes "Main-Class": "$mainClassName"
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
