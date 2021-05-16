@@ -12,11 +12,14 @@ import javafx.scene.input.MouseEvent;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 public class NavBarCreateServer extends NavBarElement {
+    private static final Logger log = LoggerFactory.getLogger(NavBarCreateServer.class);
 
     private RestClient restClient = new RestClient();
     private Editor editor;
@@ -55,7 +58,8 @@ public class NavBarCreateServer extends NavBarElement {
     }
 
     private void handleCreateServerResponse(HttpResponse<JsonNode> response) {
-        System.out.println(response.getBody());
+        log.debug(response.getBody().toPrettyString());
+
         if (response.isSuccess()) {
             JSONObject jsonObject = response.getBody().getObject().getJSONObject("data");
             String name = jsonObject.getString("name");
@@ -65,7 +69,7 @@ public class NavBarCreateServer extends NavBarElement {
                 .getCurrentUser()
                 .withAvailableServers(new Server().setName(name).setId(serverId));
         } else {
-            System.err.println("create server failed!");
+            log.error("create server failed!");
         }
     }
 

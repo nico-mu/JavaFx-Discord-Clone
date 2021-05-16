@@ -19,7 +19,6 @@ public class NavBarList extends ScrollPane {
     private NavBarElement currentActiveElement;
 
     public NavBarList(Editor editor) {
-
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.NAV_BAR_LIST);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);

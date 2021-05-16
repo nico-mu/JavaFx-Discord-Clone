@@ -3,18 +3,15 @@ package de.uniks.stp.router;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.controller.ControllerInterface;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Router {
 
     private static final HashMap<String, Class<?>> routeMap;
-    private static ConcurrentHashMap<String, ControllerInterface> controllerCache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, ControllerInterface> controllerCache = new ConcurrentHashMap<>();
     private static String currentRoute;
-    private static RouteArgs currentArgs;
+    private static RouteArgs currentArgs = new RouteArgs();
 
     static {
         routeMap = new RouteMap().getRoutes();
@@ -117,6 +114,11 @@ public class Router {
             }
         }
 
+        //check required args
+        if(routeContainsArgs(route) && !checkRequiredArgs(route, args)) {
+            throw new RuntimeException("Missing argument for route " + route);
+        }
+
         //shutdown controllers that are not needed for the new route
         if(currentRoute != null) {
             String intersection = compareRoutes(route, currentRoute);
@@ -147,6 +149,21 @@ public class Router {
         }
         currentRoute = route;
         currentArgs = args;
+    }
+
+    public static boolean checkRequiredArgs(String route, RouteArgs args) {
+        //parse args from route
+        String[] splitRoute = route.split("/");
+        for(String split : splitRoute) {
+            if(split.contains(":") && !args.getArguments().containsKey(split)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean routeContainsArgs(String route) {
+        return route.contains(":");
     }
 
     /**

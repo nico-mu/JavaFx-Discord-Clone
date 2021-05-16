@@ -29,11 +29,14 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN)
 public class MainScreenController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(MainScreenController.class);
 
     private final String NAV_BAR_ID = "#nav-bar";
     private final String USER_SETTINGS_PANE_ID = "#user-settings-pane";
@@ -91,8 +94,8 @@ public class MainScreenController implements ControllerInterface {
             currentController = new HomeScreenController(this.subViewContainer, this.editor);
             currentController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
-        } else if (subroute.equals(Constants.ROUTE_SERVER) && args.getKey().equals(":id") && !args.getValue().isEmpty()) {
-            Server server = editor.getServer(args.getValue());
+        } else if (subroute.equals(Constants.ROUTE_SERVER)) {
+            Server server = editor.getServer(args.getArguments().get(":id"));
             if (Objects.nonNull(server)) {
                 currentController = new ServerScreenController(this.subViewContainer, this.editor, server);
                 currentController.init();
@@ -106,9 +109,9 @@ public class MainScreenController implements ControllerInterface {
     }
 
     private void handleLogoutResponse(HttpResponse<JsonNode> response) {
-        System.out.println(response.getBody());
+        log.debug(response.getBody().toPrettyString());
         if (!response.isSuccess()) {
-            System.err.println("logout failed");
+            log.error("logout failed");
         }
         this.editor.getOrCreateAccord().setUserKey("");
         Platform.runLater(() -> Router.route(Constants.ROUTE_LOGIN));

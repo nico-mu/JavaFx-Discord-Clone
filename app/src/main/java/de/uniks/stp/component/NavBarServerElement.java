@@ -21,9 +21,7 @@ public class NavBarServerElement extends NavBarElement {
     @Override
     protected void onMouseClicked(MouseEvent mouseEvent) {
         super.onMouseClicked(mouseEvent);
-        RouteArgs args = new RouteArgs()
-            .setKey(":id")
-            .setValue(model.getId());
+        RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
         Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args);
     }
 }

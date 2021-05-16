@@ -1,0 +1,25 @@
+@import "../base";
+
+.jfx-button {
+    -jfx-button-type: FLAT;
+    -fx-background-color: $button-color;
+    -fx-text-fill: $primary-text-fill;
+}
+
+.login-form {
+    -fx-background-color: $secondary-background-color;
+}
+
+.text-field
+{
+  -fx-prompt-text-fill: $button-color;
+  -fx-text-fill: $primary-text-fill;
+}
+
+#spinner .arc {
+  -fx-stroke: $button-color;
+}
+
+#error-message {
+  -fx-text-fill: red;
+}

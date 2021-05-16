@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<fx:root id="channel-list-element" prefHeight="41.0" prefWidth="197.0" styleClass="channel-list-element" stylesheets="@../style/css/component/server-category-list.css" type="VBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox id="category-head-pane" prefHeight="41.0" prefWidth="161.0" spacing="5.0" styleClass="category-head-pane">
+         <children>
+            <VBox alignment="CENTER">
+               <children>
+                  <ImageView id="category-head-arrow" fx:id="categoryHeadArrow" fitHeight="19.0" fitWidth="19.0" pickOnBounds="true" preserveRatio="true" styleClass="category-head-arrow">
+                     <image>
+                        <Image url="@../img/down-arrow.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </VBox>
+            <Label id="category-head-label" fx:id="categoryHeadLabel" prefHeight="44.0" prefWidth="127.0" styleClass="category-head-label" text="Label" />
+         </children>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+      </HBox>
+      <VBox id="category-channel-list" fx:id="categoryChannelList" prefHeight="0.0" prefWidth="197.0" styleClass="category-channel-list">
+         <padding>
+            <Insets left="20.0" />
+         </padding></VBox>
+   </children>
+</fx:root>

@@ -1,11 +1,14 @@
 package de.uniks.stp.controller;
 
+
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.UserList;
 import de.uniks.stp.component.UserListEntry;
 import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.annotation.Route;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import javafx.application.Platform;
@@ -13,12 +16,12 @@ import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Objects;
 
+@Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE)
 public class UserListController implements ControllerInterface {
     private final HashMap<User, UserListEntry> userUserListEntryHashMap;
     private final UserList userList;
@@ -93,4 +96,5 @@ public class UserListController implements ControllerInterface {
         accord.listeners().removePropertyChangeListener(availableUsersPropertyChangeListener);
         userUserListEntryHashMap.clear();
     }
+
 }

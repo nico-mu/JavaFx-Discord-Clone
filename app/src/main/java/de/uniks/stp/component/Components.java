@@ -6,7 +6,14 @@ public enum Components {
     USER_LIST("UserList.fxml"),
     USER_LIST_ENTRY("UserListEntry.fxml"),
     NAV_BAR_ELEMENT("NavBarElement.fxml"),
-    NAV_BAR_LIST("NavBarList.fxml");
+    NAV_BAR_LIST("NavBarList.fxml"),
+    USER_LIST_SIDEBAR_ENTRY("UserListSidebarEntry.fxml"),
+    CHAT_VIEW("ChatView.fxml"),
+    CHAT_MESSAGE("ChatMessage.fxml"),
+    SERVER_CATEGORY_LIST("ServerCategoryList.fxml"),
+    SERVER_CATEGORY_ELEMENT("ServerCategoryElement.fxml"),
+    SERVER_CHANNEL_ELEMENT("ServerChannelElement.fxml");
+
 
     public final URL path;
 

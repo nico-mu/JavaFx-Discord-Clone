@@ -10,6 +10,9 @@ public class Constants {
     public static final String REST_LOGOUT_PATH = "/logout";
     public static final String REST_USERS_PATH = "/users";
     public static final String REST_SERVER_PATH = "/servers";
+    public static final String REST_CATEGORY_PATH =  "/categories";
+    public static final String REST_CHANNEL_PATH =  "/channels";
+
 
     public static final String USER_KEY_HEADER_NAME = "userKey";
     public static final String MESSAGE = "message";
@@ -28,14 +31,25 @@ public class Constants {
     public static final String LBL_SERVERNAME = "LBL_SERVERNAME";
     public static final String LBL_SELECT_LANGUAGE = "LBL_SELECT_LANGUAGE";
     public static final String LBL_CLOSE_WINDOW = "LBL_CLOSE_WINDOW";
+    public static final String LBL_ONLINE_USERS = "LBL_ONLINE_USERS";
+    public static final String LBL_USER_OFFLINE = "LBL_USER_OFFLINE";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";
     public static final String WS_SYSTEM_PATH = "/system";
+    public static final String WS_USER_PATH = "/chat?user=";
+    public static final String WS_SERVER_SYSTEM_PATH = "?serverId=";
+    public static final String WS_SERVER_CHAT_PATH = "&serverId=";
 
     //route names
     public static final String ROUTE_LOGIN = "/login";
     public static final String ROUTE_MAIN = "/main";
     public static final String ROUTE_HOME = "/home";
+    public static final String ROUTE_LIST_ONLINE_USERS = "/online";
     public static final String ROUTE_SERVER = "/server/:id";
+    public static final String ROUTE_CHANNEL = "/category/:categoryId/channel/:channelId";
+    public static final String ROUTE_PRIVATE_CHAT_ARGS = ":userId";
+    public static final String ROUTE_ONLINE_USER_LIST = "/online";
+    public static final String ROUTE_PRIVATE_CHAT = "/chat/" + ROUTE_PRIVATE_CHAT_ARGS;
+    public static final String ROUTE_ONLINE = "/online";
 }
