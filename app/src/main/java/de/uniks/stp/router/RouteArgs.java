@@ -38,8 +38,8 @@ public class RouteArgs implements Cloneable {
             super.clone();
         } catch (CloneNotSupportedException ignored) {
         }
-        return new RouteArgs()
-            .setKey(getKey())
-            .setValue(getValue());
+        final RouteArgs routeArgs = new RouteArgs();
+        getArguments().forEach(routeArgs::addArgument);
+        return routeArgs;
     }
 }
