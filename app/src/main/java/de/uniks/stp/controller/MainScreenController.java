@@ -141,13 +141,12 @@ public class MainScreenController implements ControllerInterface {
             languageSelectChoiceBox.getSelectionModel().selectedItemProperty().removeListener(languageChangedListener);
             selectLanguageWindow.close();
         });
-        System.out.println(closeSettingsWindowButton.getHeight());
-        System.out.println(languageSelectChoiceBox.getHeight());
         selectLanguageWindow.showAndWait();
     }
 
     private void onLanguageChanged(Observable observable) {
         //todo
+        System.out.println("language changed!");
     }
 
     private void cleanup() {
