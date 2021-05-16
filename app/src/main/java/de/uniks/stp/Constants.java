@@ -26,6 +26,8 @@ public class Constants {
     public static final String LBL_SERVERNAME_TITLE = "LBL_SERVERNAME_TITLE";
     public static final String LBL_ENTER_SERVERNAME_PROMPT = "LBL_ENTER_SERVERNAME_PROMPT";
     public static final String LBL_SERVERNAME = "LBL_SERVERNAME";
+    public static final String LBL_SELECT_LANGUAGE = "LBL_SELECT_LANGUAGE";
+    public static final String LBL_CLOSE_WINDOW = "LBL_CLOSE_WINDOW";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";
