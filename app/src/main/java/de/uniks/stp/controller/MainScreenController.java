@@ -117,11 +117,13 @@ public class MainScreenController implements ControllerInterface {
     private void onSettingsGearClicked(MouseEvent mouseEvent) {
         settingsWindowLayout = new HBox(15);
         languageSelectChoiceBox = new ChoiceBox<>();
+        languageSelectChoiceBox.setPrefWidth(70);
         Scene scene = new Scene(settingsWindowLayout, 200, 100);
         Stage selectLanguageWindow = new Stage();
         String closeLabel = ViewLoader.loadLabel(Constants.LBL_CLOSE_WINDOW);
         String windowTitle = ViewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE);
         Button closeSettingsWindowButton = new Button(closeLabel);
+        closeSettingsWindowButton.setPrefWidth(70);
 
         selectLanguageWindow.initModality(Modality.APPLICATION_MODAL);
         selectLanguageWindow.setTitle(windowTitle);
@@ -139,6 +141,8 @@ public class MainScreenController implements ControllerInterface {
             languageSelectChoiceBox.getSelectionModel().selectedItemProperty().removeListener(languageChangedListener);
             selectLanguageWindow.close();
         });
+        System.out.println(closeSettingsWindowButton.getHeight());
+        System.out.println(languageSelectChoiceBox.getHeight());
         selectLanguageWindow.showAndWait();
     }
 
