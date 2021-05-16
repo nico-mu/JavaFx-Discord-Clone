@@ -1,5 +1,5 @@
 package de.uniks.stp.jpa;
 
 public enum AccordSettingKey {
-    LANGUAGE
+    LANGUAGE, LAST_USER_LOGIN
 }

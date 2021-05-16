@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Table(name = "accord_setting")
 public class AccordSettingDTO {
     @Id
-    @Column(name = "setting_key")
+    @Column(name = "setting_key", updatable = false, nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private AccordSettingKey key;
 

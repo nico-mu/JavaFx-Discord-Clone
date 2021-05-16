@@ -1,9 +1,15 @@
 package de.uniks.stp.jpa;
 
 import de.uniks.stp.jpa.model.AccordSettingDTO;
+import de.uniks.stp.jpa.model.DirectMessageDTO;
+import de.uniks.stp.jpa.model.MessageDTO;
+import de.uniks.stp.model.DirectMessage;
+import de.uniks.stp.model.Message;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Objects;
+import java.util.UUID;
 
 public class DatabaseService {
 
@@ -57,5 +63,22 @@ public class DatabaseService {
         transaction.commit();
         entityManager.close();
         return result;
+    }
+
+    public static void saveDirectMessage(final DirectMessage message) {
+        final EntityManager entityManager = entityManagerFactory.createEntityManager();
+        final EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+
+        entityManager.merge(
+            new DirectMessageDTO()
+                .setReceiver(UUID.fromString(message.getReceiver().getId()))
+                .setSender(UUID.fromString(message.getSender().getId()))
+                .setTimestamp(new Date(message.getTimestamp()))
+                .setMessage(message.getMessage())
+        );
+
+        transaction.commit();
+        entityManager.close();
     }
 }
