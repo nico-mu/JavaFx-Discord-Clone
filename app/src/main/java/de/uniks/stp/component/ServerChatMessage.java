@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 
-//FIXME extends VBox?
 public class ServerChatMessage extends HBox {
     @FXML
     private Text messageText;
@@ -38,10 +37,6 @@ public class ServerChatMessage extends HBox {
         nameText.setText(message.getSender().getName());
         messageText.setText(message.getMessage());
 
-        //FIXME
-        if(message.getSender().getName().equals(editor.getOrCreateAccord().getCurrentUser().getName())){
-            messageText.setFill(Paint.valueOf("#00FF00"));
-        }
     }
 
     public void setWidthForWrapping(double width) {

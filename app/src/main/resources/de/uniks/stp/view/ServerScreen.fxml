@@ -28,7 +28,7 @@
                <Insets />
             </FlowPane.margin>
             <children>
-                  <Label id="channel-name-label" prefHeight="40.0" prefWidth="190.0" styleClass="channel-name-label" text="SDFSDF">
+                  <Label id="channel-name-label" prefHeight="40.0" prefWidth="190.0" styleClass="channel-name-label">
                   <VBox.margin>
                      <Insets left="10.0" />
                   </VBox.margin>
