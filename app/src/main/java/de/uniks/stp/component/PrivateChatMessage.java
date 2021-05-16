@@ -12,11 +12,11 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 
-public class ChatMessage extends HBox {
+public class PrivateChatMessage extends HBox {
     @FXML
     private Text text;
 
-    public ChatMessage(Message message) {
+    public PrivateChatMessage(Message message) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);

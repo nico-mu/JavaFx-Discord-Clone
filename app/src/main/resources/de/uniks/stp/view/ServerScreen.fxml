@@ -23,7 +23,18 @@
          </children></FlowPane>
         <Pane prefHeight="472.0" prefWidth="70.0" styleClass="mid-pane" />
         <FlowPane id="server-chat-container" prefHeight="472.0" prefWidth="322.0" styleClass="server-chat">
-            <Label id="channel-name-label" layoutX="186.0" layoutY="5.0" prefHeight="53.0" prefWidth="190.0" styleClass="channel-name-label" />
+         <VBox id="channel-name-container" prefWidth="343.0" styleClass="channel-name-container">
+            <FlowPane.margin>
+               <Insets />
+            </FlowPane.margin>
+            <children>
+                  <Label id="channel-name-label" prefHeight="40.0" prefWidth="190.0" styleClass="channel-name-label" text="SDFSDF">
+                  <VBox.margin>
+                     <Insets left="10.0" />
+                  </VBox.margin>
+               </Label>
+            </children>
+         </VBox>
             <VBox id="server-chat-vbox" alignment="CENTER" layoutX="2.0" layoutY="30.0" prefHeight="420.0" prefWidth="343.0" styleClass="server-chat-vbox" />
         </FlowPane>
       <Pane prefHeight="472.0" prefWidth="70.0" styleClass="mid-pane" />

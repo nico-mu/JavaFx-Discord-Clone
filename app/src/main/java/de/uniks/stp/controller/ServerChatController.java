@@ -2,6 +2,7 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ChatView;
+import de.uniks.stp.component.ServerChatMessage;
 import de.uniks.stp.model.*;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
@@ -67,7 +68,7 @@ public class ServerChatController implements ControllerInterface {
     }
 
     private void showChatView() {
-        chatView = new ChatView();
+        chatView = new ChatView(editor, false);
 
         chatView.onMessageSubmit(this::handleMessageSubmit);
         serverChatVBox.getChildren().add(chatView);

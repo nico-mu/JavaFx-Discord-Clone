@@ -84,7 +84,7 @@ public class PrivateChatController implements ControllerInterface {
         this.user = user;
 
         homeScreenLabel.setText(user.getName());
-        chatView = new ChatView();
+        chatView = new ChatView( editor, true);
 
         chatView.onMessageSubmit(this::handleMessageSubmit);
         onlineUsersContainer.getChildren().add(chatView);

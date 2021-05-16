@@ -2,6 +2,7 @@ package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
+import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Message;
 import javafx.application.Platform;
@@ -21,6 +22,9 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ChatView extends VBox {
+    private final boolean isPrivateChat;
+    private final Editor editor;
+
     @FXML
     private VBox chatViewContainer;
     @FXML
@@ -34,7 +38,10 @@ public class ChatView extends VBox {
     private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
 
-    public ChatView() {
+    public ChatView(Editor editor, boolean isPrivateChat) {
+        this.isPrivateChat = isPrivateChat;  // used to select ChatMessage Class
+        this.editor = editor;
+
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_VIEW);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -104,12 +111,23 @@ public class ChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ChatMessage chatMessage = new ChatMessage(message);
-        chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+        if(isPrivateChat){
+            PrivateChatMessage privateChatMessage = new PrivateChatMessage(message);
+            privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
 
-        Platform.runLater(() -> {
-            messageList.getChildren().add(chatMessage);
-        });
+            Platform.runLater(() -> {
+                messageList.getChildren().add(privateChatMessage);
+            });
+        }
+        else{
+            ServerChatMessage chatMessage = new ServerChatMessage(message, editor);
+            chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+
+            Platform.runLater(() -> {
+                messageList.getChildren().add(chatMessage);
+            });
+        }
+
     }
 
     private void onSubmitClicked(MouseEvent mouseEvent) {

@@ -147,7 +147,7 @@ public class WebSocketService {
     }
 
     private static void onServerChatMessage(JsonStructure jsonStructure, String serverId) {
-        log.debug("server chat message: {}", jsonStructure.toString());
+        log.debug("received server chat message: {}", jsonStructure.toString());
 
         final JSONObject jsonObject = new JSONObject(jsonStructure.asJsonObject().toString());
 
@@ -176,7 +176,7 @@ public class WebSocketService {
     }
 
     private static void onServerSystemMessage(JsonStructure jsonStructure) {
-        log.debug("server system message: {}", jsonStructure.toString());
+        log.debug("received server system message: {}", jsonStructure.toString());
 
         //TODO...
     }
