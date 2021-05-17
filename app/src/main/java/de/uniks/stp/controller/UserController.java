@@ -3,7 +3,6 @@ package de.uniks.stp.controller;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.annotation.Route;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
@@ -49,12 +48,13 @@ public class UserController implements ControllerInterface {
     private VBox settingsGearContainer;
     private ImageView imageView = new ImageView();
     private ChoiceBox<String> languageSelectChoiceBox;
-    private Language german;
-    private Language english;
+    private Language ger;
+    private Language eng;
+    private String currentLanguage;
     private final InvalidationListener languageChangedListener = this::onLanguageChanged;
 
     private enum Language {
-        DE, EN
+        de, en
     }
 
     public UserController(Parent view, Editor editor) {
@@ -65,14 +65,15 @@ public class UserController implements ControllerInterface {
 
     @Override
     public void init() {
+        this.currentLanguage = this.editor.getOrCreateAccord().getLanguage();
         HBox userSubView = (HBox) ViewLoader.loadView(Views.USER_SCREEN);
         view.getChildren().add(userSubView);
         this.usernameLabel = (Label) view.lookup(USERNAME_LABEL_ID);
         this.logoutButton = (Button) view.lookup(LOGOUT_BUTTON_ID);
         this.imageView = (ImageView) view.lookup(IMAGE_VIEW_ID);
         this.settingsGearContainer = (VBox) view.lookup(SETTINGS_GEAR_CONTAINER_ID);
-        this.german = Language.DE;
-        this.english = Language.EN;
+        this.ger = Language.de;
+        this.eng = Language.en;
 
         settingsGearContainer.setOnMouseClicked(this::onSettingsGearClicked);
         logoutButton.setOnAction(this::onLogoutButtonClicked);
@@ -105,6 +106,9 @@ public class UserController implements ControllerInterface {
         Stage selectLanguageWindow = new Stage();
         String closeLabel = ViewLoader.loadLabel(Constants.LBL_CLOSE_WINDOW);
         String windowTitle = ViewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE);
+        String english = ViewLoader.loadLabel(Constants.LANG_EN);
+        String german = ViewLoader.loadLabel(Constants.LANG_DE);
+
         Button closeSettingsWindowButton = new Button(closeLabel);
         closeSettingsWindowButton.setPrefWidth(70);
 
@@ -114,10 +118,10 @@ public class UserController implements ControllerInterface {
         selectLanguageWindow.setScene(scene);
         settingsWindowLayout.setAlignment(Pos.CENTER);
         settingsWindowLayout.getChildren().addAll(languageSelectChoiceBox, closeSettingsWindowButton);
-        languageSelectChoiceBox.getItems().addAll(Constants.LANG_DE, Constants.LANG_EN);
+        languageSelectChoiceBox.getItems().addAll(english, german);
 
         //set initial value of dropdown menu, should be current language
-        languageSelectChoiceBox.setValue(Constants.LANG_DE);
+        languageSelectChoiceBox.setValue(german);
         languageSelectChoiceBox.getSelectionModel().selectedItemProperty().addListener(languageChangedListener);
 
         closeSettingsWindowButton.setOnAction(e -> {
