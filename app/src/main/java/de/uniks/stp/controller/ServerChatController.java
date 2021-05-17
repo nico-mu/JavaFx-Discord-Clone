@@ -1,8 +1,8 @@
 package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
-import de.uniks.stp.component.ChatView;
-import de.uniks.stp.component.ServerChatMessage;
+import de.uniks.stp.component.PrivateChatView;
+import de.uniks.stp.component.ServerChatView;
 import de.uniks.stp.model.*;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
@@ -27,7 +27,7 @@ public class ServerChatController implements ControllerInterface {
     private Label channelNameLabel;
     private VBox serverChatVBox;
 
-    private ChatView chatView;
+    private ServerChatView chatView;
     private PropertyChangeListener messagesChangeListener = this::handleNewMessage;
 
     public ServerChatController(Parent view, Editor editor, Channel model) {
@@ -44,12 +44,6 @@ public class ServerChatController implements ControllerInterface {
         channelNameLabel.setText(model.getName());
 
         showChatView();
-
-        for (Message message : model.getMessages()) {
-            chatView.appendMessage(message);
-        }
-
-        model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
     }
 
     @Override
@@ -68,10 +62,16 @@ public class ServerChatController implements ControllerInterface {
     }
 
     private void showChatView() {
-        chatView = new ChatView(editor, false);
+        chatView = new ServerChatView(editor, model);
 
         chatView.onMessageSubmit(this::handleMessageSubmit);
         serverChatVBox.getChildren().add(chatView);
+
+        for (ServerMessage message : model.getMessages()) {
+            chatView.appendMessage(message);
+        }
+
+        model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
     }
 
     private void handleMessageSubmit(String message) {

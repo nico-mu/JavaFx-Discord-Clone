@@ -4,26 +4,34 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.model.Message;
+import de.uniks.stp.model.*;
+import de.uniks.stp.network.RestClient;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.json.JSONArray;
+import kong.unirest.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 
-public class ChatView extends VBox {
-    private final boolean isPrivateChat;
-    private final Editor editor;
+import static de.uniks.stp.model.Category.PROPERTY_CHANNELS;
+
+public class PrivateChatView extends VBox {
 
     @FXML
     private VBox chatViewContainer;
@@ -33,16 +41,15 @@ public class ChatView extends VBox {
     private JFXTextArea chatViewMessageInput;
     @FXML
     private ScrollPane chatViewMessageScrollPane;
-    private final VBox messageList;
+    @FXML
+    private VBox messageList;
 
     private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
 
-    public ChatView(Editor editor, boolean isPrivateChat) {
-        this.isPrivateChat = isPrivateChat;  // used to select ChatMessage Class
-        this.editor = editor;
+    public PrivateChatView() {
 
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_VIEW);
+        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.PRIVATE_CHAT_VIEW);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -51,8 +58,6 @@ public class ChatView extends VBox {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-
-        messageList = (VBox) chatViewMessageScrollPane.getContent();
 
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
 
@@ -111,23 +116,12 @@ public class ChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        if(isPrivateChat){
-            PrivateChatMessage privateChatMessage = new PrivateChatMessage(message);
-            privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+        PrivateChatMessage privateChatMessage = new PrivateChatMessage(message);
+        privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
 
-            Platform.runLater(() -> {
-                messageList.getChildren().add(privateChatMessage);
-            });
-        }
-        else{
-            ServerChatMessage chatMessage = new ServerChatMessage(message, editor);
-            chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
-
-            Platform.runLater(() -> {
-                messageList.getChildren().add(chatMessage);
-            });
-        }
-
+        Platform.runLater(() -> {
+            messageList.getChildren().add(privateChatMessage);
+        });
     }
 
     private void onSubmitClicked(MouseEvent mouseEvent) {

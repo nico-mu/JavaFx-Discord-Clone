@@ -40,8 +40,8 @@ public class ServerChatMessage extends HBox {
     }
 
     public void setWidthForWrapping(double width) {
-        // 5px padding (without this, a horizontal scroll bar might appear)
-        messageText.setWrappingWidth(width - 5);
+        // 20px padding (without this, a horizontal scroll bar might appear)
+        messageText.setWrappingWidth(width - 20);
     }
 
     private String formatTime(long time) {

@@ -151,7 +151,7 @@ public class WebSocketService {
 
         final JSONObject jsonObject = new JSONObject(jsonStructure.asJsonObject().toString());
 
-        final String id = jsonObject.getString("id");  //TODO server id??
+        final String messageId = jsonObject.getString("id");
         final String channelId = jsonObject.getString("channel");
         final long timestamp = jsonObject.getLong("timestamp");
         final String from = jsonObject.getString("from");
@@ -159,6 +159,7 @@ public class WebSocketService {
 
         // in case it's sent by you
         if (from.equals(currentUser.getName())) {
+            // could save the messageId (not already in editor), but would have to get the message saved in editor for this
             return;
         }
 
@@ -169,7 +170,7 @@ public class WebSocketService {
         }
 
         ServerMessage msg = new ServerMessage();
-        msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender);
+        msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender).setId(messageId);
 
         // setChannel triggers PropertyChangeListener that shows Message in Chat
         msg.setChannel(editor.getChannel(channelId, editor.getServer(serverId)));

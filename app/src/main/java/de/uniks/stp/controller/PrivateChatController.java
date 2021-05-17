@@ -4,7 +4,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
-import de.uniks.stp.component.ChatView;
+import de.uniks.stp.component.PrivateChatView;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
@@ -28,7 +28,7 @@ public class PrivateChatController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;
     private User user;
-    private ChatView chatView;
+    private PrivateChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
 
@@ -84,7 +84,7 @@ public class PrivateChatController implements ControllerInterface {
         this.user = user;
 
         homeScreenLabel.setText(user.getName());
-        chatView = new ChatView( editor, true);
+        chatView = new PrivateChatView();
 
         chatView.onMessageSubmit(this::handleMessageSubmit);
         onlineUsersContainer.getChildren().add(chatView);
