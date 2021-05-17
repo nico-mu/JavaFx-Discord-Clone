@@ -12,6 +12,7 @@ import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ScrollPane;
@@ -30,14 +31,8 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class ServerChatView extends VBox {
-    private static final Logger log = LoggerFactory.getLogger(ServerChatView.class);
 
     private final Editor editor;
-    private final Channel model;
-
-    private final RestClient restClient;
-    private ArrayList<ServerMessage> shownMessages;
-    private boolean loading = false;
 
     @FXML
     private VBox chatViewContainer;
@@ -55,12 +50,8 @@ public class ServerChatView extends VBox {
     private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
 
-    public ServerChatView(Editor editor, Channel model) {
+    public ServerChatView(Editor editor, EventHandler<ActionEvent> loadMessagesHandler) {
         this.editor = editor;
-        this.model = model;
-
-        restClient = new RestClient();
-        shownMessages = new ArrayList<ServerMessage>();
 
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHAT_VIEW);
         fxmlLoader.setRoot(this);
@@ -78,46 +69,7 @@ public class ServerChatView extends VBox {
 
         chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
 
-        loadMessagesButton.setOnAction(this::loadMessages);
-    }
-
-    /**
-     * Sends request to load older Messages in this channel
-     * @param actionEvent
-     */
-    private void loadMessages(ActionEvent actionEvent) {
-        // timestamp = min timestamp of messages in model. If no messages in model, timestamp = now
-        long timestamp = new Date().getTime();
-        if(model.getMessages().size() > 0){
-            Comparator<Message> messageComparator = Comparator.comparingLong(Message::getTimestamp);
-            timestamp = Collections.min(model.getMessages(), messageComparator).getTimestamp();
-        }
-
-        restClient.getServerChannelMessages(model.getCategory().getServer().getId(),model.getCategory().getId(),
-            model.getId(), timestamp, this::onLoadMessagesResponse);
-    }
-
-    /**
-     * Handles response containing older ServerChatMessages.
-     * Makes loadMessagesButon invisible if there were no older messages.
-     * @param response
-     */
-    private void onLoadMessagesResponse(HttpResponse<JsonNode> response) {
-        log.debug(response.getBody().toPrettyString());
-
-        if (response.isSuccess()) {
-            JSONArray messagesJson = response.getBody().getObject().getJSONArray("data");
-
-            if(messagesJson.length() == 0){
-                loadMessagesButton.setVisible(false);  //could also show a note when there are no older messages to show
-                return;
-            }
-
-            //TODO: create ServerMessages, save in model and show correctly in chat
-
-        } else {
-            log.error("receiving old messages failed!");
-        }
+        loadMessagesButton.setOnAction(loadMessagesHandler);
     }
 
     private void onHeightChanged(Observable observable) {
@@ -173,15 +125,13 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        shownMessages.add(message);
-        if(!loading){
-            ServerChatMessage chatMessage = new ServerChatMessage(message, editor);
-            chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+        ServerChatMessage chatMessage = new ServerChatMessage(message, editor);
+        chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
 
-            Platform.runLater(() -> {
-                messageList.getChildren().add(chatMessage);
-            });
-        }
+        Platform.runLater(() -> {
+            messageList.getChildren().add(chatMessage);
+        });
+
     }
 
     private void onSubmitClicked(MouseEvent mouseEvent) {
@@ -198,4 +148,11 @@ public class ServerChatView extends VBox {
         });
     }
 
+    /**
+     * Used when there are no older messages to load
+     * @param visible
+     */
+    public void setLoadMessagesButtonVisible(boolean visible) {
+        loadMessagesButton.setVisible(visible);
+    }
 }
