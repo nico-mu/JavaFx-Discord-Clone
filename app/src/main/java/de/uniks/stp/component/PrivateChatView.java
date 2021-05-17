@@ -91,6 +91,7 @@ public class PrivateChatView extends VBox {
      */
     public void stop() {
         chatViewSubmitButton.setOnMouseClicked(null);
+        chatViewMessageInput.setOnKeyPressed(null);
         messageList.heightProperty().removeListener(heightChangedListener);
         submitListener.clear();
     }

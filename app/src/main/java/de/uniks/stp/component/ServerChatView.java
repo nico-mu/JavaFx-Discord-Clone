@@ -4,11 +4,9 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.controller.ServerChatController;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
-import de.uniks.stp.model.User;
 import de.uniks.stp.network.RestClient;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -24,7 +22,6 @@ import javafx.scene.layout.VBox;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
-import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,20 +81,40 @@ public class ServerChatView extends VBox {
         loadMessagesButton.setOnAction(this::loadMessages);
     }
 
+    /**
+     * Sends request to load older Messages in this channel
+     * @param actionEvent
+     */
     private void loadMessages(ActionEvent actionEvent) {
+        // timestamp = min timestamp of messages in model. If no messages in model, timestamp = now
         long timestamp = new Date().getTime();
         if(model.getMessages().size() > 0){
-            timestamp = model.getMessages().get(0).getTimestamp();
+            Comparator<Message> messageComparator = Comparator.comparingLong(Message::getTimestamp);
+            timestamp = Collections.min(model.getMessages(), messageComparator).getTimestamp();
         }
-        restClient.getServerMessages(model.getCategory().getServer().getId(),model.getCategory().getId(),
+
+        restClient.getServerChannelMessages(model.getCategory().getServer().getId(),model.getCategory().getId(),
             model.getId(), timestamp, this::onLoadMessagesResponse);
     }
 
+    /**
+     * Handles response containing older ServerChatMessages.
+     * Makes loadMessagesButon invisible if there were no older messages.
+     * @param response
+     */
     private void onLoadMessagesResponse(HttpResponse<JsonNode> response) {
         log.debug(response.getBody().toPrettyString());
 
         if (response.isSuccess()) {
-            // TODO
+            JSONArray messagesJson = response.getBody().getObject().getJSONArray("data");
+
+            if(messagesJson.length() == 0){
+                loadMessagesButton.setVisible(false);  //could also show a note when there are no older messages to show
+                return;
+            }
+
+            //TODO: create ServerMessages, save in model and show correctly in chat
+
         } else {
             log.error("receiving old messages failed!");
         }
@@ -128,6 +145,9 @@ public class ServerChatView extends VBox {
      */
     public void stop() {
         chatViewSubmitButton.setOnMouseClicked(null);
+        chatViewMessageInput.setOnKeyPressed(null);
+        loadMessagesButton.setOnAction(null);
+
         messageList.heightProperty().removeListener(heightChangedListener);
         submitListener.clear();
     }
