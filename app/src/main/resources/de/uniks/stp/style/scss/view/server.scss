@@ -26,6 +26,11 @@
     -fx-border-width: 3px;
 }
 
+.channel-name-container {
+    -fx-border-color:transparent transparent $main-background-color transparent;
+    -fx-border-width: 2px;
+}
+
 .server-chat-vbox {
     -fx-background-color: $secondary-background-color;
 }

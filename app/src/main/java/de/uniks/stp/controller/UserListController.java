@@ -9,8 +9,7 @@ import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.annotation.Route;
-import de.uniks.stp.router.RouteArgs;
-import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.network.NetworkClientInjector;
 import javafx.application.Platform;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
@@ -67,13 +66,8 @@ public class UserListController implements ControllerInterface {
         final Accord accord = editor.getOrCreateAccord();
         accord.listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
 
-        final RestClient restClient = new RestClient();
+        final RestClient restClient = NetworkClientInjector.getRestClient();
         restClient.requestOnlineUsers(this::handleUserOnlineRequest);
-    }
-
-    @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
-        // no subroutes
     }
 
     private void handleUserOnlineRequest(final HttpResponse<JsonNode> response) {

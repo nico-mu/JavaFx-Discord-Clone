@@ -39,9 +39,14 @@ public class StageManager extends Application {
 
         stage = primaryStage;
         editor = new Editor();
+
         UserKeyProvider.setEditor(editor);
         WebSocketService.setEditor(editor);
+
+        //init Router and go to login
+        Router.init();
         Router.route(Constants.ROUTE_LOGIN);
+
         stage.show();
     }
 
@@ -90,5 +95,9 @@ public class StageManager extends Application {
             log.error("Error while trying to shutdown", e);
         }
 
+    }
+
+    public static Editor getEditor() {
+        return editor;
     }
 }

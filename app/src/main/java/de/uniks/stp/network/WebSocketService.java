@@ -4,9 +4,8 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
+import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
-import de.uniks.stp.router.RouteArgs;
-import de.uniks.stp.router.Router;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +14,6 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonStructure;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -40,50 +38,23 @@ public class WebSocketService {
     public static void init() {
         currentUser = editor.getOrCreateAccord().getCurrentUser();
 
-        final WebSocketClient systemWebSocketClient = new WebSocketClient(Constants.WS_SYSTEM_PATH, WebSocketService::onSystemMessage);
+        final WebSocketClient systemWebSocketClient = NetworkClientInjector.getWebSocketClient(Constants.WS_SYSTEM_PATH, WebSocketService::onSystemMessage);
         pathWebSocketClientHashMap.put(Constants.WS_SYSTEM_PATH, systemWebSocketClient);
 
 
         String endpoint = Constants.WS_USER_PATH + currentUser.getName();
-        final WebSocketClient privateWebSocketClient = new WebSocketClient(endpoint, WebSocketService::onPrivateMessage);
+        final WebSocketClient privateWebSocketClient = NetworkClientInjector.getWebSocketClient(endpoint, WebSocketService::onPrivateMessage);
         pathWebSocketClientHashMap.put(endpoint, privateWebSocketClient);
     }
 
     public static void addServerWebSocket(String serverId) {
         String endpoint = Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId;
-        final WebSocketClient systemServerWSC = new WebSocketClient(endpoint, WebSocketService::onServerSystemMessage);
+        final WebSocketClient systemServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, WebSocketService::onServerSystemMessage);
         pathWebSocketClientHashMap.put(endpoint, systemServerWSC);
 
         endpoint = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
-        final WebSocketClient chatServerWSC = new WebSocketClient(endpoint, WebSocketService::onServerChatMessage);
+        final WebSocketClient chatServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, (msg)-> onServerChatMessage(msg, serverId));
         pathWebSocketClientHashMap.put(endpoint, chatServerWSC);
-    }
-
-    private static void onServerSystemMessage(JsonStructure jsonStructure) {
-        log.debug("server system message: {}", jsonStructure.toString());
-
-        //TODO...
-    }
-
-    private static void onServerChatMessage(JsonStructure jsonStructure) {
-        log.debug("server chat message: {}", jsonStructure.toString());
-
-        //TODO...
-    }
-
-    public static void sendServerMessage(String serverId, String channel, String message) {
-        JsonObject msgObject = Json.createObjectBuilder()
-            .add("channel", channel)
-            .add("message", message)
-            .build();
-
-        try {
-            String endpointKey = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
-            pathWebSocketClientHashMap.get(endpointKey).sendMessage(msgObject.toString());
-            log.debug("Message sent: {}", msgObject.toString());
-        } catch (IOException e) {
-            log.error("WebSocketService: sendServerMessage failed", e);
-        }
     }
 
     public static void sendPrivateMessage(String receiver, String message) {
@@ -155,5 +126,56 @@ public class WebSocketService {
                     break;
             }
         }
+    }
+
+    public static void sendServerMessage(String serverId, String channelId, String message) {
+        JsonObject msgObject = Json.createObjectBuilder()
+            .add("channel", channelId)
+            .add("message", message)
+            .build();
+
+        try {
+            String endpointKey = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
+            pathWebSocketClientHashMap.get(endpointKey).sendMessage(msgObject.toString());
+            log.debug("Message sent: {}", msgObject.toString());
+        } catch (IOException e) {
+            log.error("WebSocketService: sendServerMessage failed", e);
+        }
+    }
+
+    private static void onServerChatMessage(JsonStructure jsonStructure, String serverId) {
+        log.debug("received server chat message: {}", jsonStructure.toString());
+
+        final JSONObject jsonObject = new JSONObject(jsonStructure.asJsonObject().toString());
+
+        final String messageId = jsonObject.getString("id");
+        final String channelId = jsonObject.getString("channel");
+        final long timestamp = jsonObject.getLong("timestamp");
+        final String from = jsonObject.getString("from");
+        final String msgText = jsonObject.getString("text");
+
+        // in case it's sent by you
+        if (from.equals(currentUser.getName())) {
+            // could save the messageId (not already in editor), but would have to get the message saved in editor for this
+            return;
+        }
+
+        User sender = editor.getOtherUser(from);
+        if (Objects.isNull(sender)) {
+            log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
+            return;
+        }
+
+        ServerMessage msg = new ServerMessage();
+        msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender).setId(messageId);
+
+        // setChannel triggers PropertyChangeListener that shows Message in Chat
+        msg.setChannel(editor.getChannel(channelId, editor.getServer(serverId)));
+    }
+
+    private static void onServerSystemMessage(JsonStructure jsonStructure) {
+        log.debug("received server system message: {}", jsonStructure.toString());
+
+        //TODO...
     }
 }
