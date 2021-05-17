@@ -25,7 +25,7 @@
                                  <children>
                                     <ImageView id="settings-gear" fitHeight="65.0" fitWidth="65.0">
                                        <image>
-                                          <Image url="@../pictures/gear.png" />
+                                          <Image url="@../img/gear.png" />
                                        </image>
                                     </ImageView>
                                  </children>
