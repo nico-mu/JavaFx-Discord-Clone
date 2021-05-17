@@ -29,6 +29,11 @@ public class RestClient {
         sendRequest(req, callback);
     }
 
+    public void getServerInformation(String id, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.get(Constants.REST_SERVER_PATH + "/" + id);
+        sendRequest(req, callback);
+    }
+
     public static void stop() {
         executorService.shutdown();
         Unirest.shutDown();

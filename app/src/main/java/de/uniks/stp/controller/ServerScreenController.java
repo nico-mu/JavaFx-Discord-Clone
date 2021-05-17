@@ -15,11 +15,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 import java.util.Objects;
-import java.util.concurrent.Flow;
 
 import static de.uniks.stp.view.Views.SERVER_SCREEN;
 

@@ -2,7 +2,7 @@
 
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Text?>
-<fx:root xmlns:fx="http://javafx.com/fxml/1" type="HBox"
+<fx:root xmlns:fx="http://javafx.com/fxml/1" type="HBox" stylesheets="@../style/css/component/server-user-list.css"
          xmlns="http://javafx.com/javafx/11.0.1">
     <Text fx:id="userNameText" id="user-list-entry-text" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="user-name" text="&lt;UserName&gt;"/>
 </fx:root>

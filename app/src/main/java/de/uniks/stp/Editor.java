@@ -3,7 +3,6 @@ package de.uniks.stp;
 import de.uniks.stp.model.*;
 import de.uniks.stp.view.Languages;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -171,5 +170,12 @@ public class Editor {
             }
         }
         return null;
+    }
+
+    public User getOrCreateUserOfServer(Server server, String userId, String name, boolean status) {
+        User user = new User().setId(userId).setName(name).setStatus(status);
+        server.withUsers(user);
+
+        return user;
     }
 }

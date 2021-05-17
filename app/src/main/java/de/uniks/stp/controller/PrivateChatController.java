@@ -9,8 +9,6 @@ import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.WebSocketService;
-import de.uniks.stp.router.RouteArgs;
-import de.uniks.stp.router.RouteInfo;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
