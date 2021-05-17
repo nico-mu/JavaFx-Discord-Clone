@@ -8,6 +8,7 @@ import de.uniks.stp.network.RestClient;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.network.NetworkClientInjector;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -45,7 +46,7 @@ public class MainScreenController implements ControllerInterface {
     public MainScreenController(Parent view, Editor editor) {
         this.view = view;
         this.editor = editor;
-        this.restClient = new RestClient();
+        this.restClient = NetworkClientInjector.getRestClient();
     }
 
     @Override
