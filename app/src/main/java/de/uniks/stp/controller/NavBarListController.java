@@ -9,6 +9,7 @@ import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.network.NetworkClientInjector;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
@@ -40,7 +41,7 @@ public class NavBarListController implements ControllerInterface {
         this.view = view;
         this.editor = editor;
         this.navBarList = new NavBarList(editor);
-        this.restClient = new RestClient();
+        this.restClient = NetworkClientInjector.getRestClient();
     }
 
     @Override

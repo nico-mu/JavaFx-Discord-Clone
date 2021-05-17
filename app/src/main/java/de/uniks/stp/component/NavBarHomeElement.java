@@ -13,6 +13,7 @@ public class NavBarHomeElement extends NavBarElement {
     public NavBarHomeElement() {
         Tooltip.install(navBarElement, new Tooltip(ViewLoader.loadLabel(LBL_HOME)));
         imageView.setImage(ViewLoader.loadImage("home.png"));
+        this.setId("home-button");
     }
 
     @Override

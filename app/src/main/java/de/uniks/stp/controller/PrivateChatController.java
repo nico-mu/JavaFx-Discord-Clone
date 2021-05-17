@@ -75,11 +75,6 @@ public class PrivateChatController implements ControllerInterface {
         }
     }
 
-    @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
-
-    }
-
     private void showPrivateChatView(User user) {
         this.user = user;
 
