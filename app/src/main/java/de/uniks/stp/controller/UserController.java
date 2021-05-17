@@ -32,7 +32,6 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Route(Constants.ROUTE_MAIN + Constants.ROUTE_USER)
 public class UserController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(MainScreenController.class);
 
@@ -66,7 +65,7 @@ public class UserController implements ControllerInterface {
 
     @Override
     public void init() {
-        AnchorPane userSubView = (AnchorPane) ViewLoader.loadView(Views.HOME_SCREEN);
+        HBox userSubView = (HBox) ViewLoader.loadView(Views.USER_SCREEN);
         view.getChildren().add(userSubView);
         this.usernameLabel = (Label) view.lookup(USERNAME_LABEL_ID);
         this.logoutButton = (Button) view.lookup(LOGOUT_BUTTON_ID);

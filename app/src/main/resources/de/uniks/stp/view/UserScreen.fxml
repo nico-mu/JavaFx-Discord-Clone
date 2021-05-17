@@ -4,14 +4,22 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="user-settings-pane" prefHeight="95.0" prefWidth="676.0" styleClass="container" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+
+<HBox prefHeight="95.0" prefWidth="676.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label id="username-label" layoutX="14.0" layoutY="4.0" prefHeight="25.0" prefWidth="115.0" styleClass="current-user-label" text="&lt;Label&gt;" />
-      <JFXButton id="logout-button" layoutX="14.0" layoutY="36.0" prefHeight="25.0" prefWidth="83.0" styleClass="logout-button" text="%LBL_LOGOUT" />
-      <VBox id="settings-gear-container" layoutX="624.0" layoutY="12.0" prefHeight="65.0" prefWidth="65.0">
+      <VBox alignment="CENTER">
+         <children>
+            <Label id="username-label" prefHeight="25.0" prefWidth="115.0" styleClass="current-user-label" text="&lt;Label&gt;" />
+            <Pane prefHeight="27.0" prefWidth="121.0" />
+            <JFXButton id="logout-button" prefHeight="25.0" prefWidth="83.0" styleClass="logout-button" text="%LBL_LOGOUT" />
+         </children>
+      </VBox>
+      <Pane prefHeight="95.0" prefWidth="491.0" />
+      <VBox id="settings-gear-container" alignment="CENTER" prefHeight="60.0" prefWidth="65.0">
          <children>
             <ImageView id="settings-gear" fitHeight="65.0" fitWidth="65.0">
                <image>
@@ -21,4 +29,4 @@
          </children>
       </VBox>
    </children>
-</AnchorPane>
+</HBox>
