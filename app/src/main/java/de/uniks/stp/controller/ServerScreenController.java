@@ -29,6 +29,7 @@ public class ServerScreenController implements ControllerInterface {
     private static final String SERVER_NAME_LABEL_ID = "#server-name-label";
     private static final String SERVER_CHANNEL_OVERVIEW = "#server-channel-overview";
     private static final String SERVER_CHAT_CONTAINER = "#server-chat-container";
+    private static final String SERVER_USER_LIST_CONTAINER = "#server-user-list-container";
     private AnchorPane view;
     private FlowPane serverScreenView;
     private final Editor editor;
@@ -38,6 +39,8 @@ public class ServerScreenController implements ControllerInterface {
     private ServerCategoryListController categoryListController;
     private FlowPane serverChatContainer;
     private ServerChatController serverChatController;
+    private ServerUserListController serverUserListController;
+    private FlowPane serverUserListContainer;
 
     public ServerScreenController(Parent view, Editor editor, Server model) {
         this.view = (AnchorPane)view;
@@ -50,12 +53,16 @@ public class ServerScreenController implements ControllerInterface {
        serverScreenView = (FlowPane) ViewLoader.loadView(SERVER_SCREEN);
        serverChannelOverview = (VBox) serverScreenView.lookup(SERVER_CHANNEL_OVERVIEW);
        serverChatContainer = (FlowPane) serverScreenView.lookup(SERVER_CHAT_CONTAINER);
+       serverUserListContainer = (FlowPane) serverScreenView.lookup(SERVER_USER_LIST_CONTAINER);
        view.getChildren().add(serverScreenView);
        serverNameLabel = (Label)view.lookup(SERVER_NAME_LABEL_ID);
        serverNameLabel.setText(model.getName());
 
        categoryListController = new ServerCategoryListController(serverChannelOverview, editor, model);
        categoryListController.init();
+
+       serverUserListController = new ServerUserListController(serverUserListContainer, editor, model);
+       serverUserListController.init();
     }
 
     @Override

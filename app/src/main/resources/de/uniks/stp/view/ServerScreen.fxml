@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <FlowPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="472.0" prefWidth="696.0" styleClass="container" stylesheets="@../style/css/view/server.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <HBox prefHeight="472.0" prefWidth="698.0">
@@ -38,6 +39,42 @@
             <VBox id="server-chat-vbox" alignment="CENTER" layoutX="2.0" layoutY="30.0" prefHeight="420.0" prefWidth="343.0" styleClass="server-chat-vbox" />
         </FlowPane>
       <Pane prefHeight="472.0" prefWidth="70.0" styleClass="mid-pane" />
-      <FlowPane id="server-user-list-container" prefHeight="472.0" prefWidth="187.0" styleClass="server-user-list" />
+      <FlowPane id="server-user-list-container" styleClass="server-user-list" HBox.hgrow="ALWAYS">
+         <children>
+            <HBox>
+               <children>
+                  <VBox prefHeight="200.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Online" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <VBox id="online-user-list">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </VBox>
+                        <Label text="Offline" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets top="30.0" />
+                           </VBox.margin>
+                        </Label>
+                        <VBox id="offline-user-list">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </VBox>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets left="30.0" top="40.0" />
+         </padding></FlowPane>
     </HBox>
 </FlowPane>
