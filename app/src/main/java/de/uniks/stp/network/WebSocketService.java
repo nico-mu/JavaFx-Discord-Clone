@@ -3,10 +3,7 @@ package de.uniks.stp.network;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.model.DirectMessage;
-import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
-import de.uniks.stp.router.RouteArgs;
-import de.uniks.stp.router.Router;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +12,6 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonStructure;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -40,22 +36,22 @@ public class WebSocketService {
     public static void init() {
         currentUser = editor.getOrCreateAccord().getCurrentUser();
 
-        final WebSocketClient systemWebSocketClient = new WebSocketClient(Constants.WS_SYSTEM_PATH, WebSocketService::onSystemMessage);
+        final WebSocketClient systemWebSocketClient = NetworkClientInjector.getWebSocketClient(Constants.WS_SYSTEM_PATH, WebSocketService::onSystemMessage);
         pathWebSocketClientHashMap.put(Constants.WS_SYSTEM_PATH, systemWebSocketClient);
 
 
         String endpoint = Constants.WS_USER_PATH + currentUser.getName();
-        final WebSocketClient privateWebSocketClient = new WebSocketClient(endpoint, WebSocketService::onPrivateMessage);
+        final WebSocketClient privateWebSocketClient = NetworkClientInjector.getWebSocketClient(endpoint, WebSocketService::onPrivateMessage);
         pathWebSocketClientHashMap.put(endpoint, privateWebSocketClient);
     }
 
     public static void addServerWebSocket(String serverId) {
         String endpoint = Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId;
-        final WebSocketClient systemServerWSC = new WebSocketClient(endpoint, WebSocketService::onServerSystemMessage);
+        final WebSocketClient systemServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, WebSocketService::onServerSystemMessage);
         pathWebSocketClientHashMap.put(endpoint, systemServerWSC);
 
         endpoint = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
-        final WebSocketClient chatServerWSC = new WebSocketClient(endpoint, WebSocketService::onServerChatMessage);
+        final WebSocketClient chatServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, WebSocketService::onServerChatMessage);
         pathWebSocketClientHashMap.put(endpoint, chatServerWSC);
     }
 

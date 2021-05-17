@@ -49,6 +49,10 @@ public class WebSocketClient extends Endpoint {
         }
     }
 
+    public void inject(String endpoint, WSCallback callback) {
+        //needed for testing purposes
+    }
+
     /**
      * Is called automatically, initializes and sets NOOP-timer
      *

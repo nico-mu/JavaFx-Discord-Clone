@@ -10,8 +10,7 @@ import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.RestClient;
-import de.uniks.stp.router.RouteArgs;
-import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.network.NetworkClientInjector;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
@@ -48,7 +47,7 @@ public class ServerCategoryListController implements ControllerInterface {
         this.editor = editor;
         this.model = model;
         this.serverCategoryList = new ServerCategoryList();
-        this.restClient = new RestClient();
+        this.restClient = NetworkClientInjector.getRestClient();
         categoryElementHashMap = new HashMap<>();
         channelElementHashMap = new HashMap<>();
     }
@@ -155,11 +154,6 @@ public class ServerCategoryListController implements ControllerInterface {
             channelElementHashMap.put(channel, serverChannelElement);
             Platform.runLater(() -> serverCategoryElement.addChannelElement(serverChannelElement));
         }
-    }
-
-    @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
-        //no subroutes
     }
 
     @Override

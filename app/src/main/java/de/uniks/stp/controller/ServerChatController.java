@@ -34,11 +34,6 @@ public class ServerChatController implements ControllerInterface {
     }
 
     @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
-
-    }
-
-    @Override
     public void stop() {
 
     }
