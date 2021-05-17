@@ -2,11 +2,12 @@ package de.uniks.stp.jpa;
 
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
-import de.uniks.stp.jpa.model.MessageDTO;
 import de.uniks.stp.model.DirectMessage;
-import de.uniks.stp.model.Message;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
@@ -17,9 +18,13 @@ public class DatabaseService {
 
     public static void init() {
         if (Objects.isNull(entityManagerFactory)) {
-            entityManagerFactory = Persistence.createEntityManagerFactory( "de.uniks.stp.jpa" );
+            entityManagerFactory = Persistence.createEntityManagerFactory("de.uniks.stp.jpa");
         }
 
+        createBackup();
+    }
+
+    private static void createBackup() {
         final EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
@@ -34,7 +39,7 @@ public class DatabaseService {
      * Stops the service. You must call init() before it can be used again
      */
     public static void stop() {
-        if(Objects.nonNull(entityManagerFactory)) {
+        if (Objects.nonNull(entityManagerFactory)) {
             entityManagerFactory.close();
             entityManagerFactory = null;
         }
@@ -58,7 +63,7 @@ public class DatabaseService {
         final EntityTransaction transaction = entityManager.getTransaction();
         entityManager.getTransaction().begin();
 
-        final AccordSettingDTO result = entityManager.find( AccordSettingDTO.class, key );
+        final AccordSettingDTO result = entityManager.find(AccordSettingDTO.class, key);
 
         transaction.commit();
         entityManager.close();
