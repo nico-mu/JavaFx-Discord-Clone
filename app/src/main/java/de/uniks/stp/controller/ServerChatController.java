@@ -4,6 +4,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.component.PrivateChatView;
 import de.uniks.stp.component.ServerChatView;
 import de.uniks.stp.model.*;
+import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
@@ -34,7 +35,6 @@ public class ServerChatController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;
     private final Channel model;
-    private final RestClient restClient;
     private Label channelNameLabel;
     private VBox serverChatVBox;
 
@@ -45,7 +45,6 @@ public class ServerChatController implements ControllerInterface {
         this.view = view;
         this.editor = editor;
         this.model = model;
-        restClient = new RestClient();
     }
 
     @Override
@@ -98,8 +97,8 @@ public class ServerChatController implements ControllerInterface {
             timestamp = Collections.min(model.getMessages(), messageComparator).getTimestamp();
         }
 
-        restClient.getServerChannelMessages(model.getCategory().getServer().getId(),model.getCategory().getId(),
-            model.getId(), timestamp, this::onLoadMessagesResponse);
+        NetworkClientInjector.getRestClient().getServerChannelMessages(model.getCategory().getServer().getId(),
+            model.getCategory().getId(), model.getId(), timestamp, this::onLoadMessagesResponse);
     }
 
     /**
