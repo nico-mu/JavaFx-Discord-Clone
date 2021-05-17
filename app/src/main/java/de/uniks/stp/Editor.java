@@ -44,6 +44,10 @@ public class Editor {
         return new Server().setName(name).setId(id).withUsers(currentUser);
     }
 
+    public List<Server> getAvailableServers(){
+        return accord.getCurrentUser().getAvailableServers();
+    }
+
     public Server getServer(final String id) {
         final Map<String, Server> serverMap = availableServersAsServerIdMap();
 
@@ -149,6 +153,20 @@ public class Editor {
             for (Channel channel : category.getChannels()) {
                 if(channel.getId().equals(channelId)) {
                     return channel;
+                }
+            }
+        }
+        return null;
+    }
+
+    // channelId is unique for complete server, not just for a category
+    public Channel getChannel(final String channelId, final Server server) {
+        if(Objects.nonNull(server)) {
+            for(Category category: server.getCategories()){
+                for (Channel channel : category.getChannels()) {
+                    if(channel.getId().equals(channelId)) {
+                        return channel;
+                    }
                 }
             }
         }

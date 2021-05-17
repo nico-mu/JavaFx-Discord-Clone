@@ -1,0 +1,20 @@
+@import "../base";
+
+.message-text {
+  -fx-text-fill: $primary-text-fill;
+  -fx-fill: $primary-text-fill;
+  -fx-font-size: 16px;
+}
+
+.name-text {
+  -fx-text-fill: $primary-text-fill;
+  -fx-fill: $primary-text-fill;
+  -fx-font-size: 16px;
+  -fx-font-weight: bold;
+}
+
+.timestamp-text {
+  -fx-text-fill: $secondary-text-fill;
+  -fx-fill: $secondary-text-fill;
+  -fx-font-size: 12px;
+}
