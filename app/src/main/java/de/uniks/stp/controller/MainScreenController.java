@@ -7,9 +7,6 @@ import de.uniks.stp.model.Server;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
-import de.uniks.stp.network.NetworkClientInjector;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
 import org.slf4j.Logger;
@@ -29,7 +26,7 @@ public class MainScreenController implements ControllerInterface {
     private AnchorPane navBar;
     private AnchorPane userSettingsPane;
     private AnchorPane subViewContainer;
-    private UserController userSubViewController;
+    private UserInfoController userInfoController;
     private NavBarListController navBarController;
     private ControllerInterface currentController;
 
@@ -46,8 +43,8 @@ public class MainScreenController implements ControllerInterface {
 
         navBarController = new NavBarListController(navBar, editor);
         navBarController.init();
-        userSubViewController = new UserController(this.userSettingsPane, this.editor);
-        userSubViewController.init();
+        userInfoController = new UserInfoController(this.userSettingsPane, this.editor);
+        userInfoController.init();
     }
 
     @Override
@@ -76,6 +73,8 @@ public class MainScreenController implements ControllerInterface {
     @Override
     public void stop() {
         navBarController.stop();
+        userInfoController.stop();
+
         if (Objects.nonNull(currentController)) {
             currentController.stop();
         }
