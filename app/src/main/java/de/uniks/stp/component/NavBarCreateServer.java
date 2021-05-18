@@ -4,6 +4,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Server;
+import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
@@ -21,7 +22,7 @@ import java.beans.PropertyChangeListener;
 public class NavBarCreateServer extends NavBarElement {
     private static final Logger log = LoggerFactory.getLogger(NavBarCreateServer.class);
 
-    private RestClient restClient = new RestClient();
+    private RestClient restClient = NetworkClientInjector.getRestClient();
     private Editor editor;
 
     public NavBarCreateServer(Editor editor) {

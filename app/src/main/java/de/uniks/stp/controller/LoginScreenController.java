@@ -9,9 +9,8 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.router.RouteArgs;
-import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.network.NetworkClientInjector;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -44,7 +43,7 @@ public class LoginScreenController implements ControllerInterface {
     public LoginScreenController(Parent view, Editor editor) {
         this.view = view;
         this.editor = editor;
-        this.restClient = new RestClient();
+        this.restClient = NetworkClientInjector.getRestClient();
     }
 
     /**
@@ -64,11 +63,6 @@ public class LoginScreenController implements ControllerInterface {
         loginButton.setOnAction(this::onLoginButtonClicked);
 
         loginButton.setDefaultButton(true);  // Allows to use Enter in order to press login button
-    }
-
-    @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
-        //no subroutes
     }
 
     public void stop() {

@@ -3,6 +3,7 @@ package de.uniks.stp;
 import de.uniks.stp.controller.ControllerInterface;
 import de.uniks.stp.controller.LoginScreenController;
 import de.uniks.stp.controller.MainScreenController;
+import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.network.UserKeyProvider;
@@ -36,9 +37,14 @@ public class StageManager extends Application {
     public void start(Stage primaryStage) {
         stage = primaryStage;
         editor = new Editor();
+
         UserKeyProvider.setEditor(editor);
         WebSocketService.setEditor(editor);
+
+        //init Router and go to login
+        Router.init();
         Router.route(Constants.ROUTE_LOGIN);
+
         stage.show();
     }
 
@@ -77,7 +83,7 @@ public class StageManager extends Application {
             if (currentController != null) {
                 currentController.stop();
             }
-            new RestClient().sendLogoutRequest(response -> {
+            NetworkClientInjector.getRestClient().sendLogoutRequest(response -> {
                 RestClient.stop();
             });
 
@@ -86,5 +92,9 @@ public class StageManager extends Application {
             log.error("Error while trying to shutdown", e);
         }
 
+    }
+
+    public static Editor getEditor() {
+        return editor;
     }
 }

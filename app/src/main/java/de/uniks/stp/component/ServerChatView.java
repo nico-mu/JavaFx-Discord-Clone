@@ -2,11 +2,17 @@ package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
+import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Message;
+import de.uniks.stp.model.ServerMessage;
+import de.uniks.stp.network.RestClient;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ScrollPane;
@@ -14,13 +20,20 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.json.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 
-public class ChatView extends VBox {
+public class ServerChatView extends VBox {
+
+    private final Editor editor;
+
     @FXML
     private VBox chatViewContainer;
     @FXML
@@ -29,13 +42,18 @@ public class ChatView extends VBox {
     private JFXTextArea chatViewMessageInput;
     @FXML
     private ScrollPane chatViewMessageScrollPane;
-    private final VBox messageList;
+    @FXML
+    private JFXButton loadMessagesButton;
+    @FXML
+    private VBox messageList;
 
     private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
 
-    public ChatView() {
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_VIEW);
+    public ServerChatView(Editor editor, EventHandler<ActionEvent> loadMessagesHandler) {
+        this.editor = editor;
+
+        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHAT_VIEW);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -45,13 +63,13 @@ public class ChatView extends VBox {
             throw new RuntimeException(exception);
         }
 
-        messageList = (VBox) chatViewMessageScrollPane.getContent();
-
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
 
         messageList.heightProperty().addListener(heightChangedListener);
 
         chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
+
+        loadMessagesButton.setOnAction(loadMessagesHandler);
     }
 
     private void onHeightChanged(Observable observable) {
@@ -79,6 +97,9 @@ public class ChatView extends VBox {
      */
     public void stop() {
         chatViewSubmitButton.setOnMouseClicked(null);
+        chatViewMessageInput.setOnKeyPressed(null);
+        loadMessagesButton.setOnAction(null);
+
         messageList.heightProperty().removeListener(heightChangedListener);
         submitListener.clear();
     }
@@ -100,16 +121,17 @@ public class ChatView extends VBox {
      * Appends a message at the end of the messages list.
      * @param message
      */
-    public void appendMessage(Message message) {
+    public void appendMessage(ServerMessage message) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ChatMessage chatMessage = new ChatMessage(message);
+        ServerChatMessage chatMessage = new ServerChatMessage(message, editor);
         chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
 
         Platform.runLater(() -> {
             messageList.getChildren().add(chatMessage);
         });
+
     }
 
     private void onSubmitClicked(MouseEvent mouseEvent) {
@@ -126,4 +148,11 @@ public class ChatView extends VBox {
         });
     }
 
+    /**
+     * Used when there are no older messages to load
+     * @param visible
+     */
+    public void setLoadMessagesButtonVisible(boolean visible) {
+        loadMessagesButton.setVisible(visible);
+    }
 }

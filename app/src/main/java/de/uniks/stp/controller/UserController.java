@@ -3,6 +3,7 @@ package de.uniks.stp.controller;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
@@ -60,7 +61,7 @@ public class UserController implements ControllerInterface {
     public UserController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
         this.editor = editor;
-        this.restClient = new RestClient();
+        this.restClient = NetworkClientInjector.getRestClient();
     }
 
     @Override

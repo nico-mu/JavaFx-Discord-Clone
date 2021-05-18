@@ -8,13 +8,20 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Router {
 
-    private static final HashMap<String, Class<?>> routeMap;
-    private static final ConcurrentHashMap<String, ControllerInterface> controllerCache = new ConcurrentHashMap<>();
+    private static HashMap<String, Class<?>> routeMap;
+    private static ConcurrentHashMap<String, ControllerInterface> controllerCache;
     private static String currentRoute;
-    private static RouteArgs currentArgs = new RouteArgs();
+    private static RouteArgs currentArgs;
 
-    static {
+    public static void init() {
         routeMap = new RouteMap().getRoutes();
+        currentRoute = null;
+        currentArgs = new RouteArgs();
+        controllerCache = new ConcurrentHashMap<>();
+    }
+
+    public static String getCurrentRoute() {
+        return currentRoute;
     }
 
     public static String compareRoutes(String newRoute, String oldRoute) {

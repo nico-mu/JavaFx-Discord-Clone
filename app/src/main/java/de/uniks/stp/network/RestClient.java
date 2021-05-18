@@ -91,4 +91,21 @@ public class RestClient {
             .body(buildCreateServerRequest(name));
         sendRequest(postCreateServer, callback);
     }
+
+    /**
+     * Gets the last 50 messages of given channel after given timestamp
+     * @param serverId
+     * @param categoryId
+     * @param channelId
+     * @param timestamp Only messages older than this timestamp will be returned
+     * @param callback
+     */
+    public void getServerChannelMessages(String serverId, String categoryId, String channelId, long timestamp, Callback<JsonNode> callback) {
+        String requestPath = Constants.REST_SERVER_PATH + "/" + serverId
+            + Constants.REST_CATEGORY_PATH + "/" + categoryId
+            + Constants.REST_CHANNEL_PATH+ "/" + channelId
+            + Constants.REST_MESSAGES_PATH + Constants.REST_TIMESTAMP_PATH + timestamp;
+        HttpRequest<?> request = Unirest.get(requestPath);
+        sendRequest(request, callback);
+    }
 }
