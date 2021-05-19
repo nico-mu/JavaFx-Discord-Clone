@@ -76,8 +76,6 @@ public class PrivateChatController implements ControllerInterface {
     }
 
     private void showPrivateChatView(User user) {
-        this.user = user;
-
         homeScreenLabel.setText(user.getName());
         chatView = new PrivateChatView();
 

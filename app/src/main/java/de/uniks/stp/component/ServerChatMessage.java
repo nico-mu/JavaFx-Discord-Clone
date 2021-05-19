@@ -22,7 +22,7 @@ public class ServerChatMessage extends HBox {
     @FXML
     private Text timestampText;
 
-    public ServerChatMessage(Message message, Editor editor) {
+    public ServerChatMessage(Message message) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);

@@ -96,11 +96,6 @@ public class PrivateChatView extends VBox {
         submitListener.clear();
     }
 
-    public void setSize(double width, double height) {
-        chatViewContainer.setPrefWidth(width);
-        chatViewContainer.setPrefHeight(height);
-    }
-
     /**
      * Registers a callback that is called whenever the send button is clicked.
      * @param callback

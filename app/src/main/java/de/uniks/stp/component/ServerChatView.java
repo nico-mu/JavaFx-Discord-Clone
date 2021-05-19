@@ -31,9 +31,6 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class ServerChatView extends VBox {
-
-    private final Editor editor;
-
     @FXML
     private VBox chatViewContainer;
     @FXML
@@ -50,9 +47,7 @@ public class ServerChatView extends VBox {
     private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
 
-    public ServerChatView(Editor editor, EventHandler<ActionEvent> loadMessagesHandler) {
-        this.editor = editor;
-
+    public ServerChatView(EventHandler<ActionEvent> loadMessagesHandler) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHAT_VIEW);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -104,11 +99,6 @@ public class ServerChatView extends VBox {
         submitListener.clear();
     }
 
-    public void setSize(double width, double height) {
-        chatViewContainer.setPrefWidth(width);
-        chatViewContainer.setPrefHeight(height);
-    }
-
     /**
      * Registers a callback that is called whenever the send button is clicked.
      * @param callback
@@ -125,7 +115,7 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ServerChatMessage chatMessage = new ServerChatMessage(message, editor);
+        ServerChatMessage chatMessage = new ServerChatMessage(message);
         chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
 
         Platform.runLater(() -> {
