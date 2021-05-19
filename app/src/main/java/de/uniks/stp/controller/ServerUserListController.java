@@ -73,15 +73,6 @@ public class ServerUserListController implements ControllerInterface {
                 offlineUser(user);
             });
         }
-
-        // Test Code
-        User user = editor.getOrCreateOtherUser("some-id", "User").setStatus(true);
-        Platform.runLater(() -> {
-            ServerUserListEntry serverUserListEntry = new ServerUserListEntry(user);
-            serverUserListEntryHashMap.put(user.getId(), serverUserListEntry);
-            onlineUserList.getChildren().add(serverUserListEntry);
-            editor.removeOtherUserById("some-id");
-        });
     }
 
     private void offlineUser(User user) {

@@ -175,6 +175,11 @@ public class WebSocketService {
     private static void onServerSystemMessage(JsonStructure jsonStructure) {
         log.debug("received server system message: {}", jsonStructure.toString());
 
-        //TODO...
+        JsonObject jsonObject = jsonStructure.asJsonObject();
+
+        String action = jsonObject.getString("action");
+        JsonObject data = jsonObject.getJsonObject("data");
+
+        log.debug(action, data);
     }
 }

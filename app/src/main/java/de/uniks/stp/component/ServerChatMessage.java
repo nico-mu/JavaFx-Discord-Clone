@@ -48,9 +48,9 @@ public class ServerChatMessage extends HBox {
         date.setTime(time);
 
         if (DateUtil.isToday(date)) {
-            return "today";
+            return "Today, " + DateFormat.getTimeInstance(DateFormat.SHORT).format(date);
         } else if (DateUtil.isYesterday(date)) {
-            return "yesterday";
+            return "Yesterday, " + DateFormat.getTimeInstance(DateFormat.SHORT).format(date);
         }
 
         return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date);
