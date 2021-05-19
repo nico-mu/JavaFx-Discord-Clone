@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox id="add-server-container" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="300.0" styleClass="add-server-modal" stylesheets="@../style/css/view/add-server-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Pane prefHeight="33.0" prefWidth="303.0" />
+      <AnchorPane prefHeight="60.0" prefWidth="243.0">
+         <children>
+            <Label id="label-enter-servername" prefHeight="30.0" prefWidth="235.0" styleClass="label-enter-servername" text="%LBL_ENTER_SERVERNAME_PROMPT" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="0.0" />
+            <JFXTextField id="text-field-servername" layoutX="51.0" layoutY="36.0" prefHeight="32.0" prefWidth="243.0" styleClass="text-field-servername" promptText="%LBL_SERVERNAME" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0" />
+         </children>
+      </AnchorPane>
+      <HBox alignment="CENTER" prefHeight="115.0" prefWidth="303.0">
+         <children>
+            <JFXButton id="add-server-apply-button" prefHeight="40.0" prefWidth="90.0" styleClass="add-server-apply-button" text="%LBL_CREATE" />
+            <Pane prefHeight="97.0" prefWidth="60.0" />
+            <JFXButton id="add-server-cancel-button" prefHeight="40.0" prefWidth="90.0" styleClass="add-server-cancel-button" text="%LBL_CANCEL" />
+         </children>
+      </HBox>
+   </children>
+</VBox>

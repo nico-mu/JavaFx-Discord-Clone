@@ -1,0 +1,28 @@
+@import "../base";
+
+.add-server-modal {
+  -fx-background-color: $secondary-background-color;
+}
+
+.label-enter-servername {
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 18px;
+}
+
+.text-field-servername {
+  -fx-prompt-text-fill: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}
+
+.add-server-apply-button {
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}
+
+.add-server-cancel-button {
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}

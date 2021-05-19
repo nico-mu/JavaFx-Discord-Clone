@@ -3,11 +3,12 @@ package de.uniks.stp.component;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.modal.AddServerModal;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
-import javafx.application.Platform;
-import javafx.scene.control.TextInputDialog;
+import de.uniks.stp.view.Views;
+import javafx.scene.Parent;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import kong.unirest.HttpResponse;
@@ -19,8 +20,7 @@ import org.slf4j.LoggerFactory;
 public class NavBarCreateServer extends NavBarElement {
     private static final Logger log = LoggerFactory.getLogger(NavBarCreateServer.class);
 
-    private RestClient restClient = NetworkClientInjector.getRestClient();
-    private Editor editor;
+    private final Editor editor;
 
     public NavBarCreateServer(Editor editor) {
         this.editor = editor;
@@ -31,28 +31,14 @@ public class NavBarCreateServer extends NavBarElement {
     @Override
     protected void onMouseClicked(MouseEvent mouseEvent) {
         super.onMouseClicked(mouseEvent);
-        openServerNamePopup();
+        Parent addServerModalView = ViewLoader.loadView(Views.ADD_SERVER_MODAL);
+        AddServerModal addServerModal = new AddServerModal(addServerModalView, this::createServer);
+        addServerModal.showAndWait();
     }
 
-    private void openServerNamePopup() {
-        TextInputDialog dialog = new TextInputDialog();
-        String title = ViewLoader.loadLabel(Constants.LBL_SERVERNAME_TITLE);
-        String headerText = ViewLoader.loadLabel(Constants.LBL_ENTER_SERVERNAME_PROMPT);
-        String contentText = ViewLoader.loadLabel(Constants.LBL_SERVERNAME);
-        Platform.runLater(() -> {
-            dialog.setWidth(280);
-            dialog.setTitle(title);
-            dialog.setHeaderText(headerText);
-            dialog.setContentText(contentText);
-        });
-
-        dialog.showAndWait().ifPresent((name) -> {
-            if (name != null && !name.equals("")) {
-                restClient.createServer(name, this::handleCreateServerResponse);
-            } else {
-                return;
-            }
-        });
+    private void createServer(String name){
+        RestClient restClient = NetworkClientInjector.getRestClient();
+        restClient.createServer(name, this::handleCreateServerResponse);
     }
 
     private void handleCreateServerResponse(HttpResponse<JsonNode> response) {
@@ -70,5 +56,4 @@ public class NavBarCreateServer extends NavBarElement {
             log.error("create server failed!");
         }
     }
-
 }
