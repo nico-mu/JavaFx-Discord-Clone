@@ -16,9 +16,6 @@ import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
 public class NavBarCreateServer extends NavBarElement {
     private static final Logger log = LoggerFactory.getLogger(NavBarCreateServer.class);
 

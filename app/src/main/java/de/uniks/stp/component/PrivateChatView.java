@@ -2,34 +2,23 @@ package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
-import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.model.*;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.model.Message;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Bounds;
-import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
-import kong.unirest.HttpResponse;
-import kong.unirest.JsonNode;
-import kong.unirest.json.JSONArray;
-import kong.unirest.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.Objects;
 import java.util.function.Consumer;
-
-import static de.uniks.stp.model.Category.PROPERTY_CHANNELS;
 
 public class PrivateChatView extends VBox {
 

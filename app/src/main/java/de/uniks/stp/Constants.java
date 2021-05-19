@@ -31,8 +31,6 @@ public class Constants {
     public static final String LBL_SERVERNAME_TITLE = "LBL_SERVERNAME_TITLE";
     public static final String LBL_ENTER_SERVERNAME_PROMPT = "LBL_ENTER_SERVERNAME_PROMPT";
     public static final String LBL_SERVERNAME = "LBL_SERVERNAME";
-    public static final String LBL_SELECT_LANGUAGE = "LBL_SELECT_LANGUAGE";
-    public static final String LBL_CLOSE_WINDOW = "LBL_CLOSE_WINDOW";
     public static final String LBL_ONLINE_USERS = "LBL_ONLINE_USERS";
     public static final String LBL_USER_OFFLINE = "LBL_USER_OFFLINE";
 
@@ -57,7 +55,6 @@ public class Constants {
     public static final String ROUTE_USER = "/user";
 
     //Languages
-    public static final String LANG_DE = "LANG_DE";
-    public static final String LANG_EN = "LANG_EN";
+    public static final String LANG_LABEL_PREFIX = "LBL_LANG_";
 
 }
