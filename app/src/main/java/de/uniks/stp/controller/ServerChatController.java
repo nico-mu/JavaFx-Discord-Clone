@@ -1,11 +1,9 @@
 package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
-import de.uniks.stp.component.PrivateChatView;
 import de.uniks.stp.component.ServerChatView;
 import de.uniks.stp.model.*;
 import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
@@ -67,26 +65,43 @@ public class ServerChatController implements ControllerInterface {
         }
     }
 
-    @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
-
-    }
-
+    /**
+     * Creates ServerChatView with callback methods for sending messages and loading old messages.
+     * Also adds all messages from model in the View and creates PropertyChangeListener that will do so in the future.
+     */
     private void showChatView() {
-        chatView = new ServerChatView(editor, this::loadMessages);
+        chatView = new ServerChatView(this::loadMessages);
 
-        chatView.onMessageSubmit(this::handleMessageSubmit);
+        chatView.setOnMessageSubmit(this::handleMessageSubmit);
         serverChatVBox.getChildren().add(chatView);
 
         for (ServerMessage message : model.getMessages()) {
             chatView.appendMessage(message);
         }
-
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
     }
 
     /**
-     * Sends request to load older Messages in this channel
+     * Creates ServerMessage, saves it in the model and sends it via websocket.
+     * @param message
+     */
+    private void handleMessageSubmit(String message) {
+        // create & save message
+        ServerMessage msg = new ServerMessage();
+        msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser()).setTimestamp(new Date().getTime());
+        msg.setChannel(model);  // triggers PropertyChangeListener that shows Message in Chat
+
+        // send message
+        WebSocketService.sendServerMessage(model.getCategory().getServer().getId(), model.getId(), message);
+    }
+
+    private void handleNewMessage(PropertyChangeEvent propertyChangeEvent) {
+        ServerMessage msg = (ServerMessage) propertyChangeEvent.getNewValue();
+        chatView.appendMessage(msg);
+    }
+
+    /**
+     * Sends request to load older Messages in this channel.
      * @param actionEvent
      */
     private void loadMessages(ActionEvent actionEvent) {
@@ -103,7 +118,7 @@ public class ServerChatController implements ControllerInterface {
 
     /**
      * Handles response containing older ServerChatMessages.
-     * Makes loadMessagesButon invisible if there were no older messages.
+     * Removes loadMessagesButon if there were no older messages.
      * @param response
      */
     private void onLoadMessagesResponse(HttpResponse<JsonNode> response) {
@@ -114,7 +129,7 @@ public class ServerChatController implements ControllerInterface {
 
             if(messagesJson.length() == 0){
                 //when there are no older messages to show
-                chatView.setLoadMessagesButtonVisible(false);  //alternative: show note or disable button
+                chatView.removeLoadMessagesButton();  //alternative: show note or disable button
                 return;
             }
 
@@ -123,20 +138,5 @@ public class ServerChatController implements ControllerInterface {
         } else {
             log.error("receiving old messages failed!");
         }
-    }
-
-    private void handleMessageSubmit(String message) {
-        // create & save message
-        ServerMessage msg = new ServerMessage();
-        msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser()).setTimestamp(new Date().getTime());
-        msg.setChannel(model);  // triggers PropertyChangeListener that shows Message in Chat
-
-        // send message
-        WebSocketService.sendServerMessage(model.getCategory().getServer().getId(), model.getId(), message);
-    }
-
-    private void handleNewMessage(PropertyChangeEvent propertyChangeEvent) {
-        ServerMessage msg = (ServerMessage) propertyChangeEvent.getNewValue();
-        chatView.appendMessage(msg);
     }
 }

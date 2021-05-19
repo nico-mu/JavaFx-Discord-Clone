@@ -36,11 +36,6 @@ public class PrivateChatMessage extends HBox {
         text.setSelectionFill(Paint.valueOf("#AAAAAA"));  // grayish-white
     }
 
-    public void setWidthForWrapping(double width) {
-        // 20px padding
-        text.setWrappingWidth(width - 20);
-    }
-
     private String formatTime(long time) {
         Date date = new Date();
         date.setTime(time);
@@ -48,5 +43,10 @@ public class PrivateChatMessage extends HBox {
         // TODO: Format time for today and yesterday
 
         return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date);
+    }
+
+    public void setWidthForWrapping(double width) {
+        // 20px padding
+        text.setWrappingWidth(width - 20);
     }
 }

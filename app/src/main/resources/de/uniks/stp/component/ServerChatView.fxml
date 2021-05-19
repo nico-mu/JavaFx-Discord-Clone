@@ -13,7 +13,7 @@
    <children>
       <ScrollPane fx:id="chatViewMessageScrollPane" prefHeight="400.0" prefWidth="600.0" styleClass="message-list" VBox.vgrow="ALWAYS">
          <content>
-            <VBox alignment="CENTER">
+            <VBox fx:id="chatVBox" alignment="CENTER">
                   <children>
                      <JFXButton fx:id="loadMessagesButton" prefHeight="26.0" prefWidth="300.0" styleClass="load-messages-button" text="%LBL_LOAD_MESSAGES" textFill="WHITE" />
                      <VBox fx:id="messageList" prefHeight="200.0" prefWidth="100.0" />

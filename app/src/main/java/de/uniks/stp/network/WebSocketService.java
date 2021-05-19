@@ -3,7 +3,6 @@ package de.uniks.stp.network;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.model.DirectMessage;
-import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
 import kong.unirest.json.JSONObject;
@@ -35,6 +34,9 @@ public class WebSocketService {
         pathWebSocketClientHashMap.clear();
     }
 
+    /**
+     * Creates and saves WebSocketClients for private chat and system messages
+     */
     public static void init() {
         currentUser = editor.getOrCreateAccord().getCurrentUser();
 
@@ -47,6 +49,11 @@ public class WebSocketService {
         pathWebSocketClientHashMap.put(endpoint, privateWebSocketClient);
     }
 
+    /**
+     * Creates WebSocketClients for system & chat messages for given server. Has to be called for each server.
+     * WebSocketClients are saved in pathWebSocketClientHashMap, keys are the server unique endpoints.
+     * @param serverId
+     */
     public static void addServerWebSocket(String serverId) {
         String endpoint = Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId;
         final WebSocketClient systemServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, WebSocketService::onServerSystemMessage);
@@ -57,10 +64,15 @@ public class WebSocketService {
         pathWebSocketClientHashMap.put(endpoint, chatServerWSC);
     }
 
-    public static void sendPrivateMessage(String receiver, String message) {
+    /**
+     * Sends private chat message.
+     * @param receiverName
+     * @param message
+     */
+    public static void sendPrivateMessage(String receiverName, String message) {
         JsonObject msgObject = Json.createObjectBuilder()
             .add("channel", "private")
-            .add("to", receiver)
+            .add("to", receiverName)
             .add("message", message)
             .build();
 
@@ -73,6 +85,13 @@ public class WebSocketService {
         }
     }
 
+    /**
+     * Called when private chat message is received.
+     * Creates DirectMessage Object and saves it in the model (list privateChatMessages of other user) if it isn't
+     * sent by currentUser (then, it would already be in the model).
+     * Adds other user to chatPartner list of currentUser if not already contained.
+     * @param jsonStructure
+     */
     private static void onPrivateMessage(JsonStructure jsonStructure) {
         log.debug("Received private message with content: {}", jsonStructure.toString());
 
@@ -104,6 +123,10 @@ public class WebSocketService {
         }
     }
 
+    /**
+     * Called when system chat message is received. Adds or removes user in model
+     * @param jsonStructure
+     */
     private static void onSystemMessage(final JsonStructure jsonStructure) {
         log.debug("Received system message with content: {}", jsonStructure.toString());
 
@@ -128,6 +151,12 @@ public class WebSocketService {
         }
     }
 
+    /**
+     * Sends message in text channel of server.
+     * @param serverId
+     * @param channelId
+     * @param message
+     */
     public static void sendServerMessage(String serverId, String channelId, String message) {
         JsonObject msgObject = Json.createObjectBuilder()
             .add("channel", channelId)
@@ -143,6 +172,13 @@ public class WebSocketService {
         }
     }
 
+    /**
+     * Called when server text channel message is received.
+     * Creates ServerMessage Object and saves it in the model (messages list of channel) if it isn't sent by
+     * currentUser (then, it would already be in the model).
+     * @param jsonStructure
+     * @param serverId
+     */
     private static void onServerChatMessage(JsonStructure jsonStructure, String serverId) {
         log.debug("received server chat message: {}", jsonStructure.toString());
 
