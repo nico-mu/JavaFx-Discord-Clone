@@ -52,4 +52,9 @@ public class Constants {
     public static final String ROUTE_ONLINE_USER_LIST = "/online";
     public static final String ROUTE_PRIVATE_CHAT = "/chat/" + ROUTE_PRIVATE_CHAT_ARGS;
     public static final String ROUTE_ONLINE = "/online";
+    public static final String ROUTE_USER = "/user";
+
+    //Languages
+    public static final String LANG_LABEL_PREFIX = "LBL_LANG_";
+
 }
