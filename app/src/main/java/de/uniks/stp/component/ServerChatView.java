@@ -2,7 +2,6 @@ package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
-import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.ServerMessage;
 import javafx.application.Platform;
@@ -19,7 +18,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -61,27 +59,7 @@ public class ServerChatView extends VBox {
 
         loadMessagesButton.setOnAction(loadMessagesHandler);
 
-        chatVBox.getChildren().remove(loadMessagesButton);  //TODO: remove if button is used (+ field chatVBox can be deleted then)
-    }
-
-    private void onHeightChanged(Observable observable) {
-        chatViewMessageScrollPane.setVvalue(1.0);
-    }
-
-    /**
-     * Enter typed -> press send Button | Shift-Enter typed -> add new line
-     * @param keyEvent
-     */
-    private void checkForEnter(KeyEvent keyEvent) {
-        if (keyEvent.getCode() == KeyCode.ENTER)  {
-            if (keyEvent.isShiftDown()) {
-                chatViewMessageInput.appendText(System.getProperty("line.separator"));
-            } else {
-                String text = chatViewMessageInput.getText();
-                chatViewMessageInput.setText(text.substring(0, text.length() - 1));
-                onSubmitClicked(null);
-            }
-        }
+        removeLoadMessagesButton();  //TODO: remove if button is used
     }
 
     /**
@@ -94,14 +72,6 @@ public class ServerChatView extends VBox {
 
         messageList.heightProperty().removeListener(heightChangedListener);
         submitListener = null;
-    }
-
-    /**
-     * Registers a callback that is called whenever the send button is clicked.
-     * @param callback
-     */
-    public void setOnMessageSubmit(Consumer<String> callback) {
-        submitListener = callback;
     }
 
     /**
@@ -121,6 +91,26 @@ public class ServerChatView extends VBox {
 
     }
 
+    /**
+     * Enter typed -> press send Button | Shift-Enter typed -> add new line
+     * @param keyEvent
+     */
+    private void checkForEnter(KeyEvent keyEvent) {
+        if (keyEvent.getCode() == KeyCode.ENTER)  {
+            if (keyEvent.isShiftDown()) {
+                chatViewMessageInput.appendText(System.getProperty("line.separator"));
+            } else {
+                String text = chatViewMessageInput.getText();
+                chatViewMessageInput.setText(text.substring(0, text.length() - 1));
+                onSubmitClicked(null);
+            }
+        }
+    }
+
+    /**
+     * If MessageInput is not empty, text is given to method in ServerChatController and MessageInput is cleared.
+     * @param mouseEvent
+     */
     private void onSubmitClicked(MouseEvent mouseEvent) {
         String message = chatViewMessageInput.getText();
 
@@ -133,10 +123,21 @@ public class ServerChatView extends VBox {
     }
 
     /**
-     * Used when there are no older messages to load
-     * @param visible
+     * Registers a callback that is called whenever the send button is clicked.
+     * @param callback should send message via websocket
      */
-    public void setLoadMessagesButtonVisible(boolean visible) {
-        loadMessagesButton.setVisible(visible);
+    public void setOnMessageSubmit(Consumer<String> callback) {
+        submitListener = callback;
+    }
+
+    private void onHeightChanged(Observable observable) {
+        chatViewMessageScrollPane.setVvalue(1.0);
+    }
+
+    /**
+     * Used when there are no older messages to load
+     */
+    public void removeLoadMessagesButton() {
+        chatVBox.getChildren().remove(loadMessagesButton);
     }
 }
