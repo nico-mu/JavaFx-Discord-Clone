@@ -44,7 +44,7 @@ public class PrivateChatView extends VBox {
     @FXML
     private VBox messageList;
 
-    private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
+    private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
 
     public PrivateChatView() {
@@ -93,15 +93,15 @@ public class PrivateChatView extends VBox {
         chatViewSubmitButton.setOnMouseClicked(null);
         chatViewMessageInput.setOnKeyPressed(null);
         messageList.heightProperty().removeListener(heightChangedListener);
-        submitListener.clear();
+        submitListener = null;
     }
 
     /**
      * Registers a callback that is called whenever the send button is clicked.
      * @param callback
      */
-    public void onMessageSubmit(Consumer<String> callback) {
-        submitListener.add(callback);
+    public void setOnMessageSubmit(Consumer<String> callback) {
+        submitListener = callback;
     }
 
     /**
@@ -126,12 +126,9 @@ public class PrivateChatView extends VBox {
         if (message.isEmpty()) {
             return;
         }
-
         chatViewMessageInput.clear();
 
-        submitListener.forEach(callback -> {
-            callback.accept(message);
-        });
+        submitListener.accept(message);
     }
 
 }

@@ -43,8 +43,10 @@ public class ServerChatView extends VBox {
     private JFXButton loadMessagesButton;
     @FXML
     private VBox messageList;
+    @FXML
+    private VBox chatVBox;
 
-    private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
+    private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
 
     public ServerChatView(EventHandler<ActionEvent> loadMessagesHandler) {
@@ -65,6 +67,8 @@ public class ServerChatView extends VBox {
         chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
 
         loadMessagesButton.setOnAction(loadMessagesHandler);
+
+        chatVBox.getChildren().remove(loadMessagesButton);  //TODO: remove if button is used (+ field chatVBox can be deleted then)
     }
 
     private void onHeightChanged(Observable observable) {
@@ -96,15 +100,15 @@ public class ServerChatView extends VBox {
         loadMessagesButton.setOnAction(null);
 
         messageList.heightProperty().removeListener(heightChangedListener);
-        submitListener.clear();
+        submitListener = null;
     }
 
     /**
      * Registers a callback that is called whenever the send button is clicked.
      * @param callback
      */
-    public void onMessageSubmit(Consumer<String> callback) {
-        submitListener.add(callback);
+    public void setOnMessageSubmit(Consumer<String> callback) {
+        submitListener = callback;
     }
 
     /**
@@ -130,12 +134,9 @@ public class ServerChatView extends VBox {
         if (message.isEmpty()) {
             return;
         }
-
         chatViewMessageInput.clear();
 
-        submitListener.forEach(callback -> {
-            callback.accept(message);
-        });
+        submitListener.accept(message);
     }
 
     /**

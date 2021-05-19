@@ -1,11 +1,9 @@
 package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
-import de.uniks.stp.component.PrivateChatView;
 import de.uniks.stp.component.ServerChatView;
 import de.uniks.stp.model.*;
 import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
@@ -75,7 +73,7 @@ public class ServerChatController implements ControllerInterface {
     private void showChatView() {
         chatView = new ServerChatView(this::loadMessages);
 
-        chatView.onMessageSubmit(this::handleMessageSubmit);
+        chatView.setOnMessageSubmit(this::handleMessageSubmit);
         serverChatVBox.getChildren().add(chatView);
 
         for (ServerMessage message : model.getMessages()) {

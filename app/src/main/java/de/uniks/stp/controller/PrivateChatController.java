@@ -9,8 +9,6 @@ import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.WebSocketService;
-import de.uniks.stp.router.RouteArgs;
-import de.uniks.stp.router.RouteInfo;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -79,7 +77,7 @@ public class PrivateChatController implements ControllerInterface {
         homeScreenLabel.setText(user.getName());
         chatView = new PrivateChatView();
 
-        chatView.onMessageSubmit(this::handleMessageSubmit);
+        chatView.setOnMessageSubmit(this::handleMessageSubmit);
         onlineUsersContainer.getChildren().add(chatView);
     }
 
