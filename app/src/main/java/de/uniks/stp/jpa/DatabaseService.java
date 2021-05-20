@@ -61,7 +61,7 @@ public class DatabaseService {
     public static AccordSettingDTO getAccordSetting(final AccordSettingKey key) {
         final EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
-        entityManager.getTransaction().begin();
+        transaction.begin();
 
         final AccordSettingDTO result = entityManager.find(AccordSettingDTO.class, key);
 
