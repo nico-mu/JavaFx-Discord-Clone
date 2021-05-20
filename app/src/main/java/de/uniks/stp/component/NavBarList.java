@@ -43,7 +43,7 @@ public class NavBarList extends ScrollPane {
         this.setActiveElement(homeElement);
 
         //add create server button
-        NavBarElement createServer = new NavBarCreateServer(editor);
+        NavBarElement createServer = new NavBarAddServer(editor);
         this.addElement(createServer);
     }
 
