@@ -2,34 +2,22 @@ package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
-import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.model.*;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.model.Message;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Bounds;
-import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
-import kong.unirest.HttpResponse;
-import kong.unirest.JsonNode;
-import kong.unirest.json.JSONArray;
-import kong.unirest.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Objects;
 import java.util.function.Consumer;
-
-import static de.uniks.stp.model.Category.PROPERTY_CHANNELS;
 
 public class PrivateChatView extends VBox {
 
@@ -44,7 +32,7 @@ public class PrivateChatView extends VBox {
     @FXML
     private VBox messageList;
 
-    private final LinkedList<Consumer<String>> submitListener = new LinkedList<>();
+    private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
 
     public PrivateChatView() {
@@ -66,8 +54,30 @@ public class PrivateChatView extends VBox {
         chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
     }
 
-    private void onHeightChanged(Observable observable) {
-        chatViewMessageScrollPane.setVvalue(1.0);
+    /**
+     * Clears the view
+     */
+    public void stop() {
+        chatViewSubmitButton.setOnMouseClicked(null);
+        chatViewMessageInput.setOnKeyPressed(null);
+        messageList.heightProperty().removeListener(heightChangedListener);
+        submitListener = null;
+    }
+
+    /**
+     * Appends a message at the end of the messages list.
+     * @param message
+     */
+    public void appendMessage(Message message) {
+        Objects.requireNonNull(messageList);
+        Objects.requireNonNull(message);
+
+        PrivateChatMessage privateChatMessage = new PrivateChatMessage(message);
+        privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+
+        Platform.runLater(() -> {
+            messageList.getChildren().add(privateChatMessage);
+        });
     }
 
     /**
@@ -87,56 +97,29 @@ public class PrivateChatView extends VBox {
     }
 
     /**
-     * Clears the view
+     * If MessageInput is not empty, text is given to method in ServerChatController and MessageInput is cleared.
+     * @param mouseEvent
      */
-    public void stop() {
-        chatViewSubmitButton.setOnMouseClicked(null);
-        chatViewMessageInput.setOnKeyPressed(null);
-        messageList.heightProperty().removeListener(heightChangedListener);
-        submitListener.clear();
-    }
-
-    public void setSize(double width, double height) {
-        chatViewContainer.setPrefWidth(width);
-        chatViewContainer.setPrefHeight(height);
-    }
-
-    /**
-     * Registers a callback that is called whenever the send button is clicked.
-     * @param callback
-     */
-    public void onMessageSubmit(Consumer<String> callback) {
-        submitListener.add(callback);
-    }
-
-    /**
-     * Appends a message at the end of the messages list.
-     * @param message
-     */
-    public void appendMessage(Message message) {
-        Objects.requireNonNull(messageList);
-        Objects.requireNonNull(message);
-
-        PrivateChatMessage privateChatMessage = new PrivateChatMessage(message);
-        privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
-
-        Platform.runLater(() -> {
-            messageList.getChildren().add(privateChatMessage);
-        });
-    }
-
     private void onSubmitClicked(MouseEvent mouseEvent) {
         String message = chatViewMessageInput.getText();
 
         if (message.isEmpty()) {
             return;
         }
-
         chatViewMessageInput.clear();
 
-        submitListener.forEach(callback -> {
-            callback.accept(message);
-        });
+        submitListener.accept(message);
     }
 
+    /**
+     * Registers a callback that is called whenever the send button is clicked.
+     * @param callback should send message via websocket
+     */
+    public void setOnMessageSubmit(Consumer<String> callback) {
+        submitListener = callback;
+    }
+
+    private void onHeightChanged(Observable observable) {
+        chatViewMessageScrollPane.setVvalue(1.0);
+    }
 }

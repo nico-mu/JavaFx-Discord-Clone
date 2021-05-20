@@ -1,13 +1,10 @@
 package de.uniks.stp.component;
 
-import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Message;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 
 import java.io.IOException;
@@ -22,7 +19,7 @@ public class ServerChatMessage extends HBox {
     @FXML
     private Text timestampText;
 
-    public ServerChatMessage(Message message, Editor editor) {
+    public ServerChatMessage(Message message) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -39,11 +36,6 @@ public class ServerChatMessage extends HBox {
 
     }
 
-    public void setWidthForWrapping(double width) {
-        // 20px padding (without this, a horizontal scroll bar might appear)
-        messageText.setWrappingWidth(width - 20);
-    }
-
     private String formatTime(long time) {
         Date date = new Date();
         date.setTime(time);
@@ -51,5 +43,10 @@ public class ServerChatMessage extends HBox {
         // TODO: Format time for today and yesterday
 
         return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date);
+    }
+
+    public void setWidthForWrapping(double width) {
+        // 20px padding (without this, a horizontal scroll bar might appear)
+        messageText.setWrappingWidth(width - 20);
     }
 }
