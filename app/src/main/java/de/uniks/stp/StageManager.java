@@ -3,12 +3,17 @@ package de.uniks.stp;
 import de.uniks.stp.controller.ControllerInterface;
 import de.uniks.stp.controller.LoginScreenController;
 import de.uniks.stp.controller.MainScreenController;
+import de.uniks.stp.jpa.AccordSettingKey;
+import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.jpa.model.AccordSettingDTO;
+import de.uniks.stp.model.Accord;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.network.UserKeyProvider;
+import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.view.Languages;
 import de.uniks.stp.view.Views;
 import javafx.application.Application;
 import javafx.scene.Parent;
@@ -17,6 +22,8 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Objects;
 
 public class StageManager extends Application {
@@ -26,26 +33,13 @@ public class StageManager extends Application {
     private static Stage stage;
     private static ControllerInterface currentController;
 
+    private final PropertyChangeListener languagePropertyChangeListener = this::onLanguagePropertyChange;
+
     public static void cleanup() {
         if (Objects.nonNull(currentController)) {
             currentController.stop();
         }
         currentController = null;
-    }
-
-    @Override
-    public void start(Stage primaryStage) {
-        stage = primaryStage;
-        editor = new Editor();
-
-        UserKeyProvider.setEditor(editor);
-        WebSocketService.setEditor(editor);
-
-        //init Router and go to login
-        Router.init();
-        Router.route(Constants.ROUTE_LOGIN);
-
-        stage.show();
     }
 
     public static void route(RouteInfo routeInfo) {
@@ -75,10 +69,55 @@ public class StageManager extends Application {
         Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
     }
 
+    public static Editor getEditor() {
+        return editor;
+    }
+
+    private void onLanguagePropertyChange(final PropertyChangeEvent languageChangeEvent) {
+        final Languages newLanguage = Languages.fromKeyOrDefault((String) languageChangeEvent.getNewValue());
+        ViewLoader.changeLanguage(newLanguage);
+        Router.forceReloadAndRouteHome();
+
+        DatabaseService.saveAccordSetting(AccordSettingKey.LANGUAGE, newLanguage.key);
+
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        DatabaseService.init();
+
+        stage = primaryStage;
+        editor = new Editor();
+
+        startLanguageAwareness();
+
+        UserKeyProvider.setEditor(editor);
+        WebSocketService.setEditor(editor);
+
+        //init Router and go to login
+        Router.init();
+        Router.route(Constants.ROUTE_LOGIN);
+
+        stage.show();
+    }
+
+    private void startLanguageAwareness() {
+        final AccordSettingDTO accordLanguageSetting = DatabaseService.getAccordSetting(AccordSettingKey.LANGUAGE);
+        final Languages language = Objects.nonNull(accordLanguageSetting) ?
+            Languages.fromKeyOrDefault(accordLanguageSetting.getValue()) : Languages.getDefault();
+
+        final Accord accord = editor.getOrCreateAccord();
+        accord.setLanguage(language.key);
+        ViewLoader.changeLanguage(language);
+        accord.listeners().addPropertyChangeListener(Accord.PROPERTY_LANGUAGE, languagePropertyChangeListener);
+    }
+
     @Override
     public void stop() {
         try {
             super.stop();
+
+            stopLanguageAwareness();
 
             if (currentController != null) {
                 currentController.stop();
@@ -88,13 +127,15 @@ public class StageManager extends Application {
             });
 
             WebSocketService.stop();
+            DatabaseService.stop();
         } catch (Exception e) {
             log.error("Error while trying to shutdown", e);
         }
 
     }
 
-    public static Editor getEditor() {
-        return editor;
+    private void stopLanguageAwareness() {
+        final Accord accord = editor.getOrCreateAccord();
+        accord.listeners().removePropertyChangeListener(languagePropertyChangeListener);
     }
 }

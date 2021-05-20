@@ -72,6 +72,7 @@ public class MainScreenController implements ControllerInterface {
 
     @Override
     public void stop() {
+        cleanup();
         navBarController.stop();
         userInfoController.stop();
 

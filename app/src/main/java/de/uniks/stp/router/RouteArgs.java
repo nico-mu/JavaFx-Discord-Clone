@@ -3,7 +3,7 @@ package de.uniks.stp.router;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class RouteArgs {
+public class RouteArgs implements Cloneable {
 
     private final HashMap<String, String> argMap = new HashMap<>();
 
@@ -30,5 +30,16 @@ public class RouteArgs {
             }
         }
         return true;
+    }
+
+    @Override
+    public RouteArgs clone() {
+        try {
+            super.clone();
+        } catch (CloneNotSupportedException ignored) {
+        }
+        final RouteArgs routeArgs = new RouteArgs();
+        getArguments().forEach(routeArgs::addArgument);
+        return routeArgs;
     }
 }

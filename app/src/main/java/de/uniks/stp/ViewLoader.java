@@ -21,10 +21,6 @@ public class ViewLoader {
 
     private static ResourceBundle resourceBundle;
 
-    static {
-        changeLanguage(Languages.GERMAN);
-    }
-
     public static Parent loadView(final Views alias) {
         return getParent(alias.path);
     }
@@ -54,7 +50,6 @@ public class ViewLoader {
     }
 
     public static void changeLanguage(Languages language) {
-        //TODO: insert current used language here (accord.getLanguage?)
         //load resource bundle for given language
         resourceBundle = ResourceBundle.getBundle("de.uniks.stp.bundle.language", new Locale(language.key));
     }

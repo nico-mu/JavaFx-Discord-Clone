@@ -52,20 +52,26 @@ public class WebSocketService {
     /**
      * Creates WebSocketClients for system & chat messages for given server. Has to be called for each server.
      * WebSocketClients are saved in pathWebSocketClientHashMap, keys are the server unique endpoints.
+     *
      * @param serverId
      */
     public static void addServerWebSocket(String serverId) {
         String endpoint = Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId;
-        final WebSocketClient systemServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, WebSocketService::onServerSystemMessage);
-        pathWebSocketClientHashMap.put(endpoint, systemServerWSC);
+        if (!pathWebSocketClientHashMap.containsKey(endpoint)) {
+            final WebSocketClient systemServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, WebSocketService::onServerSystemMessage);
+            pathWebSocketClientHashMap.put(endpoint, systemServerWSC);
+        }
 
         endpoint = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
-        final WebSocketClient chatServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, (msg)-> onServerChatMessage(msg, serverId));
-        pathWebSocketClientHashMap.put(endpoint, chatServerWSC);
+        if (!pathWebSocketClientHashMap.containsKey(endpoint)) {
+            final WebSocketClient chatServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, (msg) -> onServerChatMessage(msg, serverId));
+            pathWebSocketClientHashMap.put(endpoint, chatServerWSC);
+        }
     }
 
     /**
      * Sends private chat message.
+     *
      * @param receiverName
      * @param message
      */
@@ -90,6 +96,7 @@ public class WebSocketService {
      * Creates DirectMessage Object and saves it in the model (list privateChatMessages of other user) if it isn't
      * sent by currentUser (then, it would already be in the model).
      * Adds other user to chatPartner list of currentUser if not already contained.
+     *
      * @param jsonStructure
      */
     private static void onPrivateMessage(JsonStructure jsonStructure) {
@@ -118,13 +125,14 @@ public class WebSocketService {
 
         // show message
         sender.withPrivateChatMessages(msg);
-        if(!currentUser.getChatPartner().contains(sender)){
+        if (!currentUser.getChatPartner().contains(sender)) {
             currentUser.withChatPartner(sender);
         }
     }
 
     /**
      * Called when system chat message is received. Adds or removes user in model
+     *
      * @param jsonStructure
      */
     private static void onSystemMessage(final JsonStructure jsonStructure) {
@@ -153,6 +161,7 @@ public class WebSocketService {
 
     /**
      * Sends message in text channel of server.
+     *
      * @param serverId
      * @param channelId
      * @param message
@@ -166,7 +175,7 @@ public class WebSocketService {
         try {
             String endpointKey = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
             pathWebSocketClientHashMap.get(endpointKey).sendMessage(msgObject.toString());
-            log.debug("Message sent: {}", msgObject.toString());
+            log.debug("Message sent: {}", msgObject);
         } catch (IOException e) {
             log.error("WebSocketService: sendServerMessage failed", e);
         }
@@ -176,6 +185,7 @@ public class WebSocketService {
      * Called when server text channel message is received.
      * Creates ServerMessage Object and saves it in the model (messages list of channel) if it isn't sent by
      * currentUser (then, it would already be in the model).
+     *
      * @param jsonStructure
      * @param serverId
      */

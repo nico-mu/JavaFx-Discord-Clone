@@ -14,7 +14,8 @@ out/
 /temp/
 /tmp/
 /buildSrc/build/
-logs/
+/db/
+/logs/
 
 
 # Ignore Gradle GUI config
