@@ -1,9 +1,13 @@
 package de.uniks.stp.router;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.controller.ControllerInterface;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Router {
@@ -29,10 +33,9 @@ public class Router {
         int compareLength = Math.min(oldRoute.length(), newRoute.length());
 
         for (int i = 0; i < compareLength; i++) {
-            if(newRoute.charAt(i) == oldRoute.charAt(i)) {
+            if (newRoute.charAt(i) == oldRoute.charAt(i)) {
                 intersection.append(newRoute.charAt(i));
-            }
-            else {
+            } else {
                 break;
             }
         }
@@ -42,17 +45,17 @@ public class Router {
     public static void shutdownControllers(String neededRoute) {
         List<String> keysToRemove = new ArrayList<>();
         for (String routeName : controllerCache.keySet()) {
-            if(routeName.contains(neededRoute) && routeName.length() > neededRoute.length()) {
+            if (routeName.contains(neededRoute) && routeName.length() > neededRoute.length()) {
                 keysToRemove.add(routeName);
             }
         }
 
-        if(keysToRemove.size() > 0) {
+        if (keysToRemove.size() > 0) {
             String shortestRouteName = keysToRemove.get(0);
             ControllerInterface shortestRouteController = controllerCache.get(shortestRouteName);
 
-            for(String keyToRemove : keysToRemove) {
-                if(keyToRemove.length() < shortestRouteName.length()) {
+            for (String keyToRemove : keysToRemove) {
+                if (keyToRemove.length() < shortestRouteName.length()) {
                     shortestRouteName = keyToRemove;
                     shortestRouteController = controllerCache.get(shortestRouteName);
                 }
@@ -63,11 +66,11 @@ public class Router {
         }
     }
 
-    public static void forceReload() {
-        final String route = currentRoute;
-        final RouteArgs args = currentArgs.clone();
+    public static void forceReloadAndRouteHome() {
         shutdownControllers("");
-        route(route, args);
+        currentArgs = new RouteArgs();
+        currentRoute = null;
+        route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE);
     }
 
 
@@ -78,20 +81,19 @@ public class Router {
         StringBuilder currentRelativeRoute = new StringBuilder();
         RouteInfo info = new RouteInfo();
 
-        while(remainingRoute.length() != 0) {
+        while (remainingRoute.length() != 0) {
 
             int index = remainingRoute.lastIndexOf('/');
-            if(index == -1) {
+            if (index == -1) {
                 index = 0;
             }
             relativeRoutePart = remainingRoute.substring(index);
             remainingRoute = remainingRoute.substring(0, index);
             currentRelativeRoute.insert(0, relativeRoutePart);
 
-            if(!routeMap.containsKey(remainingRoute) && !remainingRoute.isEmpty()) {
+            if (!routeMap.containsKey(remainingRoute) && !remainingRoute.isEmpty()) {
                 continue;
-            }
-            else {
+            } else {
                 //add new Route Info Object
                 info.setSubControllerRoute(currentRelativeRoute.toString());
                 currentRelativeRoute.setLength(0);
@@ -100,7 +102,7 @@ public class Router {
             requirements.push(info.setCurrentControllerRoute(remainingRoute));
             info = new RouteInfo();
 
-            if(controllerCache.containsKey(remainingRoute)) {
+            if (controllerCache.containsKey(remainingRoute)) {
                 break;
             }
         }
@@ -116,26 +118,25 @@ public class Router {
     }
 
     public static void routeWithArgs(String route, RouteArgs args) {
-        if(!routeMap.containsKey(route)) {
+        if (!routeMap.containsKey(route)) {
             throw new RuntimeException("Unknown route " + route);
         }
 
-        if(controllerCache.containsKey(route)) {
-            if(!args.compareTo(currentArgs)) {
+        if (controllerCache.containsKey(route)) {
+            if (!args.compareTo(currentArgs)) {
                 controllerCache.remove(route);
-            }
-            else {
+            } else {
                 return;
             }
         }
 
         //check required args
-        if(routeContainsArgs(route) && !checkRequiredArgs(route, args)) {
+        if (routeContainsArgs(route) && !checkRequiredArgs(route, args)) {
             throw new RuntimeException("Missing argument for route " + route);
         }
 
         //shutdown controllers that are not needed for the new route
-        if(currentRoute != null) {
+        if (currentRoute != null) {
             String intersection = compareRoutes(route, currentRoute);
             shutdownControllers(intersection);
         }
@@ -143,21 +144,20 @@ public class Router {
         Stack<RouteInfo> requirements = getRequirements(route);
         int requirementCount = requirements.size();
 
-        for(int i = 0; i < requirementCount; i++) {
+        for (int i = 0; i < requirementCount; i++) {
             RouteInfo nextRoute = requirements.pop();
 
-            if(isBaseRoute(nextRoute.getCurrentControllerRoute()) && !controllerCache.containsKey(nextRoute.getSubControllerRoute())) {
+            if (isBaseRoute(nextRoute.getCurrentControllerRoute()) && !controllerCache.containsKey(nextRoute.getSubControllerRoute())) {
                 StageManager.route(nextRoute);
-                if(!controllerCache.containsKey(nextRoute.getSubControllerRoute())) {
+                if (!controllerCache.containsKey(nextRoute.getSubControllerRoute())) {
                     throw new RuntimeException("Controller for route " + nextRoute.getSubControllerRoute() + " was not added to cache by StageManager");
                 }
-            }
-            else {
+            } else {
                 //get controller from cache and use its route method
                 ControllerInterface currentController = controllerCache.get(nextRoute.getCurrentControllerRoute());
                 currentController.route(nextRoute, args);
 
-                if(!controllerCache.containsKey(nextRoute.getCurrentControllerRoute())) {
+                if (!controllerCache.containsKey(nextRoute.getCurrentControllerRoute())) {
                     throw new RuntimeException("Controller for route " + nextRoute.getCurrentControllerRoute() + "was not added to cache by " + currentController.getClass().getName());
                 }
             }
@@ -169,8 +169,8 @@ public class Router {
     public static boolean checkRequiredArgs(String route, RouteArgs args) {
         //parse args from route
         String[] splitRoute = route.split("/");
-        for(String split : splitRoute) {
-            if(split.contains(":") && !args.getArguments().containsKey(split)) {
+        for (String split : splitRoute) {
+            if (split.contains(":") && !args.getArguments().containsKey(split)) {
                 return false;
             }
         }
@@ -182,7 +182,6 @@ public class Router {
     }
 
     /**
-     *
      * @param route the given route string as full route
      * @return a boolean representing whether a route is a route that must be handled by the stageManager or not
      */
