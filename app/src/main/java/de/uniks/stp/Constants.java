@@ -29,6 +29,8 @@ public class Constants {
     public static final String LBL_HOME = "LBL_HOME";
     public static final String LBL_CREATE_SERVER = "LBL_CREATE_SERVER";
     public static final String LBL_ADD_SERVER = "LBL_ADD_SERVER";
+    public static final String LBL_SERVERNAME_MISSING = "LBL_SERVERNAME_MISSING";
+    public static final String LBL_CREATE_SERVER_FAILED = "LBL_CREATE_SERVER_FAILED";
     public static final String LBL_ONLINE_USERS = "LBL_ONLINE_USERS";
     public static final String LBL_USER_OFFLINE = "LBL_USER_OFFLINE";
     public static final String LBL_SELECT_LANGUAGE = "LBL_SELECT_LANGUAGE";
