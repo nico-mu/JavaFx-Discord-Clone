@@ -10,25 +10,25 @@ import java.util.UUID;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "message_type", discriminatorType = DiscriminatorType.STRING)
-@Table(name = "message")
+@DiscriminatorColumn(name = "MESSAGE_TYPE", discriminatorType = DiscriminatorType.STRING)
+@Table(name = "MESSAGE")
 public class MessageDTO {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", updatable = false, nullable = false, unique = true)
+    @Column(name = "ID", updatable = false, nullable = false, unique = true)
     @ColumnDefault("random_uuid()")
     @Type(type = "uuid-char")
     private UUID id;
 
-    @Column(name = "sender", updatable = false)
+    @Column(name = "SENDER", updatable = false)
     @Type(type = "uuid-char")
     private UUID sender;
 
-    @Column(name = "message", updatable = false)
+    @Column(name = "MESSAGE", updatable = false)
     private String message;
 
-    @Column(name = "timestamp", updatable = false, nullable = false)
+    @Column(name = "TIMESTAMP", updatable = false, nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date timestamp;
 

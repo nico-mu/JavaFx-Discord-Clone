@@ -5,14 +5,14 @@ import de.uniks.stp.jpa.AccordSettingKey;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "accord_setting")
+@Table(name = "ACCORD_SETTING")
 public class AccordSettingDTO {
     @Id
-    @Column(name = "setting_key", updatable = false, nullable = false, unique = true)
+    @Column(name = "SETTING_KEY", updatable = false, nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private AccordSettingKey key;
 
-    @Column(name = "setting_value")
+    @Column(name = "SETTING_VALUE")
     private String value;
 
     public AccordSettingKey getKey() {

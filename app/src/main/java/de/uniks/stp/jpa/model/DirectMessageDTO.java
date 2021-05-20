@@ -9,11 +9,11 @@ import javax.persistence.Table;
 import java.util.UUID;
 
 @Entity
-@DiscriminatorValue("direct_message")
-@Table(name = "direct_message")
+@DiscriminatorValue("DIRECT_MESSAGE")
+@Table(name = "DIRECT_MESSAGE")
 public class DirectMessageDTO extends MessageDTO {
 
-    @Column(name = "receiver", updatable = false)
+    @Column(name = "RECEIVER", updatable = false)
     @Type(type = "uuid-char")
     private UUID receiver;
 
