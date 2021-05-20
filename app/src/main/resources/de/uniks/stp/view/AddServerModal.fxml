@@ -15,7 +15,7 @@
       </AnchorPane>
       <HBox alignment="CENTER" prefHeight="115.0" prefWidth="303.0">
          <children>
-            <JFXButton id="add-server-apply-button" prefHeight="40.0" prefWidth="90.0" styleClass="add-server-apply-button" text="%LBL_CREATE" />
+            <JFXButton id="add-server-create-button" prefHeight="40.0" prefWidth="90.0" styleClass="add-server-create-button" text="%LBL_CREATE" />
             <Pane prefHeight="97.0" prefWidth="60.0" />
             <JFXButton id="add-server-cancel-button" prefHeight="40.0" prefWidth="90.0" styleClass="add-server-cancel-button" text="%LBL_CANCEL" />
          </children>

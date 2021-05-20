@@ -13,10 +13,10 @@ import java.util.function.Consumer;
 
 public class AddServerModal extends AbstractModal<VBox> {
 
-    public static final String ADD_SERVER_APPLY_BUTTON = "#add-server-apply-button";
+    public static final String ADD_SERVER_CREATE_BUTTON = "#add-server-create-button";
     public static final String ADD_SERVER_CANCEL_BUTTON = "#add-server-cancel-button";
     public static final String ADD_SERVER_TEXT_FIELD_SERVERNAME = "#text-field-servername";
-    private final JFXButton applyButton;
+    private final JFXButton createButton;
     private final JFXButton cancelButton;
     private final JFXTextField servernameTextField;
     private final Consumer<String> createServerMethod;
@@ -28,13 +28,13 @@ public class AddServerModal extends AbstractModal<VBox> {
         setTitle(ViewLoader.loadLabel(Constants.LBL_ADD_SERVER));
 
         this.createServerMethod = createServerMethod;
-        applyButton = (JFXButton) view.lookup(ADD_SERVER_APPLY_BUTTON);
+        createButton = (JFXButton) view.lookup(ADD_SERVER_CREATE_BUTTON);
         cancelButton = (JFXButton) view.lookup(ADD_SERVER_CANCEL_BUTTON);
 
         servernameTextField = (JFXTextField) view.lookup(ADD_SERVER_TEXT_FIELD_SERVERNAME);
 
-        applyButton.setOnAction(this::onApplyButtonClicked);
-        applyButton.setDefaultButton(true);  // use Enter in order to press button
+        createButton.setOnAction(this::onApplyButtonClicked);
+        createButton.setDefaultButton(true);  // use Enter in order to press button
         cancelButton.setOnAction(this::onCancelButtonClicked);
         cancelButton.setCancelButton(true);  // use Escape in order to press button
     }
@@ -53,7 +53,7 @@ public class AddServerModal extends AbstractModal<VBox> {
 
     @Override
     public void close() {
-        applyButton.setOnAction(null);
+        createButton.setOnAction(null);
         cancelButton.setOnAction(null);
         super.close();
     }
