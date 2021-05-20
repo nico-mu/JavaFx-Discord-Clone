@@ -10,10 +10,10 @@ public class Constants {
     public static final String REST_LOGOUT_PATH = "/logout";
     public static final String REST_USERS_PATH = "/users";
     public static final String REST_SERVER_PATH = "/servers";
-    public static final String REST_CATEGORY_PATH =  "/categories";
-    public static final String REST_CHANNEL_PATH =  "/channels";
-    public static final String REST_MESSAGES_PATH =  "/messages";
-    public static final String REST_TIMESTAMP_PATH =  "?timestamp=";
+    public static final String REST_CATEGORY_PATH = "/categories";
+    public static final String REST_CHANNEL_PATH = "/channels";
+    public static final String REST_MESSAGES_PATH = "/messages";
+    public static final String REST_TIMESTAMP_PATH = "?timestamp=";
 
 
     public static final String USER_KEY_HEADER_NAME = "userKey";
@@ -49,10 +49,8 @@ public class Constants {
     public static final String ROUTE_SERVER = "/server/:id";
     public static final String ROUTE_CHANNEL = "/category/:categoryId/channel/:channelId";
     public static final String ROUTE_PRIVATE_CHAT_ARGS = ":userId";
-    public static final String ROUTE_ONLINE_USER_LIST = "/online";
     public static final String ROUTE_PRIVATE_CHAT = "/chat/" + ROUTE_PRIVATE_CHAT_ARGS;
     public static final String ROUTE_ONLINE = "/online";
-    public static final String ROUTE_USER = "/user";
 
     //Languages
     public static final String LANG_LABEL_PREFIX = "LBL_LANG_";
