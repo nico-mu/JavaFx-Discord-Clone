@@ -29,6 +29,8 @@ public class SettingsModal extends AbstractModal<VBox> {
     public SettingsModal(Parent root, Editor editor) {
         super(root);
 
+        setTitle(ViewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE));
+
         this.editor = editor;
         applyButton = (JFXButton) view.lookup(SETTINGS_APPLY_BUTTON);
         cancelButton = (JFXButton) view.lookup(SETTINGS_CANCEL_BUTTON);
@@ -39,7 +41,9 @@ public class SettingsModal extends AbstractModal<VBox> {
         comboBox.setSelection(editor.getOrCreateAccord().getLanguage());
 
         applyButton.setOnAction(this::onApplyButtonClicked);
+        applyButton.setDefaultButton(true);  // use Enter in order to press button
         cancelButton.setOnAction(this::onCancelButtonClicked);
+        cancelButton.setCancelButton(true);  // use Escape in order to press button
     }
 
     public HashMap<String, String> getLanguages() {
