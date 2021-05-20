@@ -35,14 +35,13 @@ public class HomeScreenController implements ControllerInterface {
 
     private final AnchorPane view;
     private final Editor editor;
+    private final Map<String, Boolean> knownUsers = new ConcurrentHashMap<>();
     private VBox onlineUsersContainer;
     private JFXButton showOnlineUsersButton;
     private Label homeScreenLabel;
     private VBox directMessageUsersList;
-
-    private final Map<String, Boolean> knownUsers = new ConcurrentHashMap<>();
-    private UserListController userListController;
     private final PropertyChangeListener chatPartnerChangeListener = this::onChatPartnerChanged;
+    private UserListController userListController;
 
     HomeScreenController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
@@ -113,9 +112,7 @@ public class HomeScreenController implements ControllerInterface {
     }
 
     private void subviewCleanup() {
-        if (onlineUsersContainer.getChildren().size() > 0) {
-            onlineUsersContainer.getChildren().clear();
-        }
+        onlineUsersContainer.getChildren().clear();
     }
 
     private void handleShowOnlineUsersClicked(MouseEvent mouseEvent) {
