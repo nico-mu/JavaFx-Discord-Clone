@@ -1,5 +1,6 @@
 package de.uniks.stp.component;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Message;
@@ -48,9 +49,9 @@ public class ServerChatMessage extends HBox {
         date.setTime(time);
 
         if (DateUtil.isToday(date)) {
-            return "Today, " + DateFormat.getTimeInstance(DateFormat.SHORT).format(date);
+            return ViewLoader.loadLabel(Constants.LBL_TIME_FORMATTING_TODAY) + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(date);
         } else if (DateUtil.isYesterday(date)) {
-            return "Yesterday, " + DateFormat.getTimeInstance(DateFormat.SHORT).format(date);
+            return ViewLoader.loadLabel(Constants.LBL_TIME_FORMATTING_YESTERDAY) + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(date);
         }
 
         return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date);
