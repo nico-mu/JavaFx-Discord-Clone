@@ -7,15 +7,21 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public abstract class AbstractModal<T extends Pane> extends Stage {
+public abstract class AbstractModal extends Stage {
 
     protected Scene scene;
     protected Parent view;
-    protected T rootElement;
+    protected Pane rootElement;
 
     AbstractModal(Parent root) {
         view = root;
-        rootElement = (T)view;
+
+        if(view instanceof Pane) {
+            rootElement = (Pane) view;
+        }
+        else {
+            throw new RuntimeException("Modal fxml root element must be of type Pane");
+        }
 
         scene = new Scene(root, rootElement.getPrefWidth(), rootElement.getPrefHeight());
         this.initModality(Modality.APPLICATION_MODAL);
