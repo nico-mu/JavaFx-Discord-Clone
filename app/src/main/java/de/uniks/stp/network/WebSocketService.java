@@ -180,6 +180,21 @@ public class WebSocketService {
         String action = jsonObject.getString("action");
         JsonObject data = jsonObject.getJsonObject("data");
 
-        log.debug(action, data);
+        if (Objects.nonNull(data)) {
+            String userId = data.getString("id");
+            String userName = data.getString("name");
+            String serverId = data.getString("serverId");
+
+            switch (action) {
+                case "userJoined":
+                    editor.setServerMemberOnline(userId, userName, editor.getServer(serverId));
+                    break;
+                case "userLeft":
+                    editor.setServerMemberOffline(userId, userName, editor.getServer(serverId));
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

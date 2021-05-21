@@ -89,5 +89,8 @@ public class ServerScreenController implements ControllerInterface {
         if(Objects.nonNull(serverChatController)) {
             serverChatController.stop();
         }
+        if (Objects.nonNull(serverUserListController)) {
+            serverUserListController.stop();
+        }
     }
 }
