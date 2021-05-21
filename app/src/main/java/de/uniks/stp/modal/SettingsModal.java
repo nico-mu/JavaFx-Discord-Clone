@@ -8,14 +8,13 @@ import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.view.Languages;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
-import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.MissingResourceException;
 
-public class SettingsModal extends AbstractModal<VBox> {
+public class SettingsModal extends AbstractModal {
 
     public static final String SETTINGS_APPLY_BUTTON = "#settings-apply-button";
     public static final String SETTINGS_CANCEL_BUTTON = "#settings-cancel-button";

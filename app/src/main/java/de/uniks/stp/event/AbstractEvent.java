@@ -11,5 +11,5 @@ public abstract class AbstractEvent extends Event {
         super(eventType);
     }
 
-    public abstract void invokeHandler(CustomEventHandler handler);
+    //public abstract void invokeHandler(CustomEventHandler handler);
 }
