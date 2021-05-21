@@ -1,12 +1,12 @@
 package de.uniks.stp.controller;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXPasswordField;
-import com.jfoenix.controls.JFXSpinner;
-import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.*;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.annotation.Route;
+import de.uniks.stp.jpa.AccordSettingKey;
+import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.router.Router;
@@ -35,6 +35,7 @@ public class LoginScreenController implements ControllerInterface {
     private JFXButton registerButton;
     private JFXButton loginButton;
     private JFXSpinner spinner;
+    private JFXCheckBox rememberMeCheckBox;
     private Label errorLabel;
 
     private String name;
@@ -57,12 +58,21 @@ public class LoginScreenController implements ControllerInterface {
         loginButton = (JFXButton) view.lookup("#login-button");
         errorLabel = (Label) view.lookup("#error-message");
         spinner = (JFXSpinner) view.lookup("#spinner");
+        rememberMeCheckBox = (JFXCheckBox) view.lookup("#remember-me-checkbox");
 
         // Register button event handler
         registerButton.setOnAction(this::onRegisterButtonClicked);
         loginButton.setOnAction(this::onLoginButtonClicked);
 
         loginButton.setDefaultButton(true);  // Allows to use Enter in order to press login button
+
+        AccordSettingDTO lastUserLogin = DatabaseService.getAccordSetting(AccordSettingKey.LAST_USER_LOGIN);
+        if (Objects.nonNull(lastUserLogin) && Objects.nonNull(lastUserLogin.getValue())) {
+            Platform.runLater(() -> {
+                nameField.setText(lastUserLogin.getValue());
+                passwordField.requestFocus();
+            });
+        }
     }
 
     public void stop() {
@@ -108,6 +118,7 @@ public class LoginScreenController implements ControllerInterface {
             loginButton.setDisable(true);
             registerButton.setDisable(true);
             spinner.setVisible(true);
+            rememberMeCheckBox.setDisable(true);
         });
     }
 
@@ -122,6 +133,7 @@ public class LoginScreenController implements ControllerInterface {
             loginButton.setDisable(false);
             registerButton.setDisable(false);
             spinner.setVisible(false);
+            rememberMeCheckBox.setDisable(false);
         });
     }
 
@@ -204,6 +216,13 @@ public class LoginScreenController implements ControllerInterface {
             String userKey = response.getBody().getObject().getJSONObject("data").getString("userKey");
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
             editor.setUserKey(userKey);
+
+            if (rememberMeCheckBox.isSelected()) {
+                // Save in db
+                DatabaseService.saveAccordSetting(AccordSettingKey.LAST_USER_LOGIN, name);
+            } else {
+                DatabaseService.saveAccordSetting(AccordSettingKey.LAST_USER_LOGIN, null);
+            }
 
             Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
             return;
