@@ -3,6 +3,7 @@ package de.uniks.stp.component;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.event.NavBarCreateServerClosedEvent;
 import de.uniks.stp.modal.AddServerModal;
 import de.uniks.stp.view.Views;
 import javafx.scene.Parent;
@@ -28,5 +29,6 @@ public class NavBarAddServer extends NavBarElement {
         Parent addServerModalView = ViewLoader.loadView(Views.ADD_SERVER_MODAL);
         AddServerModal addServerModal = new AddServerModal(addServerModalView, editor);
         addServerModal.showAndWait();
+        this.fireEvent(new NavBarCreateServerClosedEvent());
     }
 }

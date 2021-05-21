@@ -1,8 +1,6 @@
 package de.uniks.stp.component;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.event.AbstractEvent;
 import de.uniks.stp.event.ChannelChangeEvent;
-import de.uniks.stp.event.CustomEventHandler;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,14 +30,11 @@ public class ServerCategoryList extends ScrollPane {
         this.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        EventHandler<AbstractEvent> filter = new CustomEventHandler() {
-            @Override
-            public void onChannelChanged(ServerChannelElement element) {
-                 setActiveElement(element);
-            }
+        EventHandler<ChannelChangeEvent> filter = event -> {
+            setActiveElement(event.getParam());
+            event.consume();
         };
-
-        this.addEventFilter(ChannelChangeEvent.CHANNEL_CHANGE_EVENT_EVENT_TYPE, filter);
+        this.addEventFilter(ChannelChangeEvent.CHANNEL_CHANGE, filter);
     }
 
     public void setActiveElement(ServerChannelElement element) {
