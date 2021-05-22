@@ -133,7 +133,6 @@ public class SystemWebsocketTest {
         List<String> endpoints = stringArgumentCaptor.getAllValues();
 
         for(int i = 0; i < endpoints.size(); i++) {
-            System.out.println(endpoints.get(i));
             endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
         }
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + SERVER_ID);
