@@ -188,13 +188,14 @@ public class WebSocketService {
             switch (action) {
                 case "userJoined":
                     editor.setServerMemberOnline(userId, userName, editor.getServer(serverId));
-                    break;
+                    return;
                 case "userLeft":
                     editor.setServerMemberOffline(userId, userName, editor.getServer(serverId));
-                    break;
+                    return;
                 default:
                     break;
             }
         }
+        log.error("WebSocketService: onServerSystemMessage can't be processed");
     }
 }
