@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox prefHeight="95.0" prefWidth="676.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <AnchorPane prefHeight="95.0" prefWidth="300.0">
+         <children>
+            <JFXButton id="logout-button" prefHeight="25.0" prefWidth="300.0" styleClass="logout-button" text="%LBL_LOGOUT" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="60.0" />
+            <Label id="username-label" prefHeight="25.0" prefWidth="200.0" styleClass="current-user-label" text="&lt;Label&gt;" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+         </children>
+      </AnchorPane>
+      <Pane prefHeight="95.0" prefWidth="491.0" />
+      <VBox id="settings-gear-container" alignment="CENTER" prefHeight="60.0" prefWidth="65.0">
+         <children>
+            <ImageView id="settings-gear" fitHeight="65.0" fitWidth="65.0">
+               <image>
+                  <Image url="@../img/gear.png" />
+               </image>
+            </ImageView>
+         </children>
+      </VBox>
+   </children>
+</HBox>

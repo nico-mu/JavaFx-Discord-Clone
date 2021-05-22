@@ -2,6 +2,8 @@ package de.uniks.stp.component;
 
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.event.NavBarCreateServerClosedEvent;
+import de.uniks.stp.event.NavBarElementChangeEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -17,6 +19,7 @@ public class NavBarList extends ScrollPane {
 
     private Editor editor;
     private NavBarElement currentActiveElement;
+    private NavBarElement previousActiveElement;
 
     public NavBarList(Editor editor) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.NAV_BAR_LIST);
@@ -43,14 +46,25 @@ public class NavBarList extends ScrollPane {
         this.setActiveElement(homeElement);
 
         //add create server button
-        NavBarElement createServer = new NavBarCreateServer(editor);
+        NavBarElement createServer = new NavBarAddServer(editor);
         this.addElement(createServer);
+
+        this.addEventFilter(NavBarElementChangeEvent.NAV_BAR_ELEMENT_CHANGE, event -> {
+            setActiveElement(event.getParam());
+            event.consume();
+        });
+
+        this.addEventFilter(NavBarCreateServerClosedEvent.NAV_BAR_CREATE_SERVER_CLOSED, event -> {
+            setActiveElement(previousActiveElement);
+            event.consume();
+        });
     }
 
     public void setActiveElement(NavBarElement element) {
         if (!element.equals(currentActiveElement)) {
             if(currentActiveElement != null) {
                 currentActiveElement.setActive(false);
+                previousActiveElement = currentActiveElement;
             }
             element.setActive(true);
             currentActiveElement = element;
@@ -58,12 +72,10 @@ public class NavBarList extends ScrollPane {
     }
 
     public void addServerElement(NavBarElement element) {
-        element.addOnClickHandler(this::setActiveElement);
         container.getChildren().add(container.getChildren().size() - 1, element);
     }
 
     public void addElement(NavBarElement element) {
-        element.addOnClickHandler(this::setActiveElement);
         container.getChildren().add(element);
     }
 

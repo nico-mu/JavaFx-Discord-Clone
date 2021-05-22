@@ -4,6 +4,7 @@ $main-background-color: #23272a;
 $secondary-background-color: #2c2f33;
 $primary-text-fill: white;
 $secondary-text-fill: #AAAAAA;
+$error-text-fill: red;
 
 @mixin main-container-mixin {
     -fx-background-color: $main-background-color;

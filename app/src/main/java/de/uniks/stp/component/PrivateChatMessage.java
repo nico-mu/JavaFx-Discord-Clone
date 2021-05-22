@@ -9,7 +9,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
-import org.apache.http.client.utils.DateUtils;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -39,11 +38,6 @@ public class PrivateChatMessage extends HBox {
         text.setSelectionFill(Paint.valueOf("#AAAAAA"));  // grayish-white
     }
 
-    public void setWidthForWrapping(double width) {
-        // 20px padding
-        text.setWrappingWidth(width - 20);
-    }
-
     private String formatTime(long time) {
         Date date = new Date();
         date.setTime(time);
@@ -55,5 +49,10 @@ public class PrivateChatMessage extends HBox {
         }
 
         return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date);
+    }
+
+    public void setWidthForWrapping(double width) {
+        // 20px padding
+        text.setWrappingWidth(width - 20);
     }
 }

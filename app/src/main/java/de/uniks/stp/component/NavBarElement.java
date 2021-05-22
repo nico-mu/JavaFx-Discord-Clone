@@ -1,7 +1,7 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.controller.CustomEventCallback;
+import de.uniks.stp.event.NavBarElementChangeEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.image.ImageView;
@@ -22,8 +22,6 @@ abstract public class NavBarElement extends HBox {
     @FXML
     protected ImageView imageView;
 
-    private CustomEventCallback eventCallback;
-
     public NavBarElement() {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.NAV_BAR_ELEMENT);
         fxmlLoader.setRoot(this);
@@ -39,14 +37,10 @@ abstract public class NavBarElement extends HBox {
     }
 
     protected void onMouseClicked(MouseEvent mouseEvent) {
-        eventCallback.handleEvent(this);
+        this.fireEvent(new NavBarElementChangeEvent(this));
     }
 
     public void setActive(boolean active) {
         navBarElementMarker.setVisible(active);
-    }
-
-    public void addOnClickHandler(CustomEventCallback eventCallback) {
-        this.eventCallback = eventCallback;
     }
 }

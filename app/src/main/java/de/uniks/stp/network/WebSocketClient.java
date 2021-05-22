@@ -87,7 +87,6 @@ public class WebSocketClient extends Endpoint {
      */
     @Override
     public void onClose(Session session, CloseReason closeReason) {
-        log.debug("onClose");
         super.onClose(session, closeReason);
         // cancel timer
         this.noopTimer.cancel();
@@ -126,7 +125,6 @@ public class WebSocketClient extends Endpoint {
      * Should be called when WebSocket is not used anymore; cancels Timer and closes session
      */
     public void stop() {
-        log.debug("stop");
         // cancel timer
         this.noopTimer.cancel();
         // close session

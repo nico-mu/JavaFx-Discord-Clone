@@ -3,18 +3,17 @@ package de.uniks.stp.event;
 import de.uniks.stp.component.ServerChannelElement;
 import javafx.event.EventType;
 
-public class ChannelChangeEvent extends AbstractEvent {
+public class ChannelChangeEvent extends AbstractEvent implements ParameterizedEventInterface<ServerChannelElement> {
 
-    public static final EventType<AbstractEvent> CHANNEL_CHANGE_EVENT_EVENT_TYPE = new EventType<>(ABSTRACT_EVENT_TYPE, "ChannelChangeEvent");
+    public static final EventType<ChannelChangeEvent> CHANNEL_CHANGE = new EventType<>(ABSTRACT_EVENT_TYPE, "ChannelChangeEvent");
     private final ServerChannelElement param;
 
     public ChannelChangeEvent(ServerChannelElement serverChannelElement) {
-        super(CHANNEL_CHANGE_EVENT_EVENT_TYPE);
+        super(CHANNEL_CHANGE);
         param = serverChannelElement;
     }
 
-    @Override
-    public void invokeHandler(CustomEventHandler handler) {
-        handler.onChannelChanged(param);
+    public ServerChannelElement getParam() {
+        return param;
     }
 }

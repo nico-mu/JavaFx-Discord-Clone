@@ -2,13 +2,11 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerUserListEntry;
-import de.uniks.stp.component.UserListEntry;
 import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.WebSocketService;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
@@ -23,8 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Objects;
 
 public class ServerUserListController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(ServerUserListController.class);

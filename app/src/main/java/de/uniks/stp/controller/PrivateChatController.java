@@ -25,17 +25,17 @@ public class PrivateChatController implements ControllerInterface {
 
     private final Parent view;
     private final Editor editor;
-    private User user;
+    private User model;
     private PrivateChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
 
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
 
-    public PrivateChatController(Parent view, Editor editor, User user) {
+    public PrivateChatController(Parent view, Editor editor, User model) {
         this.view = view;
         this.editor = editor;
-        this.user = user;
+        this.model = model;
     }
 
     @Override
@@ -44,23 +44,12 @@ public class PrivateChatController implements ControllerInterface {
         homeScreenLabel = (Label) view.lookup(HOME_SCREEN_LABEL_ID);
 
         // Block chat for now when user offline
-        if (Objects.isNull(user)) {
+        if (Objects.isNull(model)) {
             homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE));
             return;
         }
 
-        showPrivateChatView(user);
-
-        for (Message message : user.getPrivateChatMessages()) {
-            chatView.appendMessage(message);
-        }
-
-        user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
-    }
-
-    private void handleNewPrivateMessage(PropertyChangeEvent propertyChangeEvent) {
-        DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
-        chatView.appendMessage(directMessage);
+        showChatView();
     }
 
     @Override
@@ -68,34 +57,51 @@ public class PrivateChatController implements ControllerInterface {
         if (Objects.nonNull(chatView)) {
             chatView.stop();
         }
-        if (Objects.nonNull(user)) {
-            user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
+        if (Objects.nonNull(model)) {
+            model.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
         }
     }
 
-    private void showPrivateChatView(User user) {
-        this.user = user;
-
-        homeScreenLabel.setText(user.getName());
+    /**
+     * Creates PrivateChatView with name of .
+     * Also adds all messages from model in the View and creates PropertyChangeListener that will do so in the future.
+     */
+    private void showChatView() {
+        homeScreenLabel.setText(model.getName());
         chatView = new PrivateChatView();
 
-        chatView.onMessageSubmit(this::handleMessageSubmit);
+        chatView.setOnMessageSubmit(this::handleMessageSubmit);
         onlineUsersContainer.getChildren().add(chatView);
+
+        for (Message message : model.getPrivateChatMessages()) {
+            chatView.appendMessage(message);
+        }
+        model.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
     }
 
+    /**
+     * Creates DirectMessage, saves it in the model and sends it via websocket.
+     * Adds other user to chatPartner list of currentUser if not already contained.
+     * @param message
+     */
     private void handleMessageSubmit(String message) {
         // create & save message
         DirectMessage msg = new DirectMessage();
         msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser()).setTimestamp(new Date().getTime());
-        user.withPrivateChatMessages(msg);
+        model.withPrivateChatMessages(msg);
 
         // add user to chatPartner list if not already in it
         User currentUser = editor.getOrCreateAccord().getCurrentUser();
-        if (!currentUser.getChatPartner().contains(user)) {
-            currentUser.withChatPartner(user);
+        if (!currentUser.getChatPartner().contains(model)) {
+            currentUser.withChatPartner(model);
         }
 
         // send message to the server
-        WebSocketService.sendPrivateMessage(user.getName(), message);
+        WebSocketService.sendPrivateMessage(model.getName(), message);
+    }
+
+    private void handleNewPrivateMessage(PropertyChangeEvent propertyChangeEvent) {
+        DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
+        chatView.appendMessage(directMessage);
     }
 }

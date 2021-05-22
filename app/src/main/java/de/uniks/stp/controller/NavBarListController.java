@@ -61,6 +61,7 @@ public class NavBarListController implements ControllerInterface {
 
     private void serverAdded(final Server server) {
         if (Objects.nonNull(server) && !navBarServerElementHashMap.containsKey(server)) {
+            WebSocketService.addServerWebSocket(server.getId());  // enables sending & receiving messages
             final NavBarServerElement navBarElement = new NavBarServerElement(server);
             navBarServerElementHashMap.put(server, navBarElement);
             Platform.runLater(() -> navBarList.addServerElement(navBarElement));
@@ -89,7 +90,6 @@ public class NavBarListController implements ControllerInterface {
                 final String serverId = jsonObject.getString("id");
 
                 final Server server = editor.getOrCreateServer(serverId, name);
-                WebSocketService.addServerWebSocket(serverId);  // enables sending & receiving messages
                 serverAdded(server);
             }
         } else {
