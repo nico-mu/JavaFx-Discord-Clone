@@ -48,3 +48,5 @@ local.properties
 /*/build/
 /*/buildSrc/build/
 /app/src/main/resources/de/uniks/stp/style/css
+
+/app/db/
