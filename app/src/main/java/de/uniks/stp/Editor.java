@@ -3,10 +3,7 @@ package de.uniks.stp;
 import de.uniks.stp.model.*;
 import de.uniks.stp.view.Languages;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Editor {
@@ -171,5 +168,15 @@ public class Editor {
             }
         }
         return null;
+    }
+
+    public void prepareLogout() {
+        System.out.println("1");
+        accord.setUserKey("");
+        System.out.println("2");
+        List<User> currentUsers = new ArrayList<User>(accord.getOtherUsers());
+        System.out.println("3");
+        accord.withoutOtherUsers(currentUsers);
+        System.out.println("4");
     }
 }
