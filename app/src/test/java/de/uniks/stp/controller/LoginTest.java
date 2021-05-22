@@ -1,5 +1,6 @@
 package de.uniks.stp.controller;
 
+import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
@@ -53,8 +54,14 @@ public class LoginTest {
         app.start(stage);
     }
 
+    private void clearNameField(FxRobot robot) {
+        ((JFXTextField) robot.lookup("#name-field").query()).clear();
+    }
+
     @Test
     public void testLoginEmptyFields(FxRobot robot) {
+       clearNameField(robot);
+
         robot.clickOn("#name-field");
         robot.write("Guave");
         robot.clickOn("#login-button");
@@ -64,6 +71,7 @@ public class LoginTest {
 
     @Test
     public void testLoginSuccess(FxRobot robot) {
+        clearNameField(robot);
 
         robot.clickOn("#name-field");
         robot.write("Guave");
@@ -89,6 +97,8 @@ public class LoginTest {
 
     @Test
     public void testLoginFailure(FxRobot robot) {
+        clearNameField(robot);
+
         robot.clickOn("#name-field");
         robot.write("Guave");
         robot.clickOn("#password-field");
