@@ -3,6 +3,7 @@ package de.uniks.stp;
 import de.uniks.stp.model.*;
 import de.uniks.stp.view.Languages;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -213,9 +214,7 @@ public class Editor {
 
     public void prepareLogout(){
         accord.setUserKey("");
-        System.out.println("2");
         List<User> currentUsers = new ArrayList<User>(accord.getOtherUsers());
-        System.out.println("3");
         accord.withoutOtherUsers(currentUsers);
     }
 }
