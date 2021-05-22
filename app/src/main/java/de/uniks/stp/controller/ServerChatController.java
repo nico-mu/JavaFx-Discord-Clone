@@ -2,11 +2,11 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerChatView;
-import de.uniks.stp.model.*;
+import de.uniks.stp.model.Channel;
+import de.uniks.stp.model.Message;
+import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
-import de.uniks.stp.router.RouteArgs;
-import de.uniks.stp.router.RouteInfo;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;

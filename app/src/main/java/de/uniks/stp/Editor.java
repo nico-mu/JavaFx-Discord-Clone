@@ -3,7 +3,6 @@ package de.uniks.stp;
 import de.uniks.stp.model.*;
 import de.uniks.stp.view.Languages;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -171,5 +170,44 @@ public class Editor {
             }
         }
         return null;
+    }
+
+    public User getOrCreateServerMember(String userId, String name, boolean status, Server server) {
+        for (User user : server.getUsers()) {
+            if (user.getName().equals(name)) {
+                user.setName(name).setStatus(status);
+                server.firePropertyChange(Server.PROPERTY_USERS, null, user);
+                return user;
+            }
+        }
+
+        User user = new User().setId(userId).setName(name).setStatus(status);
+        server.withUsers(user);
+
+        return user;
+    }
+
+    public void setServerMemberStatus(String userId, String name, boolean status, Server server) {
+        if (Objects.isNull(server)) {
+            return;
+        }
+
+        for (User user : server.getUsers()) {
+            if (user.getName().equals(name)) {
+                user.setStatus(status);
+                server.firePropertyChange(Server.PROPERTY_USERS, null, user);
+                return;
+            }
+        }
+
+        getOrCreateServerMember(userId, name, status, server);
+    }
+
+    public void setServerMemberOnline(String userId, String userName, Server server) {
+        setServerMemberStatus(userId, userName, true, server);
+    }
+
+    public void setServerMemberOffline(String userId, String userName, Server server) {
+        setServerMemberStatus(userId, userName, false, server);
     }
 }

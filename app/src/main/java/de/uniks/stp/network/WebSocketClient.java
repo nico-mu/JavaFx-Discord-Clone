@@ -20,7 +20,7 @@ public class WebSocketClient extends Endpoint {
     private WSCallback callback;
 
     /**
-     * Intitilization chores
+     * Initialization chores
      *
      * @param endpoint URI with connection adress
      * @param callback method to call when message is received

@@ -4,7 +4,6 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.NavBarCreateServerClosedEvent;
 import de.uniks.stp.event.NavBarElementChangeEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;

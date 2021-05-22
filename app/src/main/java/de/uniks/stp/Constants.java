@@ -33,6 +33,8 @@ public class Constants {
     public static final String LBL_CREATE_SERVER_FAILED = "LBL_CREATE_SERVER_FAILED";
     public static final String LBL_ONLINE_USERS = "LBL_ONLINE_USERS";
     public static final String LBL_USER_OFFLINE = "LBL_USER_OFFLINE";
+    public static final String LBL_TIME_FORMATTING_TODAY= "LBL_TIME_FORMATTING_TODAY";
+    public static final String LBL_TIME_FORMATTING_YESTERDAY = "LBL_TIME_FORMATTING_YESTERDAY";
     public static final String LBL_SELECT_LANGUAGE = "LBL_SELECT_LANGUAGE";
 
     // Websocket

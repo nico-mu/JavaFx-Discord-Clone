@@ -222,6 +222,27 @@ public class WebSocketService {
     private static void onServerSystemMessage(JsonStructure jsonStructure) {
         log.debug("received server system message: {}", jsonStructure.toString());
 
-        //TODO...
+        JsonObject jsonObject = jsonStructure.asJsonObject();
+
+        String action = jsonObject.getString("action");
+        JsonObject data = jsonObject.getJsonObject("data");
+
+        if (Objects.nonNull(data)) {
+            String userId = data.getString("id");
+            String userName = data.getString("name");
+            String serverId = data.getString("serverId");
+
+            switch (action) {
+                case "userJoined":
+                    editor.setServerMemberOnline(userId, userName, editor.getServer(serverId));
+                    return;
+                case "userLeft":
+                    editor.setServerMemberOffline(userId, userName, editor.getServer(serverId));
+                    return;
+                default:
+                    break;
+            }
+        }
+        log.error("WebSocketService: can't process server system message with content: {}", jsonObject);
     }
 }
