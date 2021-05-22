@@ -243,6 +243,6 @@ public class WebSocketService {
                     break;
             }
         }
-        log.error("WebSocketService: onServerSystemMessage can't be processed");
+        log.error("WebSocketService: can't process server system message with content: {}", jsonObject);
     }
 }
