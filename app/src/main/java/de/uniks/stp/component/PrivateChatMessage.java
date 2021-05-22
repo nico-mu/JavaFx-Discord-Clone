@@ -1,7 +1,9 @@
 package de.uniks.stp.component;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Message;
+import de.uniks.stp.util.DateUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.HBox;
@@ -40,7 +42,11 @@ public class PrivateChatMessage extends HBox {
         Date date = new Date();
         date.setTime(time);
 
-        // TODO: Format time for today and yesterday
+        if (DateUtil.isToday(date)) {
+            return ViewLoader.loadLabel(Constants.LBL_TIME_FORMATTING_TODAY) + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(date);
+        } else if (DateUtil.isYesterday(date)) {
+            return ViewLoader.loadLabel(Constants.LBL_TIME_FORMATTING_YESTERDAY) + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(date);
+        }
 
         return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date);
     }
