@@ -106,7 +106,57 @@ public class SystemWebsocketTest {
 
     @Test
     public void testUserLeft(FxRobot robot) {
-        //TODO: write test method
+        // prepare start situation
+        Editor editor = StageManager.getEditor();
+
+        editor.getOrCreateAccord()
+            .setCurrentUser(new User().setName("Test").setId("123-45"))
+            .setUserKey("123-45");
+
+        String otherUserName ="otherTestUser";
+        String otherUserId ="12345678";
+        editor.getOrCreateOtherUser(otherUserId, otherUserName);
+
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // assert correct start situation
+        Assertions.assertEquals(1, editor.getOrCreateAccord().getOtherUsers().size());
+        Assertions.assertNotNull(editor.getOtherUser(otherUserName));
+
+        // prepare receiving a WebSocket message
+        verify(webSocketMock, times(2)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
+
+        for(int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH);
+
+        // receive userLeft message
+        JsonObject jsonObject = Json.createObjectBuilder()
+            .add("action", "userLeft")
+            .add("data",
+                Json.createObjectBuilder()
+                    .add("name", otherUserName)
+                    .add("id", otherUserId)
+                    .build()
+            )
+            .build();
+        systemCallback.handleMessage(jsonObject);
+
+        // check for correct reactions
+        Assertions.assertEquals(0, editor.getOrCreateAccord().getOtherUsers().size());
+        Assertions.assertNull(editor.getOtherUser(otherUserName));
+
+        Platform.runLater(() -> {
+            VBox onlineUsersContainer = robot.lookup("#online-users-container").query();
+            int userListLength = onlineUsersContainer.lookupAll("#user-list-entry-text").toArray().length;
+            Assertions.assertEquals(0, userListLength);
+        });
+        WaitForAsyncUtils.waitForFxEvents();
     }
 
     @Test
