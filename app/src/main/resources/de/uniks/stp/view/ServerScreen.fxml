@@ -40,9 +40,9 @@
             <VBox id="server-chat-vbox" alignment="CENTER" layoutX="2.0" layoutY="30.0" prefHeight="420.0" prefWidth="343.0" styleClass="server-chat-vbox" />
         </FlowPane>
       <Pane prefHeight="472.0" prefWidth="70.0" styleClass="mid-pane" />
-      <FlowPane id="server-user-list-container" styleClass="server-user-list" HBox.hgrow="ALWAYS">
+      <FlowPane id="server-user-list-container" prefWidth="187.0" styleClass="server-user-list" HBox.hgrow="ALWAYS">
          <children>
-            <ScrollPane id="server-user-list-scroll" fitToHeight="true" fitToWidth="true" styleClass="server-user-list-container">
+            <ScrollPane id="server-user-list-scroll" fitToHeight="true" fitToWidth="true" prefWidth="110.0" styleClass="server-user-list-container">
                <content>
                   <VBox prefHeight="200.0" styleClass="server-user-list-container">
                      <children>
@@ -75,7 +75,7 @@
             </ScrollPane>
          </children>
          <padding>
-            <Insets left="30.0" top="40.0" />
+            <Insets left="10.0" top="10.0" />
          </padding></FlowPane>
     </HBox>
 </FlowPane>
