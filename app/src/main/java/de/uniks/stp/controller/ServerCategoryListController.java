@@ -6,11 +6,14 @@ import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ServerCategoryElement;
 import de.uniks.stp.component.ServerCategoryList;
 import de.uniks.stp.component.ServerChannelElement;
+import de.uniks.stp.event.ChannelChangeEvent;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.router.RouteArgs;
+import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
@@ -30,6 +33,7 @@ import static de.uniks.stp.model.Server.PROPERTY_CATEGORIES;
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
 public class ServerCategoryListController implements ControllerInterface {
 
+    private boolean firstChannel = true;
     private final Parent view;
     private final Editor editor;
     private final ServerCategoryList serverCategoryList;
@@ -153,6 +157,19 @@ public class ServerCategoryListController implements ControllerInterface {
             final ServerChannelElement serverChannelElement = new ServerChannelElement(channel);
             channelElementHashMap.put(channel, serverChannelElement);
             Platform.runLater(() -> serverCategoryElement.addChannelElement(serverChannelElement));
+
+            // show ServerChatView of first loaded channel
+            if(firstChannel){
+                firstChannel = false;
+
+                serverCategoryList.setActiveElement(serverChannelElement);
+
+                RouteArgs args = new RouteArgs();
+                args.addArgument(":id", channel.getCategory().getServer().getId());
+                args.addArgument(":categoryId", channel.getCategory().getId());
+                args.addArgument(":channelId", channel.getId());
+                Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
+            }
         }
     }
 
