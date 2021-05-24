@@ -122,4 +122,9 @@ public class PrivateChatView extends VBox {
     private void onHeightChanged(Observable observable) {
         chatViewMessageScrollPane.setVvalue(1.0);
     }
+
+    public void disable() {
+        chatViewSubmitButton.setDisable(true);
+        chatViewMessageInput.setDisable(true);
+    }
 }

@@ -7,6 +7,8 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.UserList;
 import de.uniks.stp.component.UserListSidebarEntry;
+import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
@@ -22,6 +24,8 @@ import javafx.scene.layout.VBox;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +46,7 @@ public class HomeScreenController implements ControllerInterface {
     private VBox directMessageUsersList;
     private final PropertyChangeListener chatPartnerChangeListener = this::onChatPartnerChanged;
     private UserListController userListController;
+    private final HashSet<String> directMessageReceiver = new HashSet<>();
 
     HomeScreenController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
@@ -61,16 +66,16 @@ public class HomeScreenController implements ControllerInterface {
 
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
 
-        // init direct messages list
-        // TODO: offlineUser Chat
-        for (User user : editor.getOrCreateAccord().getCurrentUser().getChatPartner()) {
-            addUserToSidebar(user);
+        for (String receiverId : DatabaseService.getDirectMessageReceiver()) {
+            addUserToSidebar(editor.getUserById(receiverId));
+            directMessageReceiver.add(receiverId);
         }
 
         editor.getOrCreateAccord()
             .getCurrentUser()
             .listeners()
             .addPropertyChangeListener(User.PROPERTY_CHAT_PARTNER, chatPartnerChangeListener);
+        editor.getOrCreateAccord().listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, chatPartnerChangeListener);
     }
 
     @Override
@@ -142,6 +147,8 @@ public class HomeScreenController implements ControllerInterface {
 
     private void onChatPartnerChanged(PropertyChangeEvent propertyChangeEvent) {
         User user = (User) propertyChangeEvent.getNewValue();
-        addUserToSidebar(user);
+        if (directMessageReceiver.contains(user.getId())) {
+            addUserToSidebar(user);
+        }
     }
 }

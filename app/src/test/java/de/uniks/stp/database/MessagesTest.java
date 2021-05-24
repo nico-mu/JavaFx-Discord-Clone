@@ -16,6 +16,7 @@ public class MessagesTest {
         DatabaseService.init();
 
         User receiver = new User().setName("test-receiver").setId("test-receiver-id");
+        User receiver2 = new User().setName("test-receiver2").setId("test-receiver-id2");
         User sender = new User().setName("test-sender").setId("test-sender-id");
 
         DatabaseService.clearDirectMessages(receiver);
@@ -32,10 +33,17 @@ public class MessagesTest {
             .setTimestamp(new Date().getTime())
             .setMessage("Test Message 2")
             .setId(UUID.randomUUID().toString()));
+        DatabaseService.saveDirectMessage((DirectMessage) new DirectMessage()
+            .setReceiver(receiver2)
+            .setSender(sender)
+            .setTimestamp(new Date().getTime())
+            .setMessage("Test Message 3")
+            .setId(UUID.randomUUID().toString()));
 
         List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(receiver);
+        List<String> directMessageReceiver = DatabaseService.getDirectMessageReceiver();
 
         Assertions.assertEquals(2, directMessages.size());
-
+        Assertions.assertEquals(2, directMessageReceiver.size());
     }
 }
