@@ -86,6 +86,7 @@ public class UserInfoController implements ControllerInterface {
     @Override
     public void stop() {
         logoutButton.setOnAction(null);
+        settingsGearContainer.setOnMouseClicked(null);
     }
 
 }

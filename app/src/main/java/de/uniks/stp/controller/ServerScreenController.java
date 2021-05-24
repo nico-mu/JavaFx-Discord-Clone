@@ -4,17 +4,26 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
+import de.uniks.stp.modal.SettingsModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.view.Views;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Side;
 import javafx.scene.Parent;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.WindowEvent;
 
 import java.util.Objects;
 
@@ -27,6 +36,7 @@ public class ServerScreenController implements ControllerInterface {
     private static final String SERVER_CHANNEL_OVERVIEW = "#server-channel-overview";
     private static final String SERVER_CHAT_CONTAINER = "#server-chat-container";
     private static final String SERVER_USER_LIST_CONTAINER = "#server-user-list-container";
+    private static final String SETTINGS_GEAR_CONTAINER = "#settings-gear-container";
     private AnchorPane view;
     private FlowPane serverScreenView;
     private final Editor editor;
@@ -38,6 +48,9 @@ public class ServerScreenController implements ControllerInterface {
     private ServerChatController serverChatController;
     private ServerUserListController serverUserListController;
     private FlowPane serverUserListContainer;
+    private VBox settingsGearContainer;
+
+    ContextMenu contextMenu;
 
     public ServerScreenController(Parent view, Editor editor, Server model) {
         this.view = (AnchorPane)view;
@@ -51,9 +64,13 @@ public class ServerScreenController implements ControllerInterface {
        serverChannelOverview = (VBox) serverScreenView.lookup(SERVER_CHANNEL_OVERVIEW);
        serverChatContainer = (FlowPane) serverScreenView.lookup(SERVER_CHAT_CONTAINER);
        serverUserListContainer = (FlowPane) serverScreenView.lookup(SERVER_USER_LIST_CONTAINER);
+       settingsGearContainer = (VBox) serverScreenView.lookup(SETTINGS_GEAR_CONTAINER);
        view.getChildren().add(serverScreenView);
        serverNameLabel = (Label)view.lookup(SERVER_NAME_LABEL_ID);
        serverNameLabel.setText(model.getName());
+
+       initContextMenu();
+       settingsGearContainer.setOnMouseClicked(e -> contextMenu.show(settingsGearContainer, Side.BOTTOM,0,0));
 
        categoryListController = new ServerCategoryListController(serverChannelOverview, editor, model);
        categoryListController.init();
@@ -81,6 +98,43 @@ public class ServerScreenController implements ControllerInterface {
         return editor.getChannel(channelId, category);
     }
 
+    private void initContextMenu() {
+        //ToDo: load texts
+        contextMenu = new ContextMenu();
+
+        MenuItem inviteUserItem = new MenuItem("Invite User");
+        inviteUserItem.setOnAction(this::onInviteUserClicked);
+
+        MenuItem editServerItem = new MenuItem("Edit Server");
+        editServerItem.setOnAction(this::onEditServerClicked);
+
+        MenuItem createCategoryItem = new MenuItem("Create Category");
+        createCategoryItem.setOnAction(this::onCreateCategoryClicked);
+
+        contextMenu.getItems().addAll(inviteUserItem, editServerItem, createCategoryItem);
+    }
+
+    private void onSettingsGearClicked(MouseEvent mouseEvent) {
+        /*
+        Parent settingsModalView = ViewLoader.loadView(Views.SETTINGS_MODAL);
+        SettingsModal settingsModal = new SettingsModal(settingsModalView, editor);
+        settingsModal.showAndWait();
+
+         */
+    }
+
+    private void onCreateCategoryClicked(ActionEvent actionEvent) {
+        // ToDo
+    }
+
+    private void onEditServerClicked(ActionEvent actionEvent) {
+        // ToDo
+    }
+
+    private void onInviteUserClicked(ActionEvent actionEvent) {
+        // ToDo
+    }
+
     @Override
     public void stop() {
         if(Objects.nonNull(categoryListController)) {
@@ -92,5 +146,6 @@ public class ServerScreenController implements ControllerInterface {
         if (Objects.nonNull(serverUserListController)) {
             serverUserListController.stop();
         }
+        settingsGearContainer.setOnMouseClicked(null);
     }
 }
