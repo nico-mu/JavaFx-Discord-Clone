@@ -3,13 +3,17 @@ package de.uniks.stp.jpa;
 import de.uniks.stp.controller.MainScreenController;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
+import de.uniks.stp.jpa.model.MessageDTO;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
+import javax.persistence.criteria.*;
 import java.util.*;
 
 public class DatabaseService {
@@ -94,9 +98,11 @@ public class DatabaseService {
 
         transaction.begin();
 
-        Query query = entityManager.createQuery("SELECT message FROM MessageDTO message WHERE receiver='" + receiver.getId() + "'");
+        CriteriaQuery<DirectMessageDTO> query = entityManager.getCriteriaBuilder().createQuery(DirectMessageDTO.class);
+        Root<DirectMessageDTO> root = query.from(DirectMessageDTO.class);
 
-        List<?> resultList = query.getResultList();
+        query.where(entityManager.getCriteriaBuilder().equal(root.get("receiver"), receiver.getId()));
+        List<?> resultList = entityManager.createQuery(query).getResultList();;
 
         transaction.commit();
         entityManager.close();
@@ -114,9 +120,11 @@ public class DatabaseService {
 
         transaction.begin();
 
-        Query query = entityManager.createQuery("DELETE MessageDTO WHERE receiver=:receiverId").setParameter("receiverId", receiver.getId());
+        CriteriaDelete<DirectMessageDTO> criteriaDelete = entityManager.getCriteriaBuilder().createCriteriaDelete(DirectMessageDTO.class);
+        Root<DirectMessageDTO> root = criteriaDelete.from(DirectMessageDTO.class);
 
-        query.executeUpdate();
+        criteriaDelete.where(entityManager.getCriteriaBuilder().equal(root.get("receiver"), receiver.getId()));
+        entityManager.createQuery(criteriaDelete).executeUpdate();
 
         transaction.commit();
         entityManager.close();

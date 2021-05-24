@@ -26,10 +26,16 @@ public class MessagesTest {
             .setTimestamp(new Date().getTime())
             .setMessage("Test Message")
             .setId(UUID.randomUUID().toString()));
+        DatabaseService.saveDirectMessage((DirectMessage) new DirectMessage()
+            .setReceiver(receiver)
+            .setSender(sender)
+            .setTimestamp(new Date().getTime())
+            .setMessage("Test Message 2")
+            .setId(UUID.randomUUID().toString()));
 
         List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(receiver);
 
-        Assertions.assertEquals(1, directMessages.size());
+        Assertions.assertEquals(2, directMessages.size());
 
     }
 }
