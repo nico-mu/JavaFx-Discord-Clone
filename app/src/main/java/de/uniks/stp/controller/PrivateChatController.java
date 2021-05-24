@@ -5,6 +5,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.PrivateChatView;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
@@ -73,9 +74,10 @@ public class PrivateChatController implements ControllerInterface {
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
         onlineUsersContainer.getChildren().add(chatView);
 
-        for (Message message : model.getPrivateChatMessages()) {
+        /* for (Message message : model.getPrivateChatMessages()) {
             chatView.appendMessage(message);
-        }
+        } `*/
+
         model.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
     }
 
@@ -103,5 +105,6 @@ public class PrivateChatController implements ControllerInterface {
     private void handleNewPrivateMessage(PropertyChangeEvent propertyChangeEvent) {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
         chatView.appendMessage(directMessage);
+        DatabaseService.saveDirectMessage(directMessage);
     }
 }

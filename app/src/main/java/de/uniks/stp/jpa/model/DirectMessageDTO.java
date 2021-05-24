@@ -14,14 +14,13 @@ import java.util.UUID;
 public class DirectMessageDTO extends MessageDTO {
 
     @Column(name = "RECEIVER", updatable = false)
-    @Type(type = "uuid-char")
-    private UUID receiver;
+    private String receiver;
 
-    public UUID getReceiver() {
+    public String getReceiver() {
         return receiver;
     }
 
-    public DirectMessageDTO setReceiver(UUID receiver) {
+    public DirectMessageDTO setReceiver(String receiver) {
         this.receiver = receiver;
         return this;
     }

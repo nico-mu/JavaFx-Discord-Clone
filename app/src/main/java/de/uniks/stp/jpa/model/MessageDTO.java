@@ -22,8 +22,7 @@ public class MessageDTO {
     private UUID id;
 
     @Column(name = "SENDER", updatable = false)
-    @Type(type = "uuid-char")
-    private UUID sender;
+    private String sender;
 
     @Column(name = "MESSAGE", updatable = false)
     private String message;
@@ -36,11 +35,11 @@ public class MessageDTO {
         return id;
     }
 
-    public UUID getSender() {
+    public String getSender() {
         return sender;
     }
 
-    public MessageDTO setSender(UUID sender) {
+    public MessageDTO setSender(String sender) {
         this.sender = sender;
         return this;
     }

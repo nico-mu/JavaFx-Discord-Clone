@@ -1,19 +1,18 @@
 package de.uniks.stp.jpa;
 
+import de.uniks.stp.controller.MainScreenController;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.model.DirectMessage;
+import de.uniks.stp.model.Message;
+import de.uniks.stp.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
-import java.util.Date;
-import java.util.Objects;
-import java.util.UUID;
+import javax.persistence.*;
+import java.util.*;
 
 public class DatabaseService {
-
     private static EntityManagerFactory entityManagerFactory;
 
     public static void init() {
@@ -77,11 +76,47 @@ public class DatabaseService {
 
         entityManager.merge(
             new DirectMessageDTO()
-                .setReceiver(UUID.fromString(message.getReceiver().getId()))
-                .setSender(UUID.fromString(message.getSender().getId()))
+                .setReceiver(message.getReceiver().getId())
+                .setSender(message.getSender().getId())
                 .setTimestamp(new Date(message.getTimestamp()))
                 .setMessage(message.getMessage())
         );
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public static List<DirectMessageDTO> getDirectMessages(User receiver) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        List<DirectMessageDTO> directMessageDTOList = new LinkedList<>();
+
+        transaction.begin();
+
+        Query query = entityManager.createQuery("SELECT message FROM MessageDTO message WHERE receiver='" + receiver.getId() + "'");
+
+        List<?> resultList = query.getResultList();
+
+        transaction.commit();
+        entityManager.close();
+
+        for (Object o : resultList) {
+            directMessageDTOList.add((DirectMessageDTO) o);
+        }
+
+        return directMessageDTOList;
+    }
+
+    public static void clearDirectMessages(User receiver) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        Query query = entityManager.createQuery("DELETE MessageDTO WHERE receiver=:receiverId").setParameter("receiverId", receiver.getId());
+
+        query.executeUpdate();
 
         transaction.commit();
         entityManager.close();
