@@ -125,7 +125,6 @@ public class ServerScreenController implements ControllerInterface {
         }
         settingsGearLabel.setOnMouseClicked(null);
 
-        ObservableList<MenuItem> items = settingsContextMenu.getItems();
         for(MenuItem item: settingsContextMenu.getItems()){
             item.setOnAction(null);
         }
