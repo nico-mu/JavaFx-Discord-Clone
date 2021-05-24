@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -22,15 +24,24 @@
                         <Insets left="5.0" />
                      </HBox.margin>
                   </Label>
-                  <VBox id="settings-gear-container" alignment="CENTER">
-                     <children>
+                  <Label id="settings-label">
+                     <graphic>
                          <ImageView id="settings-gear" fitHeight="45.0" fitWidth="45.0">
                              <image>
                                  <Image url="@../img/gear.png" />
                              </image>
                          </ImageView>
-                     </children>
-                  </VBox>
+                     </graphic>
+                      <contextMenu>
+                          <ContextMenu id="settings-context-menu">
+                              <items>
+                                  <MenuItem text="%LBL_INVITE_USER" />
+                                  <MenuItem text="%LBL_EDIT_SERVER" />
+                                  <MenuItem text="%LBL_CREATE_CATEGORY" />
+                              </items>
+                          </ContextMenu>
+                      </contextMenu>
+                  </Label>
                </children>
                <FlowPane.margin>
                   <Insets bottom="15.0" />
