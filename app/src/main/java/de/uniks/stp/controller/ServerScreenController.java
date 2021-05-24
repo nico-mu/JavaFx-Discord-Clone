@@ -72,7 +72,6 @@ public class ServerScreenController implements ControllerInterface {
         items.get(1).setOnAction(this::onEditServerClicked);
         items.get(2).setOnAction(this::onCreateCategoryClicked);
 
-        //settingsContextMenu.setStyle("-fx-font-weight: bold;");
         settingsGearLabel.setOnMouseClicked(e -> settingsContextMenu.show(settingsGearLabel, Side.BOTTOM, 0, 0));
 
         categoryListController = new ServerCategoryListController(serverChannelOverview, editor, model);
@@ -127,8 +126,8 @@ public class ServerScreenController implements ControllerInterface {
         settingsGearLabel.setOnMouseClicked(null);
 
         ObservableList<MenuItem> items = settingsContextMenu.getItems();
-        items.get(0).setOnAction(null);
-        items.get(1).setOnAction(null);
-        items.get(2).setOnAction(null);
+        for(MenuItem item: settingsContextMenu.getItems()){
+            item.setOnAction(null);
+        }
     }
 }
