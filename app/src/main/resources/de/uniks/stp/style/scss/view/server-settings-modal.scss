@@ -15,6 +15,16 @@
   -fx-font-size: 14px;
 }
 
+.notifications-label {
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 18px;
+}
+
+.notifications-activated-label {
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 18px;
+}
+
 .error-message-label {
   -fx-text-fill: $error-text-fill;
   -fx-font-size: 18px;
