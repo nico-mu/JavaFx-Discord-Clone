@@ -86,7 +86,7 @@ public class NavBarListController implements ControllerInterface {
     private void serverRemoved(final Server server) {
         if (Objects.nonNull(server) && navBarServerElementHashMap.containsKey(server)) {
             final NavBarServerElement navBarElement = navBarServerElementHashMap.remove(server);
-            Platform.runLater(() -> navBarList.removeElement(navBarElement));
+            Platform.runLater(() -> navBarList.removeServerElement(navBarElement));
         }
     }
 
@@ -170,7 +170,7 @@ public class NavBarListController implements ControllerInterface {
         NavBarNotificationElement navBarElement = (NavBarNotificationElement) propertyChangeEvent.getNewValue();
         if (Objects.nonNull(navBarElement)) {
             if (navBarElement.getNotifications() == 1) {
-                Platform.runLater(() -> navBarList.addServerElement(navBarElement));
+                Platform.runLater(() -> navBarList.addUserElement(navBarElement));
             } else if (navBarElement.getNotifications() == 0){
                 navBarElementCleanUp(navBarElement);
             }

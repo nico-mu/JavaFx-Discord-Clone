@@ -22,6 +22,7 @@ public class NavBarList extends ScrollPane {
     private Editor editor;
     private NavBarElement currentActiveElement;
     private NavBarElement previousActiveElement;
+    private int serverElementCount = 0;
 
     public NavBarList(Editor editor) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.NAV_BAR_LIST);
@@ -79,7 +80,12 @@ public class NavBarList extends ScrollPane {
     }
 
     public void addServerElement(NavBarElement element) {
+        ++serverElementCount;
         container.getChildren().add(container.getChildren().size() - 1, element);
+    }
+
+    public void addUserElement(NavBarElement element) {
+        container.getChildren().add(container.getChildren().size() - serverElementCount - 1, element);
     }
 
     public void addElement(NavBarElement element) {
@@ -90,7 +96,8 @@ public class NavBarList extends ScrollPane {
         this.container.getChildren().remove(element);
     }
 
-    public void setHomeElementActive() {
-        this.setActiveElement(homeElement);
+    public void removeServerElement(NavBarElement element) {
+        --serverElementCount;
+        removeElement(element);
     }
 }
