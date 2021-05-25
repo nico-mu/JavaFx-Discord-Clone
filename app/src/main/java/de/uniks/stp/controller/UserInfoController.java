@@ -73,7 +73,7 @@ public class UserInfoController implements ControllerInterface {
         if (!response.isSuccess()) {
             log.error("logout failed");
         }
-        this.editor.getOrCreateAccord().setUserKey("");
+        this.editor.prepareLogout();  //delete user related information
         Platform.runLater(() -> Router.route(Constants.ROUTE_LOGIN));
     }
 
@@ -86,6 +86,7 @@ public class UserInfoController implements ControllerInterface {
     @Override
     public void stop() {
         logoutButton.setOnAction(null);
+        settingsGearContainer.setOnMouseClicked(null);
     }
 
 }

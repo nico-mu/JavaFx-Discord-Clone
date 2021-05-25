@@ -10,8 +10,13 @@ import de.uniks.stp.model.Server;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.geometry.Side;
 import javafx.scene.Parent;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
@@ -27,6 +32,7 @@ public class ServerScreenController implements ControllerInterface {
     private static final String SERVER_CHANNEL_OVERVIEW = "#server-channel-overview";
     private static final String SERVER_CHAT_CONTAINER = "#server-chat-container";
     private static final String SERVER_USER_LIST_CONTAINER = "#server-user-list-container";
+    private static final String SETTINGS_LABEL = "#settings-label";
     private AnchorPane view;
     private FlowPane serverScreenView;
     private final Editor editor;
@@ -38,33 +44,46 @@ public class ServerScreenController implements ControllerInterface {
     private ServerChatController serverChatController;
     private ServerUserListController serverUserListController;
     private FlowPane serverUserListContainer;
+    private Label settingsGearLabel;
+
+    private ContextMenu settingsContextMenu;
 
     public ServerScreenController(Parent view, Editor editor, Server model) {
-        this.view = (AnchorPane)view;
+        this.view = (AnchorPane) view;
         this.editor = editor;
         this.model = model;
     }
 
     @Override
     public void init() {
-       serverScreenView = (FlowPane) ViewLoader.loadView(SERVER_SCREEN);
-       serverChannelOverview = (VBox) serverScreenView.lookup(SERVER_CHANNEL_OVERVIEW);
-       serverChatContainer = (FlowPane) serverScreenView.lookup(SERVER_CHAT_CONTAINER);
-       serverUserListContainer = (FlowPane) serverScreenView.lookup(SERVER_USER_LIST_CONTAINER);
-       view.getChildren().add(serverScreenView);
-       serverNameLabel = (Label)view.lookup(SERVER_NAME_LABEL_ID);
-       serverNameLabel.setText(model.getName());
+        serverScreenView = (FlowPane) ViewLoader.loadView(SERVER_SCREEN);
+        serverChannelOverview = (VBox) serverScreenView.lookup(SERVER_CHANNEL_OVERVIEW);
+        serverChatContainer = (FlowPane) serverScreenView.lookup(SERVER_CHAT_CONTAINER);
+        serverUserListContainer = (FlowPane) serverScreenView.lookup(SERVER_USER_LIST_CONTAINER);
+        settingsGearLabel = (Label) serverScreenView.lookup(SETTINGS_LABEL);
+        settingsContextMenu = settingsGearLabel.getContextMenu();
 
-       categoryListController = new ServerCategoryListController(serverChannelOverview, editor, model);
-       categoryListController.init();
+        view.getChildren().add(serverScreenView);
+        serverNameLabel = (Label) view.lookup(SERVER_NAME_LABEL_ID);
+        serverNameLabel.setText(model.getName());
 
-       serverUserListController = new ServerUserListController(serverUserListContainer, editor, model);
-       serverUserListController.init();
+        ObservableList<MenuItem> items = settingsContextMenu.getItems();
+        items.get(0).setOnAction(this::onInviteUserClicked);
+        items.get(1).setOnAction(this::onEditServerClicked);
+        items.get(2).setOnAction(this::onCreateCategoryClicked);
+
+        settingsGearLabel.setOnMouseClicked(e -> settingsContextMenu.show(settingsGearLabel, Side.BOTTOM, 0, 0));
+
+        categoryListController = new ServerCategoryListController(serverChannelOverview, editor, model);
+        categoryListController.init();
+
+        serverUserListController = new ServerUserListController(serverUserListContainer, editor, model);
+        serverUserListController.init();
     }
 
     @Override
     public void route(RouteInfo routeInfo, RouteArgs args) {
-        if(routeInfo.getSubControllerRoute().equals(Constants.ROUTE_CHANNEL)) {
+        if (routeInfo.getSubControllerRoute().equals(Constants.ROUTE_CHANNEL)) {
             final String serverId = args.getArguments().get(":id");
             final String categoryId = args.getArguments().get(":categoryId");
             final String channelId = args.getArguments().get(":channelId");
@@ -81,16 +100,33 @@ public class ServerScreenController implements ControllerInterface {
         return editor.getChannel(channelId, category);
     }
 
+    private void onInviteUserClicked(ActionEvent actionEvent) {
+        // ToDo
+    }
+
+    private void onEditServerClicked(ActionEvent actionEvent) {
+        // ToDo
+    }
+
+    private void onCreateCategoryClicked(ActionEvent actionEvent) {
+        // ToDo
+    }
+
     @Override
     public void stop() {
-        if(Objects.nonNull(categoryListController)) {
+        if (Objects.nonNull(categoryListController)) {
             categoryListController.stop();
         }
-        if(Objects.nonNull(serverChatController)) {
+        if (Objects.nonNull(serverChatController)) {
             serverChatController.stop();
         }
         if (Objects.nonNull(serverUserListController)) {
             serverUserListController.stop();
+        }
+        settingsGearLabel.setOnMouseClicked(null);
+
+        for(MenuItem item: settingsContextMenu.getItems()){
+            item.setOnAction(null);
         }
     }
 }
