@@ -8,7 +8,7 @@ import de.uniks.stp.router.Router;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 
-public class NavBarServerElement extends NavBarElement {
+public class NavBarServerElement extends NavBarNotificationElement {
 
     Server model;
 
@@ -18,9 +18,14 @@ public class NavBarServerElement extends NavBarElement {
         imageView.setImage(ViewLoader.loadImage("server.png"));
     }
 
+    public Server getModel() {
+        return model;
+    }
+
     @Override
     protected void onMouseClicked(MouseEvent mouseEvent) {
         super.onMouseClicked(mouseEvent);
+        resetNotifications();
         RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
         Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args);
     }

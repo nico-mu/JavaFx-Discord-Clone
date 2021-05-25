@@ -4,6 +4,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.NavBarCreateServerClosedEvent;
 import de.uniks.stp.event.NavBarElementChangeEvent;
+import de.uniks.stp.event.NavBarHomeElementActiveEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -14,6 +15,7 @@ import java.io.IOException;
 
 public class NavBarList extends ScrollPane {
 
+    private final NavBarHomeElement homeElement;
     @FXML
     protected VBox container;
 
@@ -41,7 +43,7 @@ public class NavBarList extends ScrollPane {
         this.getStyleClass().add("nav-bar-vbox");
 
         //add home element
-        NavBarElement homeElement = new NavBarHomeElement();
+        homeElement = new NavBarHomeElement();
         this.addElement(homeElement);
         this.setActiveElement(homeElement);
 
@@ -58,11 +60,16 @@ public class NavBarList extends ScrollPane {
             setActiveElement(previousActiveElement);
             event.consume();
         });
+
+        this.addEventFilter(NavBarHomeElementActiveEvent.NAV_BAR_HOME_ELEMENT_ACTIVE, event -> {
+            setActiveElement(homeElement);
+            event.consume();
+        });
     }
 
     public void setActiveElement(NavBarElement element) {
         if (!element.equals(currentActiveElement)) {
-            if(currentActiveElement != null) {
+            if (currentActiveElement != null) {
                 currentActiveElement.setActive(false);
                 previousActiveElement = currentActiveElement;
             }
@@ -81,5 +88,9 @@ public class NavBarList extends ScrollPane {
 
     public void removeElement(NavBarElement element) {
         this.container.getChildren().remove(element);
+    }
+
+    public void setHomeElementActive() {
+        this.setActiveElement(homeElement);
     }
 }

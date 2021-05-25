@@ -120,8 +120,8 @@ public class WebSocketService {
             return;
         }
 
-        DirectMessage msg = new DirectMessage().setReceiver(currentUser);
-        msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender);
+        DirectMessage msg = new DirectMessage();
+        msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setSender(sender);
 
         // show message
         sender.withPrivateChatMessages(msg);
