@@ -80,6 +80,8 @@ public class ServerSettingsModal extends AbstractModal {
     }
 
     /**
+     * Removes any error message, checks whether anything was typed/changed and then applies this change
+     * - when something is written in servernameTextField: disables control elements, shows spinner and sends rename request
      * @param actionEvent
      */
     private void onSaveButtonClicked(ActionEvent actionEvent) {
@@ -114,6 +116,8 @@ public class ServerSettingsModal extends AbstractModal {
     }
 
     /**
+     * When successful: server model is renamed and View is closed
+     * When unsuccessful: shows error message, hides spinner and enables control elements
      * @param response
      */
     private void handleRenameServerResponse(HttpResponse<JsonNode> response) {
