@@ -34,6 +34,12 @@ public class RestClient {
         sendRequest(req, callback);
     }
 
+    public void renameServer(String id, String newName, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.put(Constants.REST_SERVER_PATH + "/" + id)
+            .body(Json.createObjectBuilder().add("name", newName).build().toString());
+        sendRequest(req, callback);
+    }
+
     public static void stop() {
         executorService.shutdown();
         Unirest.shutDown();

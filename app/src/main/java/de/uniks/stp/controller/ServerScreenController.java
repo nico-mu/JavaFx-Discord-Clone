@@ -4,12 +4,15 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
+import de.uniks.stp.modal.AddServerModal;
+import de.uniks.stp.modal.ServerSettingsModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.view.Views;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Side;
@@ -105,7 +108,9 @@ public class ServerScreenController implements ControllerInterface {
     }
 
     private void onEditServerClicked(ActionEvent actionEvent) {
-        // ToDo
+        Parent addServerModalView = ViewLoader.loadView(Views.SERVER_SETTINGS_MODAL);
+        ServerSettingsModal serverSettingsModal = new ServerSettingsModal(addServerModalView, editor, model);
+        serverSettingsModal.showAndWait();
     }
 
     private void onCreateCategoryClicked(ActionEvent actionEvent) {
