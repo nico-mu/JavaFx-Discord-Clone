@@ -140,13 +140,15 @@ public class NavBarListController implements ControllerInterface {
             if (Objects.isNull(sender)) {
                 return;
             }
-            if (!sender.equals(this.editor.getOrCreateAccord().getCurrentUser())) {
+            if (!sender.equals(editor.getOrCreateAccord().getCurrentUser())
+                && !sender.equals(editor.getOrCreateAccord().getCurrentUser().getCurrentChatPartner())) {
                 notificationReceived(sender);
             }
         }
     }
 
     private void notificationPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        // gets mainly triggered by onMessagePropertyChange
         NavBarNotificationElement navBarElement = (NavBarNotificationElement) propertyChangeEvent.getNewValue();
         if (Objects.nonNull(navBarElement)) {
             if (navBarElement.getNotifications() > 0) {
@@ -162,6 +164,7 @@ public class NavBarListController implements ControllerInterface {
             NavBarServerElement serverElement = (NavBarServerElement) navBarElement;
         } else if (navBarElement instanceof NavBarUserElement) {
             NavBarUserElement userElement = (NavBarUserElement) navBarElement;
+            userElement.listeners().removePropertyChangeListener(notificationPropertyChangeListener);
             navBarUserElementHashMap.remove(userElement.getModel());
             Platform.runLater(() -> navBarList.removeElement(userElement));
         }

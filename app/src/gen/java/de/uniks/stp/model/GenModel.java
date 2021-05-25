@@ -29,6 +29,9 @@ public class GenModel implements ClassModelDecorator {
         String name;
         boolean status;
 
+        @Link("currentChatPartner")
+        User currentChatPartner;
+
         @Link("currentUser")
         Accord accord;
 

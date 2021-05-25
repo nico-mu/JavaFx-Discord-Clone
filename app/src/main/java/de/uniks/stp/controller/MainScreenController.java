@@ -58,6 +58,7 @@ public class MainScreenController implements ControllerInterface {
             Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
         } else if (subroute.equals(Constants.ROUTE_SERVER)) {
             Server server = editor.getServer(args.getArguments().get(":id"));
+            editor.getOrCreateAccord().getCurrentUser().setCurrentChatPartner(null);
             if (Objects.nonNull(server)) {
                 currentController = new ServerScreenController(this.subViewContainer, this.editor, server);
                 currentController.init();

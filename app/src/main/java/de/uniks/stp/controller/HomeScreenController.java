@@ -81,6 +81,7 @@ public class HomeScreenController implements ControllerInterface {
         if (subRoute.equals(Constants.ROUTE_PRIVATE_CHAT)) {
             User otherUser = editor.getUserById(args.getArguments().get(Constants.ROUTE_PRIVATE_CHAT_ARGS));
 
+            editor.getOrCreateAccord().getCurrentUser().setCurrentChatPartner(otherUser);
             PrivateChatController privateChatController = new PrivateChatController(view, editor, otherUser);
             privateChatController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
@@ -89,6 +90,7 @@ public class HomeScreenController implements ControllerInterface {
 
         } else if (subRoute.equals(Constants.ROUTE_LIST_ONLINE_USERS)) {
             UserList userList = new UserList();
+            editor.getOrCreateAccord().getCurrentUser().setCurrentChatPartner(null);
             userListController = new UserListController(userList, editor);
             userListController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), userListController);
