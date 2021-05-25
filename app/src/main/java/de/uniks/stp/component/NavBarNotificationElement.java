@@ -10,6 +10,9 @@ public class NavBarNotificationElement extends NavBarElement {
 
     private int notifications = 0;
 
+    /**
+     * increases the notification count and fires a property change for PROPERTY_NOTIFICATIONS
+     */
     public void increaseNotifications() {
         ++notifications;
         this.firePropertyChange(PROPERTY_NOTIFICATIONS, null, this);
@@ -19,6 +22,9 @@ public class NavBarNotificationElement extends NavBarElement {
         return notifications;
     }
 
+    /**
+     * sets the notification count to zero and fires a property change for PROPERTY_NOTIFICATIONS
+     */
     public void resetNotifications() {
         notifications = 0;
         this.firePropertyChange(PROPERTY_NOTIFICATIONS, null, this);

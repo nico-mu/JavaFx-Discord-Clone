@@ -10,6 +10,7 @@ import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.WebSocketClient;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
@@ -20,6 +21,8 @@ import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -29,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class NavBarListController implements ControllerInterface {
 
+    private final static Logger log = LoggerFactory.getLogger(NavBarListController.class);
     private final Parent view;
     private final Editor editor;
     private final NavBarList navBarList;
@@ -86,14 +90,28 @@ public class NavBarListController implements ControllerInterface {
         }
     }
 
-    private void notificationReceived(final User user) {
-        if (Objects.nonNull(user)) {
-            navBarUserElementHashMap.computeIfAbsent(user, notification -> {
-                NavBarUserElement navBarUserElement = new NavBarUserElement(user);
-                navBarUserElement.listeners().addPropertyChangeListener(NavBarNotificationElement.PROPERTY_NOTIFICATIONS, this::notificationPropertyChange);
-                return navBarUserElement;
-            });
-            navBarUserElementHashMap.get(user).increaseNotifications();
+    private void notificationReceived(final Object object) {
+        if (Objects.nonNull(object)) {
+            if (object instanceof User) {
+                User user = (User) object;
+                navBarUserElementHashMap.computeIfAbsent(user, notification -> {
+                    NavBarUserElement navBarUserElement = new NavBarUserElement(user);
+                    navBarUserElement.listeners().addPropertyChangeListener(NavBarNotificationElement.PROPERTY_NOTIFICATIONS, this::notificationPropertyChange);
+                    return navBarUserElement;
+                });
+                navBarUserElementHashMap.get(user).increaseNotifications();
+                log.info(navBarUserElementHashMap.get(user).getNotifications() + " unread Notification(s) from " + object);
+            }
+            else if (object instanceof Server) {
+                Server server = (Server) object;
+                navBarServerElementHashMap.computeIfAbsent(server, notification -> {
+                    NavBarServerElement navBarServerElement = new NavBarServerElement(server);
+                    navBarServerElement.listeners().addPropertyChangeListener(NavBarNotificationElement.PROPERTY_NOTIFICATIONS, this::notificationPropertyChange);
+                    return navBarServerElement;
+                });
+                navBarServerElementHashMap.get(server).increaseNotifications();
+                log.info(navBarServerElementHashMap.get(server).getNotifications() + " unread Notification(s) in " + object);
+            }
         }
     }
 
@@ -151,9 +169,9 @@ public class NavBarListController implements ControllerInterface {
         // gets mainly triggered by onMessagePropertyChange
         NavBarNotificationElement navBarElement = (NavBarNotificationElement) propertyChangeEvent.getNewValue();
         if (Objects.nonNull(navBarElement)) {
-            if (navBarElement.getNotifications() > 0) {
+            if (navBarElement.getNotifications() == 1) {
                 Platform.runLater(() -> navBarList.addServerElement(navBarElement));
-            } else {
+            } else if (navBarElement.getNotifications() == 0){
                 navBarElementCleanUp(navBarElement);
             }
         }
@@ -183,6 +201,10 @@ public class NavBarListController implements ControllerInterface {
             .removePropertyChangeListener(messagePropertyChangeListener);
 
         for (Map.Entry<User, NavBarUserElement> entry : navBarUserElementHashMap.entrySet()) {
+            entry.getValue().listeners().removePropertyChangeListener(notificationPropertyChangeListener);
+        }
+
+        for (Map.Entry<Server, NavBarServerElement> entry : navBarServerElementHashMap.entrySet()) {
             entry.getValue().listeners().removePropertyChangeListener(notificationPropertyChangeListener);
         }
 
