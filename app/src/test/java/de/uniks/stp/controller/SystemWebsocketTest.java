@@ -8,6 +8,7 @@ import de.uniks.stp.network.*;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -160,7 +161,7 @@ public class SystemWebsocketTest {
     }
 
     @Test
-    public void testServerSystemMessage(FxRobot robot) {
+    public void testServerUserJoinedLeftMessage(FxRobot robot) {
         final String SERVER_ID = "server";
         final String SERVER_NAME= "server-name";
 
@@ -242,6 +243,61 @@ public class SystemWebsocketTest {
             Assertions.assertEquals(2, offlineUserContainer.getChildren().size());
         });
         WaitForAsyncUtils.waitForFxEvents();
+    }
+
+    @Test
+    public void testServerNameChangedMessage(FxRobot robot) {
+        final String SERVER_ID = "12345678";
+        final String OLD_NAME= "Shitty Name";
+        final String NEW_NAME= "Nice Name";
+
+        // prepare start situation
+        Editor editor = StageManager.getEditor();
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
+        editor.getOrCreateServer(SERVER_ID, OLD_NAME);
+
+        WebSocketService.addServerWebSocket(SERVER_ID);
+
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", SERVER_ID)));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // assert correct start situation
+        Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
+        Assertions.assertEquals(OLD_NAME, editor.getServer(SERVER_ID).getName());
+        Platform.runLater(() -> {
+            Label serverLabel = robot.lookup("#server-name-label").query();
+            Assertions.assertEquals(OLD_NAME, serverLabel.getText());
+        });
+
+        // prepare receiving websocket message
+        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
+
+        for(int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + SERVER_ID);
+
+        // receive message
+        JsonObject jsonObject = Json.createObjectBuilder()
+            .add("action", "serverUpdated")
+            .add("data",
+                Json.createObjectBuilder()
+                    .add("id", SERVER_ID)
+                    .add("name", NEW_NAME)
+                    .build()
+            )
+            .build();
+        systemCallback.handleMessage(jsonObject);
+
+        // check for correct reactions
+        Assertions.assertEquals(NEW_NAME, editor.getServer(SERVER_ID).getName());
+        Platform.runLater(() -> {
+            Label serverLabel = robot.lookup("#server-name-label").query();
+            Assertions.assertEquals(NEW_NAME, serverLabel.getText());
+        });
     }
 
 }

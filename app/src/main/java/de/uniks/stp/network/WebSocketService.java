@@ -249,7 +249,7 @@ public class WebSocketService {
                     editor.setServerMemberOffline(userId, userName, editor.getServer(serverId));
                     return;
                 case "serverUpdated":
-                    serverId = data.getString("serverId");
+                    serverId = data.getString("id");
                     String newName = data.getString("name");
                     editor.getServer(serverId).setName(newName);
                     return;

@@ -66,9 +66,7 @@ public class ServerSettingsTest {
         // prepare start situation
         Editor editor = StageManager.getEditor();
 
-        editor.getOrCreateAccord()
-            .setCurrentUser(new User().setName("Test").setId("123-45"))
-            .setUserKey("123-45");
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
         String oldName ="Shitty Name";
         String serverId ="12345678";
