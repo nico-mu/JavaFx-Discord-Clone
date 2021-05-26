@@ -16,6 +16,8 @@ public class NavBarServerElement extends NavBarNotificationElement {
         this.model = model;
         Tooltip.install(navBarElement, new Tooltip(model.getName()));
         imageView.setImage(ViewLoader.loadImage("server.png"));
+        notificationLabel.setVisible(false);
+        circle.setVisible(false);
     }
 
     public Server getModel() {

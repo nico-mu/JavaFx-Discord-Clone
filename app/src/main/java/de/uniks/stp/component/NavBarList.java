@@ -79,23 +79,46 @@ public class NavBarList extends ScrollPane {
         }
     }
 
+    /**
+     * adds a NavBarElement to the server section
+     * @param element element to add to NavBarList
+     */
     public void addServerElement(NavBarElement element) {
         ++serverElementCount;
         container.getChildren().add(container.getChildren().size() - 1, element);
     }
 
+    /**
+     * adds a NavBarElement to the user notification section
+     * @param element element to add to NavBarList
+     */
     public void addUserElement(NavBarElement element) {
         container.getChildren().add(container.getChildren().size() - serverElementCount - 1, element);
     }
 
+    /**
+     * adds a NavBarElement to the NavBar.
+     * If you want to add a user element use addUserElement instead
+     * If you want to add a server element use addServerElement instead
+     * @param element element to add to NavBarList
+     */
     public void addElement(NavBarElement element) {
         container.getChildren().add(element);
     }
 
+    /**
+     * removes a NavBarElement from the NavBar.
+     * If you want to remove a server element use removeServerElement instead
+     * @param element element to remove from NavBarList
+     */
     public void removeElement(NavBarElement element) {
         this.container.getChildren().remove(element);
     }
 
+    /**
+     * removes a NavBarServerElement from the NavBar.
+     * @param element element to remove from NavBarList
+     */
     public void removeServerElement(NavBarElement element) {
         --serverElementCount;
         removeElement(element);

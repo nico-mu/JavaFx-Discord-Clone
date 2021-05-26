@@ -170,7 +170,12 @@ public class NavBarListController implements ControllerInterface {
         NavBarNotificationElement navBarElement = (NavBarNotificationElement) propertyChangeEvent.getNewValue();
         if (Objects.nonNull(navBarElement)) {
             if (navBarElement.getNotifications() == 1) {
-                Platform.runLater(() -> navBarList.addUserElement(navBarElement));
+                if (navBarElement instanceof NavBarUserElement) {
+                    Platform.runLater(() -> navBarList.addUserElement(navBarElement));
+                }
+                else if (navBarElement instanceof NavBarServerElement) {
+                    // TODO: add server notification functionality
+                }
             } else if (navBarElement.getNotifications() == 0){
                 navBarElementCleanUp(navBarElement);
             }
@@ -180,6 +185,7 @@ public class NavBarListController implements ControllerInterface {
     private void navBarElementCleanUp(NavBarNotificationElement navBarElement) {
         if (navBarElement instanceof NavBarServerElement) {
             NavBarServerElement serverElement = (NavBarServerElement) navBarElement;
+            // TODO: add server notification functionality
         } else if (navBarElement instanceof NavBarUserElement) {
             NavBarUserElement userElement = (NavBarUserElement) navBarElement;
             userElement.listeners().removePropertyChangeListener(notificationPropertyChangeListener);

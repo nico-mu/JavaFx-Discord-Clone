@@ -1,5 +1,9 @@
 package de.uniks.stp.component;
 
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+
 import java.beans.PropertyChangeSupport;
 
 public class NavBarNotificationElement extends NavBarElement {
@@ -11,10 +15,33 @@ public class NavBarNotificationElement extends NavBarElement {
     private int notifications = 0;
 
     /**
+     * sets the notification label to given number and handles the visibility of the label and circle
+     * @param count number of notifications
+     */
+    public void setNotificationCount(int count) {
+        if (0 < count && count < 10)
+        {
+            setNotificationsLabel(Integer.toString(count));
+            setNotificationVisibility(true);
+        }
+        else if (10 <= count)
+        {
+            setNotificationsLabel("9+");
+            setNotificationVisibility(true);
+        }
+        else
+        {
+            setNotificationsLabel("0");
+            setNotificationVisibility(false);
+        }
+    }
+
+    /**
      * increases the notification count and fires a property change for PROPERTY_NOTIFICATIONS
      */
     public void increaseNotifications() {
         ++notifications;
+        setNotificationCount(notifications);
         this.firePropertyChange(PROPERTY_NOTIFICATIONS, null, this);
     }
 
@@ -27,6 +54,7 @@ public class NavBarNotificationElement extends NavBarElement {
      */
     public void resetNotifications() {
         notifications = 0;
+        setNotificationCount(notifications);
         this.firePropertyChange(PROPERTY_NOTIFICATIONS, null, this);
     }
 
@@ -43,5 +71,16 @@ public class NavBarNotificationElement extends NavBarElement {
             this.listeners = new PropertyChangeSupport(this);
         }
         return this.listeners;
+    }
+
+    private void setNotificationVisibility(boolean mode) {
+        notificationLabel.setVisible(mode);
+        circle.setVisible(mode);
+    }
+
+    private void setNotificationsLabel(String value) {
+        Platform.runLater(() -> {
+            notificationLabel.setText(value);
+        });
     }
 }

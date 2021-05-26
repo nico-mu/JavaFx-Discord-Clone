@@ -4,10 +4,12 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.NavBarElementChangeEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Circle;
 
 import java.io.IOException;
 
@@ -21,6 +23,12 @@ abstract public class NavBarElement extends HBox {
 
     @FXML
     protected ImageView imageView;
+
+    @FXML
+    protected Label notificationLabel;
+
+    @FXML
+    protected Circle circle;
 
     public NavBarElement() {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.NAV_BAR_ELEMENT);
