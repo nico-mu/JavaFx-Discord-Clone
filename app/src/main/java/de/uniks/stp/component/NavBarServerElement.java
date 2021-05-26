@@ -14,6 +14,7 @@ public class NavBarServerElement extends NavBarNotificationElement {
 
     public NavBarServerElement(Server model) {
         this.model = model;
+        this.setId(model.getId() + "-button");
         Tooltip.install(navBarElement, new Tooltip(model.getName()));
         imageView.setImage(ViewLoader.loadImage("server.png"));
         notificationLabel.setVisible(false);

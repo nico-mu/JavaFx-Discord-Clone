@@ -23,6 +23,7 @@ public class UserListEntry extends HBox {
         final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+        this.setId(user.getId() + "-UserListEntry");
 
         try {
             fxmlLoader.load();

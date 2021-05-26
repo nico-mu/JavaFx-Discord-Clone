@@ -3,11 +3,15 @@ package de.uniks.stp.controller;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
+import de.uniks.stp.component.NavBarHomeElement;
+import de.uniks.stp.component.NavBarUserElement;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.*;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
+import javafx.scene.Node;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -22,6 +26,7 @@ import org.mockito.MockitoAnnotations;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.service.query.EmptyNodeQueryException;
 import org.testfx.util.WaitForAsyncUtils;
 
 import javax.json.*;
@@ -75,7 +80,7 @@ public class SystemWebsocketTest {
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
 
-        for(int i = 0; i < endpoints.size(); i++) {
+        for (int i = 0; i < endpoints.size(); i++) {
             endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
         }
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH);
@@ -99,7 +104,7 @@ public class SystemWebsocketTest {
             VBox onlineUsersContainer = robot.lookup("#online-users-container").query();
             Object[] userListEntryLabels = onlineUsersContainer.lookupAll("#user-list-entry-text").toArray();
             Assertions.assertEquals(1, userListEntryLabels.length);
-            Assertions.assertEquals(testUserName, ((Text)userListEntryLabels[0]).getText());
+            Assertions.assertEquals(testUserName, ((Text) userListEntryLabels[0]).getText());
         });
         WaitForAsyncUtils.waitForFxEvents();
     }
@@ -113,8 +118,8 @@ public class SystemWebsocketTest {
             .setCurrentUser(new User().setName("Test").setId("123-45"))
             .setUserKey("123-45");
 
-        String otherUserName ="otherTestUser";
-        String otherUserId ="12345678";
+        String otherUserName = "otherTestUser";
+        String otherUserId = "12345678";
         editor.getOrCreateOtherUser(otherUserId, otherUserName);
 
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
@@ -130,7 +135,7 @@ public class SystemWebsocketTest {
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
 
-        for(int i = 0; i < endpoints.size(); i++) {
+        for (int i = 0; i < endpoints.size(); i++) {
             endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
         }
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH);
@@ -162,7 +167,7 @@ public class SystemWebsocketTest {
     @Test
     public void testServerSystemMessage(FxRobot robot) {
         final String SERVER_ID = "server";
-        final String SERVER_NAME= "server-name";
+        final String SERVER_NAME = "server-name";
 
         Editor editor = StageManager.getEditor();
 
@@ -182,7 +187,7 @@ public class SystemWebsocketTest {
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
 
-        for(int i = 0; i < endpoints.size(); i++) {
+        for (int i = 0; i < endpoints.size(); i++) {
             endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
         }
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + SERVER_ID);
@@ -244,4 +249,96 @@ public class SystemWebsocketTest {
         WaitForAsyncUtils.waitForFxEvents();
     }
 
+    @Test
+    public void testPrivateMessageNotification(FxRobot robot) {
+        Editor editor = StageManager.getEditor();
+
+        final String currentUserName = "Test";
+        final String userNameOne = "UserOne";
+        final String userNameTwo = "UserTwo";
+
+        final User currentUser = new User().setName(currentUserName).setId("123-45");
+        final User userOne = new User().setName(userNameOne).setId("111-11");
+        final User userTwo = new User().setName(userNameTwo).setId("222-22");
+
+        editor.getOrCreateAccord()
+            .setCurrentUser(currentUser)
+            .setUserKey("123-45");
+
+        editor.getOrCreateAccord()
+            .withOtherUsers(userOne);
+
+        editor.getOrCreateAccord()
+            .withOtherUsers(userTwo);
+
+
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
+        WaitForAsyncUtils.waitForFxEvents();
+        WaitForAsyncUtils.waitForFxEvents();
+
+        verify(webSocketMock, times(2)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
+
+        for (int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+        WSCallback currentUserCallback = endpointCallbackHashmap.get(Constants.WS_USER_PATH + currentUserName);
+        JsonObject messageOne = Json.createObjectBuilder()
+            .add("channel", "private")
+            .add("timestamp", 1)
+            .add("message", "Test Nachicht 1")
+            .add("from", userNameOne)
+            .add("to", currentUserName)
+            .build();
+
+        JsonObject messageTwo = Json.createObjectBuilder()
+            .add("channel", "private")
+            .add("timestamp", 2)
+            .add("message", "Test Nachicht 2")
+            .add("from", userNameTwo)
+            .add("to", currentUserName)
+            .build();
+
+        JsonObject messageThree = Json.createObjectBuilder()
+            .add("channel", "private")
+            .add("timestamp", 3)
+            .add("message", "Test Nachicht")
+            .add("from", userNameOne)
+            .add("to", currentUserName)
+            .build();
+
+        currentUserCallback.handleMessage(messageOne);
+        currentUserCallback.handleMessage(messageTwo);
+        currentUserCallback.handleMessage(messageThree);
+
+        Platform.runLater(() -> {
+            NavBarUserElement userOneElement = robot.lookup("#" + userOne.getId() + "-button").query();
+            NavBarUserElement userTwoElement = robot.lookup("#" + userTwo.getId() + "-button").query();
+            Assertions.assertEquals(2, userOneElement.getNotifications());
+            Assertions.assertEquals(1, userTwoElement.getNotifications());
+            robot.clickOn("#" + userOne.getId() + "-button");
+            Assertions.assertEquals(2, userOneElement.getNotifications());
+        });
+        WaitForAsyncUtils.waitForFxEvents();
+
+        currentUserCallback.handleMessage(messageOne);
+        currentUserCallback.handleMessage(messageTwo);
+        currentUserCallback.handleMessage(messageThree);
+
+        Platform.runLater(() -> {
+            NavBarUserElement userTwoElement = robot.lookup("#" + userTwo.getId() + "-button").query();
+            Assertions.assertEquals(2, userTwoElement.getNotifications());
+            robot.clickOn("#home-button");
+            robot.clickOn("#" + userTwo.getId() + "-UserListSideBarEntry");
+        });
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Platform.runLater(() -> {
+            Assertions.assertThrows(EmptyNodeQueryException.class, () -> {
+                robot.lookup("#" + userTwo.getId() + "-button").query();
+            });
+        });
+    }
 }

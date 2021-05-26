@@ -24,6 +24,7 @@ The things you need before installing the software.
 ### Server
 
 * [Release 1 documentation](https://seblog.cs.uni-kassel.de/wp-content/uploads/2021/04/ServerdokuR1.pdf)
+* [Release 2 documentation](https://seblog.cs.uni-kassel.de/wp-content/uploads/2021/05/ServerdokuR2.pdf)
 
 ### Branches
 

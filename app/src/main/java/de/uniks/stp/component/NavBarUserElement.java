@@ -15,6 +15,7 @@ public class NavBarUserElement extends NavBarNotificationElement {
 
     public NavBarUserElement(User model) {
         this.model = model;
+        this.setId(model.getId() + "-button");
         Tooltip.install(navBarElement, new Tooltip(model.getName()));
         imageView.setImage(ViewLoader.loadImage("user.png"));
     }

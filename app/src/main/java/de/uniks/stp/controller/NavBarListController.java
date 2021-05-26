@@ -143,7 +143,7 @@ public class NavBarListController implements ControllerInterface {
                 serverAdded(server);
             }
         } else {
-            //TODO: show error message
+            log.error("Response was unsuccessful");
         }
     }
 
