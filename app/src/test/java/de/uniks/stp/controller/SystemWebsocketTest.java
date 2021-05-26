@@ -372,10 +372,10 @@ public class SystemWebsocketTest {
         Platform.runLater(() -> {
             NavBarUserElement userOneElement = robot.lookup("#" + userOne.getId() + "-button").query();
             NavBarUserElement userTwoElement = robot.lookup("#" + userTwo.getId() + "-button").query();
-            Assertions.assertEquals(2, userOneElement.getModel().getNotificationCounter());
-            Assertions.assertEquals(1, userTwoElement.getModel().getNotificationCounter());
+            Assertions.assertEquals(2, userOne.getSentUserNotification().getNotificationCounter());
+            Assertions.assertEquals(1, userTwo.getSentUserNotification().getNotificationCounter());
             robot.clickOn("#" + userOne.getId() + "-button");
-            Assertions.assertEquals(2, userOneElement.getModel().getNotificationCounter());
+            Assertions.assertEquals(0, userOne.getSentUserNotification().getNotificationCounter());
         });
         WaitForAsyncUtils.waitForFxEvents();
 
@@ -385,7 +385,7 @@ public class SystemWebsocketTest {
 
         Platform.runLater(() -> {
             NavBarUserElement userTwoElement = robot.lookup("#" + userTwo.getId() + "-button").query();
-            Assertions.assertEquals(2, userTwoElement.getModel().getNotificationCounter());
+            Assertions.assertEquals(2, userTwo.getSentUserNotification().getNotificationCounter());
             robot.clickOn("#home-button");
             robot.clickOn("#" + userTwo.getId() + "-UserListSideBarEntry");
         });

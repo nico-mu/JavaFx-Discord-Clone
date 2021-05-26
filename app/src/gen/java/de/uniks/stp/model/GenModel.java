@@ -52,6 +52,16 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("chatPartner")
         List<User> chatPartner;
+
+        @Link("sender")
+        UserNotification sentUserNotification;
+
+        @Link("receiver")
+        List<UserNotification> receivedUserNotifications;
+
+        @Link("receiver")
+        List<ServerNotification> receivedServerNotification;
+
     }
 
     class Server {
@@ -66,6 +76,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("server")
         List<Category> categories;
+
+        @Link("sender")
+        ServerNotification serverNotification;
     }
 
     class Category {
@@ -116,10 +129,18 @@ public class GenModel implements ClassModelDecorator {
     }
 
     class ServerNotification extends Notification {
-        Server model;
+        @Link("serverNotification")
+        Server sender;
+
+        @Link("receivedServerNotification")
+        User receiver;
     }
 
     class UserNotification extends Notification {
-        User model;
+        @Link("sentUserNotification")
+        User sender;
+
+        @Link("receivedUserNotifications")
+        User receiver;
     }
 }

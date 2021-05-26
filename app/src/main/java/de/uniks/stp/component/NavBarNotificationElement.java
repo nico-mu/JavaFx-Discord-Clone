@@ -5,22 +5,11 @@ import javafx.application.Platform;
 
 public class NavBarNotificationElement extends NavBarElement {
 
-    Notification model;
-
-    public NavBarNotificationElement(Notification model) {
-        this.model = model;
-        setNotificationCount();
-    }
-
-    public Notification getModel() {
-        return model;
-    }
-
     /**
      * sets the notification label to given number and handles the visibility of the label and circle
+     * @param notifications the number of the element notifications
      */
-    void setNotificationCount() {
-        int notifications = this.model.getNotificationCounter();
+    void setNotificationCount(int notifications) {
         if (0 < notifications && notifications < 10) {
             setNotificationsLabel(Integer.toString(notifications));
             setNotificationVisibility(true);

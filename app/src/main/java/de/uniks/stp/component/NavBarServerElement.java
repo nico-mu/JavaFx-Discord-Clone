@@ -5,6 +5,7 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Notification;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.ServerNotification;
+import de.uniks.stp.model.User;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.scene.control.Tooltip;
@@ -18,46 +19,42 @@ public class NavBarServerElement extends NavBarNotificationElement {
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
     PropertyChangeListener notificationPropertyChangeListener = this::onNotificationPropertyChange;
 
-    final Server server;
+    final ServerNotification notification;
 
-    public NavBarServerElement(ServerNotification model) {
-        super(model);
-        server = model.getModel();
-        this.setId(server.getId() + "-button");
-        Tooltip.install(navBarElement, new Tooltip(server.getName()));
+    public NavBarServerElement(ServerNotification serverNotification) {
+        this.notification = serverNotification;
+        this.setId(notification.getSender().getId() + "-button");
+        Tooltip.install(navBarElement, new Tooltip(notification.getSender().getName()));
         imageView.setImage(ViewLoader.loadImage("server.png"));
         notificationLabel.setVisible(false);
         circle.setVisible(false);
 
-        server.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
-        this.model.listeners().addPropertyChangeListener(Notification.PROPERTY_NOTIFICATION_COUNTER, notificationPropertyChangeListener);
+        notification.getSender().listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
+        notification.listeners().addPropertyChangeListener(Notification.PROPERTY_NOTIFICATION_COUNTER, notificationPropertyChangeListener);
     }
 
     public void stop() {
-        server.listeners().removePropertyChangeListener(serverNamePropertyChangeListener);
-        model.listeners().removePropertyChangeListener(notificationPropertyChangeListener);
-    }
-
-    public Server getServer() {
-        return server;
+        notification.getSender().listeners().removePropertyChangeListener(serverNamePropertyChangeListener);
+        notification.listeners().removePropertyChangeListener(notificationPropertyChangeListener);
     }
 
     @Override
     protected void onMouseClicked(MouseEvent mouseEvent) {
         super.onMouseClicked(mouseEvent);
-        model.setNotificationCounter(0);
-        this.setNotificationCount();
-        RouteArgs args = new RouteArgs().addArgument(":id", server.getId());
+        notification.setNotificationCounter(0);
+        this.setNotificationCount(notification.getNotificationCounter());
+        stop();
+        RouteArgs args = new RouteArgs().addArgument(":id", notification.getSender().getId());
         Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args);
     }
 
     private void onServerNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        Tooltip.install(navBarElement, new Tooltip(server.getName()));
+        Tooltip.install(navBarElement, new Tooltip(notification.getSender().getName()));
     }
 
     private void onNotificationPropertyChange(PropertyChangeEvent propertyChangeEvent) {
         int notificationCount = (int) propertyChangeEvent.getNewValue();
-        this.model.setNotificationCounter(notificationCount);
-        setNotificationCount();
+        notification.setNotificationCounter(notificationCount);
+        setNotificationCount(notification.getNotificationCounter());
     }
 }
