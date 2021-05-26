@@ -35,9 +35,9 @@
                       <contextMenu>
                           <ContextMenu id="settings-context-menu">
                               <items>
-                                  <MenuItem text="%LBL_INVITE_USER" />
-                                  <MenuItem text="%LBL_EDIT_SERVER" />
-                                  <MenuItem text="%LBL_CREATE_CATEGORY" />
+                                  <MenuItem id="invite-menu-item" text="%LBL_INVITE_USER" />
+                                  <MenuItem id="edit-menu-item" text="%LBL_EDIT_SERVER" />
+                                  <MenuItem id="create-menu-item" text="%LBL_CREATE_CATEGORY" />
                               </items>
                           </ContextMenu>
                       </contextMenu>
