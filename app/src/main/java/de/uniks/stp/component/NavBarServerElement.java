@@ -2,7 +2,9 @@ package de.uniks.stp.component;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.model.Notification;
 import de.uniks.stp.model.Server;
+import de.uniks.stp.model.ServerNotification;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.scene.control.Tooltip;
@@ -13,33 +15,49 @@ import java.beans.PropertyChangeListener;
 
 public class NavBarServerElement extends NavBarNotificationElement {
 
-    Server model;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
+    PropertyChangeListener notificationPropertyChangeListener = this::onNotificationPropertyChange;
 
-    public NavBarServerElement(Server model) {
-        this.model = model;
-        this.setId(model.getId() + "-button");
-        Tooltip.install(navBarElement, new Tooltip(model.getName()));
+    final Server server;
+
+    public NavBarServerElement(ServerNotification model) {
+        super(model);
+        server = model.getModel();
+        this.setId(server.getId() + "-button");
+        Tooltip.install(navBarElement, new Tooltip(server.getName()));
         imageView.setImage(ViewLoader.loadImage("server.png"));
         notificationLabel.setVisible(false);
         circle.setVisible(false);
 
-        model.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
+        server.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
+        this.model.listeners().addPropertyChangeListener(Notification.PROPERTY_NOTIFICATION_COUNTER, notificationPropertyChangeListener);
     }
 
-    public Server getModel() {
-        return model;
+    public void stop() {
+        server.listeners().removePropertyChangeListener(serverNamePropertyChangeListener);
+        model.listeners().removePropertyChangeListener(notificationPropertyChangeListener);
+    }
+
+    public Server getServer() {
+        return server;
     }
 
     @Override
     protected void onMouseClicked(MouseEvent mouseEvent) {
         super.onMouseClicked(mouseEvent);
-        resetNotifications();
-        RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
+        model.setNotificationCounter(0);
+        this.setNotificationCount();
+        RouteArgs args = new RouteArgs().addArgument(":id", server.getId());
         Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args);
     }
 
     private void onServerNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        Tooltip.install(navBarElement, new Tooltip(model.getName()));
+        Tooltip.install(navBarElement, new Tooltip(server.getName()));
+    }
+
+    private void onNotificationPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        int notificationCount = (int) propertyChangeEvent.getNewValue();
+        this.model.setNotificationCounter(notificationCount);
+        setNotificationCount();
     }
 }

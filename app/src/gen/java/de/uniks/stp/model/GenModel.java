@@ -110,4 +110,16 @@ public class GenModel implements ClassModelDecorator {
         @Link("privateChatMessages")
         User receiver;
     }
+
+    static class Notification {
+        int notificationCounter;
+    }
+
+    class ServerNotification extends Notification {
+        Server model;
+    }
+
+    class UserNotification extends Notification {
+        User model;
+    }
 }

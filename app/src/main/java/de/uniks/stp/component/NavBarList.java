@@ -22,7 +22,6 @@ public class NavBarList extends ScrollPane {
     private Editor editor;
     private NavBarElement currentActiveElement;
     private NavBarElement previousActiveElement;
-    private int serverElementCount = 0;
 
     public NavBarList(Editor editor) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.NAV_BAR_LIST);
@@ -84,7 +83,6 @@ public class NavBarList extends ScrollPane {
      * @param element element to add to NavBarList
      */
     public void addServerElement(NavBarElement element) {
-        ++serverElementCount;
         container.getChildren().add(container.getChildren().size() - 1, element);
     }
 
@@ -93,13 +91,12 @@ public class NavBarList extends ScrollPane {
      * @param element element to add to NavBarList
      */
     public void addUserElement(NavBarElement element) {
-        container.getChildren().add(container.getChildren().size() - serverElementCount - 1, element);
+        container.getChildren().add(1, element);
     }
 
     /**
      * adds a NavBarElement to the NavBar.
      * If you want to add a user element use addUserElement instead
-     * If you want to add a server element use addServerElement instead
      * @param element element to add to NavBarList
      */
     public void addElement(NavBarElement element) {
@@ -108,19 +105,9 @@ public class NavBarList extends ScrollPane {
 
     /**
      * removes a NavBarElement from the NavBar.
-     * If you want to remove a server element use removeServerElement instead
      * @param element element to remove from NavBarList
      */
     public void removeElement(NavBarElement element) {
         this.container.getChildren().remove(element);
-    }
-
-    /**
-     * removes a NavBarServerElement from the NavBar.
-     * @param element element to remove from NavBarList
-     */
-    public void removeServerElement(NavBarElement element) {
-        --serverElementCount;
-        removeElement(element);
     }
 }

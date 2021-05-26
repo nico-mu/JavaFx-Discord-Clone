@@ -5,9 +5,7 @@ import de.uniks.stp.component.NavBarList;
 import de.uniks.stp.component.NavBarNotificationElement;
 import de.uniks.stp.component.NavBarServerElement;
 import de.uniks.stp.component.NavBarUserElement;
-import de.uniks.stp.model.DirectMessage;
-import de.uniks.stp.model.Server;
-import de.uniks.stp.model.User;
+import de.uniks.stp.model.*;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketClient;
@@ -46,8 +44,6 @@ public class NavBarListController implements ControllerInterface {
     PropertyChangeListener availableServersPropertyChangeListener = this::onAvailableServersPropertyChange;
     // handles incoming messages and adds new users to Navbar
     PropertyChangeListener messagePropertyChangeListener = this::onMessagePropertyChange;
-    // clean up of the notification when its set to zero
-    PropertyChangeListener notificationPropertyChangeListener = this::notificationPropertyChange;
     // clean up of the notification on edge cases e.g. User clicks on user in online list instead of notification
     PropertyChangeListener chatPartnerPropertyChangeListener = this::chatPartnerPropertyChange;
 
@@ -87,7 +83,9 @@ public class NavBarListController implements ControllerInterface {
     private void serverAdded(final Server server) {
         if (Objects.nonNull(server) && !navBarServerElementHashMap.containsKey(server)) {
             WebSocketService.addServerWebSocket(server.getId());  // enables sending & receiving messages
-            final NavBarServerElement navBarElement = new NavBarServerElement(server);
+            final ServerNotification serverNotification = new ServerNotification().setModel(server);
+            serverNotification.setNotificationCounter(0);
+            final NavBarServerElement navBarElement = new NavBarServerElement(serverNotification);
             navBarServerElementHashMap.put(server, navBarElement);
             Platform.runLater(() -> navBarList.addServerElement(navBarElement));
         }
@@ -96,7 +94,7 @@ public class NavBarListController implements ControllerInterface {
     private void serverRemoved(final Server server) {
         if (Objects.nonNull(server) && navBarServerElementHashMap.containsKey(server)) {
             final NavBarServerElement navBarElement = navBarServerElementHashMap.remove(server);
-            Platform.runLater(() -> navBarList.removeServerElement(navBarElement));
+            Platform.runLater(() -> navBarList.removeElement(navBarElement));
         }
     }
 
@@ -105,22 +103,24 @@ public class NavBarListController implements ControllerInterface {
             if (object instanceof User) {
                 User user = (User) object;
                 navBarUserElementHashMap.computeIfAbsent(user, notification -> {
-                    NavBarUserElement navBarUserElement = new NavBarUserElement(user);
-                    navBarUserElement.listeners().addPropertyChangeListener(NavBarNotificationElement.PROPERTY_NOTIFICATIONS, this::notificationPropertyChange);
-                    return navBarUserElement;
+                    UserNotification userNotification = new UserNotification().setModel(user);
+                    userNotification.setNotificationCounter(0);
+                    return new NavBarUserElement(userNotification, navBarList);
                 });
-                navBarUserElementHashMap.get(user).increaseNotifications();
-                log.info(navBarUserElementHashMap.get(user).getNotifications() + " unread Notification(s) from " + object);
+                Notification userNotification = navBarUserElementHashMap.get(user).getModel();
+                userNotification.setNotificationCounter(userNotification.getNotificationCounter() + 1);
+                log.info(userNotification.getNotificationCounter() + " unread Notification(s) from " + user);
             }
             else if (object instanceof Server) {
                 Server server = (Server) object;
                 navBarServerElementHashMap.computeIfAbsent(server, notification -> {
-                    NavBarServerElement navBarServerElement = new NavBarServerElement(server);
-                    navBarServerElement.listeners().addPropertyChangeListener(NavBarNotificationElement.PROPERTY_NOTIFICATIONS, this::notificationPropertyChange);
-                    return navBarServerElement;
+                    ServerNotification serverNotification = new ServerNotification().setModel(server);
+                    serverNotification.setNotificationCounter(0);
+                    return new NavBarServerElement(serverNotification);
                 });
-                navBarServerElementHashMap.get(server).increaseNotifications();
-                log.info(navBarServerElementHashMap.get(server).getNotifications() + " unread Notification(s) in " + object);
+                Notification serverNotification = navBarServerElementHashMap.get(server).getModel();
+                serverNotification.setNotificationCounter(serverNotification.getNotificationCounter() + 1);
+                log.info(serverNotification.getNotificationCounter() + " unread Notification(s) from " + server);
             }
         }
     }
@@ -143,7 +143,7 @@ public class NavBarListController implements ControllerInterface {
                 serverAdded(server);
             }
         } else {
-            log.error("Response was unsuccessful");
+            log.error("Response was unsuccessful, error code: " + response.getStatusText());
         }
     }
 
@@ -175,42 +175,13 @@ public class NavBarListController implements ControllerInterface {
         }
     }
 
-    private void notificationPropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        // gets mainly triggered by onMessagePropertyChange
-        NavBarNotificationElement navBarElement = (NavBarNotificationElement) propertyChangeEvent.getNewValue();
-        if (Objects.nonNull(navBarElement)) {
-            if (navBarElement.getNotifications() == 1) {
-                if (navBarElement instanceof NavBarUserElement) {
-                    Platform.runLater(() -> navBarList.addUserElement(navBarElement));
-                }
-                else if (navBarElement instanceof NavBarServerElement) {
-                    // TODO: add server notification functionality
-                }
-            } else if (navBarElement.getNotifications() == 0){
-                navBarElementCleanUp(navBarElement);
-            }
-        }
-    }
-
     private void chatPartnerPropertyChange(PropertyChangeEvent propertyChangeEvent) {
         User chatPartner = (User) propertyChangeEvent.getNewValue();
         if (Objects.nonNull(chatPartner))
         {
             if (navBarUserElementHashMap.containsKey(chatPartner)) {
-                navBarUserElementHashMap.get(chatPartner).resetNotifications();
+                navBarUserElementHashMap.get(chatPartner).getModel().setNotificationCounter(0);
             }
-        }
-    }
-
-    private void navBarElementCleanUp(NavBarNotificationElement navBarElement) {
-        if (navBarElement instanceof NavBarServerElement) {
-            NavBarServerElement serverElement = (NavBarServerElement) navBarElement;
-            // TODO: add server notification functionality
-        } else if (navBarElement instanceof NavBarUserElement) {
-            NavBarUserElement userElement = (NavBarUserElement) navBarElement;
-            userElement.listeners().removePropertyChangeListener(notificationPropertyChangeListener);
-            navBarUserElementHashMap.remove(userElement.getModel());
-            Platform.runLater(() -> navBarList.removeElement(userElement));
         }
     }
 
@@ -232,11 +203,11 @@ public class NavBarListController implements ControllerInterface {
             .removePropertyChangeListener(chatPartnerPropertyChangeListener);
 
         for (Map.Entry<User, NavBarUserElement> entry : navBarUserElementHashMap.entrySet()) {
-            entry.getValue().listeners().removePropertyChangeListener(notificationPropertyChangeListener);
+            entry.getValue().stop();
         }
 
         for (Map.Entry<Server, NavBarServerElement> entry : navBarServerElementHashMap.entrySet()) {
-            entry.getValue().listeners().removePropertyChangeListener(notificationPropertyChangeListener);
+            entry.getValue().stop();
         }
 
         navBarUserElementHashMap.clear();

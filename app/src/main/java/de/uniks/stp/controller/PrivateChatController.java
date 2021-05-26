@@ -54,6 +54,7 @@ public class PrivateChatController implements ControllerInterface {
 
     @Override
     public void stop() {
+        editor.getOrCreateAccord().getCurrentUser().setCurrentChatPartner(null);
         if (Objects.nonNull(chatView)) {
             chatView.stop();
         }
