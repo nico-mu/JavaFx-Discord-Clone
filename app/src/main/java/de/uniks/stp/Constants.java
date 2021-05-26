@@ -36,6 +36,10 @@ public class Constants {
     public static final String LBL_TIME_FORMATTING_TODAY= "LBL_TIME_FORMATTING_TODAY";
     public static final String LBL_TIME_FORMATTING_YESTERDAY = "LBL_TIME_FORMATTING_YESTERDAY";
     public static final String LBL_SELECT_LANGUAGE = "LBL_SELECT_LANGUAGE";
+    public static final String LBL_ON = "LBL_ON";
+    public static final String LBL_OFF = "LBL_OFF";
+    public static final String LBL_NO_CHANGES = "LBL_NO_CHANGES";
+    public static final String LBL_RENAME_SERVER_FAILED = "LBL_RENAME_SERVER_FAILED";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";

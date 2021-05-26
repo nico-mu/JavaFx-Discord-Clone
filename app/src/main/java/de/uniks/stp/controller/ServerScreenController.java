@@ -4,12 +4,16 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
+import de.uniks.stp.modal.AddServerModal;
+import de.uniks.stp.modal.ServerSettingsModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.view.Views;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Side;
@@ -21,6 +25,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Objects;
 
 import static de.uniks.stp.view.Views.SERVER_SCREEN;
@@ -47,6 +53,7 @@ public class ServerScreenController implements ControllerInterface {
     private Label settingsGearLabel;
 
     private ContextMenu settingsContextMenu;
+    PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
 
     public ServerScreenController(Parent view, Editor editor, Server model) {
         this.view = (AnchorPane) view;
@@ -79,6 +86,8 @@ public class ServerScreenController implements ControllerInterface {
 
         serverUserListController = new ServerUserListController(serverUserListContainer, editor, model);
         serverUserListController.init();
+
+        model.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
     }
 
     @Override
@@ -100,12 +109,18 @@ public class ServerScreenController implements ControllerInterface {
         return editor.getChannel(channelId, category);
     }
 
+    private void onServerNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        Platform.runLater(()-> serverNameLabel.setText(model.getName()));
+    }
+
     private void onInviteUserClicked(ActionEvent actionEvent) {
         // ToDo
     }
 
     private void onEditServerClicked(ActionEvent actionEvent) {
-        // ToDo
+        Parent addServerModalView = ViewLoader.loadView(Views.SERVER_SETTINGS_MODAL);
+        ServerSettingsModal serverSettingsModal = new ServerSettingsModal(addServerModalView, editor, model);
+        serverSettingsModal.showAndWait();
     }
 
     private void onCreateCategoryClicked(ActionEvent actionEvent) {
@@ -124,6 +139,7 @@ public class ServerScreenController implements ControllerInterface {
             serverUserListController.stop();
         }
         settingsGearLabel.setOnMouseClicked(null);
+        model.listeners().removePropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
 
         for(MenuItem item: settingsContextMenu.getItems()){
             item.setOnAction(null);

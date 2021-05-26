@@ -219,6 +219,12 @@ public class WebSocketService {
         msg.setChannel(editor.getChannel(channelId, editor.getServer(serverId)));
     }
 
+    /**
+     * Called when server system message is received. Reacts to following actions_:
+     * - userJoined/userLeft: sets user online/offline in model
+     * - serverUpdated:
+     * @param jsonStructure
+     */
     private static void onServerSystemMessage(JsonStructure jsonStructure) {
         log.debug("received server system message: {}", jsonStructure.toString());
 
@@ -228,16 +234,24 @@ public class WebSocketService {
         JsonObject data = jsonObject.getJsonObject("data");
 
         if (Objects.nonNull(data)) {
-            String userId = data.getString("id");
-            String userName = data.getString("name");
-            String serverId = data.getString("serverId");
 
             switch (action) {
                 case "userJoined":
+                    String userId = data.getString("id");
+                    String userName = data.getString("name");
+                    String serverId = data.getString("serverId");
                     editor.setServerMemberOnline(userId, userName, editor.getServer(serverId));
                     return;
                 case "userLeft":
+                    userId = data.getString("id");
+                    userName = data.getString("name");
+                    serverId = data.getString("serverId");
                     editor.setServerMemberOffline(userId, userName, editor.getServer(serverId));
+                    return;
+                case "serverUpdated":
+                    serverId = data.getString("id");
+                    String newName = data.getString("name");
+                    editor.getServer(serverId).setName(newName);
                     return;
                 default:
                     break;
