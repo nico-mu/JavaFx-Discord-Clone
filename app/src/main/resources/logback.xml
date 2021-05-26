@@ -19,10 +19,11 @@
     </appender>
 
     <logger name="de.uniks.stp" level="DEBUG">
+        <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </logger>
 
-    <root level="DEBUG">
+    <root level="WARN">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
