@@ -65,7 +65,7 @@ public class SystemWebsocketTest {
         Editor editor = StageManager.getEditor();
 
         editor.getOrCreateAccord()
-            .setCurrentUser(new User().setName("Test").setId("123-45"))
+            .setCurrentUser(new User().setName("Test"))
             .setUserKey("123-45");
 
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
@@ -111,7 +111,7 @@ public class SystemWebsocketTest {
         Editor editor = StageManager.getEditor();
 
         editor.getOrCreateAccord()
-            .setCurrentUser(new User().setName("Test").setId("123-45"))
+            .setCurrentUser(new User().setName("Test"))
             .setUserKey("123-45");
 
         String otherUserName ="otherTestUser";
@@ -168,7 +168,7 @@ public class SystemWebsocketTest {
         Editor editor = StageManager.getEditor();
 
         editor.getOrCreateAccord()
-            .setCurrentUser(new User().setName("Test").setId("123-45"))
+            .setCurrentUser(new User().setName("Test"))
             .setUserKey("123-45");
 
         editor.getOrCreateServer(SERVER_ID, SERVER_NAME);
