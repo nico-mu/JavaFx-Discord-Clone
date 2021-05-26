@@ -89,8 +89,8 @@ public class HomeScreenController implements ControllerInterface {
             addUserToSidebar(otherUser);
 
         } else if (subRoute.equals(Constants.ROUTE_LIST_ONLINE_USERS)) {
-            UserList userList = new UserList();
             editor.getOrCreateAccord().getCurrentUser().setCurrentChatPartner(null);
+            UserList userList = new UserList();
             userListController = new UserListController(userList, editor);
             userListController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), userListController);

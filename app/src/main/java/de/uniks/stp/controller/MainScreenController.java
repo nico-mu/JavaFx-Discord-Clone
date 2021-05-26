@@ -53,13 +53,14 @@ public class MainScreenController implements ControllerInterface {
         String subroute = routeInfo.getSubControllerRoute();
 
         if (subroute.equals(Constants.ROUTE_HOME)) {
+            editor.getOrCreateAccord().getCurrentUser().setCurrentChatPartner(null);
             currentController = new HomeScreenController(this.subViewContainer, this.editor);
             currentController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
         } else if (subroute.equals(Constants.ROUTE_SERVER)) {
             Server server = editor.getServer(args.getArguments().get(":id"));
-            editor.getOrCreateAccord().getCurrentUser().setCurrentChatPartner(null);
             if (Objects.nonNull(server)) {
+                editor.getOrCreateAccord().getCurrentUser().setCurrentChatPartner(null);
                 currentController = new ServerScreenController(this.subViewContainer, this.editor, server);
                 currentController.init();
                 Router.addToControllerCache(routeInfo.getFullRoute(), currentController);

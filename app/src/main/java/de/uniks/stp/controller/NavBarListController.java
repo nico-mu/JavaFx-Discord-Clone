@@ -44,8 +44,12 @@ public class NavBarListController implements ControllerInterface {
     private final ConcurrentHashMap<Server, NavBarServerElement> navBarServerElementHashMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<User, NavBarUserElement> navBarUserElementHashMap = new ConcurrentHashMap<>();
     PropertyChangeListener availableServersPropertyChangeListener = this::onAvailableServersPropertyChange;
+    // handles incoming messages and adds new users to Navbar
     PropertyChangeListener messagePropertyChangeListener = this::onMessagePropertyChange;
+    // clean up of the notification when its set to zero
     PropertyChangeListener notificationPropertyChangeListener = this::notificationPropertyChange;
+    // clean up of the notification on edge cases e.g. User clicks on user in online list instead of notification
+    PropertyChangeListener chatPartnerPropertyChangeListener = this::chatPartnerPropertyChange;
 
     public NavBarListController(Parent view, Editor editor) {
         this.view = view;
@@ -69,6 +73,12 @@ public class NavBarListController implements ControllerInterface {
             .getCurrentUser()
             .listeners()
             .addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagePropertyChangeListener);
+
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .listeners()
+            .addPropertyChangeListener(User.PROPERTY_CURRENT_CHAT_PARTNER, chatPartnerPropertyChangeListener);
+
 
         //TODO: show spinner
         restClient.getServers(this::callback);
@@ -182,6 +192,16 @@ public class NavBarListController implements ControllerInterface {
         }
     }
 
+    private void chatPartnerPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        User chatPartner = (User) propertyChangeEvent.getNewValue();
+        if (Objects.nonNull(chatPartner))
+        {
+            if (navBarUserElementHashMap.containsKey(chatPartner)) {
+                navBarUserElementHashMap.get(chatPartner).resetNotifications();
+            }
+        }
+    }
+
     private void navBarElementCleanUp(NavBarNotificationElement navBarElement) {
         if (navBarElement instanceof NavBarServerElement) {
             NavBarServerElement serverElement = (NavBarServerElement) navBarElement;
@@ -205,6 +225,11 @@ public class NavBarListController implements ControllerInterface {
             .getCurrentUser()
             .listeners()
             .removePropertyChangeListener(messagePropertyChangeListener);
+
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .listeners()
+            .removePropertyChangeListener(chatPartnerPropertyChangeListener);
 
         for (Map.Entry<User, NavBarUserElement> entry : navBarUserElementHashMap.entrySet()) {
             entry.getValue().listeners().removePropertyChangeListener(notificationPropertyChangeListener);
