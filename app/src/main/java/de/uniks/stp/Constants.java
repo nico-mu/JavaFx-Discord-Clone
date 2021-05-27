@@ -40,6 +40,7 @@ public class Constants {
     public static final String LBL_OFF = "LBL_OFF";
     public static final String LBL_NO_CHANGES = "LBL_NO_CHANGES";
     public static final String LBL_RENAME_SERVER_FAILED = "LBL_RENAME_SERVER_FAILED";
+    public static final String LBL_CREATE_CHANNEL = "LBL_CREATE_CHANNEL";
     public static final String LBL_MISSING_NAME = "LBL_MISSING_NAME";
     public static final String LBL_MISSING_MEMBERS = "LBL_MISSING_MEMBERS";
 

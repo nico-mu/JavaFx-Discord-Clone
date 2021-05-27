@@ -57,7 +57,7 @@ public class AddChannelModal extends AbstractModal{
         this.editor = editor;
         this.restClient = NetworkClientInjector.getRestClient();
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE));
+        setTitle(ViewLoader.loadLabel(Constants.LBL_CREATE_CHANNEL));
         channelName = (JFXTextField) view.lookup(ADD_CHANNEL_NAME_TEXTFIELD);
         privileged = (JFXCheckBox) view.lookup(PRIVILEGED_CHECKBOX);
         filter = (JFXTextField) view.lookup(FILTER_USER_TEXTFIELD);
@@ -109,6 +109,7 @@ public class AddChannelModal extends AbstractModal{
     }
 
     private void onCreatButtonClicked(ActionEvent actionEvent) {
+        setErrorMessage(null);
         String chName = channelName.getText();
         Boolean priv = privileged.isSelected();
         String type = "text";
