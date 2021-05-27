@@ -79,7 +79,7 @@ public class NavBarListController implements ControllerInterface {
             WebSocketService.addServerWebSocket(server.getId());  // enables sending & receiving messages
             final ServerNotification serverNotification = new ServerNotification().setSender(server);
             serverNotification.setNotificationCounter(0);
-            final NavBarServerElement navBarElement = new NavBarServerElement(serverNotification);
+            final NavBarServerElement navBarElement = new NavBarServerElement(serverNotification.getSender());
             navBarServerElementHashMap.put(server, navBarElement);
             Platform.runLater(() -> navBarList.addServerElement(navBarElement));
         }

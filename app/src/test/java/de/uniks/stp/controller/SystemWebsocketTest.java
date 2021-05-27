@@ -330,7 +330,6 @@ public class SystemWebsocketTest {
 
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
         WaitForAsyncUtils.waitForFxEvents();
-        WaitForAsyncUtils.waitForFxEvents();
 
         verify(webSocketMock, times(2)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
