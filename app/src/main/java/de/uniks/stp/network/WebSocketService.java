@@ -5,6 +5,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
+import de.uniks.stp.model.UserNotification;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,10 +120,11 @@ public class WebSocketService {
             log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
             return;
         }
-
         DirectMessage msg = new DirectMessage();
         msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setSender(sender);
-
+        if (Objects.isNull(sender.getSentUserNotification())) {
+            sender.setSentUserNotification(new UserNotification());
+        }
         // show message
         sender.withPrivateChatMessages(msg);
         if (!currentUser.getChatPartner().contains(sender)) {
@@ -223,6 +225,7 @@ public class WebSocketService {
      * Called when server system message is received. Reacts to following actions_:
      * - userJoined/userLeft: sets user online/offline in model
      * - serverUpdated:
+     *
      * @param jsonStructure
      */
     private static void onServerSystemMessage(JsonStructure jsonStructure) {

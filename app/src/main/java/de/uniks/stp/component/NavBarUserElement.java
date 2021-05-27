@@ -27,17 +27,13 @@ public class NavBarUserElement extends NavBarNotificationElement {
         userNotification.listeners().addPropertyChangeListener(Notification.PROPERTY_NOTIFICATION_COUNTER, notificationPropertyChangeListener);
     }
 
-    public void stop() {
-        userNotification.listeners().removePropertyChangeListener(notificationPropertyChangeListener);
-    }
-
     @Override
     protected void onMouseClicked(MouseEvent mouseEvent) {
         super.onMouseClicked(mouseEvent);
+        RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, userNotification.getSender().getId());
         userNotification.setNotificationCounter(0);
         this.setNotificationCount(userNotification.getNotificationCounter());
-        stop();
-        RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, userNotification.getSender().getId());
+        userNotification.listeners().removePropertyChangeListener(notificationPropertyChangeListener);
         Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args);
         this.fireEvent(new NavBarHomeElementActiveEvent());
     }
@@ -45,11 +41,8 @@ public class NavBarUserElement extends NavBarNotificationElement {
     private void onNotificationPropertyChange(PropertyChangeEvent propertyChangeEvent) {
         int notificationCount = (int) propertyChangeEvent.getNewValue();
         userNotification.setNotificationCounter(notificationCount);
-        if (notificationCount == 1) {
-            userNotification.getReceiver().withReceivedUserNotifications(userNotification);
-        }
-        else if (notificationCount == 0) {
-            userNotification.getReceiver().withoutReceivedUserNotifications(userNotification);
+        if (notificationCount == 0) {
+            userNotification.setSender(null);
         }
         setNotificationCount(notificationCount);
     }

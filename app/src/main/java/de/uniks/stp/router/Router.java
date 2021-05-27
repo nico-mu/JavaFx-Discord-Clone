@@ -28,6 +28,10 @@ public class Router {
         return currentRoute;
     }
 
+    public static HashMap<String, String> getCurrentArgs() {
+        return currentArgs.getArguments();
+    }
+
     public static String compareRoutes(String newRoute, String oldRoute) {
         StringBuilder intersection = new StringBuilder();
         int compareLength = Math.min(oldRoute.length(), newRoute.length());

@@ -29,9 +29,6 @@ public class GenModel implements ClassModelDecorator {
         String name;
         boolean status;
 
-        @Link("currentChatPartner")
-        User currentChatPartner;
-
         @Link("currentUser")
         Accord accord;
 
@@ -55,13 +52,6 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("sender")
         UserNotification sentUserNotification;
-
-        @Link("receiver")
-        List<UserNotification> receivedUserNotifications;
-
-        @Link("receiver")
-        List<ServerNotification> receivedServerNotification;
-
     }
 
     class Server {
@@ -131,16 +121,10 @@ public class GenModel implements ClassModelDecorator {
     class ServerNotification extends Notification {
         @Link("serverNotification")
         Server sender;
-
-        @Link("receivedServerNotification")
-        User receiver;
     }
 
     class UserNotification extends Notification {
         @Link("sentUserNotification")
         User sender;
-
-        @Link("receivedUserNotifications")
-        User receiver;
     }
 }

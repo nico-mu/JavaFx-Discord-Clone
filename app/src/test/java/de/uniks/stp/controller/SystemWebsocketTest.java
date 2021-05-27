@@ -375,10 +375,10 @@ public class SystemWebsocketTest {
             Assertions.assertEquals(2, userOne.getSentUserNotification().getNotificationCounter());
             Assertions.assertEquals(1, userTwo.getSentUserNotification().getNotificationCounter());
             robot.clickOn("#" + userOne.getId() + "-button");
-            Assertions.assertEquals(0, userOne.getSentUserNotification().getNotificationCounter());
         });
         WaitForAsyncUtils.waitForFxEvents();
-
+        Assertions.assertNull(userOne.getSentUserNotification());
+        Assertions.assertEquals(1, userTwo.getSentUserNotification().getNotificationCounter());
         currentUserCallback.handleMessage(messageOne);
         currentUserCallback.handleMessage(messageTwo);
         currentUserCallback.handleMessage(messageThree);

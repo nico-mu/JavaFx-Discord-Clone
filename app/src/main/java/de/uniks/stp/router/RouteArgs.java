@@ -24,7 +24,7 @@ public class RouteArgs implements Cloneable {
     public boolean compareTo(RouteArgs other) {
         Objects.requireNonNull(other);
         HashMap<String, String> otherMap = other.getArguments();
-        for(String argName : argMap.keySet()) {
+        for (String argName : argMap.keySet()) {
             if (!otherMap.containsKey(argName) || !otherMap.get(argName).equals(argMap.get(argName))) {
                 return false;
             }
