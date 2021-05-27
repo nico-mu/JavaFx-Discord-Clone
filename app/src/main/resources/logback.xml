@@ -18,11 +18,11 @@
         </encoder>
     </appender>
 
+    <logger name="de.uniks.stp" level="WARN">
+        <appender-ref ref="FILE" />
+    </logger>
+
     <logger name="de.uniks.stp" level="DEBUG">
         <appender-ref ref="STDOUT" />
     </logger>
-
-    <root level="WARN">
-        <appender-ref ref="FILE" />
-    </root>
 </configuration>
