@@ -368,13 +368,13 @@ public class SystemWebsocketTest {
         currentUserCallback.handleMessage(messageTwo);
         currentUserCallback.handleMessage(messageThree);
 
-        Platform.runLater(() -> {
-            NavBarUserElement userOneElement = robot.lookup("#" + userOne.getId() + "-button").query();
-            NavBarUserElement userTwoElement = robot.lookup("#" + userTwo.getId() + "-button").query();
-            Assertions.assertEquals(2, userOne.getSentUserNotification().getNotificationCounter());
-            Assertions.assertEquals(1, userTwo.getSentUserNotification().getNotificationCounter());
-            robot.clickOn("#" + userOne.getId() + "-button");
-        });
+
+        NavBarUserElement userOneElement = robot.lookup("#" + userOne.getId() + "-button").query();
+        NavBarUserElement userTwoElement = robot.lookup("#" + userTwo.getId() + "-button").query();
+        Assertions.assertEquals(2, userOne.getSentUserNotification().getNotificationCounter());
+        Assertions.assertEquals(1, userTwo.getSentUserNotification().getNotificationCounter());
+        robot.clickOn("#" + userOne.getId() + "-button");
+
         WaitForAsyncUtils.waitForFxEvents();
         Assertions.assertNull(userOne.getSentUserNotification());
         Assertions.assertEquals(1, userTwo.getSentUserNotification().getNotificationCounter());
@@ -382,18 +382,17 @@ public class SystemWebsocketTest {
         currentUserCallback.handleMessage(messageTwo);
         currentUserCallback.handleMessage(messageThree);
 
-        Platform.runLater(() -> {
-            NavBarUserElement userTwoElement = robot.lookup("#" + userTwo.getId() + "-button").query();
-            Assertions.assertEquals(2, userTwo.getSentUserNotification().getNotificationCounter());
-            robot.clickOn("#home-button");
-            robot.clickOn("#" + userTwo.getId() + "-UserListSideBarEntry");
-        });
+
+        Assertions.assertEquals(2, userTwo.getSentUserNotification().getNotificationCounter());
+        robot.clickOn("#home-button");
+        robot.clickOn("#" + userTwo.getId() + "-UserListSideBarEntry");
+
         WaitForAsyncUtils.waitForFxEvents();
 
-        Platform.runLater(() -> {
-            Assertions.assertThrows(EmptyNodeQueryException.class, () -> {
-                robot.lookup("#" + userTwo.getId() + "-button").query();
-            });
+
+        Assertions.assertThrows(EmptyNodeQueryException.class, () -> {
+            robot.lookup("#" + userTwo.getId() + "-button").query();
         });
+
     }
 }
