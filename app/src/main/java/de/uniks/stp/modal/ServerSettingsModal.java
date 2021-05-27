@@ -50,7 +50,7 @@ public class ServerSettingsModal extends AbstractModal {
         this.editor = editor;
         this.model = model;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_ADD_SERVER));
+        setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_SERVER_TITLE));
 
         servernameTextField = (JFXTextField) view.lookup(SERVERNAME_TEXT_FIELD);
         notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);  // FIXME: is Null

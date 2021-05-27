@@ -28,18 +28,19 @@ public class Constants {
     public static final String LBL_MISSING_FIELDS = "LBL_MISSING_FIELDS";
     public static final String LBL_HOME = "LBL_HOME";
     public static final String LBL_CREATE_SERVER = "LBL_CREATE_SERVER";
-    public static final String LBL_ADD_SERVER = "LBL_ADD_SERVER";
+    public static final String LBL_ADD_SERVER_TITLE = "LBL_ADD_SERVER_TITLE";
     public static final String LBL_SERVERNAME_MISSING = "LBL_SERVERNAME_MISSING";
     public static final String LBL_CREATE_SERVER_FAILED = "LBL_CREATE_SERVER_FAILED";
     public static final String LBL_ONLINE_USERS = "LBL_ONLINE_USERS";
     public static final String LBL_USER_OFFLINE = "LBL_USER_OFFLINE";
     public static final String LBL_TIME_FORMATTING_TODAY= "LBL_TIME_FORMATTING_TODAY";
     public static final String LBL_TIME_FORMATTING_YESTERDAY = "LBL_TIME_FORMATTING_YESTERDAY";
-    public static final String LBL_SELECT_LANGUAGE = "LBL_SELECT_LANGUAGE";
+    public static final String LBL_SELECT_LANGUAGE_TITLE = "LBL_SELECT_LANGUAGE_TITLE";
     public static final String LBL_ON = "LBL_ON";
     public static final String LBL_OFF = "LBL_OFF";
     public static final String LBL_NO_CHANGES = "LBL_NO_CHANGES";
     public static final String LBL_RENAME_SERVER_FAILED = "LBL_RENAME_SERVER_FAILED";
+    public static final String LBL_EDIT_SERVER_TITLE = "LBL_EDIT_SERVER_TITLE";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";
