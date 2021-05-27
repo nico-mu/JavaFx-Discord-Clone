@@ -19,7 +19,6 @@
     </appender>
 
     <logger name="de.uniks.stp" level="DEBUG">
-        <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </logger>
 
