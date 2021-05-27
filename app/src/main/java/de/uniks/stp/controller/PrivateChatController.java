@@ -67,7 +67,9 @@ public class PrivateChatController implements ControllerInterface {
      * Also adds all messages from model in the View and creates PropertyChangeListener that will do so in the future.
      */
     private void showChatView() {
-        model.setSentUserNotification(null);
+        if (Objects.nonNull(model.getSentUserNotification())) {
+            model.getSentUserNotification().setNotificationCounter(0);
+        }
         homeScreenLabel.setText(model.getName());
         chatView = new PrivateChatView();
 

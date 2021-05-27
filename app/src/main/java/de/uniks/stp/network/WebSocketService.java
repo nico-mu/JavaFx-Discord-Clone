@@ -122,9 +122,6 @@ public class WebSocketService {
         }
         DirectMessage msg = new DirectMessage();
         msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setSender(sender);
-        if (Objects.isNull(sender.getSentUserNotification())) {
-            sender.setSentUserNotification(new UserNotification());
-        }
         // show message
         sender.withPrivateChatMessages(msg);
         if (!currentUser.getChatPartner().contains(sender)) {

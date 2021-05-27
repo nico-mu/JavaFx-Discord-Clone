@@ -9,7 +9,7 @@ public class NavBarNotificationElement extends NavBarElement {
      * sets the notification label to given number and handles the visibility of the label and circle
      * @param notifications the number of the element notifications
      */
-    void setNotificationCount(int notifications) {
+    public void setNotificationCount(int notifications) {
         if (0 < notifications && notifications < 10) {
             setNotificationsLabel(Integer.toString(notifications));
             setNotificationVisibility(true);
