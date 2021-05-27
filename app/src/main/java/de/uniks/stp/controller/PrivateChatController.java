@@ -67,6 +67,9 @@ public class PrivateChatController implements ControllerInterface {
      * Also adds all messages from model in the View and creates PropertyChangeListener that will do so in the future.
      */
     private void showChatView() {
+        if (Objects.nonNull(model.getSentUserNotification())) {
+            model.getSentUserNotification().setNotificationCounter(0);
+        }
         homeScreenLabel.setText(model.getName());
         chatView = new PrivateChatView();
 
@@ -82,6 +85,7 @@ public class PrivateChatController implements ControllerInterface {
     /**
      * Creates DirectMessage, saves it in the model and sends it via websocket.
      * Adds other user to chatPartner list of currentUser if not already contained.
+     *
      * @param message
      */
     private void handleMessageSubmit(String message) {
