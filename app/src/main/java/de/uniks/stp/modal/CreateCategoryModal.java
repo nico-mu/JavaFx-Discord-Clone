@@ -44,7 +44,7 @@ public class CreateCategoryModal extends AbstractModal {
         super(root);
         this.model = model;
 
-        //setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_SERVER_TITLE));
+        setTitle(ViewLoader.loadLabel(Constants.LBL_CREATE_CATEGORY_TITLE));
 
         categoryNameTextField = (JFXTextField) view.lookup(CATEGORY_NAME_TEXT_FIELD);
         errorLabel = (Label) view.lookup(ERROR_MESSAGE_LABEL);
@@ -100,7 +100,7 @@ public class CreateCategoryModal extends AbstractModal {
     }
 
     /**
-     * When successful: server model is renamed and View is closed
+     * When successful: new category is created, inserted in model and View is closed
      * When unsuccessful: shows error message, hides spinner and enables control elements
      * @param response
      */

@@ -43,6 +43,7 @@ public class Constants {
     public static final String LBL_EDIT_SERVER_TITLE = "LBL_EDIT_SERVER_TITLE";
     public static final String LBL_CATEGORYNAME_MISSING = "LBL_CATEGORYNAME_MISSING";
     public static final String LBL_CREATE_CATEGORY_FAILED = "LBL_CREATE_CATEGORY_FAILED";
+    public static final String LBL_CREATE_CATEGORY_TITLE = "LBL_CREATE_CATEGORY_TITLE";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";
