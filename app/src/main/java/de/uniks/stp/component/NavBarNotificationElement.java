@@ -22,7 +22,7 @@ public class NavBarNotificationElement extends NavBarElement {
         }
     }
 
-    private void setNotificationVisibility(boolean mode) {
+    void setNotificationVisibility(boolean mode) {
         notificationLabel.setVisible(mode);
         circle.setVisible(mode);
     }
