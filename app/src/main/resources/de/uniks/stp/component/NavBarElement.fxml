@@ -12,7 +12,7 @@
       </HBox.margin>
    </Pane>
    <Pane fx:id="navBarElement" prefHeight="70.0" prefWidth="63.0" styleClass="nav-bar-element">
-      <Circle fx:id="circle" layoutX="50.0" layoutY="60.0" styleClass="nav-bar-circle"/>
+      <Circle fx:id="circle" layoutX="50.0" layoutY="60.0" radius="10.0" styleClass="nav-bar-circle"/>
       <ImageView fx:id="imageView" fitHeight="40.0" fitWidth="40.0" layoutX="11.0" layoutY="15.0" pickOnBounds="true"/>
       <Label fx:id="notificationLabel" alignment="CENTER" layoutX="40.0" layoutY="47.0" prefHeight="27.0"
              prefWidth="20.0" text="0" textAlignment="CENTER" styleClass="nav-bar-label"/>
