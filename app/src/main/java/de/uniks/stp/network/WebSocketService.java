@@ -2,6 +2,7 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.model.Category;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
@@ -252,6 +253,14 @@ public class WebSocketService {
                     serverId = data.getString("id");
                     String newName = data.getString("name");
                     editor.getServer(serverId).setName(newName);
+                case "categoryCreated":
+                    String categoryId = data.getString("id");
+                    String name = data.getString("name");
+                    serverId = data.getString("server");
+                    if(! editor.categoryExists(serverId, categoryId)){
+                        Category newCategory = new Category().setId(categoryId).setName(name);
+                        newCategory.setServer(editor.getServer(serverId));
+                    }
                     return;
                 default:
                     break;
