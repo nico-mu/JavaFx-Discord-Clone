@@ -160,7 +160,7 @@ public class AddChannelModal extends AbstractModal{
                 ArrayList<String> memberNames = (ArrayList<String>) membersArray.toList();
                 //TODO add members to channel
             }
-
+            this.close();
         }else{
             log.error("Create server failed: " + jsonNodeHttpResponse.getBody().toPrettyString());
             String errorMessage = jsonNodeHttpResponse.getBody().getObject().getString("message");
