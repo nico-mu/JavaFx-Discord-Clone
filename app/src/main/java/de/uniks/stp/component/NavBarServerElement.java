@@ -11,7 +11,7 @@ import javafx.scene.input.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class NavBarServerElement extends NavBarElement {
+public class NavBarServerElement extends NavBarNotificationElement {
 
     Server model;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
@@ -20,7 +20,7 @@ public class NavBarServerElement extends NavBarElement {
         this.model = model;
         Tooltip.install(navBarElement, new Tooltip(model.getName()));
         imageView.setImage(ViewLoader.loadImage("server.png"));
-
+        this.setNotificationVisibility(false);
         model.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
     }
 

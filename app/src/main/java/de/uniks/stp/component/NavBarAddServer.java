@@ -21,6 +21,8 @@ public class NavBarAddServer extends NavBarElement {
         this.editor = editor;
         Tooltip.install(navBarElement, new Tooltip(ViewLoader.loadLabel(Constants.LBL_CREATE_SERVER)));
         imageView.setImage(ViewLoader.loadImage("plus.png"));
+        notificationLabel.setVisible(false);
+        circle.setVisible(false);
     }
 
     @Override

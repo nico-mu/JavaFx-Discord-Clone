@@ -23,6 +23,7 @@ public class UserListSidebarEntry extends HBox {
         final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST_SIDEBAR_ENTRY);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+        this.setId(user.getId() + "-UserListSideBarEntry");
 
         try {
             fxmlLoader.load();
