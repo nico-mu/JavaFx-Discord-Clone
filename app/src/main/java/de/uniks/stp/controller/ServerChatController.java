@@ -73,6 +73,7 @@ public class ServerChatController implements ControllerInterface {
         chatView = new ServerChatView(this::loadMessages);
 
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
+        serverChatVBox.getChildren().clear();
         serverChatVBox.getChildren().add(chatView);
 
         for (ServerMessage message : model.getMessages()) {
