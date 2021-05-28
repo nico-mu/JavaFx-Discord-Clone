@@ -123,7 +123,11 @@ public class RestClient {
 
     public void createTextChannel(String serverId, String categoryId, String channelName, Boolean privileged, ArrayList<String> members, Callback<JsonNode> callback) {
         HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH)
-            .body(Json.createObjectBuilder().add("name", channelName).add("type", "text").add("privileged", privileged).add("members", members.toString()).build().toString());
+            .body(Json.createObjectBuilder()
+                .add("name", channelName)
+                .add("type", "text")
+                .add("privileged", privileged)
+                .add("members", members.toString()).build().toString());
         sendRequest(req, callback);
     }
 }
