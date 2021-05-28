@@ -103,7 +103,7 @@ public class ServerSettingsTest {
         verify(restMock).renameServer(eq(serverId), eq(newName), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
-        
+
         WaitForAsyncUtils.waitForFxEvents();
 
         // check for correct reactions

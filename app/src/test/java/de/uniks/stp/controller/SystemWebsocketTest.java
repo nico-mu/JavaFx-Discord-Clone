@@ -66,7 +66,6 @@ public class SystemWebsocketTest {
 
     @Test
     public void testUserJoined(FxRobot robot) {
-
         Editor editor = StageManager.getEditor();
 
         editor.getOrCreateAccord()
@@ -101,13 +100,10 @@ public class SystemWebsocketTest {
         Assertions.assertEquals(1, editor.getOrCreateAccord().getOtherUsers().size());
         Assertions.assertNotNull(editor.getOtherUser(testUserName));
 
-        Platform.runLater(() -> {
-            VBox onlineUsersContainer = robot.lookup("#online-users-container").query();
-            Object[] userListEntryLabels = onlineUsersContainer.lookupAll("#user-list-entry-text").toArray();
-            Assertions.assertEquals(1, userListEntryLabels.length);
-            Assertions.assertEquals(testUserName, ((Text) userListEntryLabels[0]).getText());
-        });
-        WaitForAsyncUtils.waitForFxEvents();
+        VBox onlineUsersContainer = robot.lookup("#online-users-container").query();
+        Object[] userListEntryLabels = onlineUsersContainer.lookupAll("#user-list-entry-text").toArray();
+        Assertions.assertEquals(1, userListEntryLabels.length);
+        Assertions.assertEquals(testUserName, ((Text) userListEntryLabels[0]).getText());
     }
 
     @Test
