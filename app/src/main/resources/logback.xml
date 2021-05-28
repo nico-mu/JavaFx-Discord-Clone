@@ -8,9 +8,6 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>WARN</level>
-        </filter>
         <file>logs/application.log</file>
         <append>true</append>
         <encoder>
@@ -18,7 +15,7 @@
         </encoder>
     </appender>
 
-    <logger name="de.uniks.stp">
+    <logger name="de.uniks.stp" level="WARN">
         <appender-ref ref="FILE" />
     </logger>
 
