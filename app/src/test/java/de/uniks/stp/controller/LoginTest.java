@@ -55,7 +55,11 @@ public class LoginTest {
     }
 
     private void clearNameField(FxRobot robot) {
-        ((JFXTextField) robot.lookup("#name-field").query()).clear();
+        JFXTextField nameField = robot.lookup("#name-field").query();
+        Platform.runLater(() -> {
+            nameField.clear();
+        });
+        WaitForAsyncUtils.waitForFxEvents();
     }
 
     @Test
@@ -66,7 +70,10 @@ public class LoginTest {
         robot.write("Guave");
         robot.clickOn("#login-button");
         Label errorLabel = robot.lookup("#error-message").query();
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_MISSING_FIELDS), errorLabel.getText());
+        Platform.runLater(() -> {
+            Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_MISSING_FIELDS), errorLabel.getText());
+        });
+        WaitForAsyncUtils.waitForFxEvents();
     }
 
     @Test

@@ -81,10 +81,9 @@ public class ServerSettingsTest {
         // assert correct start situation
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
         Assertions.assertEquals(oldName, editor.getServer(serverId).getName());
-        Platform.runLater(() -> {
-            Label serverLabel = robot.lookup("#server-name-label").query();
-            Assertions.assertEquals(oldName, serverLabel.getText());
-        });
+
+        Label serverLabel = robot.lookup("#server-name-label").query();
+        Assertions.assertEquals(oldName, serverLabel.getText());
 
         // prepare changing server name
         robot.clickOn("#settings-label");
@@ -92,6 +91,7 @@ public class ServerSettingsTest {
 
         // change name
         String newName = "Nice Name";
+        robot.clickOn("servername-text-field");
         robot.write(newName);
         robot.clickOn("#save-button");
 
@@ -105,10 +105,7 @@ public class ServerSettingsTest {
         callback.completed(res);
 
         // check for correct reactions
-        Platform.runLater(() -> {
-            Label serverLabel = robot.lookup("#server-name-label").query();
-            Assertions.assertEquals(newName, serverLabel.getText());
-        });
+        Assertions.assertEquals(newName, serverLabel.getText());
         Assertions.assertEquals(newName, editor.getServer(serverId).getName());
     }
 }
