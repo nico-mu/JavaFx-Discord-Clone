@@ -18,7 +18,7 @@
         </encoder>
     </appender>
 
-    <logger name="de.uniks.stp" level="WARN">
+    <logger name="de.uniks.stp">
         <appender-ref ref="FILE" />
     </logger>
 
