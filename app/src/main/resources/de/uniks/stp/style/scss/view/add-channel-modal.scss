@@ -19,6 +19,11 @@
   -fx-font-size: 14px;
 }
 
+.user-check-list-container {
+  @include secondary-container-mixin;
+  -fx-background-color: $main-background-color;
+}
+
 .add-channel-create-button {
   -fx-background-color: $button-color;
   -fx-text-fill: $primary-text-fill;
