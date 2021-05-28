@@ -2,9 +2,7 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.model.DirectMessage;
-import de.uniks.stp.model.ServerMessage;
-import de.uniks.stp.model.User;
+import de.uniks.stp.model.*;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -223,6 +221,7 @@ public class WebSocketService {
      * Called when server system message is received. Reacts to following actions_:
      * - userJoined/userLeft: sets user online/offline in model
      * - serverUpdated:
+     *
      * @param jsonStructure
      */
     private static void onServerSystemMessage(JsonStructure jsonStructure) {
@@ -252,6 +251,24 @@ public class WebSocketService {
                     serverId = data.getString("id");
                     String newName = data.getString("name");
                     editor.getServer(serverId).setName(newName);
+                    return;
+                case "channelCreated":
+                    String channelId = data.getString("id");
+                    String channelName = data.getString("name");
+                    String type = data.getString("type");
+                    Boolean privileged = data.getBoolean("privileged");
+                    String categoryId = data.getString("category");
+                    //TODO get members
+
+                    Channel channel = new Channel().setId(channelId).setName(channelName).setType(type).setPrivileged(privileged);
+
+                    for (Server server : editor.getAvailableServers()) {
+                        for (Category category : server.getCategories()) {
+                            if (category.getId().equals(categoryId)) {
+                                category.withChannels(channel);
+                            }
+                        }
+                    }
                     return;
                 default:
                     break;
