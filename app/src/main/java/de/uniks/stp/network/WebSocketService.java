@@ -253,6 +253,7 @@ public class WebSocketService {
                     serverId = data.getString("id");
                     String newName = data.getString("name");
                     editor.getServer(serverId).setName(newName);
+                    return;
                 case "categoryCreated":
                     String categoryId = data.getString("id");
                     String name = data.getString("name");

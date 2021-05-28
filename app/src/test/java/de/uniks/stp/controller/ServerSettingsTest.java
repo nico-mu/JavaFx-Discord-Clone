@@ -5,6 +5,8 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.component.ServerCategoryElement;
+import de.uniks.stp.component.ServerCategoryList;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -14,6 +16,7 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
@@ -79,7 +82,6 @@ public class ServerSettingsTest {
     public void testChangeServerName(FxRobot robot){
         // prepare start situation
         Editor editor = StageManager.getEditor();
-
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
         String oldName ="Shitty Name";
@@ -181,7 +183,6 @@ public class ServerSettingsTest {
     public void testCreateCategory(FxRobot robot){
         // prepare start situation
         Editor editor = StageManager.getEditor();
-
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
         String serverName ="Plattis Server";
@@ -196,10 +197,6 @@ public class ServerSettingsTest {
         // assert correct start situation
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
         Assertions.assertEquals(0, editor.getServer(serverId).getCategories().size());
-        Platform.runLater(() -> {
-            VBox serverChannelOverview = robot.lookup("#server-channel-overview").query();
-            //serverChannelOverview.getChildren().get(0)
-        });
 
         // prepare creating category
         robot.clickOn("#settings-label");
@@ -207,6 +204,7 @@ public class ServerSettingsTest {
 
         // insert name
         String categoryName = "useful category";
+        robot.clickOn("#category-name-text-field");
         robot.write(categoryName);
         robot.clickOn("#create-button");
 
@@ -225,9 +223,10 @@ public class ServerSettingsTest {
         // check for correct reactions
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
         Assertions.assertEquals(categoryName, editor.getServer(serverId).getCategories().get(0).getName());
-        Platform.runLater(() -> {
-            VBox serverChannelOverview = robot.lookup("#server-channel-overview").query();
-            //serverChannelOverview.getChildren().get(0)
-        });
+
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Label categoryNameLabel = robot.lookup("#category-head-label").query();
+        Assertions.assertEquals(categoryName, categoryNameLabel.getText());
     }
 }
