@@ -8,6 +8,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.controller.LoginScreenController;
 import de.uniks.stp.model.Category;
+import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
@@ -79,9 +80,9 @@ public class AddChannelModal extends AbstractModal{
         serverUserElementsMap = new HashMap();
 
         for(User user : category.getServer().getUsers()){
-            if(user.getName().equals(editor.getOrCreateAccord().getCurrentUser().getName())){
+            /*if(user.getName().equals(editor.getOrCreateAccord().getCurrentUser().getName())){
                 continue;
-            }
+            }*/
             JFXCheckBox checkBox = new JFXCheckBox();
             checkBox.setId("checkbox");
 
@@ -117,7 +118,7 @@ public class AddChannelModal extends AbstractModal{
         String categoryId = category.getId();
 
         ArrayList<String> selectedUserNames = new ArrayList<>();
-        selectedUserNames.add(editor.getOrCreateAccord().getCurrentUser().getName());
+        //selectedUserNames.add(editor.getOrCreateAccord().getCurrentUser().getName());
         for(HBox userElement : serverUserElementsMap.values()){
             JFXCheckBox checkBox = (JFXCheckBox) userElement.lookup("#checkbox");
             if(checkBox.isSelected()){
@@ -150,9 +151,14 @@ public class AddChannelModal extends AbstractModal{
             String chName = data.getString("name");
             String type = data.getString("type");
             Boolean privileged = data.getBoolean("privileged");
-            String category = data.getString("category");
+
+            Channel channel = new Channel().setId(chId).setName(chName).setType(type).setPrivileged(privileged);
+            category.withChannels(channel);
+
             if(privileged){
-                //TODO create channel and add to model
+                JSONArray membersArray = data.getJSONArray("members");
+                ArrayList<String> memberNames = (ArrayList<String>) membersArray.toList();
+                //TODO add members to channel
             }
 
         }else{
