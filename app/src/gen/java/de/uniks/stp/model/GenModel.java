@@ -49,6 +49,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("chatPartner")
         List<User> chatPartner;
+
+        @Link("channelMembers")
+        List<Channel> availableChannels;
     }
 
     class Server {
@@ -87,6 +90,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("channel")
         List<ServerMessage> messages;
+
+        @Link("availableChannels")
+        List<User> channelMembers;
     }
 
     class Message {

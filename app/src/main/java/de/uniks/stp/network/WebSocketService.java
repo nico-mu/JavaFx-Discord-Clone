@@ -3,11 +3,13 @@ package de.uniks.stp.network;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.model.*;
+import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonStructure;
 import java.io.IOException;
@@ -258,14 +260,25 @@ public class WebSocketService {
                     String type = data.getString("type");
                     Boolean privileged = data.getBoolean("privileged");
                     String categoryId = data.getString("category");
-                    //TODO get members
+                    JsonArray jsonArray = data.getJsonArray("members");
+
 
                     Channel channel = new Channel().setId(channelId).setName(channelName).setType(type).setPrivileged(privileged);
+                    Server modifiedServer = null;
 
                     for (Server server : editor.getAvailableServers()) {
                         for (Category category : server.getCategories()) {
                             if (category.getId().equals(categoryId)) {
                                 category.withChannels(channel);
+                                modifiedServer = server;
+                            }
+                        }
+                    }
+
+                    if(privileged && modifiedServer != null){
+                        for(User user : modifiedServer.getUsers()){
+                            if(jsonArray.contains(user.getName())){
+                                channel.withChannelMembers(user);
                             }
                         }
                     }
