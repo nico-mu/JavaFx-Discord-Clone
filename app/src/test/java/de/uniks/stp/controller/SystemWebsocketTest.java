@@ -66,7 +66,6 @@ public class SystemWebsocketTest {
 
     @Test
     public void testUserJoined(FxRobot robot) {
-
         Editor editor = StageManager.getEditor();
 
         editor.getOrCreateAccord()
@@ -101,13 +100,10 @@ public class SystemWebsocketTest {
         Assertions.assertEquals(1, editor.getOrCreateAccord().getOtherUsers().size());
         Assertions.assertNotNull(editor.getOtherUser(testUserName));
 
-        Platform.runLater(() -> {
-            VBox onlineUsersContainer = robot.lookup("#online-users-container").query();
-            Object[] userListEntryLabels = onlineUsersContainer.lookupAll("#user-list-entry-text").toArray();
-            Assertions.assertEquals(1, userListEntryLabels.length);
-            Assertions.assertEquals(testUserName, ((Text) userListEntryLabels[0]).getText());
-        });
-        WaitForAsyncUtils.waitForFxEvents();
+        VBox onlineUsersContainer = robot.lookup("#online-users-container").query();
+        Object[] userListEntryLabels = onlineUsersContainer.lookupAll("#user-list-entry-text").toArray();
+        Assertions.assertEquals(1, userListEntryLabels.length);
+        Assertions.assertEquals(testUserName, ((Text) userListEntryLabels[0]).getText());
     }
 
     @Test
@@ -157,12 +153,9 @@ public class SystemWebsocketTest {
         Assertions.assertEquals(0, editor.getOrCreateAccord().getOtherUsers().size());
         Assertions.assertNull(editor.getOtherUser(otherUserName));
 
-        Platform.runLater(() -> {
-            VBox onlineUsersContainer = robot.lookup("#online-users-container").query();
-            int userListLength = onlineUsersContainer.lookupAll("#user-list-entry-text").toArray().length;
-            Assertions.assertEquals(0, userListLength);
-        });
-        WaitForAsyncUtils.waitForFxEvents();
+        VBox onlineUsersContainer = robot.lookup("#online-users-container").query();
+        int userListLength = onlineUsersContainer.lookupAll("#user-list-entry-text").toArray().length;
+        Assertions.assertEquals(0, userListLength);
     }
 
     @Test
@@ -221,13 +214,10 @@ public class SystemWebsocketTest {
         List<User> users = editor.getOrCreateServer(SERVER_ID, SERVER_NAME).getUsers();
         Assertions.assertEquals(3, users.size());
 
-        Platform.runLater(() -> {
-            VBox onlineUserContainer = robot.lookup("#online-user-list").query();
-            VBox offlineUserContainer = robot.lookup("#offline-user-list").query();
-            Assertions.assertEquals(1, onlineUserContainer.getChildren().size());
-            Assertions.assertEquals(1, offlineUserContainer.getChildren().size());
-        });
-        WaitForAsyncUtils.waitForFxEvents();
+        VBox onlineUserContainer = robot.lookup("#online-user-list").query();
+        VBox offlineUserContainer = robot.lookup("#offline-user-list").query();
+        Assertions.assertEquals(1, onlineUserContainer.getChildren().size());
+        Assertions.assertEquals(1, offlineUserContainer.getChildren().size());
 
         jsonObject = Json.createObjectBuilder()
             .add("action", "userLeft")
@@ -241,68 +231,12 @@ public class SystemWebsocketTest {
             .build();
         systemCallback.handleMessage(jsonObject);
 
-        Platform.runLater(() -> {
-            VBox onlineUserContainer = robot.lookup("#online-user-list").query();
-            VBox offlineUserContainer = robot.lookup("#offline-user-list").query();
-            Assertions.assertEquals(0, onlineUserContainer.getChildren().size());
-            Assertions.assertEquals(2, offlineUserContainer.getChildren().size());
-        });
-        WaitForAsyncUtils.waitForFxEvents();
-    }
-
-    @Test
-    public void testServerNameChangedMessage(FxRobot robot) {
-        final String SERVER_ID = "12345678";
-        final String OLD_NAME= "Shitty Name";
-        final String NEW_NAME= "Nice Name";
-
-        // prepare start situation
-        Editor editor = StageManager.getEditor();
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-        editor.getOrCreateServer(SERVER_ID, OLD_NAME);
-
-        WebSocketService.addServerWebSocket(SERVER_ID);
-
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", SERVER_ID)));
         WaitForAsyncUtils.waitForFxEvents();
 
-        // assert correct start situation
-        Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
-        Assertions.assertEquals(OLD_NAME, editor.getServer(SERVER_ID).getName());
-        Platform.runLater(() -> {
-            Label serverLabel = robot.lookup("#server-name-label").query();
-            Assertions.assertEquals(OLD_NAME, serverLabel.getText());
-        });
-
-        // prepare receiving websocket message
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
-
-        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
-        List<String> endpoints = stringArgumentCaptor.getAllValues();
-
-        for(int i = 0; i < endpoints.size(); i++) {
-            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
-        }
-        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + SERVER_ID);
-
-        // receive message
-        JsonObject jsonObject = Json.createObjectBuilder()
-            .add("action", "serverUpdated")
-            .add("data",
-                Json.createObjectBuilder()
-                    .add("id", SERVER_ID)
-                    .add("name", NEW_NAME)
-                    .build()
-            )
-            .build();
-        systemCallback.handleMessage(jsonObject);
-
-        // check for correct reactions
-        Assertions.assertEquals(NEW_NAME, editor.getServer(SERVER_ID).getName());
-        Platform.runLater(() -> {
-            Label serverLabel = robot.lookup("#server-name-label").query();
-            Assertions.assertEquals(NEW_NAME, serverLabel.getText());
-        });
+        onlineUserContainer = robot.lookup("#online-user-list").query();
+        offlineUserContainer = robot.lookup("#offline-user-list").query();
+        Assertions.assertEquals(0, onlineUserContainer.getChildren().size());
+        Assertions.assertEquals(2, offlineUserContainer.getChildren().size());
     }
 
     @Test
@@ -368,14 +302,14 @@ public class SystemWebsocketTest {
         currentUserCallback.handleMessage(messageTwo);
         currentUserCallback.handleMessage(messageThree);
 
-
-        NavBarUserElement userOneElement = robot.lookup("#" + userOne.getId() + "-button").query();
-        NavBarUserElement userTwoElement = robot.lookup("#" + userTwo.getId() + "-button").query();
-        Assertions.assertEquals(2, userOne.getSentUserNotification().getNotificationCounter());
-        Assertions.assertEquals(1, userTwo.getSentUserNotification().getNotificationCounter());
+        Platform.runLater(() -> {
+            NavBarUserElement userOneElement = robot.lookup("#" + userOne.getId() + "-button").query();
+            NavBarUserElement userTwoElement = robot.lookup("#" + userTwo.getId() + "-button").query();
+            Assertions.assertEquals(2, userOne.getSentUserNotification().getNotificationCounter());
+            Assertions.assertEquals(1, userTwo.getSentUserNotification().getNotificationCounter());
+        });
         robot.clickOn("#" + userOne.getId() + "-button");
 
-        WaitForAsyncUtils.waitForFxEvents();
         Assertions.assertNull(userOne.getSentUserNotification());
         Assertions.assertEquals(1, userTwo.getSentUserNotification().getNotificationCounter());
         currentUserCallback.handleMessage(messageOne);
@@ -387,12 +321,9 @@ public class SystemWebsocketTest {
         robot.clickOn("#home-button");
         robot.clickOn("#" + userTwo.getId() + "-UserListSideBarEntry");
 
-        WaitForAsyncUtils.waitForFxEvents();
-
 
         Assertions.assertThrows(EmptyNodeQueryException.class, () -> {
             robot.lookup("#" + userTwo.getId() + "-button").query();
         });
-
     }
 }
