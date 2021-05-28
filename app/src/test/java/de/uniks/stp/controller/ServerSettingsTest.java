@@ -7,9 +7,7 @@ import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.WebSocketClient;
+import de.uniks.stp.network.*;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
@@ -32,9 +30,13 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import java.util.HashMap;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(ApplicationExtension.class)
@@ -50,6 +52,14 @@ public class ServerSettingsTest {
 
     @Captor
     private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
+
+    @Captor
+    private ArgumentCaptor<String> stringArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
+
+    private static final HashMap<String, WSCallback> endpointCallbackHashmap = new HashMap<>();
 
     @Start
     public void start(Stage stage) {
@@ -109,5 +119,57 @@ public class ServerSettingsTest {
         // check for correct reactions
         Assertions.assertEquals(newName, serverLabel.getText());
         Assertions.assertEquals(newName, editor.getServer(serverId).getName());
+    }
+
+    @Test
+    public void testServerNameChangedMessage(FxRobot robot) {
+        final String SERVER_ID = "12345678";
+        final String OLD_NAME= "Shitty Name";
+        final String NEW_NAME= "Nice Name";
+
+        // prepare start situation
+        Editor editor = StageManager.getEditor();
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
+        editor.getOrCreateServer(SERVER_ID, OLD_NAME);
+
+        WebSocketService.addServerWebSocket(SERVER_ID);
+
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", SERVER_ID)));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // assert correct start situation
+        Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
+        Assertions.assertEquals(OLD_NAME, editor.getServer(SERVER_ID).getName());
+
+        Label serverLabel = robot.lookup("#server-name-label").query();
+        Assertions.assertEquals(OLD_NAME, serverLabel.getText());
+
+        // prepare receiving websocket message
+        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
+
+        for(int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + SERVER_ID);
+
+        // receive message
+        JsonObject jsonObject = Json.createObjectBuilder()
+            .add("action", "serverUpdated")
+            .add("data",
+                Json.createObjectBuilder()
+                    .add("id", SERVER_ID)
+                    .add("name", NEW_NAME)
+                    .build()
+            )
+            .build();
+        systemCallback.handleMessage(jsonObject);
+
+        // check for correct reactions
+        Assertions.assertEquals(NEW_NAME, editor.getServer(SERVER_ID).getName());
+        serverLabel = robot.lookup("#server-name-label").query();
+        Assertions.assertEquals(NEW_NAME, serverLabel.getText());
     }
 }
