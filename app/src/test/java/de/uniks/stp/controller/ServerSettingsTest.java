@@ -91,7 +91,7 @@ public class ServerSettingsTest {
 
         // change name
         String newName = "Nice Name";
-        robot.clickOn("servername-text-field");
+        robot.clickOn("#servername-text-field");
         robot.write(newName);
         robot.clickOn("#save-button");
 
@@ -103,6 +103,8 @@ public class ServerSettingsTest {
         verify(restMock).renameServer(eq(serverId), eq(newName), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
+        
+        WaitForAsyncUtils.waitForFxEvents();
 
         // check for correct reactions
         Assertions.assertEquals(newName, serverLabel.getText());
