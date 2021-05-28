@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import javafx.scene.layout.HBox?>
+
+<fx:root spacing="12.0" stylesheets="@../style/css/component/user-check-list-entry.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <JFXCheckBox id="user-check-list-entry-checkbox" fx:id="checkbox" styleClass="user-checkbox" />
+</fx:root>

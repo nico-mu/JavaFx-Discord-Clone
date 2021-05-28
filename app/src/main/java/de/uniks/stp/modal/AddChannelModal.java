@@ -6,6 +6,8 @@ import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.component.UserCheckList;
+import de.uniks.stp.component.UserCheckListEntry;
 import de.uniks.stp.controller.LoginScreenController;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
@@ -18,6 +20,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
@@ -35,21 +38,21 @@ public class AddChannelModal extends AbstractModal{
     public static final String PRIVILEGED_CHECKBOX = "#privileged-checkbox";
     public static final String FILTER_USER_TEXTFIELD = "#filter-user-textfield";
     public static final String ADD_CHANNEL_USER_LIST_SCROLLPANE = "#add-channel-user-list-scrollpane";
-    public static final String ADD_CHANNEL_USER_LIST = "#add-channel-user-list";
+    public static final String USER_CHECK_LIST_CONTAINER = "#user-check-list-container";
     public static final String ADD_CHANNEL_CREATE_BUTTON = "#add-channel-create-button";
     public static final String ADD_CHANNEL_CANCEL_BUTTON = "#add-channel-cancel-button";
     public static final String ADD_CHANNEL_ERROR_LABEL = "#add-channel-error";
     private JFXTextField channelName;
     private JFXCheckBox privileged;
     private JFXTextField filter;
-    private ScrollPane scrollPane;
-    private VBox userCheckList;
+    private Pane pane;
+    private UserCheckList selectUserList;
     private JFXButton createButton;
     private JFXButton cancelButton;
     private Label errorLabel;
     private Category category;
     private Editor editor;
-    private HashMap<String, HBox> serverUserElementsMap;
+    private HashMap<String, UserCheckListEntry> serverUserElementsMap;
     private RestClient restClient;
 
     public AddChannelModal(Parent root, Category category, Editor editor){
@@ -62,13 +65,13 @@ public class AddChannelModal extends AbstractModal{
         channelName = (JFXTextField) view.lookup(ADD_CHANNEL_NAME_TEXTFIELD);
         privileged = (JFXCheckBox) view.lookup(PRIVILEGED_CHECKBOX);
         filter = (JFXTextField) view.lookup(FILTER_USER_TEXTFIELD);
-        scrollPane = (ScrollPane) view.lookup(ADD_CHANNEL_USER_LIST_SCROLLPANE);
+        pane = (Pane) view.lookup(USER_CHECK_LIST_CONTAINER);
         createButton = (JFXButton) view.lookup(ADD_CHANNEL_CREATE_BUTTON);
         cancelButton = (JFXButton) view.lookup(ADD_CHANNEL_CANCEL_BUTTON);
         errorLabel = (Label) view.lookup(ADD_CHANNEL_ERROR_LABEL);
 
-        userCheckList = new VBox();
-        scrollPane.setContent(userCheckList);
+        selectUserList = new UserCheckList();
+        pane.getChildren().add(selectUserList);
 
         createButton.setOnAction(this::onCreatButtonClicked);
         cancelButton.setOnAction(this::onCancelButtonClicked);
@@ -77,34 +80,23 @@ public class AddChannelModal extends AbstractModal{
             filterUsers(newValue);
         }));
 
-        serverUserElementsMap = new HashMap();
+        serverUserElementsMap = new HashMap<>();
 
         for(User user : category.getServer().getUsers()){
             /*if(user.getName().equals(editor.getOrCreateAccord().getCurrentUser().getName())){
                 continue;
             }*/
-            JFXCheckBox checkBox = new JFXCheckBox();
-            checkBox.setId("checkbox");
-
-            Label userName = new Label();
-            userName.setId("user-name");
-            userName.setText(user.getName());
-
-            HBox listElement = new HBox();
-            listElement.setSpacing(12);
-            listElement.getChildren().addAll(checkBox, userName);
-
-            serverUserElementsMap.put(user.getName(), listElement);
+            UserCheckListEntry userCheckListEntry = new UserCheckListEntry(user);
+            serverUserElementsMap.put(user.getName(), userCheckListEntry);
+            selectUserList.addUserCheckListEntry(userCheckListEntry);
         }
-
-        userCheckList.getChildren().addAll(serverUserElementsMap.values());
     }
 
     private void filterUsers(String newValue) {
-        userCheckList.getChildren().clear();
+        selectUserList.clearUserCheckList();
         for(String name : serverUserElementsMap.keySet()){
             if(name.contains(newValue)){
-                userCheckList.getChildren().add(serverUserElementsMap.get(name));
+                selectUserList.addUserCheckListEntry(serverUserElementsMap.get(name));
             }
         }
     }
@@ -113,17 +105,14 @@ public class AddChannelModal extends AbstractModal{
         setErrorMessage(null);
         String chName = channelName.getText();
         Boolean priv = privileged.isSelected();
-        String type = "text";
         String serverId = category.getServer().getId();
         String categoryId = category.getId();
 
         ArrayList<String> selectedUserNames = new ArrayList<>();
         //selectedUserNames.add(editor.getOrCreateAccord().getCurrentUser().getName());
-        for(HBox userElement : serverUserElementsMap.values()){
-            JFXCheckBox checkBox = (JFXCheckBox) userElement.lookup("#checkbox");
-            if(checkBox.isSelected()){
-                Label name = (Label) userElement.lookup("#user-name");
-                selectedUserNames.add(name.getText());
+        for(UserCheckListEntry userCheckListEntry : serverUserElementsMap.values()){
+            if(userCheckListEntry.isUserSelected()){
+                selectedUserNames.add(userCheckListEntry.getUserName());
             }
         }
         restClient.createTextChannel(serverId,categoryId,chName,priv, selectedUserNames, this::handleCreateChannelResponse);
@@ -146,21 +135,7 @@ public class AddChannelModal extends AbstractModal{
         log.debug("Received create server response: " + jsonNodeHttpResponse.getBody().toPrettyString());
 
         if(jsonNodeHttpResponse.isSuccess()){
-            JSONObject data = jsonNodeHttpResponse.getBody().getObject().getJSONObject("data");
-            String chId = data.getString("id");
-            String chName = data.getString("name");
-            String type = data.getString("type");
-            Boolean privileged = data.getBoolean("privileged");
-
-            Channel channel = new Channel().setId(chId).setName(chName).setType(type).setPrivileged(privileged);
-            category.withChannels(channel);
-
-            if(privileged){
-                JSONArray membersArray = data.getJSONArray("members");
-                ArrayList<String> memberNames = (ArrayList<String>) membersArray.toList();
-                //TODO add members to channel
-            }
-            this.close();
+            Platform.runLater(this::close);
         }else{
             log.error("Create server failed: " + jsonNodeHttpResponse.getBody().toPrettyString());
             String errorMessage = jsonNodeHttpResponse.getBody().getObject().getString("message");
