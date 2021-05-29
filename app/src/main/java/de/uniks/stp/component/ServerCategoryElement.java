@@ -3,7 +3,6 @@ package de.uniks.stp.component;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.AddChannelModal;
-import de.uniks.stp.modal.AddServerModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.view.Views;
 import javafx.fxml.FXML;
@@ -53,30 +52,35 @@ public class ServerCategoryElement extends VBox {
         categoryHeadLabel.setText(model.getName());
         categoryHeadArrow.setOnMouseClicked(this::onCategoryArrowClicked);
         categoryHeadLabel.setOnMouseClicked(this::onCategoryArrowClicked);
-        categoryHeadPane.setOnMouseEntered(event -> {
-            addServerPlus.setVisible(true);
-        });
-        categoryHeadPane.setOnMouseExited(event -> {
-            addServerPlus.setVisible(false);
-        });
+
+        categoryHeadPane.setOnMouseEntered(this::onAddChannelPlusMouseEntered);
+        categoryHeadPane.setOnMouseExited(this::onAddChannelPlusMouseExited);
+
         addServerPlus.setOnMouseClicked(this::onAddServerPlusClicked);
 
     }
 
+    private void onAddChannelPlusMouseEntered(MouseEvent mouseEvent) {
+        addServerPlus.setVisible(true);
+    }
+
+    private void onAddChannelPlusMouseExited(MouseEvent mouseEvent) {
+        addServerPlus.setVisible(false);
+    }
+
     private void onAddServerPlusClicked(MouseEvent mouseEvent) {
         Parent addChannelModalView = ViewLoader.loadView(Views.ADD_CHANNEL_MODAL);
-        AddChannelModal addServerModal = new AddChannelModal(addChannelModalView, model, editor);
+        AddChannelModal addServerModal = new AddChannelModal(addChannelModalView, model);
         addServerModal.showAndWait();
     }
 
     private void onCategoryArrowClicked(MouseEvent mouseEvent) {
         channelListCollapsed = !channelListCollapsed;
-        if(channelListCollapsed) {
+        if (channelListCollapsed) {
             categoryHeadArrow.setImage(ViewLoader.loadImage("right-arrow.png"));
             categoryChannelList.setVisible(false);
             categoryChannelList.setManaged(false);
-        }
-        else {
+        } else {
             categoryHeadArrow.setImage(ViewLoader.loadImage("down-arrow.png"));
             categoryChannelList.setVisible(true);
             categoryChannelList.setManaged(true);

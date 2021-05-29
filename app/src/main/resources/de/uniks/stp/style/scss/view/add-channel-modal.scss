@@ -6,6 +6,7 @@
 
 .add-channel-name-textfield {
   -fx-text-fill: $primary-text-fill;
+  -fx-prompt-text-fill: $button-color;
   -fx-font-size: 14px;
 }
 
@@ -16,6 +17,7 @@
 
 .filter-user-textfield {
   -fx-text-fill: $primary-text-fill;
+  -fx-prompt-text-fill: $button-color;
   -fx-font-size: 14px;
 }
 
