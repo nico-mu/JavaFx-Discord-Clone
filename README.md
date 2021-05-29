@@ -1,5 +1,8 @@
 #### STP ST21 Team Guava
 
+[![Build Status](https://www.travis-ci.com/sekassel/STPST21TeamG.svg?token=iv8L4W51ZozK2puhSbJk&branch=master)](https://www.travis-ci.com/sekassel/STPST21TeamG)
+[![codecov](https://codecov.io/gh/sekassel/STPST21TeamG/branch/master/graph/badge.svg?token=HQTC4B9IYG)](https://codecov.io/gh/sekassel/STPST21TeamG)
+
 # Accord
 
 Accord is the client you'll need to communicate with your peers and friends via the Accord-Server.
@@ -24,6 +27,7 @@ The things you need before installing the software.
 ### Server
 
 * [Release 1 documentation](https://seblog.cs.uni-kassel.de/wp-content/uploads/2021/04/ServerdokuR1.pdf)
+* [Release 2 documentation](https://seblog.cs.uni-kassel.de/wp-content/uploads/2021/05/ServerdokuR2.pdf)
 
 ### Branches
 

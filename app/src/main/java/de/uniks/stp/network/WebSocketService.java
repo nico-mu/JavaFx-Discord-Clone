@@ -4,6 +4,10 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.model.*;
 import kong.unirest.json.JSONArray;
+import de.uniks.stp.model.DirectMessage;
+import de.uniks.stp.model.ServerMessage;
+import de.uniks.stp.model.User;
+import de.uniks.stp.model.UserNotification;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,10 +123,8 @@ public class WebSocketService {
             log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
             return;
         }
-
-        DirectMessage msg = new DirectMessage().setReceiver(currentUser);
-        msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender);
-
+        DirectMessage msg = new DirectMessage();
+        msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setSender(sender);
         // show message
         sender.withPrivateChatMessages(msg);
         if (!currentUser.getChatPartner().contains(sender)) {

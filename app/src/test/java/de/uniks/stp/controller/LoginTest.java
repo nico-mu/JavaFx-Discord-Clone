@@ -55,7 +55,11 @@ public class LoginTest {
     }
 
     private void clearNameField(FxRobot robot) {
-        ((JFXTextField) robot.lookup("#name-field").query()).clear();
+        JFXTextField nameField = robot.lookup("#name-field").query();
+        Platform.runLater(() -> {
+            nameField.clear();
+        });
+        WaitForAsyncUtils.waitForFxEvents();
     }
 
     @Test
@@ -88,11 +92,10 @@ public class LoginTest {
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
 
-        Platform.runLater(() -> {
-            robot.clickOn("#home-button");
-            Assertions.assertEquals(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, Router.getCurrentRoute());
-        });
         WaitForAsyncUtils.waitForFxEvents();
+
+        robot.clickOn("#home-button");
+        Assertions.assertEquals(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, Router.getCurrentRoute());
     }
 
     @Test
@@ -115,11 +118,8 @@ public class LoginTest {
         callback.completed(res);
         Label errorLabel = robot.lookup("#error-message").query();
 
-        Platform.runLater(() -> {
-            Assertions.assertEquals(Constants.ROUTE_LOGIN, Router.getCurrentRoute());
-            Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_LOGIN_WRONG_CREDENTIALS), errorLabel.getText());
-        });
-        WaitForAsyncUtils.waitForFxEvents();
+        Assertions.assertEquals(Constants.ROUTE_LOGIN, Router.getCurrentRoute());
+        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_LOGIN_WRONG_CREDENTIALS), errorLabel.getText());
     }
 
 }
