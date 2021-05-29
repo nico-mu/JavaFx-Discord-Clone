@@ -132,6 +132,8 @@ public class RegisterTest {
         callback.completed(res);
         Label errorLabel = robot.lookup("#error-message").query();
 
+        WaitForAsyncUtils.waitForFxEvents();
+
         Assertions.assertEquals(Constants.ROUTE_LOGIN, Router.getCurrentRoute());
         Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_REGISTRATION_NAME_TAKEN), errorLabel.getText());
     }
