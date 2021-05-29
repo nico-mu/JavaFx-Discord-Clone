@@ -86,15 +86,13 @@ public class CreateChannelTest {
             .getCurrentUser()
             .withAvailableServers(testServer);
 
-        String categoryName = "TestCategory";
-        String categoryId = "catId123";
-
-
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
-        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
 
+        String categoryName = "TestCategory";
+        String categoryId = "catId123";
+        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
 
         // assert correct start situation
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
@@ -142,7 +140,6 @@ public class CreateChannelTest {
         Assertions.assertNotEquals("", errorLabel.getText());
         robot.clickOn("#add-channel-cancel-button");
         robot.clickOn("#logout-button");
-        WaitForAsyncUtils.waitForFxEvents();
     }
 
     @Test
@@ -226,7 +223,6 @@ public class CreateChannelTest {
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
         Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
         robot.clickOn("#logout-button");
-        WaitForAsyncUtils.waitForFxEvents();
     }
 
     @Test
@@ -341,6 +337,5 @@ public class CreateChannelTest {
         Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
         Assertions.assertEquals(2, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getChannelMembers().size());
         robot.clickOn("#logout-button");
-        WaitForAsyncUtils.waitForFxEvents();
     }
 }

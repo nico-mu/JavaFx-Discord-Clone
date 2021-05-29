@@ -265,7 +265,6 @@ public class WebSocketService {
                     String categoryId = data.getString("category");
                     JsonArray jsonArray = data.getJsonArray("members");
 
-
                     Channel channel = new Channel().setId(channelId).setName(channelName).setType(type).setPrivileged(privileged);
                     Server modifiedServer = null;
 
