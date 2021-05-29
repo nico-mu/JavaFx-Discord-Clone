@@ -65,4 +65,7 @@ public class Constants {
     //Languages
     public static final String LANG_LABEL_PREFIX = "LBL_LANG_";
 
+    //Styling
+    public static final String FONT_STYLE = "Verdana";
+    public static final int CHANNEL_LABEL_SIZE = 12;
 }

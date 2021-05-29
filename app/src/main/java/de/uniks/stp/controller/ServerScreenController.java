@@ -4,7 +4,6 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
-import de.uniks.stp.modal.AddServerModal;
 import de.uniks.stp.modal.ServerSettingsModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
@@ -54,7 +53,7 @@ public class ServerScreenController implements ControllerInterface {
 
     private ContextMenu settingsContextMenu;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
-    PropertyChangeListener channelChangePropertyChangeListener = this::onChannelChange;
+    PropertyChangeListener channelNotificationPropertyChangeListener = this::onChannelNotificationChange;
 
     public ServerScreenController(Parent view, Editor editor, Server model) {
         this.view = (AnchorPane) view;
@@ -128,7 +127,7 @@ public class ServerScreenController implements ControllerInterface {
         // ToDo
     }
 
-    private void onChannelChange(PropertyChangeEvent propertyChangeEvent) {
+    private void onChannelNotificationChange(PropertyChangeEvent propertyChangeEvent) {
 
     }
 
