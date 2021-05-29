@@ -63,6 +63,7 @@ public class AddChannelModal extends AbstractModal {
 
         selectUserList = new UserCheckList();
         selectUserList.setMaxHeight(userCheckListContainer.getMaxHeight());
+        selectUserList.setDisable(true);
         userCheckListContainer.getChildren().add(selectUserList);
 
         createButton.setOnAction(this::onCreatButtonClicked);
@@ -70,6 +71,9 @@ public class AddChannelModal extends AbstractModal {
         cancelButton.setCancelButton(true);  // use Escape in order to press button
         filter.textProperty().addListener(((observable, oldValue, newValue) -> {
             filterUsers(newValue);
+        }));
+        privileged.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+            selectUserList.setDisable(!newValue);
         }));
 
         serverUserElementsMap = new HashMap<>();

@@ -277,7 +277,7 @@ public class WebSocketService {
                         }
                     }
 
-                    if(privileged && modifiedServer != null){
+                    if(privileged && Objects.nonNull(modifiedServer)){
                         ArrayList<String> members = new ArrayList<>();
                         for(int i = 0; i<jsonArray.size(); i++){
                             members.add(jsonArray.getString(i));
