@@ -59,6 +59,7 @@ public class ServerChatController implements ControllerInterface {
     public void stop() {
         if (Objects.nonNull(chatView)) {
             chatView.stop();
+            serverChatVBox.getChildren().clear();
         }
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
@@ -73,7 +74,6 @@ public class ServerChatController implements ControllerInterface {
         chatView = new ServerChatView(this::loadMessages);
 
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
-        serverChatVBox.getChildren().clear();
         serverChatVBox.getChildren().add(chatView);
 
         for (ServerMessage message : model.getMessages()) {
