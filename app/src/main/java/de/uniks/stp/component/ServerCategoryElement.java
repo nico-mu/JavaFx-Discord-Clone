@@ -33,11 +33,9 @@ public class ServerCategoryElement extends VBox {
     @FXML
     VBox categoryChannelList;
     boolean channelListCollapsed = false;
-    Editor editor;
     Category model;
 
-    public ServerCategoryElement(Category model, Editor editor) {
-        this.editor = editor;
+    public ServerCategoryElement(Category model) {
         this.model = model;
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CATEGORY_ELEMENT);
         fxmlLoader.setRoot(this);

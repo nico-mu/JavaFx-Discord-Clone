@@ -106,7 +106,7 @@ public class ServerCategoryListController implements ControllerInterface {
 
     private void categoryAdded(final Category category) {
         if (Objects.nonNull(category) && !categoryElementHashMap.containsKey(category)) {
-            final ServerCategoryElement serverCategoryElement = new ServerCategoryElement(category,editor);
+            final ServerCategoryElement serverCategoryElement = new ServerCategoryElement(category);
             categoryElementHashMap.put(category, serverCategoryElement);
             Platform.runLater(() -> serverCategoryList.addElement(serverCategoryElement));
         }
