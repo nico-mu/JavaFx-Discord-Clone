@@ -31,3 +31,13 @@
 .channel-element-marker {
   -fx-background-color: $button-color;
 }
+
+.channel-label-counter {
+    -fx-text-fill: $primary-text-fill;
+    -fx-font-size: 14px;
+}
+
+.channel-circle {
+    -fx-fill: $notification-fill;
+    -fx-stroke: $main-background-color;
+}

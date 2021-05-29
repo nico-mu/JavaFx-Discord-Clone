@@ -3,10 +3,17 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
-
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Circle?>
 <fx:root id="channel-container" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="170.0" spacing="5.0" styleClass="channel-container" stylesheets="@../style/css/component/server-category-list.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Pane id="channel-element-marker" fx:id="channelElementMarker" prefHeight="30.0" prefWidth="23.0" styleClass="channel-element-marker" visible="false" />
       <Label id="channel-label" fx:id="channelLabel" prefHeight="39.0" prefWidth="180.0" styleClass="channel-label" text="Label" />
+      <StackPane prefHeight="30.0" prefWidth="75.0">
+         <children>
+            <Circle fx:id="channelNotificationCircle" radius="10.0" styleClass="channel-circle"/>
+            <Label fx:id="channelNotificationLabel" text="9+" textAlignment="CENTER" styleClass="channel-label-counter"/>
+         </children>
+      </StackPane>
    </children>
 </fx:root>
