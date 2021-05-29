@@ -59,6 +59,7 @@ public class ServerChatController implements ControllerInterface {
     public void stop() {
         if (Objects.nonNull(chatView)) {
             chatView.stop();
+            serverChatVBox.getChildren().clear();
         }
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);

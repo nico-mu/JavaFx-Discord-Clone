@@ -1,0 +1,6 @@
+@import "../base";
+
+.user-checkbox {
+  -fx-text-fill: $primary-text-fill;
+  -jfx-checked-color: $button-color;
+}
