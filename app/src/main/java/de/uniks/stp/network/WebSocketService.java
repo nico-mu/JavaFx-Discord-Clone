@@ -17,6 +17,7 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonStructure;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -278,8 +279,12 @@ public class WebSocketService {
                     }
 
                     if(privileged && modifiedServer != null){
+                        ArrayList<String> members = new ArrayList<>();
+                        for(int i = 0; i<jsonArray.size(); i++){
+                            members.add(jsonArray.getString(i));
+                        }
                         for(User user : modifiedServer.getUsers()){
-                            if(jsonArray.contains(user.getName())){
+                            if(members.contains(user.getName())){
                                 channel.withChannelMembers(user);
                             }
                         }
