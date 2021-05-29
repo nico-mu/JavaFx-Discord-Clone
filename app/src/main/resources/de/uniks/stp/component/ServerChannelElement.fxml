@@ -11,8 +11,8 @@
       <Label id="channel-label" fx:id="channelLabel" prefHeight="39.0" prefWidth="180.0" styleClass="channel-label" text="Label" />
       <StackPane prefHeight="30.0" prefWidth="75.0">
          <children>
-            <Circle fx:id="channelNotificationCircle" radius="10.0" styleClass="channel-circle"/>
-            <Label fx:id="channelNotificationLabel" text="9+" textAlignment="CENTER" styleClass="channel-label-counter"/>
+            <Circle fx:id="circle" radius="10.0" styleClass="channel-circle"/>
+            <Label fx:id="notificationLabel" text="9+" textAlignment="CENTER" styleClass="channel-label-counter"/>
          </children>
       </StackPane>
    </children>
