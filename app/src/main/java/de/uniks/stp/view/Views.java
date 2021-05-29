@@ -10,7 +10,8 @@ public enum Views {
     USER_INFO_SCREEN("UserInfoScreen.fxml"),
     SETTINGS_MODAL("SettingsModal.fxml"),
     ADD_SERVER_MODAL("AddServerModal.fxml"),
-    SERVER_SETTINGS_MODAL("ServerSettingsModal.fxml");
+    SERVER_SETTINGS_MODAL("ServerSettingsModal.fxml"),
+    ADD_CHANNEL_MODAL("AddChannelModal.fxml");
 
     public final URL path;
 

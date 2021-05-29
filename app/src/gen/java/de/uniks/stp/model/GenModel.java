@@ -52,6 +52,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("sender")
         UserNotification sentUserNotification;
+
+        @Link("channelMembers")
+        List<Channel> availableChannels;
     }
 
     class Server {
@@ -93,6 +96,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("channel")
         List<ServerMessage> messages;
+
+        @Link("availableChannels")
+        List<User> channelMembers;
 
         @Link("channel")
         ChannelNotification notification;

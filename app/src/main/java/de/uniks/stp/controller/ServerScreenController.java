@@ -54,6 +54,7 @@ public class ServerScreenController implements ControllerInterface {
 
     private ContextMenu settingsContextMenu;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
+    PropertyChangeListener channelChangePropertyChangeListener = this::onChannelChange;
 
     public ServerScreenController(Parent view, Editor editor, Server model) {
         this.view = (AnchorPane) view;
@@ -125,6 +126,10 @@ public class ServerScreenController implements ControllerInterface {
 
     private void onCreateCategoryClicked(ActionEvent actionEvent) {
         // ToDo
+    }
+
+    private void onChannelChange(PropertyChangeEvent propertyChangeEvent) {
+
     }
 
     @Override
