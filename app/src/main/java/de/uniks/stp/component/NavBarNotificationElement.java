@@ -2,7 +2,7 @@ package de.uniks.stp.component;
 
 import javafx.application.Platform;
 
-public class NavBarNotificationElement extends NavBarElement implements Notifications {
+public class NavBarNotificationElement extends NavBarElement implements NotificationComponentInterface {
 
     @Override
     public void setNotificationCount(int notifications) {

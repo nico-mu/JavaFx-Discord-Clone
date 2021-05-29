@@ -17,7 +17,7 @@ import javafx.scene.shape.Circle;
 
 import java.io.IOException;
 
-public class ServerChannelElement extends HBox implements Notifications {
+public class ServerChannelElement extends HBox implements NotificationComponentInterface {
 
     @FXML
     Label channelLabel;
