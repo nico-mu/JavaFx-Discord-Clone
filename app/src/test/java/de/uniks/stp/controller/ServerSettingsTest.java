@@ -220,13 +220,69 @@ public class ServerSettingsTest {
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
 
+        WaitForAsyncUtils.waitForFxEvents();
+
         // check for correct reactions
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
         Assertions.assertEquals(categoryName, editor.getServer(serverId).getCategories().get(0).getName());
 
-        WaitForAsyncUtils.waitForFxEvents();
-
         Label categoryNameLabel = robot.lookup("#category-head-label").query();
         Assertions.assertEquals(categoryName, categoryNameLabel.getText());
+    }
+
+    @Test
+    public void testCategoryCreatedMessage(FxRobot robot) {
+        final String CATEGORY_NAME = "Useful Category";
+
+        // prepare start situation
+        Editor editor = StageManager.getEditor();
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
+
+        String serverName ="Plattis Server";
+        String serverId ="12345678";
+        Server server = new Server().setName(serverName).setId(serverId);
+        editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
+
+        WebSocketService.addServerWebSocket(serverId);
+
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", serverId)));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // assert correct start situation
+        Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
+        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().size());
+
+        // prepare receiving websocket message
+        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
+
+        for(int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
+
+        // receive message
+        JsonObject jsonObject = Json.createObjectBuilder()
+            .add("action", "categoryCreated")
+            .add("data",
+                Json.createObjectBuilder()
+                    .add("id", "1111")
+                    .add("name", CATEGORY_NAME)
+                    .add("server", serverId)
+                    .build()
+            )
+            .build();
+        systemCallback.handleMessage(jsonObject);
+
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // check for correct reactions
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
+        Assertions.assertEquals(CATEGORY_NAME, editor.getServer(serverId).getCategories().get(0).getName());
+
+        Label categoryNameLabel = robot.lookup("#category-head-label").query();
+        Assertions.assertEquals(CATEGORY_NAME, categoryNameLabel.getText());
     }
 }
