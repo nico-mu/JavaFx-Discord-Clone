@@ -173,6 +173,8 @@ public class ServerSettingsTest {
             .build();
         systemCallback.handleMessage(jsonObject);
 
+        WaitForAsyncUtils.waitForFxEvents();
+
         // check for correct reactions
         Assertions.assertEquals(NEW_NAME, editor.getServer(SERVER_ID).getName());
         serverLabel = robot.lookup("#server-name-label").query();
