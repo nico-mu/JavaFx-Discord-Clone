@@ -97,6 +97,8 @@ public class SystemWebsocketTest {
             .build();
         systemCallback.handleMessage(jsonObject);
 
+        WaitForAsyncUtils.waitForFxEvents();
+
         Assertions.assertEquals(1, editor.getOrCreateAccord().getOtherUsers().size());
         Assertions.assertNotNull(editor.getOtherUser(testUserName));
 
@@ -148,6 +150,8 @@ public class SystemWebsocketTest {
             )
             .build();
         systemCallback.handleMessage(jsonObject);
+
+        WaitForAsyncUtils.waitForFxEvents();
 
         // check for correct reactions
         Assertions.assertEquals(0, editor.getOrCreateAccord().getOtherUsers().size());
@@ -210,6 +214,8 @@ public class SystemWebsocketTest {
             )
             .build();
         systemCallback.handleMessage(jsonObject);
+
+        WaitForAsyncUtils.waitForFxEvents();
 
         List<User> users = editor.getOrCreateServer(SERVER_ID, SERVER_NAME).getUsers();
         Assertions.assertEquals(3, users.size());
@@ -302,6 +308,8 @@ public class SystemWebsocketTest {
         currentUserCallback.handleMessage(messageTwo);
         currentUserCallback.handleMessage(messageThree);
 
+        WaitForAsyncUtils.waitForFxEvents();
+
         Platform.runLater(() -> {
             NavBarUserElement userOneElement = robot.lookup("#" + userOne.getId() + "-button").query();
             NavBarUserElement userTwoElement = robot.lookup("#" + userTwo.getId() + "-button").query();
@@ -316,6 +324,7 @@ public class SystemWebsocketTest {
         currentUserCallback.handleMessage(messageTwo);
         currentUserCallback.handleMessage(messageThree);
 
+        WaitForAsyncUtils.waitForFxEvents();
 
         Assertions.assertEquals(2, userTwo.getSentUserNotification().getNotificationCounter());
         robot.clickOn("#home-button");
