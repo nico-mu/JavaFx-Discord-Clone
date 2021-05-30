@@ -1,10 +1,14 @@
-package de.uniks.stp.controller;
+package de.uniks.stp.serversettings;
 
 import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.component.ServerCategoryElement;
+import de.uniks.stp.component.ServerCategoryList;
+import de.uniks.stp.model.Category;
+import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.*;
@@ -12,10 +16,13 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -40,7 +47,7 @@ import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(ApplicationExtension.class)
-public class ServerSettingsTest {
+public class ChangeServerNameTest {
     @Mock
     private RestClient restMock;
 
@@ -75,7 +82,6 @@ public class ServerSettingsTest {
     public void testChangeServerName(FxRobot robot){
         // prepare start situation
         Editor editor = StageManager.getEditor();
-
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
         String oldName ="Shitty Name";

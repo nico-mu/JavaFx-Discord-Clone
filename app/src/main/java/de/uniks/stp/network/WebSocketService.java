@@ -2,12 +2,11 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.model.Category;
 import de.uniks.stp.model.*;
-import kong.unirest.json.JSONArray;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
-import de.uniks.stp.model.UserNotification;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -257,12 +256,21 @@ public class WebSocketService {
                     String newName = data.getString("name");
                     editor.getServer(serverId).setName(newName);
                     return;
+                case "categoryCreated":
+                    String categoryId = data.getString("id");
+                    String name = data.getString("name");
+                    serverId = data.getString("server");
+                    if(Objects.isNull(editor.getCategory(categoryId, editor.getServer(serverId)))) {
+                        Category newCategory = new Category().setId(categoryId).setName(name);
+                        newCategory.setServer(editor.getServer(serverId));
+                    }
+                    return;
                 case "channelCreated":
                     String channelId = data.getString("id");
                     String channelName = data.getString("name");
                     String type = data.getString("type");
-                    Boolean privileged = data.getBoolean("privileged");
-                    String categoryId = data.getString("category");
+                    boolean privileged = data.getBoolean("privileged");
+                    categoryId = data.getString("category");
                     JsonArray jsonArray = data.getJsonArray("members");
 
                     Channel channel = new Channel().setId(channelId).setName(channelName).setType(type).setPrivileged(privileged);

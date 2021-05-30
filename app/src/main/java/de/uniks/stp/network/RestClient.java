@@ -41,6 +41,12 @@ public class RestClient {
         sendRequest(req, callback);
     }
 
+    public void createCategory(String id, String name, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + id + Constants.REST_CATEGORY_PATH)
+            .body(Json.createObjectBuilder().add("name", name).build().toString());
+        sendRequest(req, callback);
+    }
+
     public static void stop() {
         executorService.shutdown();
         Unirest.shutDown();

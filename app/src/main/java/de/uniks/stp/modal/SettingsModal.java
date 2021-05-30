@@ -28,7 +28,7 @@ public class SettingsModal extends AbstractModal {
     public SettingsModal(Parent root, Editor editor) {
         super(root);
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE));
+        setTitle(ViewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE_TITLE));
 
         this.editor = editor;
         applyButton = (JFXButton) view.lookup(SETTINGS_APPLY_BUTTON);
