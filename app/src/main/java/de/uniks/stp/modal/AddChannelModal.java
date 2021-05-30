@@ -133,7 +133,7 @@ public class AddChannelModal extends AbstractModal {
             String errorMessage = jsonNodeHttpResponse.getBody().getObject().getString("message");
             if (errorMessage.equals("Missing name")) {
                 setErrorMessage(Constants.LBL_MISSING_NAME);
-            } else if (errorMessage.equals("Missing members")) {
+            } else if (errorMessage.equals("Missing members") || errorMessage.equals("Members list may not be empty")) {
                 setErrorMessage(Constants.LBL_MISSING_MEMBERS);
             } else {
                 log.error("Unhandled create server response: " + jsonNodeHttpResponse.getBody().toPrettyString());
