@@ -134,16 +134,6 @@ public class Editor {
         return null;
     }
 
-    public boolean categoryExists(final String serverId, final String categoryId){
-        Server server = getServer(serverId);
-        for(Category category: server.getCategories()){
-            if(category.getId().equals(categoryId)){
-                return true;
-            }
-        }
-        return false;
-    }
-
     public Channel getOrCreateChannel(final String channelId, final String name, final Category category) {
         if(Objects.nonNull(category)) {
             for(Channel channel: category.getChannels()) {

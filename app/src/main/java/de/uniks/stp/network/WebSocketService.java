@@ -258,7 +258,7 @@ public class WebSocketService {
                     String categoryId = data.getString("id");
                     String name = data.getString("name");
                     serverId = data.getString("server");
-                    if(! editor.categoryExists(serverId, categoryId)){
+                    if(Objects.isNull(editor.getCategory(categoryId, editor.getServer(serverId)))){
                         Category newCategory = new Category().setId(categoryId).setName(name);
                         newCategory.setServer(editor.getServer(serverId));
                     }
