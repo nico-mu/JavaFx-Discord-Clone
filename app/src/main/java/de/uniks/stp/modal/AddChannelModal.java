@@ -104,7 +104,7 @@ public class AddChannelModal extends AbstractModal {
         ArrayList<String> selectedUserNames = new ArrayList<>();
         for (UserCheckListEntry userCheckListEntry : serverUserElementsMap.values()) {
             if (userCheckListEntry.isUserSelected()) {
-                selectedUserNames.add(userCheckListEntry.getUserName());
+                selectedUserNames.add(userCheckListEntry.getUserId());
             }
         }
         restClient.createTextChannel(serverId, categoryId, chName, priv, selectedUserNames, this::handleCreateChannelResponse);

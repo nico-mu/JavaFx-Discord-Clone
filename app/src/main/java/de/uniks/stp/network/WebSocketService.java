@@ -291,7 +291,7 @@ public class WebSocketService {
                             members.add(jsonArray.getString(i));
                         }
                         for(User user : modifiedServer.getUsers()){
-                            if(members.contains(user.getName())){
+                            if(members.contains(user.getId())){
                                 channel.withChannelMembers(user);
                             }
                         }
