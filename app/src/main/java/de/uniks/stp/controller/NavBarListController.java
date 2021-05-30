@@ -8,6 +8,9 @@ import de.uniks.stp.model.*;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.notification.NotificationEvent;
+import de.uniks.stp.notification.NotificationInterface;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
@@ -27,7 +30,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class NavBarListController implements ControllerInterface {
+public class NavBarListController implements ControllerInterface, NotificationInterface {
 
     private final static Logger log = LoggerFactory.getLogger(NavBarListController.class);
     private final Parent view;
@@ -72,14 +75,13 @@ public class NavBarListController implements ControllerInterface {
 
         //TODO: show spinner
         restClient.getServers(this::callback);
+        NotificationService.registerChannelSubscriber(this);
     }
 
     private void serverAdded(final Server server) {
         if (Objects.nonNull(server) && !navBarServerElementHashMap.containsKey(server)) {
             WebSocketService.addServerWebSocket(server.getId());  // enables sending & receiving messages
-            final ServerNotification serverNotification = new ServerNotification().setSender(server);
-            serverNotification.setNotificationCounter(0);
-            final NavBarServerElement navBarElement = new NavBarServerElement(serverNotification.getSender());
+            final NavBarServerElement navBarElement = new NavBarServerElement(server);
             navBarServerElementHashMap.put(server, navBarElement);
             Platform.runLater(() -> navBarList.addServerElement(navBarElement));
         }
@@ -89,6 +91,11 @@ public class NavBarListController implements ControllerInterface {
         if (Objects.nonNull(server) && navBarServerElementHashMap.containsKey(server)) {
             final NavBarServerElement navBarElement = navBarServerElementHashMap.remove(server);
             Platform.runLater(() -> navBarList.removeElement(navBarElement));
+            for (Category category : server.getCategories()) {
+                for (Channel channel : category.getChannels()) {
+                    NotificationService.removePublisher(channel);
+                }
+            }
         }
     }
 
@@ -208,5 +215,23 @@ public class NavBarListController implements ControllerInterface {
 
         navBarUserElementHashMap.clear();
         navBarServerElementHashMap.clear();
+
+        NotificationService.removeChannelSubscriber(this);
+    }
+
+    @Override
+    public void onChannelNotificationEvent(NotificationEvent event) {
+        Channel channel = (Channel) event.getSource();
+        if (Objects.nonNull(channel)) {
+            Server server = channel.getCategory().getServer();
+            if (Objects.nonNull(server)) {
+                navBarServerElementHashMap.get(server).setNotificationCount(NotificationService.getServerNotificationCount(server));
+            }
+        }
+    }
+
+    @Override
+    public void onUserNotificationEvent(NotificationEvent event) {
+
     }
 }

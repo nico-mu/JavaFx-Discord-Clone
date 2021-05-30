@@ -7,7 +7,11 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.UserList;
 import de.uniks.stp.component.UserListSidebarEntry;
+import de.uniks.stp.model.Category;
+import de.uniks.stp.model.Channel;
+import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
@@ -77,10 +81,10 @@ public class HomeScreenController implements ControllerInterface {
     public void route(RouteInfo routeInfo, RouteArgs args) {
         String subRoute = routeInfo.getSubControllerRoute();
         subviewCleanup();
-
+        NotificationService.setActiveObject(null);
         if (subRoute.equals(Constants.ROUTE_PRIVATE_CHAT)) {
             User otherUser = editor.getUserById(args.getArguments().get(Constants.ROUTE_PRIVATE_CHAT_ARGS));
-
+            NotificationService.setActiveObject(otherUser);
             PrivateChatController privateChatController = new PrivateChatController(view, editor, otherUser);
             privateChatController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);

@@ -4,8 +4,10 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.ChannelChangeEvent;
 import de.uniks.stp.model.Channel;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -27,8 +29,7 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
     Channel model;
 
-    private static final Font boldFont = Font.font(Constants.FONT_STYLE, FontWeight.BOLD, Constants.CHANNEL_LABEL_SIZE);
-    private static final Font normalFont = Font.font(Constants.FONT_STYLE, FontWeight.NORMAL, Constants.CHANNEL_LABEL_SIZE);
+    private final Font font;
 
     public ServerChannelElement(Channel model) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHANNEL_ELEMENT);
@@ -45,6 +46,8 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         channelLabel.setText(model.getName());
         channelLabel.setOnMouseClicked(this::onMouseClicked);
 
+        font = channelLabel.getFont();
+
         setNotificationVisibility(false);
     }
 
@@ -54,25 +57,22 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
     @Override
     public void setNotificationCount(int notifications) {
-        if (0 < notifications) {
-            setNotificationVisibility(true);
-        } else {
-            setNotificationVisibility(false);
-        }
+        setNotificationVisibility(0 < notifications);
     }
 
     @Override
     public void setNotificationVisibility(boolean mode) {
-        if (mode) {
-            channelLabel.setFont(boldFont);
-        } else {
-            channelLabel.setFont(normalFont);
-        }
+        Platform.runLater(() -> {
+            if (mode) {
+                channelLabel.setFont(Font.font(Font.getDefault().getFamily(), FontWeight.BOLD, 12));
+            } else {
+                channelLabel.setFont(font);
+            }
+        });
     }
 
     private void onMouseClicked(MouseEvent mouseEvent) {
         this.fireEvent(new ChannelChangeEvent(this));
-        setNotificationCount(0);
         RouteArgs args = new RouteArgs();
         args.addArgument(":id", model.getCategory().getServer().getId());
         args.addArgument(":categoryId", model.getCategory().getId());

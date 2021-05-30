@@ -69,9 +69,6 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("server")
         List<Category> categories;
-
-        @Link("sender")
-        ServerNotification serverNotification;
     }
 
     class Category {
@@ -99,9 +96,6 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("availableChannels")
         List<User> channelMembers;
-
-        @Link("channel")
-        ChannelNotification notification;
     }
 
     class Message {
@@ -127,18 +121,8 @@ public class GenModel implements ClassModelDecorator {
         int notificationCounter;
     }
 
-    class ServerNotification extends Notification {
-        @Link("serverNotification")
-        Server sender;
-    }
-
     class UserNotification extends Notification {
         @Link("sentUserNotification")
         User sender;
-    }
-
-    class ChannelNotification extends Notification {
-        @Link("notification")
-        Channel channel;
     }
 }

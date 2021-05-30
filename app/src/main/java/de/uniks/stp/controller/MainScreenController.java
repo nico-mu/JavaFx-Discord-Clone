@@ -4,6 +4,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.model.Server;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
@@ -51,7 +52,7 @@ public class MainScreenController implements ControllerInterface {
     public void route(RouteInfo routeInfo, RouteArgs args) {
         cleanup();
         String subroute = routeInfo.getSubControllerRoute();
-
+        NotificationService.setActiveObject(null);
         if (subroute.equals(Constants.ROUTE_HOME)) {
             currentController = new HomeScreenController(this.subViewContainer, this.editor);
             currentController.init();

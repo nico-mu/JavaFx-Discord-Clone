@@ -7,6 +7,7 @@ import de.uniks.stp.model.*;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
+import de.uniks.stp.notification.NotificationService;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -218,7 +219,9 @@ public class WebSocketService {
         msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender).setId(messageId);
 
         // setChannel triggers PropertyChangeListener that shows Message in Chat
-        msg.setChannel(editor.getChannel(channelId, editor.getServer(serverId)));
+        Channel channel = editor.getChannel(channelId, editor.getServer(serverId));
+        msg.setChannel(channel);
+        NotificationService.onChannelMessage(channel);
     }
 
     /**

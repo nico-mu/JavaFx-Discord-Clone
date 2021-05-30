@@ -12,6 +12,9 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.notification.NotificationEvent;
+import de.uniks.stp.notification.NotificationInterface;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
@@ -31,7 +34,7 @@ import static de.uniks.stp.model.Category.PROPERTY_CHANNELS;
 import static de.uniks.stp.model.Server.PROPERTY_CATEGORIES;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
-public class ServerCategoryListController implements ControllerInterface {
+public class ServerCategoryListController implements ControllerInterface, NotificationInterface {
 
     private boolean firstChannel = true;
     private final Parent view;
@@ -54,6 +57,7 @@ public class ServerCategoryListController implements ControllerInterface {
         this.restClient = NetworkClientInjector.getRestClient();
         categoryElementHashMap = new HashMap<>();
         channelElementHashMap = new HashMap<>();
+        NotificationService.registerChannelSubscriber(this);
     }
 
     @Override
@@ -148,6 +152,7 @@ public class ServerCategoryListController implements ControllerInterface {
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
             Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
+            NotificationService.removePublisher(channel);
         }
     }
 
@@ -157,12 +162,13 @@ public class ServerCategoryListController implements ControllerInterface {
             final ServerChannelElement serverChannelElement = new ServerChannelElement(channel);
             channelElementHashMap.put(channel, serverChannelElement);
             Platform.runLater(() -> serverCategoryElement.addChannelElement(serverChannelElement));
-
+            NotificationService.register(channel);
             // show ServerChatView of first loaded channel
             if(firstChannel){
                 firstChannel = false;
 
                 serverCategoryList.setActiveElement(serverChannelElement);
+                NotificationService.consume(channel);
 
                 RouteArgs args = new RouteArgs();
                 args.addArgument(":id", channel.getCategory().getServer().getId());
@@ -182,5 +188,19 @@ public class ServerCategoryListController implements ControllerInterface {
         }
         channelElementHashMap.clear();
         categoryElementHashMap.clear();
+        NotificationService.removeChannelSubscriber(this);
+    }
+
+    @Override
+    public void onChannelNotificationEvent(NotificationEvent event) {
+        Channel channel = (Channel) event.getSource();
+        if (Objects.nonNull(channel)) {
+            channelElementHashMap.get(channel).setNotificationCount(event.getNotifications());
+        }
+    }
+
+    @Override
+    public void onUserNotificationEvent(NotificationEvent event) {
+
     }
 }
