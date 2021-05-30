@@ -14,7 +14,8 @@ public enum Components {
     SERVER_CHAT_MESSAGE("ServerChatMessage.fxml"),
     SERVER_CATEGORY_LIST("ServerCategoryList.fxml"),
     SERVER_CATEGORY_ELEMENT("ServerCategoryElement.fxml"),
-    SERVER_CHANNEL_ELEMENT("ServerChannelElement.fxml");
+    SERVER_CHANNEL_ELEMENT("ServerChannelElement.fxml"),
+    USER_CHECK_LIST_ENTRY("UserCheckListEntry.fxml");
 
 
     public final URL path;
