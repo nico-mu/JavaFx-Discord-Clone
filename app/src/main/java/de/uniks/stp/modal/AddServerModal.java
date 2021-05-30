@@ -84,7 +84,7 @@ public class AddServerModal extends AbstractModal {
             restClient.createServer(name, this::handleCreateServerResponse);
         }
         else{
-            setErrorMessage(Constants.LBL_SERVERNAME_MISSING);
+            setErrorMessage(Constants.LBL_MISSING_NAME);
         }
     }
 

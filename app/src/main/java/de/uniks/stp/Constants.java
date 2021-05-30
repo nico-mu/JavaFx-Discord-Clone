@@ -29,7 +29,6 @@ public class Constants {
     public static final String LBL_HOME = "LBL_HOME";
     public static final String LBL_CREATE_SERVER = "LBL_CREATE_SERVER";
     public static final String LBL_ADD_SERVER_TITLE = "LBL_ADD_SERVER_TITLE";
-    public static final String LBL_SERVERNAME_MISSING = "LBL_SERVERNAME_MISSING";
     public static final String LBL_CREATE_SERVER_FAILED = "LBL_CREATE_SERVER_FAILED";
     public static final String LBL_ONLINE_USERS = "LBL_ONLINE_USERS";
     public static final String LBL_USER_OFFLINE = "LBL_USER_OFFLINE";
@@ -41,7 +40,6 @@ public class Constants {
     public static final String LBL_NO_CHANGES = "LBL_NO_CHANGES";
     public static final String LBL_RENAME_SERVER_FAILED = "LBL_RENAME_SERVER_FAILED";
     public static final String LBL_EDIT_SERVER_TITLE = "LBL_EDIT_SERVER_TITLE";
-    public static final String LBL_CATEGORYNAME_MISSING = "LBL_CATEGORYNAME_MISSING";
     public static final String LBL_CREATE_CATEGORY_FAILED = "LBL_CREATE_CATEGORY_FAILED";
     public static final String LBL_CREATE_CATEGORY_TITLE = "LBL_CREATE_CATEGORY_TITLE";
     public static final String LBL_CREATE_CHANNEL = "LBL_CREATE_CHANNEL";

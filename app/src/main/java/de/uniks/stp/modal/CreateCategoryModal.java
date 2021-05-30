@@ -87,7 +87,7 @@ public class CreateCategoryModal extends AbstractModal {
             restClient.createCategory(model.getId(), name, this::handleCreateCategoryResponse);
         }
         else{
-            setErrorMessage(Constants.LBL_CATEGORYNAME_MISSING);
+            setErrorMessage(Constants.LBL_MISSING_NAME);
         }
     }
 
