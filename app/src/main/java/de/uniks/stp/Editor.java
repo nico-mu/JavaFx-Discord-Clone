@@ -61,6 +61,10 @@ public class Editor {
         User other = null;
         final User currentUser = getOrCreateAccord().getCurrentUser();
 
+        if(Objects.nonNull(currentUser) && name.equals(currentUser.getName())){
+            currentUser.setId(userId);
+        }
+
         if (Objects.nonNull(currentUser) && !name.equals(currentUser.getName())) {
             final Map<String, User> userMap = otherUsersAsIdUserMap();
 
