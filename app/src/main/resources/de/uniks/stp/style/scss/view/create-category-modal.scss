@@ -1,0 +1,41 @@
+@import "../base";
+
+.create-category-modal {
+  -fx-background-color: $secondary-background-color;
+}
+
+.enter-category-label {
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 18px;
+}
+
+.category-name-text-field {
+  -fx-prompt-text-fill: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}
+
+.error-message-label {
+  -fx-text-fill: $error-text-fill;
+  -fx-font-size: 18px;
+}
+
+.spinner {
+  -fx-background-color: $secondary-background-color;
+}
+
+.spinner .arc {
+  -fx-stroke: $button-color;
+}
+
+.create-button {
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}
+
+.cancel-button {
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}

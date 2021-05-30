@@ -4,6 +4,8 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
+import de.uniks.stp.modal.AddServerModal;
+import de.uniks.stp.modal.CreateCategoryModal;
 import de.uniks.stp.modal.ServerSettingsModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
@@ -118,13 +120,15 @@ public class ServerScreenController implements ControllerInterface {
     }
 
     private void onEditServerClicked(ActionEvent actionEvent) {
-        Parent addServerModalView = ViewLoader.loadView(Views.SERVER_SETTINGS_MODAL);
-        ServerSettingsModal serverSettingsModal = new ServerSettingsModal(addServerModalView, editor, model);
+        Parent serverSettingsModalView = ViewLoader.loadView(Views.SERVER_SETTINGS_MODAL);
+        ServerSettingsModal serverSettingsModal = new ServerSettingsModal(serverSettingsModalView, model);
         serverSettingsModal.showAndWait();
     }
 
     private void onCreateCategoryClicked(ActionEvent actionEvent) {
-        // ToDo
+        Parent createCategoryModalView = ViewLoader.loadView(Views.CREATE_CATEGORY_MODAL);
+        CreateCategoryModal createCategoryModal = new CreateCategoryModal(createCategoryModalView, model);
+        createCategoryModal.showAndWait();
     }
 
     private void onChannelNotificationChange(PropertyChangeEvent propertyChangeEvent) {
