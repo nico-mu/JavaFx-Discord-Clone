@@ -276,15 +276,13 @@ public class CreateChannelTest {
         Assertions.assertEquals(1, userCheckList.getChildren().size());
         robot.clickOn("#user-check-list-entry-checkbox");
 
-        robot.clickOn("#filter-user-textfield");
-        robot.clickOn("#filter-user-textfield");
+        robot.doubleClickOn("#filter-user-textfield");
         robot.write("1");
 
         Assertions.assertEquals(1, userCheckList.getChildren().size());
         robot.clickOn("#user-check-list-entry-checkbox");
 
-        robot.clickOn("#filter-user-textfield");
-        robot.clickOn("#filter-user-textfield");
+        robot.doubleClickOn("#filter-user-textfield");
         robot.write("T");
 
         Assertions.assertEquals(3, userCheckList.getChildren().size());
