@@ -7,40 +7,53 @@ import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.PrivateChatView;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
+import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.WebSocketService;
+import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT)
 public class PrivateChatController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(MainScreenController.class);
+
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
 
     private final Parent view;
     private final Editor editor;
     private final String userId;
-    private final User user;
+    private User user;
     private PrivateChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
 
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
+    private final PropertyChangeListener otherUsersChangeListener = this::onOtherUsersChange;
+    private final PropertyChangeListener statusChangeListener = this::onStatusChange;
 
-    public PrivateChatController(Parent view, Editor editor, String userId) {
+    public PrivateChatController(Parent view, Editor editor, String userId, String userName) {
         this.view = view;
         this.editor = editor;
         this.userId = userId;
         this.user = editor.getUserById(userId);
+
+        if (Objects.isNull(this.user)) {
+            this.user = editor.getOrCreateOtherUser(userId, userName).setStatus(false);
+        }
     }
 
     @Override
@@ -58,6 +71,8 @@ public class PrivateChatController implements ControllerInterface {
         }
         if (Objects.nonNull(user)) {
             user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
+            editor.getOrCreateAccord().listeners().removePropertyChangeListener(Accord.PROPERTY_OTHER_USERS, otherUsersChangeListener);
+            user.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
         }
     }
 
@@ -71,16 +86,31 @@ public class PrivateChatController implements ControllerInterface {
 
         // disable chat when user offline
         if (Objects.isNull(user)) {
-            homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE));
+            Platform.runLater(() -> {
+                homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE));
+            });
             chatView.disable();
         } else {
-            homeScreenLabel.setText(user.getName());
-            chatView.setOnMessageSubmit(this::handleMessageSubmit);
-            user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
-        }
+            if (!user.isStatus()) {
+                Platform.runLater(() -> {
+                    homeScreenLabel.setText(user.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
+                });
+                chatView.disable();
+            } else {
+                Platform.runLater(() -> {
+                    homeScreenLabel.setText(user.getName());
+                });
+            }
 
-        if (Objects.nonNull(user.getSentUserNotification())) {
-            user.getSentUserNotification().setNotificationCounter(0);
+            chatView.setOnMessageSubmit(this::handleMessageSubmit);
+
+            if (Objects.nonNull(user.getSentUserNotification())) {
+                user.getSentUserNotification().setNotificationCounter(0);
+            }
+
+            user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
+            editor.getOrCreateAccord().listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, otherUsersChangeListener);
+            user.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
         }
 
         List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(userId);
@@ -89,15 +119,16 @@ public class PrivateChatController implements ControllerInterface {
             addUserToChatPartnerList();
         }
 
-        // TODO: connect message loading to local model
         for (DirectMessageDTO directMessageDTO : directMessages) {
-            chatView.appendMessage(new DirectMessage()
-                .setReceiver(user)
+            DirectMessage message = (DirectMessage) new DirectMessage()
                 .setMessage(directMessageDTO.getMessage())
                 .setId(directMessageDTO.getId().toString())
                 .setTimestamp(directMessageDTO.getTimestamp().getTime())
-                .setSender(editor.getOrCreateAccord().getCurrentUser())
-            );
+                .setSender(editor.getOrCreateAccord().getCurrentUser());
+
+            chatView.appendMessage(message);
+
+            // TODO: To include the messages in the model a hashset should remember all messages from the db
         };
     }
 
@@ -110,7 +141,8 @@ public class PrivateChatController implements ControllerInterface {
     private void handleMessageSubmit(String message) {
         // create & save message
         DirectMessage msg = new DirectMessage();
-        msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser()).setTimestamp(new Date().getTime());
+        msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser())
+            .setTimestamp(new Date().getTime()).setId(UUID.randomUUID().toString());
         user.withPrivateChatMessages(msg);
 
         // add user to chatPartner list if not already in it
@@ -122,14 +154,62 @@ public class PrivateChatController implements ControllerInterface {
 
     private void addUserToChatPartnerList() {
         User currentUser = editor.getOrCreateAccord().getCurrentUser();
-        if (!currentUser.getChatPartner().contains(user)) {
+
+        if (!currentUser.getChatPartner().contains(user) && Objects.nonNull(user)) {
             currentUser.withChatPartner(user);
         }
     }
 
     private void handleNewPrivateMessage(PropertyChangeEvent propertyChangeEvent) {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
+
+        if (Objects.isNull(directMessage) || Objects.isNull(directMessage.getId())) {
+            return;
+        }
+
         chatView.appendMessage(directMessage);
         DatabaseService.saveDirectMessage(directMessage);
+    }
+
+    private void onOtherUsersChange(PropertyChangeEvent propertyChangeEvent) {
+        User oldValue = (User) propertyChangeEvent.getOldValue();
+        User newValue = (User) propertyChangeEvent.getNewValue();
+
+        // User online
+        if (Objects.isNull(oldValue) && Objects.nonNull(newValue) && newValue.getId().equals(user.getId())) {
+            chatView.enable();
+            Platform.runLater(() -> {
+                homeScreenLabel.setText(user.getName());
+            });
+            return;
+        }
+
+        if (Objects.isNull(oldValue)) {
+            return;
+        }
+
+        // User offline
+        if (oldValue.getId().equals(user.getId()) && Objects.isNull(newValue)) {
+            chatView.disable();
+            Platform.runLater(() -> {
+                homeScreenLabel.setText(user.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
+            });
+        }
+    }
+
+    private void onStatusChange(PropertyChangeEvent propertyChangeEvent) {
+        boolean status = (boolean) propertyChangeEvent.getNewValue();
+
+        if (status) {
+            chatView.enable();
+            Platform.runLater(() -> {
+                homeScreenLabel.setText(user.getName());
+            });
+        } else {
+            chatView.disable();
+            Platform.runLater(() -> {
+                homeScreenLabel.setText(user.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
+            });
+        }
     }
 }

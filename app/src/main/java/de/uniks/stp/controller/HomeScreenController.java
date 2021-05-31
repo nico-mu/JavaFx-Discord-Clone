@@ -21,6 +21,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
 public class HomeScreenController implements ControllerInterface {
-    private static final Logger log = LoggerFactory.getLogger(LoginScreenController.class);
-
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String TOGGLE_ONLINE_BUTTON_ID = "#toggle-online-button";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
@@ -50,7 +49,7 @@ public class HomeScreenController implements ControllerInterface {
     private VBox directMessageUsersList;
     private final PropertyChangeListener chatPartnerChangeListener = this::onChatPartnerChanged;
     private UserListController userListController;
-    private final HashSet<String> directMessageReceiver = new HashSet<>();
+    private final HashMap<String, String> directMessageReceiver = new HashMap<>();
 
     HomeScreenController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
@@ -70,9 +69,17 @@ public class HomeScreenController implements ControllerInterface {
 
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
 
-        for (String receiverId : DatabaseService.getDirectMessageReceiver()) {
-            addUserToSidebar(editor.getUserById(receiverId));
-            directMessageReceiver.add(receiverId);
+        for (Pair<String, String> receiver : DatabaseService.getDirectMessageReceiver()) {
+            String receiverId = receiver.getKey();
+            String receiverName = receiver.getValue();
+
+            if (Objects.isNull(editor.getOtherUser(receiverName))) {
+                addUserToSidebar(editor.getOrCreateOtherUser(receiverId, receiverName).setStatus(false));
+            } else {
+                addUserToSidebar(editor.getOrCreateOtherUser(receiverId, receiverName));
+            }
+
+            directMessageReceiver.put(receiverId, receiverName);
         }
 
         editor.getOrCreateAccord()
@@ -91,7 +98,7 @@ public class HomeScreenController implements ControllerInterface {
             String userId = args.getArguments().get(Constants.ROUTE_PRIVATE_CHAT_ARGS);
             User otherUser = editor.getUserById(userId);
 
-            PrivateChatController privateChatController = new PrivateChatController(view, editor, userId);
+            PrivateChatController privateChatController = new PrivateChatController(view, editor, userId, directMessageReceiver.get(userId));
             privateChatController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
 
@@ -156,7 +163,7 @@ public class HomeScreenController implements ControllerInterface {
             return;
         }
 
-        if (directMessageReceiver.contains(user.getId())) {
+        if (directMessageReceiver.containsKey(user.getId())) {
             addUserToSidebar(user);
         }
     }

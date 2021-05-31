@@ -124,7 +124,16 @@ public class PrivateChatView extends VBox {
     }
 
     public void disable() {
-        chatViewSubmitButton.setDisable(true);
-        chatViewMessageInput.setDisable(true);
+        Platform.runLater(() -> {
+            chatViewSubmitButton.setDisable(true);
+            chatViewMessageInput.setDisable(true);
+        });
+    }
+
+    public void enable() {
+        Platform.runLater(() -> {
+            chatViewSubmitButton.setDisable(false);
+            chatViewMessageInput.setDisable(false);
+        });
     }
 }

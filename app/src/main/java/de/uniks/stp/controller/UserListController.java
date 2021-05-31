@@ -15,6 +15,8 @@ import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -79,7 +81,7 @@ public class UserListController implements ControllerInterface {
                 final String userId = jsonUser.getString("id");
                 final String name = jsonUser.getString("name");
 
-                final User user = editor.getOrCreateOtherUser(userId, name);
+                final User user = editor.getOrCreateOtherUser(userId, name).setStatus(true);
                 userJoined(user);
             });
         }

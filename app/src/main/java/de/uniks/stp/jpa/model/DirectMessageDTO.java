@@ -16,12 +16,24 @@ public class DirectMessageDTO extends MessageDTO {
     @Column(name = "RECEIVER", updatable = false)
     private String receiver;
 
+    @Column(name = "RECEIVER_NAME", updatable = false)
+    private String receiverName;
+
     public String getReceiver() {
         return receiver;
     }
 
     public DirectMessageDTO setReceiver(String receiver) {
         this.receiver = receiver;
+        return this;
+    }
+
+    public String getReceiverName() {
+        return receiverName;
+    }
+
+    public DirectMessageDTO setReceiverName(String receiverName) {
+        this.receiverName = receiverName;
         return this;
     }
 }

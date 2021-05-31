@@ -4,6 +4,7 @@ import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
+import javafx.util.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import java.util.Date;
@@ -41,7 +42,7 @@ public class MessagesTest {
             .setId(UUID.randomUUID().toString()));
 
         List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(receiver.getId());
-        List<String> directMessageReceiver = DatabaseService.getDirectMessageReceiver();
+        List<Pair<String, String>> directMessageReceiver = DatabaseService.getDirectMessageReceiver();
 
         Assertions.assertEquals(2, directMessages.size());
         Assertions.assertEquals(2, directMessageReceiver.size());

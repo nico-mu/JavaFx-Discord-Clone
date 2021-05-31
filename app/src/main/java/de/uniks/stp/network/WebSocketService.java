@@ -150,7 +150,7 @@ public class WebSocketService {
             final String userName = data.getString("name");
             switch (action) {
                 case "userJoined":
-                    editor.getOrCreateOtherUser(userId, userName);
+                    editor.getOrCreateOtherUser(userId, userName).setStatus(true);
                     break;
                 case "userLeft":
                     editor.removeOtherUserById(userId);

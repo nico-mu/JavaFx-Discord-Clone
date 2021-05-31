@@ -1,16 +1,10 @@
 package de.uniks.stp.jpa;
 
-import de.uniks.stp.controller.MainScreenController;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
-import de.uniks.stp.jpa.model.MessageDTO;
 import de.uniks.stp.model.DirectMessage;
-import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javafx.util.Pair;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
@@ -81,6 +75,7 @@ public class DatabaseService {
         entityManager.merge(
             new DirectMessageDTO()
                 .setReceiver(message.getReceiver().getId())
+                .setReceiverName(message.getReceiver().getName())
                 .setSender(message.getSender().getId())
                 .setTimestamp(new Date(message.getTimestamp()))
                 .setMessage(message.getMessage())
@@ -130,18 +125,18 @@ public class DatabaseService {
         entityManager.close();
     }
 
-    public static List<String> getDirectMessageReceiver() {
+    public static List<Pair<String, String>> getDirectMessageReceiver() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
-        List<String> receiverIdList = new LinkedList<>();
+        List<Pair<String, String>> receiverList = new LinkedList<>();
 
         transaction.begin();
 
         CriteriaQuery<DirectMessageDTO> query = entityManager.getCriteriaBuilder().createQuery(DirectMessageDTO.class);
         Root<DirectMessageDTO> root = query.from(DirectMessageDTO.class);
 
-        query.select(root.get("receiver"));
+        query.select(root);
         query.distinct(true);
         List<?> resultList = entityManager.createQuery(query).getResultList();;
 
@@ -149,9 +144,15 @@ public class DatabaseService {
         entityManager.close();
 
         for (Object o : resultList) {
-            receiverIdList.add((String) o);
+            DirectMessageDTO msg = (DirectMessageDTO) o;
+
+            Pair<String, String> receiver = new Pair<>(msg.getReceiver(), msg.getReceiverName());
+
+            if (!receiverList.contains(receiver) && Objects.nonNull(msg.getId()) && Objects.nonNull(msg.getReceiverName())) {
+                receiverList.add(receiver);
+            }
         }
 
-        return receiverIdList;
+        return receiverList;
     }
 }
