@@ -5,6 +5,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.component.NavBarHomeElement;
 import de.uniks.stp.component.NavBarUserElement;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.*;
 import de.uniks.stp.router.RouteArgs;
@@ -66,6 +67,8 @@ public class SystemWebsocketTest {
 
     @Test
     public void testUserJoined(FxRobot robot) {
+        DatabaseService.clearDirectMessages();
+
         Editor editor = StageManager.getEditor();
 
         editor.getOrCreateAccord()
@@ -112,6 +115,7 @@ public class SystemWebsocketTest {
     public void testUserLeft(FxRobot robot) {
         // prepare start situation
         Editor editor = StageManager.getEditor();
+        DatabaseService.clearDirectMessages();
 
         editor.getOrCreateAccord()
             .setCurrentUser(new User().setName("Test"))
@@ -164,6 +168,7 @@ public class SystemWebsocketTest {
 
     @Test
     public void testServerUserJoinedLeftMessage(FxRobot robot) {
+        DatabaseService.clearDirectMessages();
         final String SERVER_ID = "server";
         final String SERVER_NAME = "server-name";
 
@@ -247,6 +252,7 @@ public class SystemWebsocketTest {
 
     @Test
     public void testPrivateMessageNotification(FxRobot robot) {
+        DatabaseService.clearDirectMessages();
         Editor editor = StageManager.getEditor();
 
         final String currentUserName = "Test";
