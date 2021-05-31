@@ -22,9 +22,10 @@
   -fx-background-color: $secondary-background-color;
 }
 
-.channel-label {
+.channel-text {
   -fx-background-color: $secondary-background-color;
   -fx-text-fill: $primary-text-fill;
+  -fx-fill: $primary-text-fill;
   -fx-font-size: 12px;
 }
 

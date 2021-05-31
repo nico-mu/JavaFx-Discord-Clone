@@ -4,32 +4,36 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.ChannelChangeEvent;
 import de.uniks.stp.model.Channel;
-import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 
 import java.io.IOException;
 
 public class ServerChannelElement extends HBox implements NotificationComponentInterface {
 
     @FXML
-    Label channelLabel;
+    Text channelText;
 
     @FXML
     Pane channelElementMarker;
 
+    @FXML
+    VBox channelVBox;
+
     Channel model;
 
     private final Font font;
+    private final Font boldFont;
 
     public ServerChannelElement(Channel model) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHANNEL_ELEMENT);
@@ -43,10 +47,11 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         }
 
         this.model = model;
-        channelLabel.setText(model.getName());
-        channelLabel.setOnMouseClicked(this::onMouseClicked);
+        channelText.setText(model.getName());
+        channelVBox.setOnMouseClicked(this::onMouseClicked);
 
-        font = channelLabel.getFont();
+        font = Font.font(channelText.getFont().getFamily(), FontWeight.NORMAL, channelText.getFont().getSize());
+        boldFont = Font.font(channelText.getFont().getFamily(), FontWeight.BOLD, channelText.getFont().getSize());
 
         setNotificationVisibility(false);
     }
@@ -64,9 +69,9 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
     public void setNotificationVisibility(boolean mode) {
         Platform.runLater(() -> {
             if (mode) {
-                channelLabel.setFont(Font.font(Font.getDefault().getFamily(), FontWeight.BOLD, 12));
+                channelText.setFont(boldFont);
             } else {
-                channelLabel.setFont(font);
+                channelText.setFont(font);
             }
         });
     }
