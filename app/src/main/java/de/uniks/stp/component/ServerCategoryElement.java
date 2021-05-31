@@ -1,6 +1,5 @@
 package de.uniks.stp.component;
 
-import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.AddChannelModal;
 import de.uniks.stp.model.Category;

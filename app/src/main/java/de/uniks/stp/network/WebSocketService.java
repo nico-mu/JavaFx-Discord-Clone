@@ -2,11 +2,7 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.model.Category;
 import de.uniks.stp.model.*;
-import de.uniks.stp.model.DirectMessage;
-import de.uniks.stp.model.ServerMessage;
-import de.uniks.stp.model.User;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

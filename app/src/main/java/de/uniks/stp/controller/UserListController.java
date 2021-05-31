@@ -15,8 +15,6 @@ import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -93,5 +91,4 @@ public class UserListController implements ControllerInterface {
         accord.listeners().removePropertyChangeListener(availableUsersPropertyChangeListener);
         userUserListEntryHashMap.clear();
     }
-
 }

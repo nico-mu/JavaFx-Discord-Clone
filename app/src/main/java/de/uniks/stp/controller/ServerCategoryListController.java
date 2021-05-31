@@ -6,7 +6,6 @@ import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ServerCategoryElement;
 import de.uniks.stp.component.ServerCategoryList;
 import de.uniks.stp.component.ServerChannelElement;
-import de.uniks.stp.event.ChannelChangeEvent;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;

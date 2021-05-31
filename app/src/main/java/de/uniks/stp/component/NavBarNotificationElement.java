@@ -1,6 +1,5 @@
 package de.uniks.stp.component;
 
-import de.uniks.stp.model.Notification;
 import javafx.application.Platform;
 
 public class NavBarNotificationElement extends NavBarElement {

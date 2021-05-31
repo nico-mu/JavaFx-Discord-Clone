@@ -3,15 +3,11 @@ package de.uniks.stp.component;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.NavBarHomeElementActiveEvent;
-import de.uniks.stp.model.Notification;
 import de.uniks.stp.model.UserNotification;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
-
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 public class NavBarUserElement extends NavBarNotificationElement {
 
