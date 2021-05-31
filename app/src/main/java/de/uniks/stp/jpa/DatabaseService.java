@@ -117,7 +117,7 @@ public class DatabaseService {
         return directMessageDTOList;
     }
 
-    public static void clearDirectMessages(User receiver) {
+    public static void clearDirectMessages(String receiverId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -126,11 +126,17 @@ public class DatabaseService {
         CriteriaDelete<DirectMessageDTO> criteriaDelete = entityManager.getCriteriaBuilder().createCriteriaDelete(DirectMessageDTO.class);
         Root<DirectMessageDTO> root = criteriaDelete.from(DirectMessageDTO.class);
 
-        criteriaDelete.where(entityManager.getCriteriaBuilder().equal(root.get("receiver"), receiver.getId()));
+        criteriaDelete.where(entityManager.getCriteriaBuilder().equal(root.get("receiver"), receiverId));
         entityManager.createQuery(criteriaDelete).executeUpdate();
 
         transaction.commit();
         entityManager.close();
+    }
+
+    public static void clearDirectMessages() {
+        for (Pair<String, String> receiver : DatabaseService.getDirectMessageReceiver()) {
+            clearDirectMessages(receiver.getKey());
+        }
     }
 
     public static List<Pair<String, String>> getDirectMessageReceiver() {
