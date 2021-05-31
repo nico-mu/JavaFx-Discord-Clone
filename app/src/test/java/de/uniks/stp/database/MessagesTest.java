@@ -21,6 +21,7 @@ public class MessagesTest {
         User sender = new User().setName("test-sender").setId("test-sender-id");
 
         DatabaseService.clearDirectMessages(receiver);
+        DatabaseService.clearDirectMessages(receiver2);
 
         DatabaseService.saveDirectMessage((DirectMessage) new DirectMessage()
             .setReceiver(receiver)
@@ -46,5 +47,8 @@ public class MessagesTest {
 
         Assertions.assertEquals(2, directMessages.size());
         Assertions.assertEquals(2, directMessageReceiver.size());
+
+        DatabaseService.clearDirectMessages(receiver);
+        DatabaseService.clearDirectMessages(receiver2);
     }
 }
