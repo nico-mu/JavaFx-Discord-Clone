@@ -10,6 +10,7 @@ import de.uniks.stp.component.UserListSidebarEntry;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
@@ -22,6 +23,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,6 +35,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
 public class HomeScreenController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
+
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String TOGGLE_ONLINE_BUTTON_ID = "#toggle-online-button";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
@@ -71,7 +76,10 @@ public class HomeScreenController implements ControllerInterface {
             String receiverName = receiver.getValue();
 
             if (Objects.isNull(editor.getOtherUser(receiverName))) {
-                addUserToSidebar(editor.getOrCreateOtherUser(receiverId, receiverName).setStatus(false));
+                User otherUser = editor.getOrCreateOtherUser(receiverId, receiverName);
+                if (Objects.nonNull(otherUser)) {
+                    addUserToSidebar(otherUser.setStatus(false));
+                }
             } else {
                 addUserToSidebar(editor.getOrCreateOtherUser(receiverId, receiverName));
             }

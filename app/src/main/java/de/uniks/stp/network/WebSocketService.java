@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.UUID;
 
 public class WebSocketService {
     private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
@@ -120,7 +121,7 @@ public class WebSocketService {
             return;
         }
         DirectMessage msg = new DirectMessage();
-        msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setSender(sender);
+        msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setSender(sender).setId(UUID.randomUUID().toString());
         // show message
         sender.withPrivateChatMessages(msg);
         if (!currentUser.getChatPartner().contains(sender)) {

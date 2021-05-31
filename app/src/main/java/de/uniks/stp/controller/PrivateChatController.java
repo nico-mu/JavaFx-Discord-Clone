@@ -15,6 +15,8 @@ import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -25,6 +27,7 @@ import java.util.UUID;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT)
 public class PrivateChatController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(PrivateChatController.class);
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
 
@@ -76,6 +79,10 @@ public class PrivateChatController implements ControllerInterface {
      * Also adds all messages from model in the View and creates PropertyChangeListener that will do so in the future.
      */
     private void showChatView() {
+        if (Objects.nonNull(user.getSentUserNotification())) {
+            user.getSentUserNotification().setNotificationCounter(0);
+        }
+
         chatView = new PrivateChatView();
         onlineUsersContainer.getChildren().add(chatView);
 
@@ -92,10 +99,6 @@ public class PrivateChatController implements ControllerInterface {
             }
 
             chatView.setOnMessageSubmit(this::handleMessageSubmit);
-
-            if (Objects.nonNull(user.getSentUserNotification())) {
-                user.getSentUserNotification().setNotificationCounter(0);
-            }
 
             user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
             editor.getOrCreateAccord().listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, otherUsersChangeListener);
