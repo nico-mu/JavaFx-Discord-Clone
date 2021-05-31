@@ -15,8 +15,6 @@ public class NotificationService {
     private static final ConcurrentHashMap<NotificationEvent, List<NotificationInterface>> userNotifications = new ConcurrentHashMap<>();
     private static final List<NotificationInterface> userSubscriber = new CopyOnWriteArrayList<>();
     private static final List<NotificationInterface> channelSubscriber = new CopyOnWriteArrayList<>();
-    private static final List<NotificationEvent> mutedChannels = new CopyOnWriteArrayList<>();
-    private static final List<NotificationEvent> mutedUser = new CopyOnWriteArrayList<>();
     private static Object activeObject;
 
     public static void register(User publisher) {
@@ -79,7 +77,7 @@ public class NotificationService {
     }
 
     public static void onPrivateMessage(User publisher) {
-        if ((Objects.nonNull(activeObject) && activeObject.equals(publisher)) || mutedUser.contains(getNotificationEvent(publisher))) {
+        if (Objects.nonNull(activeObject) && activeObject.equals(publisher)) {
             return;
         }
         NotificationEvent event = handleNotificationEvent(publisher);
@@ -91,7 +89,7 @@ public class NotificationService {
     }
 
     public static void onChannelMessage(Channel publisher) {
-        if ((Objects.nonNull(activeObject) && activeObject.equals(publisher)) || mutedChannels.contains(getNotificationEvent(publisher))) {
+        if (Objects.nonNull(activeObject) && activeObject.equals(publisher)) {
             return;
         }
         NotificationEvent event = handleNotificationEvent(publisher);
@@ -135,22 +133,6 @@ public class NotificationService {
             }
         }
         return notificationCount;
-    }
-
-    public static void mute(Channel publisher) {
-        mutedChannels.add(handleNotificationEvent(publisher));
-    }
-
-    public static void mute(User publisher) {
-        mutedUser.add(handleNotificationEvent(publisher));
-    }
-
-    public static void unMute(Channel publisher) {
-        mutedChannels.remove(handleNotificationEvent(publisher));
-    }
-
-    public static void unMute(User publisher) {
-        mutedUser.remove(handleNotificationEvent(publisher));
     }
 
     public static void setActiveObject(Object o) {
