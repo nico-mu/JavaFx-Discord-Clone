@@ -2,6 +2,7 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.*;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
@@ -124,6 +125,7 @@ public class WebSocketService {
         msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setSender(sender).setId(UUID.randomUUID().toString());
         // show message
         sender.withPrivateChatMessages(msg);
+        DatabaseService.saveDirectMessage(msg);
         if (!currentUser.getChatPartner().contains(sender)) {
             currentUser.withChatPartner(sender);
         }
@@ -147,7 +149,8 @@ public class WebSocketService {
             final String userName = data.getString("name");
             switch (action) {
                 case "userJoined":
-                    editor.getOrCreateOtherUser(userId, userName).setStatus(true);
+                    User user = editor.getOrCreateOtherUser(userId, userName).setStatus(true);
+                    editor.getOrCreateAccord().firePropertyChange(Accord.PROPERTY_OTHER_USERS, null, user);
                     break;
                 case "userLeft":
                     editor.removeOtherUserById(userId);

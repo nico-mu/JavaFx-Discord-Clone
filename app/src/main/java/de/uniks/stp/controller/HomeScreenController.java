@@ -35,8 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
 public class HomeScreenController implements ControllerInterface {
-    private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
-
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String TOGGLE_ONLINE_BUTTON_ID = "#toggle-online-button";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";

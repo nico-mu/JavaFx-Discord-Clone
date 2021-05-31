@@ -15,6 +15,8 @@ import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -23,6 +25,7 @@ import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE)
 public class UserListController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(PrivateChatController.class);
     private final HashMap<User, UserListEntry> userUserListEntryHashMap;
     private final UserList userList;
     private final Editor editor;
