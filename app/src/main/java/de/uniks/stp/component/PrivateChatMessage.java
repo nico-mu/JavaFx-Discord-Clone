@@ -11,6 +11,8 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.Date;
 

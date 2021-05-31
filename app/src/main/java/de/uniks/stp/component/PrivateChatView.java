@@ -72,8 +72,9 @@ public class PrivateChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        PrivateChatMessage privateChatMessage = new PrivateChatMessage(message);
-        privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+        // PrivateChatMessage privateChatMessage = new PrivateChatMessage(message);
+        // privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+        TextWithEmoji privateChatMessage = new TextWithEmoji();
 
         Platform.runLater(() -> {
             messageList.getChildren().add(privateChatMessage);
