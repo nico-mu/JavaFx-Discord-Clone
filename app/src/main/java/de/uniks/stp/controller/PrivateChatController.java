@@ -25,7 +25,7 @@ public class PrivateChatController implements ControllerInterface {
 
     private final Parent view;
     private final Editor editor;
-    private User model;
+    private final User model;
     private PrivateChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
