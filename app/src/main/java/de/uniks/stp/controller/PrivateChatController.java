@@ -79,6 +79,10 @@ public class PrivateChatController implements ControllerInterface {
             user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
         }
 
+        if (Objects.nonNull(user.getSentUserNotification())) {
+            user.getSentUserNotification().setNotificationCounter(0);
+        }
+
         List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(userId);
 
         if (directMessages.size() > 0) {
@@ -100,6 +104,7 @@ public class PrivateChatController implements ControllerInterface {
     /**
      * Creates DirectMessage, saves it in the model and sends it via websocket.
      * Adds other user to chatPartner list of currentUser if not already contained.
+     *
      * @param message
      */
     private void handleMessageSubmit(String message) {

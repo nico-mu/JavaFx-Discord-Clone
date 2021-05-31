@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="480.0" spacing="24.0" styleClass="add-channel-modal" stylesheets="@../style/css/view/add-channel-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <JFXTextField id="add-channel-name-textfield" maxWidth="240.0" promptText="%LBL_CHANNEL_NAME" styleClass="add-channel-name-textfield" />
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="160.0">
+         <children>
+            <JFXCheckBox id="privileged-checkbox" styleClass="privileged-checkbox" text="%LBL_PRIVILEGED" />
+            <JFXTextField id="filter-user-textfield" promptText="%LBL_SEARCH" styleClass="filter-user-textfield" />
+         </children>
+      </HBox>
+      <HBox id="user-check-list-container" maxHeight="240.0" prefHeight="240.0" prefWidth="200.0" styleClass="user-check-list-container" />
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="120.0">
+         <children>
+            <JFXButton id="add-channel-create-button" styleClass="add-channel-create-button" text="%LBL_CREATE" />
+            <JFXButton id="add-channel-cancel-button" styleClass="add-channel-cancel-button" text="%LBL_CANCEL" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <Label id="add-channel-error" styleClass="add-channel-error" />
+         </children>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="12.0" left="48.0" right="48.0" top="24.0" />
+   </padding>
+</VBox>

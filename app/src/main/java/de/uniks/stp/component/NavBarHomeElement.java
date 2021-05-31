@@ -14,6 +14,8 @@ public class NavBarHomeElement extends NavBarElement {
         Tooltip.install(navBarElement, new Tooltip(ViewLoader.loadLabel(LBL_HOME)));
         imageView.setImage(ViewLoader.loadImage("home.png"));
         this.setId("home-button");
+        notificationLabel.setVisible(false);
+        circle.setVisible(false);
     }
 
     @Override

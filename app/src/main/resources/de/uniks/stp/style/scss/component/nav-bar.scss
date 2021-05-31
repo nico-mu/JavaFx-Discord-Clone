@@ -17,3 +17,13 @@
 .nav-bar-element-main {
   -fx-background-color: transparent;
 }
+
+.nav-bar-circle {
+    -fx-fill: $notification-fill;
+    -fx-stroke: $main-background-color;
+}
+
+.nav-bar-label {
+    -fx-text-fill: $primary-text-fill;
+    -fx-font-size: 14px;
+}

@@ -28,6 +28,10 @@ public class Router {
         return currentRoute;
     }
 
+    public static HashMap<String, String> getCurrentArgs() {
+        return currentArgs.getArguments();
+    }
+
     public static String compareRoutes(String newRoute, String oldRoute) {
         StringBuilder intersection = new StringBuilder();
         int compareLength = Math.min(oldRoute.length(), newRoute.length());
@@ -124,7 +128,8 @@ public class Router {
 
         if (controllerCache.containsKey(route)) {
             if (!args.compareTo(currentArgs)) {
-                controllerCache.remove(route);
+                ControllerInterface oldController = controllerCache.remove(route);
+                oldController.stop();
             } else {
                 return;
             }

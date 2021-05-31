@@ -41,7 +41,7 @@ public class AddServerModal extends AbstractModal {
         super(root);
         this.editor = editor;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_ADD_SERVER));
+        setTitle(ViewLoader.loadLabel(Constants.LBL_ADD_SERVER_TITLE));
 
         createButton = (JFXButton) view.lookup(ADD_SERVER_CREATE_BUTTON);
         cancelButton = (JFXButton) view.lookup(ADD_SERVER_CANCEL_BUTTON);
@@ -84,7 +84,7 @@ public class AddServerModal extends AbstractModal {
             restClient.createServer(name, this::handleCreateServerResponse);
         }
         else{
-            setErrorMessage(Constants.LBL_SERVERNAME_MISSING);
+            setErrorMessage(Constants.LBL_MISSING_NAME);
         }
     }
 

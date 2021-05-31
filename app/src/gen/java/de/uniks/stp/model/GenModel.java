@@ -49,6 +49,12 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("chatPartner")
         List<User> chatPartner;
+
+        @Link("sender")
+        UserNotification sentUserNotification;
+
+        @Link("channelMembers")
+        List<Channel> availableChannels;
     }
 
     class Server {
@@ -63,6 +69,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("server")
         List<Category> categories;
+
+        @Link("sender")
+        ServerNotification serverNotification;
     }
 
     class Category {
@@ -87,6 +96,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("channel")
         List<ServerMessage> messages;
+
+        @Link("availableChannels")
+        List<User> channelMembers;
     }
 
     class Message {
@@ -106,5 +118,19 @@ public class GenModel implements ClassModelDecorator {
     class DirectMessage extends Message {
         @Link("privateChatMessages")
         User receiver;
+    }
+
+    static class Notification {
+        int notificationCounter;
+    }
+
+    class ServerNotification extends Notification {
+        @Link("serverNotification")
+        Server sender;
+    }
+
+    class UserNotification extends Notification {
+        @Link("sentUserNotification")
+        User sender;
     }
 }

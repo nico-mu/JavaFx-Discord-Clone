@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.effect.Blend?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
 <fx:root prefHeight="70.0" prefWidth="70.0" spacing="5.0" styleClass="nav-bar-element-main" stylesheets="@../style/css/component/nav-bar.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <Pane fx:id="navBarElementMarker" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="70.0" prefWidth="6.0" styleClass="nav-element-marker" visible="false">
       <HBox.margin>
@@ -13,9 +12,9 @@
       </HBox.margin>
    </Pane>
    <Pane fx:id="navBarElement" prefHeight="70.0" prefWidth="63.0" styleClass="nav-bar-element">
-      <ImageView fx:id="imageView" fitHeight="40.0" fitWidth="40.0" layoutX="11.0" layoutY="15.0" pickOnBounds="true">
-         <effect>
-            <Blend />
-         </effect></ImageView>
+      <Circle fx:id="circle" layoutX="50.0" layoutY="60.0" radius="10.0" styleClass="nav-bar-circle"/>
+      <ImageView fx:id="imageView" fitHeight="40.0" fitWidth="40.0" layoutX="11.0" layoutY="15.0" pickOnBounds="true"/>
+      <Label fx:id="notificationLabel" alignment="CENTER" layoutX="40.0" layoutY="47.0" prefHeight="27.0"
+             prefWidth="20.0" text="0" textAlignment="CENTER" styleClass="nav-bar-label"/>
    </Pane>
 </fx:root>

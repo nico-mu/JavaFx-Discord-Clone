@@ -2,6 +2,8 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.model.Category;
+import de.uniks.stp.model.*;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
@@ -10,9 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonStructure;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -119,10 +123,8 @@ public class WebSocketService {
             log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
             return;
         }
-
-        DirectMessage msg = new DirectMessage().setReceiver(currentUser);
-        msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender);
-
+        DirectMessage msg = new DirectMessage();
+        msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setSender(sender);
         // show message
         sender.withPrivateChatMessages(msg);
         if (!currentUser.getChatPartner().contains(sender)) {
@@ -219,6 +221,13 @@ public class WebSocketService {
         msg.setChannel(editor.getChannel(channelId, editor.getServer(serverId)));
     }
 
+    /**
+     * Called when server system message is received. Reacts to following actions_:
+     * - userJoined/userLeft: sets user online/offline in model
+     * - serverUpdated:
+     *
+     * @param jsonStructure
+     */
     private static void onServerSystemMessage(JsonStructure jsonStructure) {
         log.debug("received server system message: {}", jsonStructure.toString());
 
@@ -228,16 +237,65 @@ public class WebSocketService {
         JsonObject data = jsonObject.getJsonObject("data");
 
         if (Objects.nonNull(data)) {
-            String userId = data.getString("id");
-            String userName = data.getString("name");
-            String serverId = data.getString("serverId");
 
             switch (action) {
                 case "userJoined":
+                    String userId = data.getString("id");
+                    String userName = data.getString("name");
+                    String serverId = data.getString("serverId");
                     editor.setServerMemberOnline(userId, userName, editor.getServer(serverId));
                     return;
                 case "userLeft":
+                    userId = data.getString("id");
+                    userName = data.getString("name");
+                    serverId = data.getString("serverId");
                     editor.setServerMemberOffline(userId, userName, editor.getServer(serverId));
+                    return;
+                case "serverUpdated":
+                    serverId = data.getString("id");
+                    String newName = data.getString("name");
+                    editor.getServer(serverId).setName(newName);
+                    return;
+                case "categoryCreated":
+                    String categoryId = data.getString("id");
+                    String name = data.getString("name");
+                    serverId = data.getString("server");
+                    if(Objects.isNull(editor.getCategory(categoryId, editor.getServer(serverId)))) {
+                        Category newCategory = new Category().setId(categoryId).setName(name);
+                        newCategory.setServer(editor.getServer(serverId));
+                    }
+                    return;
+                case "channelCreated":
+                    String channelId = data.getString("id");
+                    String channelName = data.getString("name");
+                    String type = data.getString("type");
+                    boolean privileged = data.getBoolean("privileged");
+                    categoryId = data.getString("category");
+                    JsonArray jsonArray = data.getJsonArray("members");
+
+                    Channel channel = new Channel().setId(channelId).setName(channelName).setType(type).setPrivileged(privileged);
+                    Server modifiedServer = null;
+
+                    for (Server server : editor.getAvailableServers()) {
+                        for (Category category : server.getCategories()) {
+                            if (category.getId().equals(categoryId)) {
+                                category.withChannels(channel);
+                                modifiedServer = server;
+                            }
+                        }
+                    }
+
+                    if(privileged && Objects.nonNull(modifiedServer)){
+                        ArrayList<String> members = new ArrayList<>();
+                        for(int i = 0; i<jsonArray.size(); i++){
+                            members.add(jsonArray.getString(i));
+                        }
+                        for(User user : modifiedServer.getUsers()){
+                            if(members.contains(user.getName())){
+                                channel.withChannelMembers(user);
+                            }
+                        }
+                    }
                     return;
                 default:
                     break;

@@ -59,7 +59,11 @@ public class RegisterTest {
     }
 
     private void clearNameField(FxRobot robot) {
-        ((JFXTextField) robot.lookup("#name-field").query()).clear();
+        JFXTextField nameField = robot.lookup("#name-field").query();
+        Platform.runLater(() -> {
+            nameField.clear();
+        });
+        WaitForAsyncUtils.waitForFxEvents();
     }
 
     @Test
@@ -69,6 +73,7 @@ public class RegisterTest {
         robot.clickOn("#name-field");
         robot.write("Guave");
         robot.clickOn("#register-button");
+
         Label errorLabel = robot.lookup("#error-message").query();
         Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_MISSING_FIELDS), errorLabel.getText());
     }
@@ -83,32 +88,28 @@ public class RegisterTest {
         robot.write("evauG");
         robot.clickOn("#register-button");
 
-        //register
+        // register
         JSONObject j = new JSONObject().put("status", "success").put("message", "User created");
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-
         when(res.isSuccess()).thenReturn(true);
-
         verify(restMock).register(eq("Guave"), eq("evauG"), callbackCaptor.capture());
 
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
 
-        //login
+        // login
         j = new JSONObject().put("status", "success").put("message", "").put("data", new JSONObject().put("userKey", "123-45"));
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-
         when(res.isSuccess()).thenReturn(true);
 
         verify(restMock).login(eq("Guave"), eq("evauG"), callbackCaptor.capture());
         callback = callbackCaptor.getValue();
         callback.completed(res);
 
-        Platform.runLater(() -> {
-            robot.clickOn("#home-button");
-            Assertions.assertEquals(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, Router.getCurrentRoute());
-        });
         WaitForAsyncUtils.waitForFxEvents();
+
+        robot.clickOn("#home-button");
+        Assertions.assertEquals(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, Router.getCurrentRoute());
     }
 
     @Test
@@ -123,7 +124,6 @@ public class RegisterTest {
 
         JSONObject j = new JSONObject().put(Constants.MESSAGE, "Name already taken");
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-
         when(res.isSuccess()).thenReturn(false);
 
         verify(restMock).register(eq("Guave"), eq("evauG"), callbackCaptor.capture());
@@ -132,11 +132,10 @@ public class RegisterTest {
         callback.completed(res);
         Label errorLabel = robot.lookup("#error-message").query();
 
-        Platform.runLater(() -> {
-            Assertions.assertEquals(Constants.ROUTE_LOGIN, Router.getCurrentRoute());
-            Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_REGISTRATION_NAME_TAKEN), errorLabel.getText());
-        });
         WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(Constants.ROUTE_LOGIN, Router.getCurrentRoute());
+        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_REGISTRATION_NAME_TAKEN), errorLabel.getText());
     }
 
 }

@@ -7,6 +7,7 @@ import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 
 import javax.json.Json;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,6 +32,18 @@ public class RestClient {
 
     public void getServerInformation(String id, Callback<JsonNode> callback) {
         HttpRequest<?> req = Unirest.get(Constants.REST_SERVER_PATH + "/" + id);
+        sendRequest(req, callback);
+    }
+
+    public void renameServer(String id, String newName, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.put(Constants.REST_SERVER_PATH + "/" + id)
+            .body(Json.createObjectBuilder().add("name", newName).build().toString());
+        sendRequest(req, callback);
+    }
+
+    public void createCategory(String id, String name, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + id + Constants.REST_CATEGORY_PATH)
+            .body(Json.createObjectBuilder().add("name", name).build().toString());
         sendRequest(req, callback);
     }
 
@@ -112,5 +125,15 @@ public class RestClient {
             + Constants.REST_MESSAGES_PATH + Constants.REST_TIMESTAMP_PATH + timestamp;
         HttpRequest<?> request = Unirest.get(requestPath);
         sendRequest(request, callback);
+    }
+
+    public void createTextChannel(String serverId, String categoryId, String channelName, Boolean privileged, ArrayList<String> members, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH)
+            .body(Json.createObjectBuilder()
+                .add("name", channelName)
+                .add("type", "text")
+                .add("privileged", privileged)
+                .add("members", members.toString()).build().toString());
+        sendRequest(req, callback);
     }
 }
