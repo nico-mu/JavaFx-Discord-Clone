@@ -21,6 +21,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
 public class HomeScreenController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(LoginScreenController.class);
+
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String TOGGLE_ONLINE_BUTTON_ID = "#toggle-online-button";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
@@ -84,14 +88,14 @@ public class HomeScreenController implements ControllerInterface {
         subviewCleanup();
 
         if (subRoute.equals(Constants.ROUTE_PRIVATE_CHAT)) {
-            User otherUser = editor.getUserById(args.getArguments().get(Constants.ROUTE_PRIVATE_CHAT_ARGS));
+            String userId = args.getArguments().get(Constants.ROUTE_PRIVATE_CHAT_ARGS);
+            User otherUser = editor.getUserById(userId);
 
-            PrivateChatController privateChatController = new PrivateChatController(view, editor, otherUser);
+            PrivateChatController privateChatController = new PrivateChatController(view, editor, userId);
             privateChatController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
 
             addUserToSidebar(otherUser);
-
         } else if (subRoute.equals(Constants.ROUTE_LIST_ONLINE_USERS)) {
             UserList userList = new UserList();
             userListController = new UserListController(userList, editor);
@@ -147,6 +151,11 @@ public class HomeScreenController implements ControllerInterface {
 
     private void onChatPartnerChanged(PropertyChangeEvent propertyChangeEvent) {
         User user = (User) propertyChangeEvent.getNewValue();
+
+        if (Objects.isNull(user)) {
+            return;
+        }
+
         if (directMessageReceiver.contains(user.getId())) {
             addUserToSidebar(user);
         }

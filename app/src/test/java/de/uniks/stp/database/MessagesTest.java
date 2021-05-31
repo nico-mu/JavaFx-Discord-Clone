@@ -40,7 +40,7 @@ public class MessagesTest {
             .setMessage("Test Message 3")
             .setId(UUID.randomUUID().toString()));
 
-        List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(receiver);
+        List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(receiver.getId());
         List<String> directMessageReceiver = DatabaseService.getDirectMessageReceiver();
 
         Assertions.assertEquals(2, directMessages.size());

@@ -28,17 +28,19 @@ public class PrivateChatController implements ControllerInterface {
 
     private final Parent view;
     private final Editor editor;
-    private final User model;
+    private final String userId;
+    private final User user;
     private PrivateChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
 
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
 
-    public PrivateChatController(Parent view, Editor editor, User model) {
+    public PrivateChatController(Parent view, Editor editor, String userId) {
         this.view = view;
         this.editor = editor;
-        this.model = model;
+        this.userId = userId;
+        this.user = editor.getUserById(userId);
     }
 
     @Override
@@ -54,8 +56,8 @@ public class PrivateChatController implements ControllerInterface {
         if (Objects.nonNull(chatView)) {
             chatView.stop();
         }
-        if (Objects.nonNull(model)) {
-            model.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
+        if (Objects.nonNull(user)) {
+            user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
         }
     }
 
@@ -65,20 +67,19 @@ public class PrivateChatController implements ControllerInterface {
      */
     private void showChatView() {
         chatView = new PrivateChatView();
-
-        // disable chat when user offline
-        if (Objects.isNull(model)) {
-            chatView.disable();
-            homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE));
-            return;
-        }
-
-        homeScreenLabel.setText(model.getName());
-
-        chatView.setOnMessageSubmit(this::handleMessageSubmit);
         onlineUsersContainer.getChildren().add(chatView);
 
-        List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(model);
+        // disable chat when user offline
+        if (Objects.isNull(user)) {
+            homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE));
+            chatView.disable();
+        } else {
+            homeScreenLabel.setText(user.getName());
+            chatView.setOnMessageSubmit(this::handleMessageSubmit);
+            user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
+        }
+
+        List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(userId);
 
         if (directMessages.size() > 0) {
             addUserToChatPartnerList();
@@ -87,15 +88,13 @@ public class PrivateChatController implements ControllerInterface {
         // TODO: connect message loading to local model
         for (DirectMessageDTO directMessageDTO : directMessages) {
             chatView.appendMessage(new DirectMessage()
-                .setReceiver(model)
+                .setReceiver(user)
                 .setMessage(directMessageDTO.getMessage())
                 .setId(directMessageDTO.getId().toString())
                 .setTimestamp(directMessageDTO.getTimestamp().getTime())
                 .setSender(editor.getOrCreateAccord().getCurrentUser())
             );
         };
-
-        model.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
     }
 
     /**
@@ -107,19 +106,19 @@ public class PrivateChatController implements ControllerInterface {
         // create & save message
         DirectMessage msg = new DirectMessage();
         msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser()).setTimestamp(new Date().getTime());
-        model.withPrivateChatMessages(msg);
+        user.withPrivateChatMessages(msg);
 
         // add user to chatPartner list if not already in it
         addUserToChatPartnerList();
 
         // send message to the server
-        WebSocketService.sendPrivateMessage(model.getName(), message);
+        WebSocketService.sendPrivateMessage(user.getName(), message);
     }
 
     private void addUserToChatPartnerList() {
         User currentUser = editor.getOrCreateAccord().getCurrentUser();
-        if (!currentUser.getChatPartner().contains(model)) {
-            currentUser.withChatPartner(model);
+        if (!currentUser.getChatPartner().contains(user)) {
+            currentUser.withChatPartner(user);
         }
     }
 

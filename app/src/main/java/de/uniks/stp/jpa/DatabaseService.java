@@ -90,7 +90,7 @@ public class DatabaseService {
         entityManager.close();
     }
 
-    public static List<DirectMessageDTO> getDirectMessages(User receiver) {
+    public static List<DirectMessageDTO> getDirectMessages(String receiverId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -101,7 +101,7 @@ public class DatabaseService {
         CriteriaQuery<DirectMessageDTO> query = entityManager.getCriteriaBuilder().createQuery(DirectMessageDTO.class);
         Root<DirectMessageDTO> root = query.from(DirectMessageDTO.class);
 
-        query.where(entityManager.getCriteriaBuilder().equal(root.get("receiver"), receiver.getId()));
+        query.where(entityManager.getCriteriaBuilder().equal(root.get("receiver"), receiverId));
         List<?> resultList = entityManager.createQuery(query).getResultList();;
 
         transaction.commit();
