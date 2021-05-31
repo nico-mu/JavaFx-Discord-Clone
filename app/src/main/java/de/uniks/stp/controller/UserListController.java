@@ -82,8 +82,12 @@ public class UserListController implements ControllerInterface {
                 final String userId = jsonUser.getString("id");
                 final String name = jsonUser.getString("name");
 
-                final User user = editor.getOrCreateOtherUser(userId, name).setStatus(true);
-                userJoined(user);
+                User otherUser = editor.getOrCreateOtherUser(userId, name);
+
+                if (Objects.nonNull(otherUser)) {
+                    final User user = otherUser.setStatus(true);
+                    userJoined(user);
+                }
             });
         }
     }
