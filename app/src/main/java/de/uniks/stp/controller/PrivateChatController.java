@@ -81,20 +81,14 @@ public class PrivateChatController implements ControllerInterface {
 
         // disable chat when user offline
         if (Objects.isNull(user)) {
-            Platform.runLater(() -> {
-                homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE));
-            });
+            setHeaderLabel(ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE));
             chatView.disable();
         } else {
             if (!user.isStatus()) {
-                Platform.runLater(() -> {
-                    homeScreenLabel.setText(user.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
-                });
+                setOfflineHeaderLabel();
                 chatView.disable();
             } else {
-                Platform.runLater(() -> {
-                    homeScreenLabel.setText(user.getName());
-                });
+                setOnlineHeaderLabel();
             }
 
             chatView.setOnMessageSubmit(this::handleMessageSubmit);
@@ -155,6 +149,20 @@ public class PrivateChatController implements ControllerInterface {
         }
     }
 
+    private void setHeaderLabel(String text) {
+        Platform.runLater(() -> {
+            homeScreenLabel.setText(text);
+        });
+    }
+
+    private void setOnlineHeaderLabel() {
+        setHeaderLabel(user.getName());
+    }
+
+    private void setOfflineHeaderLabel() {
+        setHeaderLabel(user.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
+    }
+
     private void handleNewPrivateMessage(PropertyChangeEvent propertyChangeEvent) {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
 
@@ -173,22 +181,12 @@ public class PrivateChatController implements ControllerInterface {
         // User online
         if (Objects.isNull(oldValue) && Objects.nonNull(newValue) && newValue.getId().equals(user.getId())) {
             chatView.enable();
-            Platform.runLater(() -> {
-                homeScreenLabel.setText(user.getName());
-            });
-            return;
+            setOnlineHeaderLabel();
         }
-
-        if (Objects.isNull(oldValue)) {
-            return;
-        }
-
         // User offline
-        if (oldValue.getId().equals(user.getId()) && Objects.isNull(newValue)) {
+        else if (Objects.nonNull(oldValue) && oldValue.getId().equals(user.getId()) && Objects.isNull(newValue)) {
             chatView.disable();
-            Platform.runLater(() -> {
-                homeScreenLabel.setText(user.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
-            });
+            setOfflineHeaderLabel();
         }
     }
 
@@ -197,14 +195,10 @@ public class PrivateChatController implements ControllerInterface {
 
         if (status) {
             chatView.enable();
-            Platform.runLater(() -> {
-                homeScreenLabel.setText(user.getName());
-            });
+            setOnlineHeaderLabel();
         } else {
             chatView.disable();
-            Platform.runLater(() -> {
-                homeScreenLabel.setText(user.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
-            });
+            setOfflineHeaderLabel();
         }
     }
 }
