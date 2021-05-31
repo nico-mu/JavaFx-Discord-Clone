@@ -121,13 +121,13 @@ public class ServerScreenController implements ControllerInterface {
     private void onEditServerClicked(ActionEvent actionEvent) {
         Parent serverSettingsModalView = ViewLoader.loadView(Views.SERVER_SETTINGS_MODAL);
         ServerSettingsModal serverSettingsModal = new ServerSettingsModal(serverSettingsModalView, model);
-        serverSettingsModal.showAndWait();
+        serverSettingsModal.show();
     }
 
     private void onCreateCategoryClicked(ActionEvent actionEvent) {
         Parent createCategoryModalView = ViewLoader.loadView(Views.CREATE_CATEGORY_MODAL);
         CreateCategoryModal createCategoryModal = new CreateCategoryModal(createCategoryModalView, model);
-        createCategoryModal.showAndWait();
+        createCategoryModal.show();
     }
 
     @Override
