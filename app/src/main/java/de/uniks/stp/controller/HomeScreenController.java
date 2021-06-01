@@ -8,9 +8,7 @@ import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.UserList;
 import de.uniks.stp.component.UserListSidebarEntry;
 import de.uniks.stp.jpa.DatabaseService;
-import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
@@ -23,8 +21,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -79,7 +75,8 @@ public class HomeScreenController implements ControllerInterface {
                     addUserToSidebar(otherUser.setStatus(false));
                 }
             } else {
-                addUserToSidebar(editor.getOrCreateOtherUser(receiverId, receiverName));
+                User otherUser = editor.getOrCreateOtherUser(receiverId, receiverName);
+                addUserToSidebar(otherUser);
             }
 
             directMessageReceiver.put(receiverId, receiverName);
@@ -89,7 +86,6 @@ public class HomeScreenController implements ControllerInterface {
             .getCurrentUser()
             .listeners()
             .addPropertyChangeListener(User.PROPERTY_CHAT_PARTNER, chatPartnerChangeListener);
-        editor.getOrCreateAccord().listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, chatPartnerChangeListener);
     }
 
     @Override
@@ -166,8 +162,6 @@ public class HomeScreenController implements ControllerInterface {
             return;
         }
 
-        if (directMessageReceiver.containsKey(user.getId())) {
-            addUserToSidebar(user);
-        }
+        addUserToSidebar(user);
     }
 }

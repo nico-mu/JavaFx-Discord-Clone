@@ -3,7 +3,6 @@ package de.uniks.stp.jpa;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.model.DirectMessage;
-import de.uniks.stp.model.User;
 import javafx.util.Pair;
 
 import javax.persistence.EntityManager;
