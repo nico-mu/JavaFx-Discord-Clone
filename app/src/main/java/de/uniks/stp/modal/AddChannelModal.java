@@ -21,8 +21,6 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class AddChannelModal extends AbstractModal {
@@ -44,7 +42,6 @@ public class AddChannelModal extends AbstractModal {
     private JFXButton cancelButton;
     private Label errorLabel;
     private Category category;
-    private HashMap<String, UserCheckListEntry> serverUserElementsMap;
     private RestClient restClient;
 
     public AddChannelModal(Parent root, Category category) {
@@ -76,22 +73,14 @@ public class AddChannelModal extends AbstractModal {
             selectUserList.setDisable(!newValue);
         }));
 
-        serverUserElementsMap = new HashMap<>();
-
         for (User user : category.getServer().getUsers()) {
             UserCheckListEntry userCheckListEntry = new UserCheckListEntry(user);
-            serverUserElementsMap.put(user.getName(), userCheckListEntry);
-            selectUserList.addUserCheckListEntry(userCheckListEntry);
+            selectUserList.addUserToChecklist(userCheckListEntry);
         }
     }
 
     private void filterUsers(String newValue) {
-        selectUserList.clearUserCheckList();
-        for (String name : serverUserElementsMap.keySet()) {
-            if (name.contains(newValue)) {
-                selectUserList.addUserCheckListEntry(serverUserElementsMap.get(name));
-            }
-        }
+        selectUserList.filterUsers(newValue);
     }
 
     private void onCreatButtonClicked(ActionEvent actionEvent) {
@@ -101,13 +90,7 @@ public class AddChannelModal extends AbstractModal {
         String serverId = category.getServer().getId();
         String categoryId = category.getId();
 
-        ArrayList<String> selectedUserNames = new ArrayList<>();
-        for (UserCheckListEntry userCheckListEntry : serverUserElementsMap.values()) {
-            if (userCheckListEntry.isUserSelected()) {
-                selectedUserNames.add(userCheckListEntry.getUserId());
-            }
-        }
-        restClient.createTextChannel(serverId, categoryId, chName, priv, selectedUserNames, this::handleCreateChannelResponse);
+        restClient.createTextChannel(serverId, categoryId, chName, priv, selectUserList.getSelectedUserIds(), this::handleCreateChannelResponse);
     }
 
     private void setErrorMessage(String label) {
