@@ -6,14 +6,13 @@ import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ServerCategoryElement;
 import de.uniks.stp.component.ServerCategoryList;
 import de.uniks.stp.component.ServerChannelElement;
-import de.uniks.stp.event.ChannelChangeEvent;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.notification.NotificationEvent;
-import de.uniks.stp.notification.NotificationInterface;
+import de.uniks.stp.notification.SubscriberInterface;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
@@ -34,7 +33,7 @@ import static de.uniks.stp.model.Category.PROPERTY_CHANNELS;
 import static de.uniks.stp.model.Server.PROPERTY_CATEGORIES;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
-public class ServerCategoryListController implements ControllerInterface, NotificationInterface {
+public class ServerCategoryListController implements ControllerInterface, SubscriberInterface {
 
     private boolean firstChannel = true;
     private final Parent view;

@@ -52,7 +52,6 @@ public class MainScreenController implements ControllerInterface {
     public void route(RouteInfo routeInfo, RouteArgs args) {
         cleanup();
         String subroute = routeInfo.getSubControllerRoute();
-        NotificationService.setActiveObject(null);
         if (subroute.equals(Constants.ROUTE_HOME)) {
             currentController = new HomeScreenController(this.subViewContainer, this.editor);
             currentController.init();

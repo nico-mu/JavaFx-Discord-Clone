@@ -3,7 +3,9 @@ package de.uniks.stp.notification;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
+import de.uniks.stp.router.Router;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,11 +13,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NotificationService {
 
-    private static final ConcurrentHashMap<NotificationEvent, List<NotificationInterface>> channelNotifications = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<NotificationEvent, List<NotificationInterface>> userNotifications = new ConcurrentHashMap<>();
-    private static final List<NotificationInterface> userSubscriber = new CopyOnWriteArrayList<>();
-    private static final List<NotificationInterface> channelSubscriber = new CopyOnWriteArrayList<>();
-    private static Object activeObject;
+    private static final ConcurrentHashMap<NotificationEvent, List<SubscriberInterface>> channelNotifications = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<NotificationEvent, List<SubscriberInterface>> userNotifications = new ConcurrentHashMap<>();
+    private static final List<SubscriberInterface> userSubscriber = new CopyOnWriteArrayList<>();
+    private static final List<SubscriberInterface> channelSubscriber = new CopyOnWriteArrayList<>();
 
     public static void register(User publisher) {
         if (Objects.isNull(publisher)) {
@@ -37,23 +38,23 @@ public class NotificationService {
         }
     }
 
-    public static void registerUserSubscriber(NotificationInterface subscriber) {
+    public static void registerUserSubscriber(SubscriberInterface subscriber) {
         if (!userSubscriber.contains(subscriber)) {
             userSubscriber.add(subscriber);
         }
     }
 
-    public static void registerChannelSubscriber(NotificationInterface subscriber) {
+    public static void registerChannelSubscriber(SubscriberInterface subscriber) {
         if (!channelSubscriber.contains(subscriber)) {
             channelSubscriber.add(subscriber);
         }
     }
 
-    public static void removeUserSubscriber(NotificationInterface subscriber) {
+    public static void removeUserSubscriber(SubscriberInterface subscriber) {
         userSubscriber.remove(subscriber);
     }
 
-    public static void removeChannelSubscriber(NotificationInterface subscriber) {
+    public static void removeChannelSubscriber(SubscriberInterface subscriber) {
         if (Objects.isNull(subscriber)) {
             return;
         }
@@ -77,7 +78,8 @@ public class NotificationService {
     }
 
     public static void onPrivateMessage(User publisher) {
-        if (Objects.nonNull(activeObject) && activeObject.equals(publisher)) {
+        HashMap<String, String> routeArgs = Router.getCurrentArgs();
+        if (routeArgs.containsKey(":userId") && routeArgs.get(":userId").equals(publisher.getId())) {
             return;
         }
         NotificationEvent event = handleNotificationEvent(publisher);
@@ -89,7 +91,8 @@ public class NotificationService {
     }
 
     public static void onChannelMessage(Channel publisher) {
-        if (Objects.nonNull(activeObject) && activeObject.equals(publisher)) {
+        HashMap<String, String> routeArgs = Router.getCurrentArgs();
+        if (routeArgs.containsKey(":channelId") && routeArgs.get(":channelId").equals(publisher.getId())) {
             return;
         }
         NotificationEvent event = handleNotificationEvent(publisher);
@@ -135,10 +138,6 @@ public class NotificationService {
         return notificationCount;
     }
 
-    public static void setActiveObject(Object o) {
-        activeObject = o;
-    }
-
     private static NotificationEvent handleNotificationEvent(Object source) {
         if (Objects.isNull(source)) {
             return null;
@@ -151,13 +150,13 @@ public class NotificationService {
     }
 
     private static void notifyUser(NotificationEvent event) {
-        for (NotificationInterface subscriber : userNotifications.get(event)) {
+        for (SubscriberInterface subscriber : userNotifications.get(event)) {
             subscriber.onUserNotificationEvent(event);
         }
     }
 
     private static void notifyChannel(NotificationEvent event) {
-        for (NotificationInterface subscriber : channelNotifications.get(event)) {
+        for (SubscriberInterface subscriber : channelNotifications.get(event)) {
             subscriber.onChannelNotificationEvent(event);
         }
     }

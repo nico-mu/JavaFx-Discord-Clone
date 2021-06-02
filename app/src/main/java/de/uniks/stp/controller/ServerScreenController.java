@@ -100,7 +100,6 @@ public class ServerScreenController implements ControllerInterface {
             final String channelId = args.getArguments().get(":channelId");
             final Channel channel = getChannel(serverId, categoryId, channelId);
             NotificationService.consume(channel);
-            NotificationService.setActiveObject(channel);
             serverChatController = new ServerChatController(serverChatContainer, editor, channel);
             serverChatController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), serverChatController);

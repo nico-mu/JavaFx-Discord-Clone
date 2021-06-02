@@ -9,7 +9,7 @@ import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationEvent;
-import de.uniks.stp.notification.NotificationInterface;
+import de.uniks.stp.notification.SubscriberInterface;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class NavBarListController implements ControllerInterface, NotificationInterface {
+public class NavBarListController implements ControllerInterface, SubscriberInterface {
 
     private final static Logger log = LoggerFactory.getLogger(NavBarListController.class);
     private final Parent view;
