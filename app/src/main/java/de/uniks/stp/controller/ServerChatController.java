@@ -5,8 +5,10 @@ import de.uniks.stp.component.ServerChatView;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
+import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
@@ -14,15 +16,13 @@ import javafx.scene.layout.VBox;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
+import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 public class ServerChatController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(ServerChatController.class);
@@ -134,8 +134,57 @@ public class ServerChatController implements ControllerInterface {
                 return;
             }
 
-            //TODO: create ServerMessages, save in model and show correctly in chat
+            //disable adding new messages to the view for a moment
+            model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
 
+            ArrayList<ServerMessage> loadedMessages = new ArrayList<ServerMessage>();
+            // create messages
+            for (Object msgObject : messagesJson) {
+                JSONObject msgJson = (JSONObject) msgObject;
+                final String msgId = msgJson.getString("id");
+                final String channelId = msgJson.getString("channel");
+                final long timestamp = msgJson.getLong("timestamp");
+                final String senderName = msgJson.getString("from");
+                final String msgText = msgJson.getString("text");
+
+                if(! channelId.equals(model.getId())){
+                    log.error("Received old server messages of wrong channel!");
+                    return;
+                }
+                User sender = editor.getServerMember(senderName, model.getCategory().getServer());
+                if (Objects.isNull(sender)){
+                    sender = new User().setName(senderName).setStatus(false);
+                    log.debug("Loaded old server message from former serveruser, created dummy object");
+                }
+
+                ServerMessage msg = new ServerMessage().setChannel(model);
+                msg.setMessage(msgText).setTimestamp(timestamp).setId(msgId).setSender(sender);
+
+                loadedMessages.add(msg);
+            }
+            // save messages correctly in model
+            // FixMe: If a message is received while this next operations, it will not be shown correctly in the view
+            List<ServerMessage> messages = model.getMessages();
+            ArrayList<ServerMessage> modifiableMessages = new ArrayList<ServerMessage>(messages);
+            model.withoutMessages(modifiableMessages);  //clear (unsorted) list
+
+            // unite & sort list
+            modifiableMessages.addAll(loadedMessages);
+            Comparator<Message> messageComparator = Comparator.comparingLong(Message::getTimestamp);
+            modifiableMessages.sort(messageComparator);
+
+            model.withMessages(modifiableMessages);  //add sorted elements
+
+            //show messages in chat
+            Platform.runLater(()->{
+                chatView.clearMessages();
+                for (ServerMessage message : model.getMessages()) {
+                    chatView.appendMessage(message);
+                }
+            });
+
+            //enable adding new messages to the view again
+            model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
         } else {
             log.error("receiving old messages failed!");
         }

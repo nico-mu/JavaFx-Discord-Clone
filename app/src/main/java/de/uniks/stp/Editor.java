@@ -192,6 +192,15 @@ public class Editor {
         return user;
     }
 
+    public User getServerMember(String username, Server server) {
+        for (User user : server.getUsers()) {
+            if (user.getName().equals(username)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
     public void setServerMemberStatus(String userId, String name, boolean status, Server server) {
         if (Objects.isNull(server)) {
             return;

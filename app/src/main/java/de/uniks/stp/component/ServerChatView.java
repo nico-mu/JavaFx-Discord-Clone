@@ -58,8 +58,6 @@ public class ServerChatView extends VBox {
         chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
 
         loadMessagesButton.setOnAction(loadMessagesHandler);
-
-        removeLoadMessagesButton();  //TODO: remove if button is used
     }
 
     /**
@@ -88,7 +86,6 @@ public class ServerChatView extends VBox {
         Platform.runLater(() -> {
             messageList.getChildren().add(chatMessage);
         });
-
     }
 
     /**
@@ -138,6 +135,12 @@ public class ServerChatView extends VBox {
      * Used when there are no older messages to load
      */
     public void removeLoadMessagesButton() {
-        chatVBox.getChildren().remove(loadMessagesButton);
+        Platform.runLater(()-> chatVBox.getChildren().remove(loadMessagesButton));
+    }
+
+    public void clearMessages() {
+        Platform.runLater(() -> {
+            messageList.getChildren().clear();
+        });
     }
 }
