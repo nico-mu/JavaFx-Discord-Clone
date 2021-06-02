@@ -162,14 +162,20 @@ public class NotificationService {
     }
 
     private static NotificationEvent getNotificationEvent(Object source) {
-        for (NotificationEvent event : userNotifications.keySet()) {
-            if (event.getSource().equals(source)) {
-                return event;
+        if (source instanceof User) {
+            User user = (User) source;
+            for (NotificationEvent event : userNotifications.keySet()) {
+                if (user.getId().equals(((User) event.getSource()).getId())) {
+                    return event;
+                }
             }
         }
-        for (NotificationEvent event : channelNotifications.keySet()) {
-            if (event.getSource().equals(source)) {
-                return event;
+        if (source instanceof Channel) {
+            Channel channel = (Channel) source;
+            for (NotificationEvent event : channelNotifications.keySet()) {
+                if (channel.getId().equals(((Channel) event.getSource()).getId())) {
+                    return event;
+                }
             }
         }
         return null;
