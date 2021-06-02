@@ -180,8 +180,6 @@ public class Editor {
     public User getOrCreateServerMember(String userId, String name, boolean status, Server server) {
         for (User user : server.getUsers()) {
             if (user.getName().equals(name)) {
-                user.setName(name).setStatus(status);
-                server.firePropertyChange(Server.PROPERTY_USERS, null, user);
                 return user;
             }
         }
