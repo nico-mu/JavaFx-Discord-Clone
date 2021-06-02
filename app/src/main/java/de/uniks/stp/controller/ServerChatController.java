@@ -97,6 +97,7 @@ public class ServerChatController implements ControllerInterface {
     }
 
     private void handleNewMessage(PropertyChangeEvent propertyChangeEvent) {
+        System.out.println("handleNewMessage");
         ServerMessage msg = (ServerMessage) propertyChangeEvent.getNewValue();
         chatView.appendMessage(msg);
     }
@@ -137,7 +138,6 @@ public class ServerChatController implements ControllerInterface {
             //disable adding new messages to the view for a moment
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
 
-            ArrayList<ServerMessage> loadedMessages = new ArrayList<ServerMessage>();
             // create messages
             for (Object msgObject : messagesJson) {
                 JSONObject msgJson = (JSONObject) msgObject;
@@ -157,23 +157,10 @@ public class ServerChatController implements ControllerInterface {
                     log.debug("Loaded old server message from former serveruser, created dummy object");
                 }
 
-                ServerMessage msg = new ServerMessage().setChannel(model);
+                ServerMessage msg = new ServerMessage();
                 msg.setMessage(msgText).setTimestamp(timestamp).setId(msgId).setSender(sender);
-
-                loadedMessages.add(msg);
+                msg.setChannel(model);
             }
-            // save messages correctly in model
-            // FixMe: If a message is received while this next operations, it will not be shown correctly in the view
-            List<ServerMessage> messages = model.getMessages();
-            ArrayList<ServerMessage> modifiableMessages = new ArrayList<ServerMessage>(messages);
-            model.withoutMessages(modifiableMessages);  //clear (unsorted) list
-
-            // unite & sort list
-            modifiableMessages.addAll(loadedMessages);
-            Comparator<Message> messageComparator = Comparator.comparingLong(Message::getTimestamp);
-            modifiableMessages.sort(messageComparator);
-
-            model.withMessages(modifiableMessages);  //add sorted elements
 
             //show messages in chat
             Platform.runLater(()->{
