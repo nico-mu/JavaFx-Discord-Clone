@@ -96,6 +96,9 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
                     NotificationService.removePublisher(channel);
                 }
             }
+            for (Channel channel : server.getChannels()) {
+                NotificationService.removePublisher(channel);
+            }
         }
     }
 
@@ -216,6 +219,17 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         navBarUserElementHashMap.clear();
         navBarServerElementHashMap.clear();
 
+        for (Server server : editor.getOrCreateAccord().getCurrentUser().getAvailableServers()) {
+            for (Category category : server.getCategories()) {
+                for (Channel channel : category.getChannels()) {
+                    NotificationService.removePublisher(channel);
+                }
+            }
+            for (Channel channel : server.getChannels()) {
+                NotificationService.removePublisher(channel);
+            }
+        }
+
         NotificationService.removeChannelSubscriber(this);
     }
 
@@ -223,7 +237,12 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     public void onChannelNotificationEvent(NotificationEvent event) {
         Channel channel = (Channel) event.getSource();
         if (Objects.nonNull(channel)) {
-            Server server = channel.getCategory().getServer();
+            Server server;
+            if (Objects.isNull(channel.getCategory())) {
+                server = channel.getServer();
+            } else {
+                server = channel.getCategory().getServer();
+            }
             if (Objects.nonNull(server)) {
                 navBarServerElementHashMap.get(server).setNotificationCount(NotificationService.getServerNotificationCount(server));
             }

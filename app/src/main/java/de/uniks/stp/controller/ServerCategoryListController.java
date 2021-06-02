@@ -125,8 +125,14 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                 final String categoryId = channelJson.getString("category");
 
                 Category categoryModel = editor.getCategory(categoryId, model);
-                Channel channelModel = editor.getOrCreateChannel(channelId, name, categoryModel);
-
+                Channel channelModel = editor.getChannel(channelId, model);
+                if (Objects.nonNull(channelModel)) {
+                    // Channel is already in model because it got added by a notification
+                    channelModel.setCategory(categoryModel).setName(name);
+                } else {
+                    channelModel = editor.getOrCreateChannel(channelId, name, categoryModel);
+                    channelModel.setServer(model);
+                }
                 channelAdded(categoryModel, channelModel);
             }
         }
@@ -156,12 +162,13 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     }
 
     private void channelAdded(final Category category, final Channel channel) {
-        if (Objects.nonNull(category)  && Objects.nonNull(channel) && !channelElementHashMap.containsKey(channel)) {
+        if (Objects.nonNull(category) && Objects.nonNull(channel) && Objects.nonNull(channel.getName()) && !channelElementHashMap.containsKey(channel)) {
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             final ServerChannelElement serverChannelElement = new ServerChannelElement(channel);
+            NotificationService.register(channel);
             channelElementHashMap.put(channel, serverChannelElement);
             Platform.runLater(() -> serverCategoryElement.addChannelElement(serverChannelElement));
-            NotificationService.register(channel);
+            serverChannelElement.setNotificationCount(NotificationService.getPublisherNotificationCount(channel));
             // show ServerChatView of first loaded channel
             if(firstChannel){
                 firstChannel = false;

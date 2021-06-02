@@ -69,6 +69,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("server")
         List<Category> categories;
+
+        @Link("server")
+        List<Channel> channels;
     }
 
     class Category {
@@ -96,6 +99,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("availableChannels")
         List<User> channelMembers;
+
+        @Link("channels")
+        Server server;
     }
 
     class Message {

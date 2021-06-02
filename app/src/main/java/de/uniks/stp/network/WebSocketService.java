@@ -219,7 +219,12 @@ public class WebSocketService {
         msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender).setId(messageId);
 
         // setChannel triggers PropertyChangeListener that shows Message in Chat
-        Channel channel = editor.getChannel(channelId, editor.getServer(serverId));
+        Server server = editor.getServer(serverId);
+        Channel channel = editor.getChannel(channelId, server);
+        if (Objects.isNull(channel)) {
+            channel = new Channel().setServer(server).setId(channelId);
+            NotificationService.register(channel);
+        }
         msg.setChannel(channel);
         NotificationService.onChannelMessage(channel);
     }

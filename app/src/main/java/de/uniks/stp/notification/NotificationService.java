@@ -1,5 +1,6 @@
 package de.uniks.stp.notification;
 
+import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
@@ -131,11 +132,21 @@ public class NotificationService {
         int notificationCount = 0;
         for (NotificationEvent event : channelNotifications.keySet()) {
             Channel channel = (Channel) event.getSource();
-            if (channel.getCategory().getServer().equals(server)) {
+            Category category = channel.getCategory();
+            Server channelServer = channel.getServer();
+            if ((Objects.nonNull(channelServer) && channelServer.equals(server)) || (Objects.nonNull(category) && category.getServer().equals(server))) {
                 notificationCount += event.getNotifications();
             }
         }
         return notificationCount;
+    }
+
+    public static int getPublisherNotificationCount(Channel channel) {
+        NotificationEvent event = getNotificationEvent(channel);
+        if (Objects.nonNull(event)) {
+            return event.getNotifications();
+        }
+        return 0;
     }
 
     private static NotificationEvent handleNotificationEvent(Object source) {
@@ -144,7 +155,7 @@ public class NotificationService {
         }
         NotificationEvent event = getNotificationEvent(source);
         if (Objects.isNull(event)) {
-            throw new RuntimeException("NotificationEvent has not been registered.");
+            return null;
         }
         return event;
     }
