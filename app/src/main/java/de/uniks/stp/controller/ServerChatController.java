@@ -151,7 +151,7 @@ public class ServerChatController implements ControllerInterface {
                     log.error("Received old server messages of wrong channel!");
                     return;
                 }
-                User sender = editor.getServerMember(senderName, model.getCategory().getServer());
+                User sender = editor.getOrCreateServerMember(null, senderName, false, model.getCategory().getServer());
                 if (Objects.isNull(sender)){
                     sender = new User().setName(senderName).setStatus(false);
                     log.debug("Loaded old server message from former serveruser, created dummy object");
