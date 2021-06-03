@@ -76,8 +76,12 @@ public class ServerChatController implements ControllerInterface {
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
         serverChatVBox.getChildren().add(chatView);
 
-        for (ServerMessage message : model.getMessages()) {
-            chatView.appendMessage(message);
+        if(model.getMessages().size() < 20){
+            loadMessages(new ActionEvent());
+        } else{
+            for (ServerMessage message : model.getMessages()) {
+                chatView.appendMessage(message);
+            }
         }
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
     }
