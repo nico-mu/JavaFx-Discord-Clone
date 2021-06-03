@@ -29,6 +29,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.matchers.Not;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
@@ -105,6 +106,9 @@ public class NotificationTest {
         editor.getOrCreateAccord()
             .withOtherUsers(userTwo);
 
+        NotificationService.register(userOne);
+        NotificationService.register(userTwo);
+
 
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
         WaitForAsyncUtils.waitForFxEvents();
@@ -149,22 +153,20 @@ public class NotificationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         Platform.runLater(() -> {
-            NavBarUserElement userOneElement = robot.lookup("#" + userOne.getId() + "-button").query();
-            NavBarUserElement userTwoElement = robot.lookup("#" + userTwo.getId() + "-button").query();
-            Assertions.assertEquals(2, userOne.getSentUserNotification().getNotificationCounter());
-            Assertions.assertEquals(1, userTwo.getSentUserNotification().getNotificationCounter());
+            Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(userOne));
+            Assertions.assertEquals(1, NotificationService.getPublisherNotificationCount(userTwo));
         });
         robot.clickOn("#" + userOne.getId() + "-button");
 
-        Assertions.assertNull(userOne.getSentUserNotification());
-        Assertions.assertEquals(1, userTwo.getSentUserNotification().getNotificationCounter());
+        Assertions.assertEquals(0, NotificationService.getPublisherNotificationCount(userOne));
+        Assertions.assertEquals(1, NotificationService.getPublisherNotificationCount(userTwo));
         currentUserCallback.handleMessage(messageOne);
         currentUserCallback.handleMessage(messageTwo);
         currentUserCallback.handleMessage(messageThree);
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        Assertions.assertEquals(2, userTwo.getSentUserNotification().getNotificationCounter());
+        Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(userTwo));
         robot.clickOn("#home-button");
         robot.clickOn("#" + userTwo.getId() + "-UserListSideBarEntry");
 

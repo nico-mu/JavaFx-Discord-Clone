@@ -149,6 +149,14 @@ public class NotificationService {
         return 0;
     }
 
+    public static int getPublisherNotificationCount(User user) {
+        NotificationEvent event = getNotificationEvent(user);
+        if (Objects.nonNull(event)) {
+            return event.getNotifications();
+        }
+        return 0;
+    }
+
     private static NotificationEvent handleNotificationEvent(Object source) {
         if (Objects.isNull(source)) {
             return null;
@@ -190,13 +198,5 @@ public class NotificationService {
             }
         }
         return null;
-    }
-
-    private static NotificationEvent getOrCreateNotificationEvent(Object source) {
-        NotificationEvent event = getNotificationEvent(source);
-        if (Objects.isNull(event)) {
-            return new NotificationEvent(source);
-        }
-        return event;
     }
 }
