@@ -130,6 +130,8 @@ public class WebSocketService {
         if (!currentUser.getChatPartner().contains(sender)) {
             currentUser.withChatPartner(sender);
         }
+        NotificationService.register(sender);
+        NotificationService.onPrivateMessage(sender);
     }
 
     /**
