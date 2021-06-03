@@ -5,12 +5,18 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.component.NavBarUserElement;
 import de.uniks.stp.component.ServerChannelElement;
+import de.uniks.stp.modal.AddServerModal;
 import de.uniks.stp.model.*;
 import de.uniks.stp.network.*;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import kong.unirest.Callback;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -27,11 +33,11 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(ApplicationExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -43,8 +49,14 @@ public class NotificationTest {
     @Mock
     private WebSocketClient webSocketMock;
 
+    @Mock
+    private HttpResponse<JsonNode> res;
+
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
 
     @Captor
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
@@ -159,7 +171,20 @@ public class NotificationTest {
         final User currentUser = new User().setName("Test").setId("123-45");
         final User userOne = new User().setName("userOne").setId("111-11");
         final User userTwo = new User().setName("userTwo").setId("222-22");
-        final Server server = new Server().setId("1").setName("TestServer").setOwner(currentUser);
+        final String serverId = "1";
+        final String serverName = "Test";
+
+        JSONObject j = new JSONObject().put("status", "success").put("message", "")
+            .put("data", new JSONObject().put("id", "1").put("name", "Test"));
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(true);
+
+        verify(restMock).createServer(eq(serverName), callbackCaptor.capture());
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+
+        NotificationService.register(userOne);
+        NotificationService.register(userTwo);
 
         editor.getOrCreateAccord()
             .setCurrentUser(currentUser)
@@ -179,6 +204,10 @@ public class NotificationTest {
         final Channel channelTwo = new Channel().setName("ChannelTwo").setId("C2").withChannelMembers(currentUser, userTwo);
         final Category category = new Category().setId("Category1").setName("TestCategory").withChannels(channelOne, channelTwo);
         server.withCategories(category);
+        server.withoutChannels(channelOne, channelTwo);
+
+        NotificationService.register(channelOne);
+        NotificationService.register(channelTwo);
 
         RouteArgs args = new RouteArgs().addArgument(":id", server.getId());
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
@@ -223,6 +252,10 @@ public class NotificationTest {
         systemCallback.handleMessage(messageOne);
         systemCallback.handleMessage(messageTwo);
         systemCallback.handleMessage(messageThree);
+
+        Assertions.assertEquals(3, NotificationService.getServerNotificationCount(server));
+        Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(channelOne));
+        Assertions.assertEquals(1, NotificationService.getPublisherNotificationCount(channelTwo));
 
         RouteArgs routeArgs = new RouteArgs().addArgument(":id", "1").addArgument(":categoryId", "Category1").addArgument(":channelId", "C1");
         Platform.runLater(() -> Router.routeWithArgs(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgs));

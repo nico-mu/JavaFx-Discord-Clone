@@ -70,8 +70,10 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         Platform.runLater(() -> {
             if (mode) {
                 channelText.setFont(boldFont);
+                channelText.setStyle("-fx-text-fill: red");
             } else {
                 channelText.setFont(font);
+                channelText.setStyle("-fx-text-fill: white");
             }
         });
     }
