@@ -91,11 +91,6 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         if (Objects.nonNull(server) && navBarServerElementHashMap.containsKey(server)) {
             final NavBarServerElement navBarElement = navBarServerElementHashMap.remove(server);
             Platform.runLater(() -> navBarList.removeElement(navBarElement));
-            for (Category category : server.getCategories()) {
-                for (Channel channel : category.getChannels()) {
-                    NotificationService.removePublisher(channel);
-                }
-            }
             for (Channel channel : server.getChannels()) {
                 NotificationService.removePublisher(channel);
             }
