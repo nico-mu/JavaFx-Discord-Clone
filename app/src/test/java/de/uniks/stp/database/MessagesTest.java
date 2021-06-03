@@ -4,6 +4,7 @@ import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
+import de.uniks.stp.router.Router;
 import javafx.util.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
