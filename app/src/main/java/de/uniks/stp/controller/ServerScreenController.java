@@ -4,12 +4,12 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
-import de.uniks.stp.modal.AddServerModal;
 import de.uniks.stp.modal.CreateCategoryModal;
 import de.uniks.stp.modal.ServerSettingsModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
@@ -55,6 +55,7 @@ public class ServerScreenController implements ControllerInterface {
 
     private ContextMenu settingsContextMenu;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
+    PropertyChangeListener channelNotificationPropertyChangeListener = this::onChannelNotificationChange;
 
     public ServerScreenController(Parent view, Editor editor, Server model) {
         this.view = (AnchorPane) view;
@@ -98,6 +99,7 @@ public class ServerScreenController implements ControllerInterface {
             final String categoryId = args.getArguments().get(":categoryId");
             final String channelId = args.getArguments().get(":channelId");
             final Channel channel = getChannel(serverId, categoryId, channelId);
+            NotificationService.consume(channel);
             serverChatController = new ServerChatController(serverChatContainer, editor, channel);
             serverChatController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), serverChatController);
@@ -107,7 +109,11 @@ public class ServerScreenController implements ControllerInterface {
     private Channel getChannel(final String serverId, final String categoryId, final String channelId) {
         Server server = editor.getServer(serverId);
         Category category = editor.getCategory(categoryId, server);
-        return editor.getChannel(channelId, category);
+        Channel channel = editor.getChannel(channelId, category);
+        if (Objects.isNull(channel)) {
+            channel = editor.getChannel(channelId, server);
+        }
+        return channel;
     }
 
     private void onServerNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
@@ -128,6 +134,10 @@ public class ServerScreenController implements ControllerInterface {
         Parent createCategoryModalView = ViewLoader.loadView(Views.CREATE_CATEGORY_MODAL);
         CreateCategoryModal createCategoryModal = new CreateCategoryModal(createCategoryModalView, model, editor);
         createCategoryModal.show();
+    }
+
+    private void onChannelNotificationChange(PropertyChangeEvent propertyChangeEvent) {
+
     }
 
     @Override
