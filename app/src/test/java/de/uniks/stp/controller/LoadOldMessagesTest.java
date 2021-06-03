@@ -104,26 +104,7 @@ public class LoadOldMessagesTest {
         channel.setCategory(cat);
         WaitForAsyncUtils.waitForFxEvents();
 
-        robot.clickOn("#chatViewMessageInput");
-        String latestMessage = "Latest message";
-        robot.write(latestMessage);
-        robot.clickOn("#chatViewSubmitButton");
-        WaitForAsyncUtils.waitForFxEvents();
-
-        // assert correct start situation
-        Assertions.assertEquals(1, editor.getChannel(channelId, server).getMessages().size());
-        VBox chatVBox = robot.lookup("#chatVBox").query();
-        Assertions.assertEquals(2, chatVBox.getChildren().size());  //asserts loadMessagesButton in view
-
-        VBox messageList = robot.lookup("#messageList").query();
-        ServerChatMessage firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
-        VBox messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
-        Text messageText = (Text) messageContainer.getChildren().get(1);
-        Assertions.assertEquals(latestMessage, messageText.getText());
-
-        // load old messages
-        robot.clickOn("#loadMessagesButton");
-
+        // old messages will be loaded automatically
         String firstOldMessage = "first old message";
         JSONObject msg1 = new JSONObject().put("id", "78345")
             .put("channel", channelId)
@@ -137,7 +118,15 @@ public class LoadOldMessagesTest {
             .put("timestamp", timeStart-30)
             .put("from", "Eve")
             .put("text", secondOldMessage);
-        JSONArray data = new JSONArray().put(msg2).put(msg1);
+
+        String thirdOldMessage = "third old message";
+        JSONObject msg3 = new JSONObject().put("id", "78345")
+            .put("channel", channelId)
+            .put("timestamp", timeStart-10)
+            .put("from", "Bob")
+            .put("text", thirdOldMessage);
+
+        JSONArray data = new JSONArray().put(msg2).put(msg1).put(msg3);
 
         JSONObject j = new JSONObject().put("status", "success").put("message", "").put("data", data);
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
@@ -151,12 +140,14 @@ public class LoadOldMessagesTest {
 
         // check for correct reactions
         Assertions.assertEquals(3, editor.getChannel(channelId, server).getMessages().size());
+        VBox chatVBox = robot.lookup("#chatVBox").query();
         Assertions.assertEquals(1, chatVBox.getChildren().size());  //check for loadMessagesButton removed
 
         // check for correct order of messages
-        firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
-        messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
-        messageText = (Text) messageContainer.getChildren().get(1);
+        VBox messageList = robot.lookup("#messageList").query();
+        ServerChatMessage firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
+        VBox messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
+        Text messageText = (Text) messageContainer.getChildren().get(1);
         Assertions.assertEquals(firstOldMessage, messageText.getText());
 
         ServerChatMessage secondShownChatMessage = (ServerChatMessage) messageList.getChildren().get(1);
@@ -167,7 +158,7 @@ public class LoadOldMessagesTest {
         ServerChatMessage thirdShownChatMessage = (ServerChatMessage) messageList.getChildren().get(2);
         messageContainer = (VBox) thirdShownChatMessage.getChildren().get(0);
         messageText = (Text) messageContainer.getChildren().get(1);
-        Assertions.assertEquals(latestMessage, messageText.getText());
+        Assertions.assertEquals(thirdOldMessage, messageText.getText());
     }
 
     @Test
@@ -196,30 +187,10 @@ public class LoadOldMessagesTest {
         channel.setCategory(cat);
         WaitForAsyncUtils.waitForFxEvents();
 
-        robot.clickOn("#chatViewMessageInput");
-        String message = "Hey there";
-        robot.write(message);
-        robot.clickOn("#chatViewSubmitButton");
-        WaitForAsyncUtils.waitForFxEvents();
-
-        // assert correct start situation
-        Assertions.assertEquals(1, editor.getChannel(channelId, server).getMessages().size());
-        VBox chatVBox = robot.lookup("#chatVBox").query();
-        Assertions.assertEquals(2, chatVBox.getChildren().size());  //asserts loadMessagesButton in view
-
-        // check for message shown
-        VBox messageList = robot.lookup("#messageList").query();
-        ServerChatMessage firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
-        VBox messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
-        Text messageText = (Text) messageContainer.getChildren().get(1);
-        Assertions.assertEquals(message, messageText.getText());
-
-        // load old messages
-        robot.clickOn("#loadMessagesButton");
-
+        // old messages will be loaded automatically
         JSONArray data = new JSONArray();
         for(int i=0;i<50;i++){
-            JSONObject msg = new JSONObject().put("id", Integer.toString(i))
+            JSONObject msg = new JSONObject().put("id", Integer.toString(6734-i))
                 .put("channel", channelId)
                 .put("timestamp", timeStart-100+i)
                 .put("from", "Eve")
@@ -237,18 +208,20 @@ public class LoadOldMessagesTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         // check for correct reactions
-        Assertions.assertEquals(51, editor.getChannel(channelId, server).getMessages().size());
+        Assertions.assertEquals(50, editor.getChannel(channelId, server).getMessages().size());
+        VBox chatVBox = robot.lookup("#chatVBox").query();
         Assertions.assertEquals(2, chatVBox.getChildren().size());  //check for loadMessagesButton still shown
 
         // check for first and last message correct shown
-        firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
-        messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
-        messageText = (Text) messageContainer.getChildren().get(1);
+        VBox messageList = robot.lookup("#messageList").query();
+        ServerChatMessage firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
+        VBox messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
+        Text messageText = (Text) messageContainer.getChildren().get(1);
         Assertions.assertEquals("0", messageText.getText());
 
-        ServerChatMessage lastShownChatMessage = (ServerChatMessage) messageList.getChildren().get(50);
+        ServerChatMessage lastShownChatMessage = (ServerChatMessage) messageList.getChildren().get(49);
         messageContainer = (VBox) lastShownChatMessage.getChildren().get(0);
         messageText = (Text) messageContainer.getChildren().get(1);
-        Assertions.assertEquals(message, messageText.getText());
+        Assertions.assertEquals("49", messageText.getText());
     }
 }
