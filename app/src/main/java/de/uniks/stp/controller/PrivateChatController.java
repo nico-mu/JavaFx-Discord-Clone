@@ -126,10 +126,10 @@ public class PrivateChatController implements ControllerInterface {
      */
     private void handleMessageSubmit(String message) {
         // create & save message
-        DirectMessage msg = new DirectMessage();
-        msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser())
+        DirectMessage msg = (DirectMessage) new DirectMessage().setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser())
             .setTimestamp(new Date().getTime()).setId(UUID.randomUUID().toString());
-        user.withPrivateChatMessages(msg);
+        // This fires handleNewPrivateMessage()
+        msg.setReceiver(user);
         DatabaseService.saveDirectMessage(msg);
 
         // send message to the server
@@ -150,6 +150,8 @@ public class PrivateChatController implements ControllerInterface {
 
     private void handleNewPrivateMessage(PropertyChangeEvent propertyChangeEvent) {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
+
+        log.debug("HERE {}", directMessage);
 
         if (Objects.nonNull(directMessage)) {
             chatView.appendMessage(directMessage);

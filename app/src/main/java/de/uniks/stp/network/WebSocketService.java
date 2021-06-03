@@ -124,14 +124,15 @@ public class WebSocketService {
             log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
             return;
         }
+        User chatPartner = editor.getOrCreateChatPartnerOfCurrentUser(sender.getId(), sender.getName());
         DirectMessage msg = new DirectMessage();
-        msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setSender(sender).setId(UUID.randomUUID().toString());
-        // show message
-        User user = editor.getOrCreateChatPartnerOfCurrentUser(sender.getId(), sender.getName()).withPrivateChatMessages(msg);
+        msg.setSender(chatPartner).setMessage(msgText).setTimestamp(timestamp).setId(UUID.randomUUID().toString());
+        msg.setReceiver(currentUser);
+        chatPartner.firePropertyChange(User.PROPERTY_PRIVATE_CHAT_MESSAGES, null, msg);
         DatabaseService.saveDirectMessage(msg);
-        // TODO: Replace user with sender
-        NotificationService.register(user);
-        NotificationService.onPrivateMessage(user);
+
+        NotificationService.register(chatPartner);
+        NotificationService.onPrivateMessage(chatPartner);
     }
 
     /**
