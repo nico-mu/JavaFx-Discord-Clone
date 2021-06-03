@@ -15,6 +15,8 @@ import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -25,30 +27,26 @@ import java.util.UUID;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT)
 public class PrivateChatController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(MainScreenController.class);
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
 
     private final Parent view;
     private final Editor editor;
     private final String userId;
-    private User user;
+    private final User user;
     private PrivateChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
 
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
-    private final PropertyChangeListener otherUsersChangeListener = this::onOtherUsersChange;
     private final PropertyChangeListener statusChangeListener = this::onStatusChange;
 
     public PrivateChatController(Parent view, Editor editor, String userId, String userName) {
         this.view = view;
         this.editor = editor;
         this.userId = userId;
-        this.user = editor.getUserById(userId);
-
-        if (Objects.isNull(this.user)) {
-            this.user = editor.getOrCreateOtherUser(userId, userName).setStatus(false);
-        }
+        this.user = editor.getOrCreateChatPartnerOfCurrentUser(userId, userName);
     }
 
     @Override
@@ -66,7 +64,6 @@ public class PrivateChatController implements ControllerInterface {
         }
         if (Objects.nonNull(user)) {
             user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
-            editor.getOrCreateAccord().listeners().removePropertyChangeListener(Accord.PROPERTY_OTHER_USERS, otherUsersChangeListener);
             user.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
         }
     }
@@ -76,6 +73,10 @@ public class PrivateChatController implements ControllerInterface {
      * Also adds all messages from model in the View and creates PropertyChangeListener that will do so in the future.
      */
     private void showChatView() {
+        if (Objects.isNull(user)) {
+            return;
+        }
+
         if (Objects.nonNull(user.getSentUserNotification())) {
             user.getSentUserNotification().setNotificationCounter(0);
         }
@@ -83,42 +84,44 @@ public class PrivateChatController implements ControllerInterface {
         chatView = new PrivateChatView();
         onlineUsersContainer.getChildren().add(chatView);
 
-        // disable chat when user offline
-        if (Objects.isNull(user)) {
-            setHeaderLabel(ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE));
+        User otherUser = editor.getUserById(userId);
+
+        // User is offline
+        if (Objects.isNull(otherUser)) {
+            setOfflineHeaderLabel();
             chatView.disable();
-        } else {
-            if (!user.isStatus()) {
-                setOfflineHeaderLabel();
-                chatView.disable();
-            } else {
-                setOnlineHeaderLabel();
-            }
-
-            chatView.setOnMessageSubmit(this::handleMessageSubmit);
-
-            user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
-            editor.getOrCreateAccord().listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, otherUsersChangeListener);
-            user.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
+        }
+        // User is online
+        else {
+            setOnlineHeaderLabel();
         }
 
-        List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(userId);
+        chatView.setOnMessageSubmit(this::handleMessageSubmit);
 
-        if (directMessages.size() > 0) {
-            addUserToChatPartnerList();
-        }
+        user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
+        user.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
+
+
+        User currentUser = editor.getOrCreateAccord().getCurrentUser();
+        List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(currentUser.getName(), user.getName());
 
         for (DirectMessageDTO directMessageDTO : directMessages) {
             DirectMessage message = (DirectMessage) new DirectMessage()
                 .setMessage(directMessageDTO.getMessage())
                 .setId(directMessageDTO.getId().toString())
-                .setTimestamp(directMessageDTO.getTimestamp().getTime())
-                .setSender(editor.getOrCreateAccord().getCurrentUser());
+                .setTimestamp(directMessageDTO.getTimestamp().getTime());
+
+            if (directMessageDTO.getSender().equals(currentUser.getId())) {
+                message.setSender(currentUser);
+            } else {
+                String senderId = directMessageDTO.getSender();
+                if (editor.isChatPartnerOfCurrentUser(senderId)) {
+                    message.setSender(editor.getChatPartnerOfCurrentUserById(senderId));
+                }
+            }
 
             chatView.appendMessage(message);
-
-            // TODO: To include the messages in the model a hashset should remember all messages from the db
-        };
+        }
     }
 
     /**
@@ -133,20 +136,10 @@ public class PrivateChatController implements ControllerInterface {
         msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser())
             .setTimestamp(new Date().getTime()).setId(UUID.randomUUID().toString());
         user.withPrivateChatMessages(msg);
-
-        // add user to chatPartner list if not already in it
-        addUserToChatPartnerList();
+        DatabaseService.saveDirectMessage(msg);
 
         // send message to the server
         WebSocketService.sendPrivateMessage(user.getName(), message);
-    }
-
-    private void addUserToChatPartnerList() {
-        User currentUser = editor.getOrCreateAccord().getCurrentUser();
-
-        if (!currentUser.getChatPartner().contains(user) && Objects.nonNull(user)) {
-            currentUser.withChatPartner(user);
-        }
     }
 
     private void setHeaderLabel(String text) {
@@ -166,28 +159,11 @@ public class PrivateChatController implements ControllerInterface {
     private void handleNewPrivateMessage(PropertyChangeEvent propertyChangeEvent) {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
 
-        if (Objects.isNull(directMessage) || Objects.isNull(directMessage.getId())) {
+        if (Objects.isNull(directMessage)) {
             return;
         }
 
         chatView.appendMessage(directMessage);
-        DatabaseService.saveDirectMessage(directMessage);
-    }
-
-    private void onOtherUsersChange(PropertyChangeEvent propertyChangeEvent) {
-        User oldValue = (User) propertyChangeEvent.getOldValue();
-        User newValue = (User) propertyChangeEvent.getNewValue();
-
-        // User online
-        if (Objects.isNull(oldValue) && Objects.nonNull(newValue) && newValue.getId().equals(user.getId())) {
-            chatView.enable();
-            setOnlineHeaderLabel();
-        }
-        // User offline
-        else if (Objects.nonNull(oldValue) && oldValue.getId().equals(user.getId()) && Objects.isNull(newValue)) {
-            chatView.disable();
-            setOfflineHeaderLabel();
-        }
     }
 
     private void onStatusChange(PropertyChangeEvent propertyChangeEvent) {

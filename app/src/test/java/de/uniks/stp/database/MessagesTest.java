@@ -16,36 +16,36 @@ public class MessagesTest {
     public void testDirectMessagesDatabaseService() {
         DatabaseService.init();
 
-        User receiver = new User().setName("test-receiver").setId("test-receiver-id");
-        User receiver2 = new User().setName("test-receiver2").setId("test-receiver-id2");
-        User sender = new User().setName("test-sender").setId("test-sender-id");
+        User user1 = new User().setName("test-user1").setId("test-user1-id");
+        User user2 = new User().setName("test-user2").setId("test-user2-id");
+        User user3 = new User().setName("test-user3").setId("test-user3-id");
 
         DatabaseService.clearDirectMessages();
 
         DatabaseService.saveDirectMessage((DirectMessage) new DirectMessage()
-            .setReceiver(receiver)
-            .setSender(sender)
+            .setReceiver(user2)
+            .setSender(user1)
             .setTimestamp(new Date().getTime())
             .setMessage("Test Message")
             .setId(UUID.randomUUID().toString()));
         DatabaseService.saveDirectMessage((DirectMessage) new DirectMessage()
-            .setReceiver(receiver)
-            .setSender(sender)
+            .setReceiver(user1)
+            .setSender(user2)
             .setTimestamp(new Date().getTime())
             .setMessage("Test Message 2")
             .setId(UUID.randomUUID().toString()));
         DatabaseService.saveDirectMessage((DirectMessage) new DirectMessage()
-            .setReceiver(receiver2)
-            .setSender(sender)
+            .setReceiver(user3)
+            .setSender(user1)
             .setTimestamp(new Date().getTime())
             .setMessage("Test Message 3")
             .setId(UUID.randomUUID().toString()));
 
-        List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(receiver.getId());
-        List<Pair<String, String>> directMessageReceiver = DatabaseService.getDirectMessageReceiver();
+        List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(user1.getName(), user2.getName());
+        List<Pair<String, String>> directMessageReceiver = DatabaseService.getDirectMessageReceiver(user1.getName());
 
         Assertions.assertEquals(2, directMessages.size());
-        Assertions.assertEquals(2, directMessageReceiver.size());
+        Assertions.assertEquals(3, directMessageReceiver.size());
 
         DatabaseService.clearDirectMessages();
     }

@@ -124,11 +124,8 @@ public class WebSocketService {
         DirectMessage msg = new DirectMessage();
         msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setSender(sender).setId(UUID.randomUUID().toString());
         // show message
-        sender.withPrivateChatMessages(msg);
+        editor.getOrCreateChatPartnerOfCurrentUser(sender.getId(), sender.getName()).withPrivateChatMessages(msg);
         DatabaseService.saveDirectMessage(msg);
-        if (!currentUser.getChatPartner().contains(sender)) {
-            currentUser.withChatPartner(sender);
-        }
     }
 
     /**
@@ -149,11 +146,16 @@ public class WebSocketService {
             final String userName = data.getString("name");
             switch (action) {
                 case "userJoined":
-                    User user = editor.getOrCreateOtherUser(userId, userName).setStatus(true);
-                    editor.getOrCreateAccord().firePropertyChange(Accord.PROPERTY_OTHER_USERS, null, user);
+                    editor.getOrCreateOtherUser(userId, userName);
+                    if (editor.isChatPartnerOfCurrentUser(userId)) {
+                        editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(true);
+                    }
                     break;
                 case "userLeft":
                     editor.removeOtherUserById(userId);
+                    if (editor.isChatPartnerOfCurrentUser(userId)) {
+                        editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(false);
+                    }
                     break;
                 default:
                     break;

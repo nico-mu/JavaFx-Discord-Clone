@@ -21,6 +21,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -31,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
 public class HomeScreenController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(HomeScreenController.class);
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String TOGGLE_ONLINE_BUTTON_ID = "#toggle-online-button";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
@@ -65,27 +68,19 @@ public class HomeScreenController implements ControllerInterface {
 
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
 
-        for (Pair<String, String> receiver : DatabaseService.getDirectMessageReceiver()) {
-            String receiverId = receiver.getKey();
-            String receiverName = receiver.getValue();
-
-            if (Objects.isNull(editor.getOtherUser(receiverName))) {
-                User otherUser = editor.getOrCreateOtherUser(receiverId, receiverName);
-                if (Objects.nonNull(otherUser)) {
-                    addUserToSidebar(otherUser.setStatus(false));
-                }
-            } else {
-                User otherUser = editor.getOrCreateOtherUser(receiverId, receiverName);
-                addUserToSidebar(otherUser);
-            }
-
-            directMessageReceiver.put(receiverId, receiverName);
-        }
-
-        editor.getOrCreateAccord()
-            .getCurrentUser()
+        User currentUser = editor.getOrCreateAccord().getCurrentUser();
+        currentUser
             .listeners()
             .addPropertyChangeListener(User.PROPERTY_CHAT_PARTNER, chatPartnerChangeListener);
+
+        for (Pair<String, String> receiver : DatabaseService.getDirectMessageReceiver(currentUser.getName())) {
+            String receiverId = receiver.getKey();
+            String receiverName = receiver.getValue();
+            User user = editor.getOrCreateChatPartnerOfCurrentUser(receiverId, receiverName);
+
+            addUserToSidebar(user);
+            directMessageReceiver.put(receiverId, receiverName);
+        }
     }
 
     @Override
@@ -97,18 +92,31 @@ public class HomeScreenController implements ControllerInterface {
             String userId = args.getArguments().get(Constants.ROUTE_PRIVATE_CHAT_ARGS);
             User otherUser = editor.getUserById(userId);
 
-            PrivateChatController privateChatController = new PrivateChatController(view, editor, userId, directMessageReceiver.get(userId));
+            if (Objects.nonNull(otherUser)) {
+                editor.getOrCreateChatPartnerOfCurrentUser(userId, otherUser.getName());
+            }
+
+            String userName = directMessageReceiver.get(userId);
+
+            if (Objects.isNull(userName)) {
+                if (Objects.nonNull(otherUser)) {
+                    userName = otherUser.getName();
+                } else {
+                    log.error("No user can be selected.");
+                    return;
+                }
+            }
+
+            PrivateChatController privateChatController = new PrivateChatController(view, editor, userId, userName);
             privateChatController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
-
-            addUserToSidebar(otherUser);
         } else if (subRoute.equals(Constants.ROUTE_LIST_ONLINE_USERS)) {
             UserList userList = new UserList();
             userListController = new UserListController(userList, editor);
             userListController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), userListController);
-            onlineUsersContainer.getChildren().add(userList);
 
+            onlineUsersContainer.getChildren().add(userList);
             homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_ONLINE_USERS));
         }
     }
@@ -157,11 +165,6 @@ public class HomeScreenController implements ControllerInterface {
 
     private void onChatPartnerChanged(PropertyChangeEvent propertyChangeEvent) {
         User user = (User) propertyChangeEvent.getNewValue();
-
-        if (Objects.isNull(user)) {
-            return;
-        }
-
         addUserToSidebar(user);
     }
 }

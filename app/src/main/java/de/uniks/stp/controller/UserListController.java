@@ -25,7 +25,6 @@ import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE)
 public class UserListController implements ControllerInterface {
-    private static final Logger log = LoggerFactory.getLogger(PrivateChatController.class);
     private final HashMap<User, UserListEntry> userUserListEntryHashMap;
     private final UserList userList;
     private final Editor editor;

@@ -1,7 +1,10 @@
 package de.uniks.stp;
 
+import de.uniks.stp.controller.HomeScreenController;
 import de.uniks.stp.model.*;
 import de.uniks.stp.view.Languages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +76,8 @@ public class Editor {
                     .setAccordInstance(accord)
                     .setStatus(true);
             }
+        } else if (Objects.nonNull(currentUser) && name.equals(currentUser.getName())) {
+            currentUser.setId(userId);
         }
         return other;
     }
@@ -212,9 +217,49 @@ public class Editor {
         setServerMemberStatus(userId, userName, false, server);
     }
 
+    private static final Logger log = LoggerFactory.getLogger(Editor.class);
+
+    public User getOrCreateChatPartnerOfCurrentUser(String id, String name) {
+        User currentUser = accord.getCurrentUser();
+
+        if (Objects.isNull(currentUser) || name.equals(currentUser.getName())) {
+            return null;
+        }
+
+        for (User user : currentUser.getChatPartner()) {
+            if (user.getId().equals(id)) {
+                user.setName(name).setId(id);
+                return user;
+            }
+        }
+
+        User user = new User().setId(id).setName(name).setStatus(false);
+        currentUser.withChatPartner(user);
+
+        return user;
+    }
+
+    public User getChatPartnerOfCurrentUserById(String userId) {
+        User currentUser = accord.getCurrentUser();
+
+        for (User user : currentUser.getChatPartner()) {
+            if (user.getId().equals(userId)) {
+                return user;
+            }
+        }
+
+        return null;
+    }
+
+    public boolean isChatPartnerOfCurrentUser(String userId) {
+       return Objects.nonNull(getChatPartnerOfCurrentUserById(userId));
+    }
+
     public void prepareLogout(){
         accord.setUserKey("");
         List<User> currentUsers = new ArrayList<User>(accord.getOtherUsers());
         accord.withoutOtherUsers(currentUsers);
+        List<User> chatPartners = new ArrayList<User>(accord.getCurrentUser().getChatPartner());
+        accord.getCurrentUser().withoutChatPartner(chatPartners);
     }
 }

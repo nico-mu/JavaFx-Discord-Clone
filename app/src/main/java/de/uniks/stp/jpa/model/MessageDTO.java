@@ -24,6 +24,9 @@ public class MessageDTO {
     @Column(name = "SENDER", updatable = false)
     private String sender;
 
+    @Column(name = "SENDER_NAME", updatable = false)
+    private String senderName;
+
     @Column(name = "MESSAGE", updatable = false)
     private String message;
 
@@ -41,6 +44,15 @@ public class MessageDTO {
 
     public MessageDTO setSender(String sender) {
         this.sender = sender;
+        return this;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public MessageDTO setSenderName(String senderName) {
+        this.senderName = senderName;
         return this;
     }
 
