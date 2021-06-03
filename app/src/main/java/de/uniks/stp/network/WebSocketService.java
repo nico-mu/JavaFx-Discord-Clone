@@ -155,13 +155,15 @@ public class WebSocketService {
                 case "userJoined":
                     editor.getOrCreateOtherUser(userId, userName);
                     if (editor.isChatPartnerOfCurrentUser(userId)) {
-                        editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(true);
+                        User user = editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(true);
+                        user.firePropertyChange(User.PROPERTY_STATUS, null, true);
                     }
                     break;
                 case "userLeft":
                     editor.removeOtherUserById(userId);
                     if (editor.isChatPartnerOfCurrentUser(userId)) {
-                        editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(false);
+                        User user = editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(false);
+                        user.firePropertyChange(User.PROPERTY_STATUS, null, false);
                     }
                     break;
                 default:

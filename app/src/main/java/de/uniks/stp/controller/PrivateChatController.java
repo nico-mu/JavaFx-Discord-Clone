@@ -86,12 +86,15 @@ public class PrivateChatController implements ControllerInterface {
 
         // User is offline
         if (Objects.isNull(otherUser)) {
+            user.setStatus(false);
             setOfflineHeaderLabel();
             chatView.disable();
         }
         // User is online
         else {
+            user.setStatus(true);
             setOnlineHeaderLabel();
+            chatView.enable();
         }
 
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
@@ -151,22 +154,20 @@ public class PrivateChatController implements ControllerInterface {
     private void handleNewPrivateMessage(PropertyChangeEvent propertyChangeEvent) {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
 
-        log.debug("HERE {}", directMessage);
-
         if (Objects.nonNull(directMessage)) {
             chatView.appendMessage(directMessage);
         }
     }
 
     private void onStatusChange(PropertyChangeEvent propertyChangeEvent) {
-        boolean status = (boolean) propertyChangeEvent.getNewValue();
+        Boolean status = (Boolean) propertyChangeEvent.getNewValue();
 
-        if (status) {
-            chatView.enable();
-            setOnlineHeaderLabel();
-        } else {
+        if (Objects.isNull(status) || !status) {
             chatView.disable();
             setOfflineHeaderLabel();
+        } else {
+            chatView.enable();
+            setOnlineHeaderLabel();
         }
     }
 }
