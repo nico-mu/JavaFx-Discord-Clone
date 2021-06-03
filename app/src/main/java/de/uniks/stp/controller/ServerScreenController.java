@@ -109,7 +109,11 @@ public class ServerScreenController implements ControllerInterface {
     private Channel getChannel(final String serverId, final String categoryId, final String channelId) {
         Server server = editor.getServer(serverId);
         Category category = editor.getCategory(categoryId, server);
-        return editor.getChannel(channelId, category);
+        Channel channel = editor.getChannel(channelId, category);
+        if (Objects.isNull(channel)) {
+            channel = editor.getChannel(channelId, server);
+        }
+        return channel;
     }
 
     private void onServerNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {

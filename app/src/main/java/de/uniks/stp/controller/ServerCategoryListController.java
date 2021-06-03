@@ -200,7 +200,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     @Override
     public void onChannelNotificationEvent(NotificationEvent event) {
         Channel channel = (Channel) event.getSource();
-        if (Objects.nonNull(channel)) {
+        if (Objects.nonNull(channel) && channelElementHashMap.containsKey(channel)) {
             channelElementHashMap.get(channel).setNotificationCount(event.getNotifications());
         }
     }

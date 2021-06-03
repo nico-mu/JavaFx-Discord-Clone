@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import kong.unirest.Unirest;
 import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.matchers.Not;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
@@ -52,11 +54,17 @@ public class NotificationTest {
     @Mock
     private HttpResponse<JsonNode> res;
 
+    @Mock
+    private HttpResponse<JsonNode> catRes;
+
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
 
     @Captor
     private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
+
+    @Captor
+    private ArgumentCaptor<Callback<JsonNode>> catCallbackCaptor;
 
     @Captor
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
@@ -171,20 +179,14 @@ public class NotificationTest {
         final User currentUser = new User().setName("Test").setId("123-45");
         final User userOne = new User().setName("userOne").setId("111-11");
         final User userTwo = new User().setName("userTwo").setId("222-22");
-        final String serverId = "1";
-        final String serverName = "Test";
-
-        JSONObject j = new JSONObject().put("status", "success").put("message", "")
-            .put("data", new JSONObject().put("id", "1").put("name", "Test"));
-        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-        when(res.isSuccess()).thenReturn(true);
-
-        verify(restMock).createServer(eq(serverName), callbackCaptor.capture());
-        Callback<JsonNode> callback = callbackCaptor.getValue();
-        callback.completed(res);
-
         NotificationService.register(userOne);
         NotificationService.register(userTwo);
+        final String serverName = "Test";
+        final String serverId = "1";
+        final String categoryName = "Cat";
+        final String categoryId = "Category1";
+        final String channelOneId = "C1";
+        final String channelTwoId = "C2";
 
         editor.getOrCreateAccord()
             .setCurrentUser(currentUser)
@@ -196,24 +198,39 @@ public class NotificationTest {
         editor.getOrCreateAccord()
             .withOtherUsers(userTwo);
 
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Server server = editor.getOrCreateServer(serverId, serverName);
+        Category category = editor.getOrCreateCategory(categoryId, categoryName, server);
+        Channel channel = editor.getOrCreateChannel(channelOneId, "ChannelOne", category);
+        server.withCategories(category);
+        server.withChannels(channel);
+        NotificationService.register(channel);
+
         currentUser.withAvailableServers(server);
         userOne.withAvailableServers(server);
         userTwo.withAvailableServers(server);
 
-        final Channel channelOne = new Channel().setName("ChannelOne").setId("C1").withChannelMembers(currentUser, userOne, userTwo);
-        final Channel channelTwo = new Channel().setName("ChannelTwo").setId("C2").withChannelMembers(currentUser, userTwo);
-        final Category category = new Category().setId("Category1").setName("TestCategory").withChannels(channelOne, channelTwo);
-        server.withCategories(category);
-        server.withoutChannels(channelOne, channelTwo);
+        ArrayList<JSONObject> data = new ArrayList<>();
+        ArrayList<String> user1 = new ArrayList<>();
+        ArrayList<String> user2 = new ArrayList<>();
+        user1.add(userOne.getId());
+        user1.add(userTwo.getId());
+        user1.add(currentUser.getId());
+        user2.add(userOne.getId());
+        user2.add(userTwo.getId());
+        data.add(new JSONObject().put("id", channelOneId).put("name", "Channel1").put("type", "text").put("privileged", false).put("category", categoryId).put("members", user1));
+        data.add(new JSONObject().put("id", channelTwoId).put("name", "Channel2").put("type", "text").put("privileged", true).put("category", categoryId).put("members", user2));
+        JSONObject j = new JSONObject().put("status", "success").put("message", "")
+            .put("data", data);
+        ArrayList<JSONObject> dataCat = new ArrayList<>();
+        ArrayList<String> channels = new ArrayList<>();
+        channels.add(channelOneId);
+        channels.add(channelTwoId);
+        dataCat.add(new JSONObject().put("id", categoryId).put("name", categoryName).put("server", serverId).put("channels", channels));
+        JSONObject jCat = new JSONObject().put("status", "success").put("message", "").put("data", dataCat);
 
-        NotificationService.register(channelOne);
-        NotificationService.register(channelTwo);
-
-        RouteArgs args = new RouteArgs().addArgument(":id", server.getId());
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
-        WaitForAsyncUtils.waitForFxEvents();
-
-        WebSocketService.addServerWebSocket(server.getId());
 
         verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
@@ -227,7 +244,7 @@ public class NotificationTest {
 
         JsonObject messageOne = Json.createObjectBuilder()
             .add("id", 1)
-            .add("channel", channelOne.getId())
+            .add("channel", channelOneId)
             .add("timestamp", 1)
             .add("from", "userOne")
             .add("text", "messageOne")
@@ -235,7 +252,7 @@ public class NotificationTest {
 
         JsonObject messageTwo = Json.createObjectBuilder()
             .add("id", 2)
-            .add("channel", channelOne.getId())
+            .add("channel", channelTwoId)
             .add("timestamp", 2)
             .add("from", "userTwo")
             .add("text", "messageTwo")
@@ -243,7 +260,7 @@ public class NotificationTest {
 
         JsonObject messageThree = Json.createObjectBuilder()
             .add("id", 3)
-            .add("channel", channelTwo.getId())
+            .add("channel", channelTwoId)
             .add("timestamp", 3)
             .add("from", "userTwo")
             .add("text", "messageThree")
@@ -254,17 +271,71 @@ public class NotificationTest {
         systemCallback.handleMessage(messageThree);
 
         Assertions.assertEquals(3, NotificationService.getServerNotificationCount(server));
-        Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(channelOne));
-        Assertions.assertEquals(1, NotificationService.getPublisherNotificationCount(channelTwo));
+        for (Channel c : server.getChannels()) {
+            if (c.getId().equals(channelOneId)) {
+                Assertions.assertEquals(1, NotificationService.getPublisherNotificationCount(c));
+            }
+            if (c.getId().equals(channelTwoId)) {
+                Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(c));
+            }
+        }
 
-        RouteArgs routeArgs = new RouteArgs().addArgument(":id", "1").addArgument(":categoryId", "Category1").addArgument(":channelId", "C1");
+        RouteArgs routeArgs = new RouteArgs().addArgument(":id", serverId).addArgument(":categoryId", categoryId).addArgument(":channelId", channelOneId);
         Platform.runLater(() -> Router.routeWithArgs(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgs));
         WaitForAsyncUtils.waitForFxEvents();
 
-        Platform.runLater(() -> {
-            ServerChannelElement queryChannelOne = robot.lookup("#" + channelOne.getId() + "-channelElement").query();
-            ServerChannelElement queryChannelTwo = robot.lookup("#" + channelTwo.getId() + "-channelElement").query();
-        });
+        Assertions.assertEquals(2, NotificationService.getServerNotificationCount(server));
+        for (Channel c : server.getChannels()) {
+            if (c.getId().equals(channelOneId)) {
+                Assertions.assertEquals(0, NotificationService.getPublisherNotificationCount(c));
+            }
+            if (c.getId().equals(channelTwoId)) {
+                Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(c));
+            }
+        }
+
+        RouteArgs routeArgsChannelTwo = new RouteArgs().addArgument(":id", serverId).addArgument(":categoryId", categoryId).addArgument(":channelId", channelTwoId);
+        Platform.runLater(() -> Router.routeWithArgs(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgsChannelTwo));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(0, NotificationService.getServerNotificationCount(server));
+        for (Channel c : server.getChannels()) {
+            if (c.getId().equals(channelOneId)) {
+                Assertions.assertEquals(0, NotificationService.getPublisherNotificationCount(c));
+            }
+            if (c.getId().equals(channelTwoId)) {
+                Assertions.assertEquals(0, NotificationService.getPublisherNotificationCount(c));
+            }
+        }
+
+        systemCallback.handleMessage(messageOne);
+        systemCallback.handleMessage(messageTwo);
+        systemCallback.handleMessage(messageThree);
+
+        Assertions.assertEquals(1, NotificationService.getServerNotificationCount(server));
+        for (Channel c : server.getChannels()) {
+            if (c.getId().equals(channelOneId)) {
+                Assertions.assertEquals(1, NotificationService.getPublisherNotificationCount(c));
+            }
+            if (c.getId().equals(channelTwoId)) {
+                Assertions.assertEquals(0, NotificationService.getPublisherNotificationCount(c));
+            }
+        }
+
+        when(catRes.getBody()).thenReturn(new JsonNode(jCat.toString()));
+        when(catRes.isSuccess()).thenReturn(true);
+
+        verify(restMock).getCategories(eq(serverId), catCallbackCaptor.capture());
+        Callback<JsonNode> catCallback = catCallbackCaptor.getValue();
+        catCallback.completed(catRes);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(true);
+
+        verify(restMock).getChannels(eq(serverId), eq(categoryId), callbackCaptor.capture());
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
     }
 }
