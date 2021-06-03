@@ -67,6 +67,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         //TODO: show spinner
         restClient.getServers(this::callback);
         NotificationService.registerChannelSubscriber(this);
+        NotificationService.registerUserSubscriber(this);
     }
 
     private void serverAdded(final Server server) {
@@ -150,6 +151,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         }
 
         NotificationService.removeChannelSubscriber(this);
+        NotificationService.removeUserSubscriber(this);
     }
 
     @Override
@@ -174,6 +176,9 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         if (Objects.nonNull(user)) {
             if (!navBarUserElementHashMap.containsKey(user)) {
                 navBarUserElementHashMap.put(user, new NavBarUserElement(user));
+                Platform.runLater(() -> {
+                    navBarList.addUserElement(navBarUserElementHashMap.get(user));
+                });
             }
             NavBarUserElement userElement = navBarUserElementHashMap.get(user);
             userElement.setNotificationCount(event.getNotifications());
