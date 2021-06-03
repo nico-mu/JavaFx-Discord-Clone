@@ -3,11 +3,9 @@ package de.uniks.stp.modal;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
@@ -39,10 +37,12 @@ public class CreateCategoryModal extends AbstractModal {
 
     private final Server model;
     private static final Logger log = LoggerFactory.getLogger(CreateCategoryModal.class);
+    private Editor editor;
 
-    public CreateCategoryModal(Parent root, Server model) {
+    public CreateCategoryModal(Parent root, Server model, Editor editor) {
         super(root);
         this.model = model;
+        this.editor = editor;
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_CREATE_CATEGORY_TITLE));
 
@@ -68,6 +68,7 @@ public class CreateCategoryModal extends AbstractModal {
     /**
      * Removes any error message, checks whether anything was typed/changed and then applies this change
      * - when something is written in categoryNameTextField: disables control elements, shows spinner and sends request
+     *
      * @param actionEvent
      */
     private void onCreateButtonClicked(ActionEvent actionEvent) {
@@ -75,7 +76,7 @@ public class CreateCategoryModal extends AbstractModal {
 
         //ToDo: Notifications
 
-        if (! categoryNameTextField.getText().isEmpty()){
+        if (!categoryNameTextField.getText().isEmpty()) {
             String name = categoryNameTextField.getText();
 
             categoryNameTextField.setDisable(true);
@@ -85,8 +86,7 @@ public class CreateCategoryModal extends AbstractModal {
 
             RestClient restClient = NetworkClientInjector.getRestClient();
             restClient.createCategory(model.getId(), name, this::handleCreateCategoryResponse);
-        }
-        else{
+        } else {
             setErrorMessage(Constants.LBL_MISSING_NAME);
         }
     }
@@ -102,6 +102,7 @@ public class CreateCategoryModal extends AbstractModal {
     /**
      * When successful: new category is created, inserted in model and View is closed
      * When unsuccessful: shows error message, hides spinner and enables control elements
+     *
      * @param response
      */
     private void handleCreateCategoryResponse(HttpResponse<JsonNode> response) {
@@ -114,14 +115,16 @@ public class CreateCategoryModal extends AbstractModal {
             String serverId = jsonObject.getString("server");
             JSONArray channelList = jsonObject.getJSONArray("channels");  // don't know what might be contained in Array
 
-            if(! serverId.equals(model.getId())){
+            if (!serverId.equals(model.getId())) {
                 log.error("Wrong serverId in response!");
                 return;
             }
-            if(! channelList.isEmpty()){
+            if (!channelList.isEmpty()) {
                 log.error("New category already contains channel(s)!");
                 return;
             }
+
+            editor.getOrCreateCategory(categoryId, name, editor.getServer(serverId));
 
             Platform.runLater(this::close);
         } else {
