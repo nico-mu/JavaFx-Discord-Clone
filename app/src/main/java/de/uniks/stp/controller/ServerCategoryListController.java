@@ -79,7 +79,6 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                 final String categoryId = categoryJson.getString("id");
 
                 Category categoryModel = editor.getOrCreateCategory(categoryId, name, model);
-                categoryModel.listeners().addPropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
                 categoryAdded(categoryModel);
                 restClient.getChannels(model.getId(), categoryId, this::handleChannels);
             }
@@ -102,6 +101,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     private void categoryRemoved(final Category category) {
         if (Objects.nonNull(category) && categoryElementHashMap.containsKey(category)) {
+            category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.remove(category);
             Platform.runLater(() -> serverCategoryList.removeElement(serverCategoryElement));
         }
@@ -109,6 +109,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     private void categoryAdded(final Category category) {
         if (Objects.nonNull(category) && !categoryElementHashMap.containsKey(category)) {
+            category.listeners().addPropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
             final ServerCategoryElement serverCategoryElement = new ServerCategoryElement(category);
             categoryElementHashMap.put(category, serverCategoryElement);
             Platform.runLater(() -> serverCategoryList.addElement(serverCategoryElement));

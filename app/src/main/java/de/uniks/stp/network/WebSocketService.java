@@ -2,7 +2,6 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.model.Category;
 import de.uniks.stp.model.*;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.ServerMessage;
@@ -268,9 +267,8 @@ public class WebSocketService {
                     String categoryId = data.getString("id");
                     String name = data.getString("name");
                     serverId = data.getString("server");
-                    if(Objects.isNull(editor.getCategory(categoryId, editor.getServer(serverId)))) {
-                        Category newCategory = new Category().setId(categoryId).setName(name);
-                        newCategory.setServer(editor.getServer(serverId));
+                    if (Objects.isNull(editor.getCategory(categoryId, editor.getServer(serverId)))) {
+                        editor.getOrCreateCategory(categoryId, name, editor.getServer(serverId));
                     }
                     return;
                 case "channelCreated":
@@ -293,13 +291,13 @@ public class WebSocketService {
                         }
                     }
 
-                    if(privileged && Objects.nonNull(modifiedServer)){
+                    if (privileged && Objects.nonNull(modifiedServer)) {
                         ArrayList<String> members = new ArrayList<>();
-                        for(int i = 0; i<jsonArray.size(); i++){
+                        for (int i = 0; i < jsonArray.size(); i++) {
                             members.add(jsonArray.getString(i));
                         }
-                        for(User user : modifiedServer.getUsers()){
-                            if(members.contains(user.getName())){
+                        for (User user : modifiedServer.getUsers()) {
+                            if (members.contains(user.getId())) {
                                 channel.withChannelMembers(user);
                             }
                         }

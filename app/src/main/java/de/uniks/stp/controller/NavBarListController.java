@@ -243,7 +243,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
             } else {
                 server = channel.getCategory().getServer();
             }
-            if (Objects.nonNull(server)) {
+            if (Objects.nonNull(server) && navBarServerElementHashMap.containsKey(server)) {
                 navBarServerElementHashMap.get(server).setNotificationCount(NotificationService.getServerNotificationCount(server));
             }
         }

@@ -228,7 +228,7 @@ public class LoginScreenController implements ControllerInterface {
             return;
         }
         // Login failed
-        passwordField.clear();
+        Platform.runLater(passwordField::clear);
         enableUserInput();
         if (response.getBody().getObject().getString(Constants.MESSAGE).equals("Invalid credentials")){
             setErrorMessage(Constants.LBL_LOGIN_WRONG_CREDENTIALS);

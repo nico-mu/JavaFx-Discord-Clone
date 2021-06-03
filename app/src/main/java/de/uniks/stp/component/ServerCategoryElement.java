@@ -68,8 +68,8 @@ public class ServerCategoryElement extends VBox {
 
     private void onAddServerPlusClicked(MouseEvent mouseEvent) {
         Parent addChannelModalView = ViewLoader.loadView(Views.ADD_CHANNEL_MODAL);
-        AddChannelModal addServerModal = new AddChannelModal(addChannelModalView, model);
-        addServerModal.showAndWait();
+        AddChannelModal addChannelModal = new AddChannelModal(addChannelModalView, model);
+        addChannelModal.show();
     }
 
     private void onCategoryArrowClicked(MouseEvent mouseEvent) {
