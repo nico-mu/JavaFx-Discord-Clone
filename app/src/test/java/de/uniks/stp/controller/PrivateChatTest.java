@@ -52,20 +52,8 @@ public class PrivateChatTest {
     @Mock
     private WebSocketClient webSocketMock;
 
-    @Mock
-    private HttpResponse<JsonNode> res;
-
-    @Mock
-    private HttpResponse<JsonNode> catRes;
-
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
-
-    @Captor
-    private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
-
-    @Captor
-    private ArgumentCaptor<Callback<JsonNode>> catCallbackCaptor;
 
     @Captor
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
@@ -128,13 +116,11 @@ public class PrivateChatTest {
             .build();
         currentUserCallback.handleMessage(message);
 
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT,
-            new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, currentUser.getId())));
-        WaitForAsyncUtils.waitForFxEvents();
-
         List<DirectMessageDTO> directMessages = DatabaseService.getConversation(currentUser.getName(), otherUser.getName());
         Assertions.assertEquals(2, directMessages.size());
 
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getChatPartner().size());
+
+        WaitForAsyncUtils.waitForFxEvents();
     }
 }
