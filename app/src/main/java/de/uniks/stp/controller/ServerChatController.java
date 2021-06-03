@@ -97,7 +97,6 @@ public class ServerChatController implements ControllerInterface {
     }
 
     private void handleNewMessage(PropertyChangeEvent propertyChangeEvent) {
-        System.out.println("handleNewMessage");
         ServerMessage msg = (ServerMessage) propertyChangeEvent.getNewValue();
         chatView.appendMessage(msg);
     }
