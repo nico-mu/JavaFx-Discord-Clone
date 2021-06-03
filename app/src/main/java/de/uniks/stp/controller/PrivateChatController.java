@@ -7,11 +7,11 @@ import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.PrivateChatView;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
-import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.WebSocketService;
 import javafx.application.Platform;
+import de.uniks.stp.notification.NotificationService;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -76,15 +76,13 @@ public class PrivateChatController implements ControllerInterface {
         if (Objects.isNull(user)) {
             return;
         }
-
-        if (Objects.nonNull(user.getSentUserNotification())) {
-            user.getSentUserNotification().setNotificationCounter(0);
-        }
-
         chatView = new PrivateChatView();
         onlineUsersContainer.getChildren().add(chatView);
 
         User otherUser = editor.getUserById(userId);
+
+        NotificationService.consume(user);
+        NotificationService.removePublisher(user);
 
         // User is offline
         if (Objects.isNull(otherUser)) {
@@ -97,27 +95,23 @@ public class PrivateChatController implements ControllerInterface {
         }
 
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
-
         user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
         user.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
 
-
         User currentUser = editor.getOrCreateAccord().getCurrentUser();
-        List<DirectMessageDTO> directMessages = DatabaseService.getDirectMessages(currentUser.getName(), user.getName());
-
+        List<DirectMessageDTO> directMessages = DatabaseService.getConversation(currentUser.getName(), user.getName());
         for (DirectMessageDTO directMessageDTO : directMessages) {
             DirectMessage message = (DirectMessage) new DirectMessage()
                 .setMessage(directMessageDTO.getMessage())
                 .setId(directMessageDTO.getId().toString())
                 .setTimestamp(directMessageDTO.getTimestamp().getTime());
 
-            if (directMessageDTO.getSender().equals(currentUser.getId())) {
+            if (directMessageDTO.getSenderName().equals(currentUser.getName())) {
                 message.setSender(currentUser);
             } else {
                 String senderId = directMessageDTO.getSender();
-                if (editor.isChatPartnerOfCurrentUser(senderId)) {
-                    message.setSender(editor.getChatPartnerOfCurrentUserById(senderId));
-                }
+                String senderName = directMessageDTO.getSenderName();
+                message.setSender(editor.getOrCreateChatPartnerOfCurrentUser(senderId, senderName));
             }
 
             chatView.appendMessage(message);
@@ -142,28 +136,24 @@ public class PrivateChatController implements ControllerInterface {
         WebSocketService.sendPrivateMessage(user.getName(), message);
     }
 
-    private void setHeaderLabel(String text) {
+    private void setOnlineHeaderLabel() {
         Platform.runLater(() -> {
-            homeScreenLabel.setText(text);
+            homeScreenLabel.setText(user.getName());
         });
     }
 
-    private void setOnlineHeaderLabel() {
-        setHeaderLabel(user.getName());
-    }
-
     private void setOfflineHeaderLabel() {
-        setHeaderLabel(user.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
+        Platform.runLater(() -> {
+            homeScreenLabel.setText(user.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
+        });
     }
 
     private void handleNewPrivateMessage(PropertyChangeEvent propertyChangeEvent) {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
 
-        if (Objects.isNull(directMessage)) {
-            return;
+        if (Objects.nonNull(directMessage)) {
+            chatView.appendMessage(directMessage);
         }
-
-        chatView.appendMessage(directMessage);
     }
 
     private void onStatusChange(PropertyChangeEvent propertyChangeEvent) {

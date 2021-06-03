@@ -64,6 +64,10 @@ public class Editor {
         User other = null;
         final User currentUser = getOrCreateAccord().getCurrentUser();
 
+        if(Objects.nonNull(currentUser) && name.equals(currentUser.getName())){
+            currentUser.setId(userId);
+        }
+
         if (Objects.nonNull(currentUser) && !name.equals(currentUser.getName())) {
             final Map<String, User> userMap = otherUsersAsIdUserMap();
 
@@ -174,6 +178,11 @@ public class Editor {
                     }
                 }
             }
+            for (Channel channel : server.getChannels()) {
+                if (channel.getId().equals(channelId)) {
+                    return channel;
+                }
+            }
         }
         return null;
     }
@@ -181,8 +190,6 @@ public class Editor {
     public User getOrCreateServerMember(String userId, String name, boolean status, Server server) {
         for (User user : server.getUsers()) {
             if (user.getName().equals(name)) {
-                user.setName(name).setStatus(status);
-                server.firePropertyChange(Server.PROPERTY_USERS, null, user);
                 return user;
             }
         }

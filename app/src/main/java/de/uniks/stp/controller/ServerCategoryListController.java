@@ -11,6 +11,9 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.notification.NotificationEvent;
+import de.uniks.stp.notification.SubscriberInterface;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
@@ -30,7 +33,7 @@ import static de.uniks.stp.model.Category.PROPERTY_CHANNELS;
 import static de.uniks.stp.model.Server.PROPERTY_CATEGORIES;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
-public class ServerCategoryListController implements ControllerInterface {
+public class ServerCategoryListController implements ControllerInterface, SubscriberInterface {
 
     private boolean firstChannel = true;
     private final Parent view;
@@ -53,6 +56,7 @@ public class ServerCategoryListController implements ControllerInterface {
         this.restClient = NetworkClientInjector.getRestClient();
         categoryElementHashMap = new HashMap<>();
         channelElementHashMap = new HashMap<>();
+        NotificationService.registerChannelSubscriber(this);
     }
 
     @Override
@@ -75,7 +79,6 @@ public class ServerCategoryListController implements ControllerInterface {
                 final String categoryId = categoryJson.getString("id");
 
                 Category categoryModel = editor.getOrCreateCategory(categoryId, name, model);
-                categoryModel.listeners().addPropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
                 categoryAdded(categoryModel);
                 restClient.getChannels(model.getId(), categoryId, this::handleChannels);
             }
@@ -98,6 +101,7 @@ public class ServerCategoryListController implements ControllerInterface {
 
     private void categoryRemoved(final Category category) {
         if (Objects.nonNull(category) && categoryElementHashMap.containsKey(category)) {
+            category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.remove(category);
             Platform.runLater(() -> serverCategoryList.removeElement(serverCategoryElement));
         }
@@ -105,6 +109,7 @@ public class ServerCategoryListController implements ControllerInterface {
 
     private void categoryAdded(final Category category) {
         if (Objects.nonNull(category) && !categoryElementHashMap.containsKey(category)) {
+            category.listeners().addPropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
             final ServerCategoryElement serverCategoryElement = new ServerCategoryElement(category);
             categoryElementHashMap.put(category, serverCategoryElement);
             Platform.runLater(() -> serverCategoryList.addElement(serverCategoryElement));
@@ -121,8 +126,14 @@ public class ServerCategoryListController implements ControllerInterface {
                 final String categoryId = channelJson.getString("category");
 
                 Category categoryModel = editor.getCategory(categoryId, model);
-                Channel channelModel = editor.getOrCreateChannel(channelId, name, categoryModel);
-
+                Channel channelModel = editor.getChannel(channelId, model);
+                if (Objects.nonNull(channelModel)) {
+                    // Channel is already in model because it got added by a notification
+                    channelModel.setCategory(categoryModel).setName(name);
+                } else {
+                    channelModel = editor.getOrCreateChannel(channelId, name, categoryModel);
+                    channelModel.setServer(model);
+                }
                 channelAdded(categoryModel, channelModel);
             }
         }
@@ -147,21 +158,24 @@ public class ServerCategoryListController implements ControllerInterface {
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
             Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
+            NotificationService.removePublisher(channel);
         }
     }
 
     private void channelAdded(final Category category, final Channel channel) {
-        if (Objects.nonNull(category)  && Objects.nonNull(channel) && !channelElementHashMap.containsKey(channel)) {
+        if (Objects.nonNull(category) && Objects.nonNull(channel) && Objects.nonNull(channel.getName()) && !channelElementHashMap.containsKey(channel)) {
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             final ServerChannelElement serverChannelElement = new ServerChannelElement(channel);
+            NotificationService.register(channel);
             channelElementHashMap.put(channel, serverChannelElement);
             Platform.runLater(() -> serverCategoryElement.addChannelElement(serverChannelElement));
-
+            serverChannelElement.setNotificationCount(NotificationService.getPublisherNotificationCount(channel));
             // show ServerChatView of first loaded channel
             if(firstChannel){
                 firstChannel = false;
 
                 serverCategoryList.setActiveElement(serverChannelElement);
+                NotificationService.consume(channel);
 
                 RouteArgs args = new RouteArgs();
                 args.addArgument(":id", channel.getCategory().getServer().getId());
@@ -181,5 +195,19 @@ public class ServerCategoryListController implements ControllerInterface {
         }
         channelElementHashMap.clear();
         categoryElementHashMap.clear();
+        NotificationService.removeChannelSubscriber(this);
+    }
+
+    @Override
+    public void onChannelNotificationEvent(NotificationEvent event) {
+        Channel channel = (Channel) event.getSource();
+        if (Objects.nonNull(channel) && channelElementHashMap.containsKey(channel)) {
+            channelElementHashMap.get(channel).setNotificationCount(event.getNotifications());
+        }
+    }
+
+    @Override
+    public void onUserNotificationEvent(NotificationEvent event) {
+
     }
 }

@@ -2,12 +2,9 @@ package de.uniks.stp.component;
 
 import javafx.application.Platform;
 
-public class NavBarNotificationElement extends NavBarElement {
+public class NavBarNotificationElement extends NavBarElement implements NotificationComponentInterface {
 
-    /**
-     * sets the notification label to given number and handles the visibility of the label and circle
-     * @param notifications the number of the element notifications
-     */
+    @Override
     public void setNotificationCount(int notifications) {
         if (0 < notifications && notifications < 10) {
             setNotificationsLabel(Integer.toString(notifications));
@@ -21,7 +18,8 @@ public class NavBarNotificationElement extends NavBarElement {
         }
     }
 
-    void setNotificationVisibility(boolean mode) {
+    @Override
+    public void setNotificationVisibility(boolean mode) {
         notificationLabel.setVisible(mode);
         circle.setVisible(mode);
     }

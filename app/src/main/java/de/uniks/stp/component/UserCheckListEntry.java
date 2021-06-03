@@ -41,6 +41,10 @@ public class UserCheckListEntry extends HBox {
         return checkbox.getText();
     }
 
+    public String getUserId(){
+        return user.getId();
+    }
+
     public Boolean isUserSelected(){
         return checkbox.isSelected();
     }

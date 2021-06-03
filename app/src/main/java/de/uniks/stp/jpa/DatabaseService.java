@@ -95,7 +95,7 @@ public class DatabaseService {
         entityManager.close();
     }
 
-    public static List<DirectMessageDTO> getDirectMessages(String currentUserName, String receiverName) {
+    public static List<DirectMessageDTO> getConversation(String currentUserName, String receiverName) {
         Objects.requireNonNull(currentUserName);
         Objects.requireNonNull(receiverName);
 
@@ -112,10 +112,16 @@ public class DatabaseService {
 
         query.where(
             criteriaBuilder.or(
-                criteriaBuilder.equal(root.get("receiverName"), receiverName),
                 criteriaBuilder.and(
-                    criteriaBuilder.equal(root.get("receiverName"), currentUserName)),
-                    criteriaBuilder.equal(root.get("senderName"), receiverName)));
+                    criteriaBuilder.equal(root.get("receiverName"), receiverName),
+                    criteriaBuilder.equal(root.get("senderName"), currentUserName)
+                ),
+                criteriaBuilder.and(
+                    criteriaBuilder.equal(root.get("receiverName"), currentUserName),
+                    criteriaBuilder.equal(root.get("senderName"), receiverName)
+                )
+            )
+        );
         query.distinct(true);
         query.orderBy(criteriaBuilder.asc(root.get("timestamp")));
         List<?> resultList = entityManager.createQuery(query).getResultList();
@@ -130,41 +136,53 @@ public class DatabaseService {
         return directMessageDTOList;
     }
 
-    public static void clearDirectMessages(String receiverName) {
+    public static void clearConversation(String currentUserName, String receiverName) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
         transaction.begin();
 
-        CriteriaDelete<DirectMessageDTO> criteriaDelete = entityManager.getCriteriaBuilder().createCriteriaDelete(DirectMessageDTO.class);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaDelete<DirectMessageDTO> criteriaDelete = criteriaBuilder.createCriteriaDelete(DirectMessageDTO.class);
         Root<DirectMessageDTO> root = criteriaDelete.from(DirectMessageDTO.class);
 
-        criteriaDelete.where(entityManager.getCriteriaBuilder().equal(root.get("receiverName"), receiverName));
+        criteriaDelete.where(
+            criteriaBuilder.or(
+                criteriaBuilder.and(
+                    criteriaBuilder.equal(root.get("receiverName"), receiverName),
+                    criteriaBuilder.equal(root.get("senderName"), currentUserName)
+                ),
+                criteriaBuilder.and(
+                    criteriaBuilder.equal(root.get("receiverName"), currentUserName),
+                    criteriaBuilder.equal(root.get("senderName"), receiverName)
+                )
+            )
+        );
         entityManager.createQuery(criteriaDelete).executeUpdate();
 
         transaction.commit();
         entityManager.close();
     }
 
-    public static void clearDirectMessages() {
+    public static void clearAllConversations() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
         transaction.begin();
 
         CriteriaDelete<DirectMessageDTO> criteriaDelete = entityManager.getCriteriaBuilder().createCriteriaDelete(DirectMessageDTO.class);
-        Root<DirectMessageDTO> root = criteriaDelete.from(DirectMessageDTO.class);
+        criteriaDelete.from(DirectMessageDTO.class);
         entityManager.createQuery(criteriaDelete).executeUpdate();
 
         transaction.commit();
         entityManager.close();
     }
 
-    public static List<Pair<String, String>> getDirectMessageReceiver(String currentUserName) {
+    public static List<Pair<String, String>> getAllConversationPartnerOf(String currentUserName) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
-        List<Pair<String, String>> receiverList = new LinkedList<>();
+        List<Pair<String, String>> chatPartnerList = new LinkedList<>();
 
         transaction.begin();
 
@@ -185,13 +203,19 @@ public class DatabaseService {
         for (Object o : resultList) {
             DirectMessageDTO msg = (DirectMessageDTO) o;
 
-            Pair<String, String> receiver = new Pair<>(msg.getReceiver(), msg.getReceiverName());
+            Pair<String, String> chatPartner;
 
-            if (!receiverList.contains(receiver) && Objects.nonNull(msg.getId()) && Objects.nonNull(msg.getReceiverName())) {
-                receiverList.add(receiver);
+            if (msg.getReceiverName().equals(currentUserName)) {
+                chatPartner = new Pair<>(msg.getSender(), msg.getSenderName());
+            } else {
+                chatPartner = new Pair<>(msg.getReceiver(), msg.getReceiverName());
+            }
+
+            if (!chatPartnerList.contains(chatPartner) && Objects.nonNull(msg.getId()) && Objects.nonNull(msg.getReceiverName())) {
+                chatPartnerList.add(chatPartner);
             }
         }
 
-        return receiverList;
+        return chatPartnerList;
     }
 }

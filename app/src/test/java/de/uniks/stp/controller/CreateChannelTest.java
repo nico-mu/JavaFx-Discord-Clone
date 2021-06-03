@@ -230,7 +230,7 @@ public class CreateChannelTest {
         // prepare start situation
         Editor editor = StageManager.getEditor();
 
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1")).setUserKey("123-45");
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
 
         String serverName = "TestServer";
         String serverId = "12345678";
@@ -239,8 +239,8 @@ public class CreateChannelTest {
             .getCurrentUser()
             .withAvailableServers(testServer);
 
-        User testUser1 = new User().setName("TestUser2").withAvailableServers(testServer);
-        User testUser2 = new User().setName("TestUser3").withAvailableServers(testServer);
+        User testUser1 = new User().setName("TestUser2").setId("2").withAvailableServers(testServer);
+        User testUser2 = new User().setName("TestUser3").setId("3").withAvailableServers(testServer);
 
         String categoryName = "TestCategory";
         String categoryId = "catId123";
@@ -295,8 +295,8 @@ public class CreateChannelTest {
         when(res.isSuccess()).thenReturn(true);
 
         ArrayList<String> members = new ArrayList<>();
-        members.add("TestUser2");
-        members.add("TestUser1");
+        members.add("2");
+        members.add("1");
         verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(channelName), eq(true), eq(members), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
@@ -324,7 +324,7 @@ public class CreateChannelTest {
                     .add("type", "text")
                     .add("privileged", true)
                     .add("category", categoryId)
-                    .add("members", Json.createArrayBuilder().add("TestUser1").add("TestUser2").build())
+                    .add("members", Json.createArrayBuilder().add("1").add("2").build())
                     .build()
             )
             .build();

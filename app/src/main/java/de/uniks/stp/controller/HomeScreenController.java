@@ -48,7 +48,7 @@ public class HomeScreenController implements ControllerInterface {
     private VBox directMessageUsersList;
     private final PropertyChangeListener chatPartnerChangeListener = this::onChatPartnerChanged;
     private UserListController userListController;
-    private final HashMap<String, String> directMessageReceiver = new HashMap<>();
+    private final HashMap<String, String> directMessagePartner = new HashMap<>();
 
     HomeScreenController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
@@ -73,13 +73,13 @@ public class HomeScreenController implements ControllerInterface {
             .listeners()
             .addPropertyChangeListener(User.PROPERTY_CHAT_PARTNER, chatPartnerChangeListener);
 
-        for (Pair<String, String> receiver : DatabaseService.getDirectMessageReceiver(currentUser.getName())) {
-            String receiverId = receiver.getKey();
-            String receiverName = receiver.getValue();
-            User user = editor.getOrCreateChatPartnerOfCurrentUser(receiverId, receiverName);
+        for (Pair<String, String> chatPartner : DatabaseService.getAllConversationPartnerOf(currentUser.getName())) {
+            String chatPartnerId = chatPartner.getKey();
+            String chatPartnerName = chatPartner.getValue();
+            User user = editor.getOrCreateChatPartnerOfCurrentUser(chatPartnerId, chatPartnerName);
 
             addUserToSidebar(user);
-            directMessageReceiver.put(receiverId, receiverName);
+            directMessagePartner.put(chatPartnerId, chatPartnerName);
         }
     }
 
@@ -87,7 +87,6 @@ public class HomeScreenController implements ControllerInterface {
     public void route(RouteInfo routeInfo, RouteArgs args) {
         String subRoute = routeInfo.getSubControllerRoute();
         subviewCleanup();
-
         if (subRoute.equals(Constants.ROUTE_PRIVATE_CHAT)) {
             String userId = args.getArguments().get(Constants.ROUTE_PRIVATE_CHAT_ARGS);
             User otherUser = editor.getUserById(userId);
@@ -96,7 +95,7 @@ public class HomeScreenController implements ControllerInterface {
                 editor.getOrCreateChatPartnerOfCurrentUser(userId, otherUser.getName());
             }
 
-            String userName = directMessageReceiver.get(userId);
+            String userName = directMessagePartner.get(userId);
 
             if (Objects.isNull(userName)) {
                 if (Objects.nonNull(otherUser)) {
