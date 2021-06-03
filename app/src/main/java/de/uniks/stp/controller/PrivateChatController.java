@@ -9,6 +9,7 @@ import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.notification.NotificationService;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -67,9 +68,8 @@ public class PrivateChatController implements ControllerInterface {
      * Also adds all messages from model in the View and creates PropertyChangeListener that will do so in the future.
      */
     private void showChatView() {
-        if (Objects.nonNull(model.getSentUserNotification())) {
-            model.getSentUserNotification().setNotificationCounter(0);
-        }
+        NotificationService.consume(model);
+        NotificationService.removePublisher(model);
         homeScreenLabel.setText(model.getName());
         chatView = new PrivateChatView();
 

@@ -9,17 +9,21 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class UserCheckList extends ScrollPane {
 
     private final ObservableList<Node> userListEntries;
     @FXML
     private VBox container;
+    private HashMap<String, UserCheckListEntry> userCheckListEntryHashMap;
 
     public UserCheckList() {
         final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+        userCheckListEntryHashMap = new HashMap<>();
 
         try {
             fxmlLoader.load();
@@ -29,15 +33,36 @@ public class UserCheckList extends ScrollPane {
         }
     }
 
-    public void addUserCheckListEntry(final UserCheckListEntry item) {
+    private void addUserCheckListEntry(final UserCheckListEntry item) {
         userListEntries.add(item);
     }
 
-    public void removeUserCheckListEntry(final UserCheckListEntry item) {
-        userListEntries.remove(item);
+    public void addUserToChecklist(UserCheckListEntry userCheckListEntry) {
+        userCheckListEntryHashMap.put(userCheckListEntry.getUserName(), userCheckListEntry);
+        userListEntries.add(userCheckListEntry);
     }
 
-    public void clearUserCheckList(){
+    public void filterUsers(String subString) {
+        clearUserCheckList();
+        for (String name : userCheckListEntryHashMap.keySet()) {
+            if (name.contains(subString)) {
+                addUserCheckListEntry(userCheckListEntryHashMap.get(name));
+            }
+        }
+    }
+
+    public ArrayList<String> getSelectedUserIds() {
+        ArrayList<String> selectedUserIds = new ArrayList<>();
+        for (UserCheckListEntry userCheckListEntry : userCheckListEntryHashMap.values()) {
+            if (userCheckListEntry.isUserSelected()) {
+                selectedUserIds.add(userCheckListEntry.getUserId());
+            }
+        }
+        return selectedUserIds;
+    }
+
+    public void clearUserCheckList() {
         userListEntries.clear();
     }
 }
+

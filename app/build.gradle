@@ -44,7 +44,7 @@ dependencies {
 
 test {
     useJUnitPlatform()
-    jvmArgs "-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dprism.order=sw -Dprism.text=t2k -Dtestfx.setup.timeout=2500"
+    jvmArgs "-Dtestfx.headless=true"
 }
 
 jar {
@@ -84,3 +84,5 @@ compileSass {
     //  - none: do not emit source map.
     sourceMap = none
 }
+
+compileJava.dependsOn(compileSass)

@@ -80,7 +80,7 @@ public class UserInfoController implements ControllerInterface {
     private void onSettingsGearClicked(MouseEvent mouseEvent) {
         Parent settingsModalView = ViewLoader.loadView(Views.SETTINGS_MODAL);
         SettingsModal settingsModal = new SettingsModal(settingsModalView, editor);
-        settingsModal.showAndWait();
+        settingsModal.show();
     }
 
     @Override

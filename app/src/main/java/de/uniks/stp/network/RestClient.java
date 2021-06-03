@@ -7,6 +7,8 @@ import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 
 import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -128,12 +130,16 @@ public class RestClient {
     }
 
     public void createTextChannel(String serverId, String categoryId, String channelName, Boolean privileged, ArrayList<String> members, Callback<JsonNode> callback) {
+        JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+        for(String userId : members){
+            arrayBuilder.add(userId);
+        }
         HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH)
             .body(Json.createObjectBuilder()
                 .add("name", channelName)
                 .add("type", "text")
                 .add("privileged", privileged)
-                .add("members", members.toString()).build().toString());
+                .add("members", arrayBuilder.build()).build().toString());
         sendRequest(req, callback);
     }
 }

@@ -2,11 +2,11 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.model.Category;
 import de.uniks.stp.model.*;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
+import de.uniks.stp.notification.NotificationService;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,6 +130,8 @@ public class WebSocketService {
         if (!currentUser.getChatPartner().contains(sender)) {
             currentUser.withChatPartner(sender);
         }
+        NotificationService.register(sender);
+        NotificationService.onPrivateMessage(sender);
     }
 
     /**
@@ -218,7 +220,14 @@ public class WebSocketService {
         msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender).setId(messageId);
 
         // setChannel triggers PropertyChangeListener that shows Message in Chat
-        msg.setChannel(editor.getChannel(channelId, editor.getServer(serverId)));
+        Server server = editor.getServer(serverId);
+        Channel channel = editor.getChannel(channelId, server);
+        if (Objects.isNull(channel)) {
+            channel = new Channel().setServer(server).setId(channelId);
+            NotificationService.register(channel);
+        }
+        msg.setChannel(channel);
+        NotificationService.onChannelMessage(channel);
     }
 
     /**
@@ -260,9 +269,8 @@ public class WebSocketService {
                     String categoryId = data.getString("id");
                     String name = data.getString("name");
                     serverId = data.getString("server");
-                    if(Objects.isNull(editor.getCategory(categoryId, editor.getServer(serverId)))) {
-                        Category newCategory = new Category().setId(categoryId).setName(name);
-                        newCategory.setServer(editor.getServer(serverId));
+                    if (Objects.isNull(editor.getCategory(categoryId, editor.getServer(serverId)))) {
+                        editor.getOrCreateCategory(categoryId, name, editor.getServer(serverId));
                     }
                     return;
                 case "channelCreated":
@@ -285,13 +293,13 @@ public class WebSocketService {
                         }
                     }
 
-                    if(privileged && Objects.nonNull(modifiedServer)){
+                    if (privileged && Objects.nonNull(modifiedServer)) {
                         ArrayList<String> members = new ArrayList<>();
-                        for(int i = 0; i<jsonArray.size(); i++){
+                        for (int i = 0; i < jsonArray.size(); i++) {
                             members.add(jsonArray.getString(i));
                         }
-                        for(User user : modifiedServer.getUsers()){
-                            if(members.contains(user.getName())){
+                        for (User user : modifiedServer.getUsers()) {
+                            if (members.contains(user.getId())) {
                                 channel.withChannelMembers(user);
                             }
                         }
