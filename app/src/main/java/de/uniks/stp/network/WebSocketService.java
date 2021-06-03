@@ -2,6 +2,7 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.controller.ServerCategoryListController;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.*;
 import de.uniks.stp.model.DirectMessage;
@@ -19,6 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+
+import static de.uniks.stp.model.Category.PROPERTY_CHANNELS;
 
 public class WebSocketService {
     private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
@@ -261,8 +264,7 @@ public class WebSocketService {
                     String name = data.getString("name");
                     serverId = data.getString("server");
                     if(Objects.isNull(editor.getCategory(categoryId, editor.getServer(serverId)))) {
-                        Category newCategory = new Category().setId(categoryId).setName(name);
-                        newCategory.setServer(editor.getServer(serverId));
+                        editor.getOrCreateCategory(categoryId, name, editor.getServer(serverId));
                     }
                     return;
                 case "channelCreated":

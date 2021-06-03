@@ -123,9 +123,6 @@ public class CreateCategoryModal extends AbstractModal {
                 return;
             }
 
-            Category newCategory = new Category().setId(categoryId).setName(name);
-            newCategory.setServer(model);
-
             Platform.runLater(this::close);
         } else {
             log.error("Create category failed!");
