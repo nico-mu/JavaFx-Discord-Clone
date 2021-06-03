@@ -129,10 +129,12 @@ public class ServerChatController implements ControllerInterface {
         if (response.isSuccess()) {
             JSONArray messagesJson = response.getBody().getObject().getJSONArray("data");
 
-            if(messagesJson.length() == 0){
+            if(messagesJson.length() < 50){
                 //when there are no older messages to show
                 chatView.removeLoadMessagesButton();  //alternative: show note or disable button
-                return;
+                if(messagesJson.length() == 0) {
+                    return;
+                }
             }
 
             //disable adding new messages to the view for a moment

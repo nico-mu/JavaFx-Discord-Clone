@@ -79,10 +79,10 @@ public class LoadOldMessagesTest {
     }
 
     @Test
-    public void testLoadOldServerMessages(FxRobot robot) {
+    public void testLoadAllOldServerMessages(FxRobot robot) {
         // prepare start situation
         Editor editor = StageManager.getEditor();
-        Long timeStart = new Date().getTime();
+        long timeStart = new Date().getTime();
 
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Platti")).setUserKey("123-45");
 
@@ -151,7 +151,7 @@ public class LoadOldMessagesTest {
 
         // check for correct reactions
         Assertions.assertEquals(3, editor.getChannel(channelId, server).getMessages().size());
-        Assertions.assertEquals(2, chatVBox.getChildren().size());  //check for loadMessagesButton still there
+        Assertions.assertEquals(1, chatVBox.getChildren().size());  //check for loadMessagesButton removed
 
         // check for correct order of messages
         firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
@@ -171,9 +171,11 @@ public class LoadOldMessagesTest {
     }
 
     @Test
-    public void testNoOldServerMessages(FxRobot robot) {
+    public void testLoadSomeOldServerMessages(FxRobot robot) {
         // prepare start situation
         Editor editor = StageManager.getEditor();
+        long timeStart = new Date().getTime();
+
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Platti")).setUserKey("123-45");
 
         String serverId ="12345678";
@@ -207,8 +209,8 @@ public class LoadOldMessagesTest {
 
         // check for message shown
         VBox messageList = robot.lookup("#messageList").query();
-        ServerChatMessage shownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
-        VBox messageContainer = (VBox) shownChatMessage.getChildren().get(0);
+        ServerChatMessage firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
+        VBox messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
         Text messageText = (Text) messageContainer.getChildren().get(1);
         Assertions.assertEquals(message, messageText.getText());
 
@@ -216,6 +218,14 @@ public class LoadOldMessagesTest {
         robot.clickOn("#loadMessagesButton");
 
         JSONArray data = new JSONArray();
+        for(int i=0;i<50;i++){
+            JSONObject msg = new JSONObject().put("id", Integer.toString(i))
+                .put("channel", channelId)
+                .put("timestamp", timeStart-100+i)
+                .put("from", "Eve")
+                .put("text", Integer.toString(i));
+            data.put(msg);
+        }
         JSONObject j = new JSONObject().put("status", "success").put("message", "").put("data", data);
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
@@ -227,12 +237,17 @@ public class LoadOldMessagesTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         // check for correct reactions
-        Assertions.assertEquals(1, editor.getChannel(channelId, server).getMessages().size());
-        Assertions.assertEquals(1, chatVBox.getChildren().size());  //check for loadMessagesButton removed
+        Assertions.assertEquals(51, editor.getChannel(channelId, server).getMessages().size());
+        Assertions.assertEquals(2, chatVBox.getChildren().size());  //check for loadMessagesButton still shown
 
-        // check for message still shown
-        shownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
-        messageContainer = (VBox) shownChatMessage.getChildren().get(0);
+        // check for first and last message correct shown
+        firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
+        messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
+        messageText = (Text) messageContainer.getChildren().get(1);
+        Assertions.assertEquals("0", messageText.getText());
+
+        ServerChatMessage lastShownChatMessage = (ServerChatMessage) messageList.getChildren().get(50);
+        messageContainer = (VBox) lastShownChatMessage.getChildren().get(0);
         messageText = (Text) messageContainer.getChildren().get(1);
         Assertions.assertEquals(message, messageText.getText());
     }
