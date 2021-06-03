@@ -126,7 +126,7 @@ public class ServerScreenController implements ControllerInterface {
 
     private void onCreateCategoryClicked(ActionEvent actionEvent) {
         Parent createCategoryModalView = ViewLoader.loadView(Views.CREATE_CATEGORY_MODAL);
-        CreateCategoryModal createCategoryModal = new CreateCategoryModal(createCategoryModalView, model);
+        CreateCategoryModal createCategoryModal = new CreateCategoryModal(createCategoryModalView, model, editor);
         createCategoryModal.show();
     }
 
