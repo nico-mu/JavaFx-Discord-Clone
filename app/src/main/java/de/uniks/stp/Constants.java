@@ -66,5 +66,4 @@ public class Constants {
 
     //Languages
     public static final String LANG_LABEL_PREFIX = "LBL_LANG_";
-
 }

@@ -3,6 +3,10 @@ package de.uniks.stp.network;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.model.*;
+import de.uniks.stp.model.DirectMessage;
+import de.uniks.stp.model.ServerMessage;
+import de.uniks.stp.model.User;
+import de.uniks.stp.notification.NotificationService;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,6 +130,8 @@ public class WebSocketService {
         if (!currentUser.getChatPartner().contains(sender)) {
             currentUser.withChatPartner(sender);
         }
+        NotificationService.register(sender);
+        NotificationService.onPrivateMessage(sender);
     }
 
     /**
@@ -214,7 +220,14 @@ public class WebSocketService {
         msg.setMessage(msgText).setTimestamp(timestamp).setSender(sender).setId(messageId);
 
         // setChannel triggers PropertyChangeListener that shows Message in Chat
-        msg.setChannel(editor.getChannel(channelId, editor.getServer(serverId)));
+        Server server = editor.getServer(serverId);
+        Channel channel = editor.getChannel(channelId, server);
+        if (Objects.isNull(channel)) {
+            channel = new Channel().setServer(server).setId(channelId);
+            NotificationService.register(channel);
+        }
+        msg.setChannel(channel);
+        NotificationService.onChannelMessage(channel);
     }
 
     /**

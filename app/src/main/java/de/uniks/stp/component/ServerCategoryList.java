@@ -54,4 +54,7 @@ public class ServerCategoryList extends ScrollPane {
     public void removeElement(ServerCategoryElement element) {
         this.container.getChildren().remove(element);
     }
+
+    @Override
+    public void requestFocus() {}
 }

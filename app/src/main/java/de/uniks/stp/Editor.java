@@ -173,6 +173,11 @@ public class Editor {
                     }
                 }
             }
+            for (Channel channel : server.getChannels()) {
+                if (channel.getId().equals(channelId)) {
+                    return channel;
+                }
+            }
         }
         return null;
     }
