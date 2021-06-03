@@ -4,7 +4,6 @@ import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.model.DirectMessage;
 import javafx.util.Pair;
-import org.hibernate.criterion.Order;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

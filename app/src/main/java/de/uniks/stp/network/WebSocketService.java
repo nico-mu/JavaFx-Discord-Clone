@@ -4,13 +4,11 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.*;
-import de.uniks.stp.model.DirectMessage;
-import de.uniks.stp.model.ServerMessage;
-import de.uniks.stp.model.User;
 import de.uniks.stp.notification.NotificationService;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;

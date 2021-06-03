@@ -1,11 +1,7 @@
 package de.uniks.stp;
 
-import de.uniks.stp.controller.HomeScreenController;
 import de.uniks.stp.model.*;
 import de.uniks.stp.view.Languages;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -223,8 +219,6 @@ public class Editor {
     public void setServerMemberOffline(String userId, String userName, Server server) {
         setServerMemberStatus(userId, userName, false, server);
     }
-
-    private static final Logger log = LoggerFactory.getLogger(Editor.class);
 
     public User getOrCreateChatPartnerOfCurrentUser(String id, String name) {
         User currentUser = accord.getCurrentUser();
