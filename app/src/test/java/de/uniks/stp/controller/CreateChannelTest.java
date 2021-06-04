@@ -94,6 +94,8 @@ public class CreateChannelTest {
         String categoryId = "catId123";
         Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
 
+        WaitForAsyncUtils.waitForFxEvents();
+
         // assert correct start situation
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
