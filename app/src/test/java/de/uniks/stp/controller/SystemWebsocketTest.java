@@ -63,12 +63,11 @@ public class SystemWebsocketTest {
         NetworkClientInjector.setWebSocketClient(webSocketMock);
         StageManager app = new StageManager();
         app.start(stage);
+        DatabaseService.clearAllConversations();
     }
 
     @Test
     public void testUserJoined(FxRobot robot) {
-        DatabaseService.clearAllConversations();
-
         Editor editor = StageManager.getEditor();
 
         editor.getOrCreateAccord()
@@ -115,7 +114,6 @@ public class SystemWebsocketTest {
     public void testUserLeft(FxRobot robot) {
         // prepare start situation
         Editor editor = StageManager.getEditor();
-        DatabaseService.clearAllConversations();
 
         editor.getOrCreateAccord()
             .setCurrentUser(new User().setName("Test"))
@@ -168,7 +166,6 @@ public class SystemWebsocketTest {
 
     @Test
     public void testServerUserJoinedLeftMessage(FxRobot robot) {
-        DatabaseService.clearAllConversations();
         final String SERVER_ID = "server";
         final String SERVER_NAME = "server-name";
 

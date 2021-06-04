@@ -124,9 +124,8 @@ public class WebSocketService {
         }
         User chatPartner = editor.getOrCreateChatPartnerOfCurrentUser(sender.getId(), sender.getName());
         DirectMessage msg = new DirectMessage();
-        msg.setSender(chatPartner).setMessage(msgText).setTimestamp(timestamp).setId(UUID.randomUUID().toString());
-        msg.setReceiver(currentUser);
-        chatPartner.firePropertyChange(User.PROPERTY_PRIVATE_CHAT_MESSAGES, null, msg);
+        msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setId(UUID.randomUUID().toString());
+        msg.setSender(chatPartner);
         DatabaseService.saveDirectMessage(msg);
 
         NotificationService.register(chatPartner);
@@ -153,15 +152,13 @@ public class WebSocketService {
                 case "userJoined":
                     editor.getOrCreateOtherUser(userId, userName);
                     if (editor.isChatPartnerOfCurrentUser(userId)) {
-                        User user = editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(true);
-                        user.firePropertyChange(User.PROPERTY_STATUS, null, true);
+                        editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(true);
                     }
                     break;
                 case "userLeft":
                     editor.removeOtherUserById(userId);
                     if (editor.isChatPartnerOfCurrentUser(userId)) {
-                        User user = editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(false);
-                        user.firePropertyChange(User.PROPERTY_STATUS, null, false);
+                        editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(false);
                     }
                     break;
                 default:

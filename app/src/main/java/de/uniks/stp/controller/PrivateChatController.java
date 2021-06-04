@@ -27,7 +27,6 @@ import java.util.UUID;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT)
 public class PrivateChatController implements ControllerInterface {
-    private static final Logger log = LoggerFactory.getLogger(MainScreenController.class);
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
 
@@ -63,6 +62,7 @@ public class PrivateChatController implements ControllerInterface {
             chatView.stop();
         }
         if (Objects.nonNull(user)) {
+            user.listeners().removePropertyChangeListener(User.PROPERTY_SENT_MESSAGES, messagesChangeListener);
             user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
             user.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
         }
@@ -98,6 +98,7 @@ public class PrivateChatController implements ControllerInterface {
         }
 
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
+        user.listeners().addPropertyChangeListener(User.PROPERTY_SENT_MESSAGES, messagesChangeListener);
         user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
         user.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
 
@@ -111,13 +112,12 @@ public class PrivateChatController implements ControllerInterface {
 
             if (directMessageDTO.getSenderName().equals(currentUser.getName())) {
                 message.setSender(currentUser);
+                chatView.appendMessage(message);
             } else {
                 String senderId = directMessageDTO.getSender();
                 String senderName = directMessageDTO.getSenderName();
                 message.setSender(editor.getOrCreateChatPartnerOfCurrentUser(senderId, senderName));
             }
-
-            chatView.appendMessage(message);
         }
     }
 
