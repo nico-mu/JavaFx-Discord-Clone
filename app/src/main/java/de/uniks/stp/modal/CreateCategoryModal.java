@@ -109,23 +109,6 @@ public class CreateCategoryModal extends AbstractModal {
         log.debug(response.getBody().toPrettyString());
 
         if (response.isSuccess()) {
-            JSONObject jsonObject = response.getBody().getObject().getJSONObject("data");
-            String categoryId = jsonObject.getString("id");
-            String name = jsonObject.getString("name");
-            String serverId = jsonObject.getString("server");
-            JSONArray channelList = jsonObject.getJSONArray("channels");  // don't know what might be contained in Array
-
-            if (!serverId.equals(model.getId())) {
-                log.error("Wrong serverId in response!");
-                return;
-            }
-            if (!channelList.isEmpty()) {
-                log.error("New category already contains channel(s)!");
-                return;
-            }
-
-            editor.getOrCreateCategory(categoryId, name, editor.getServer(serverId));
-
             Platform.runLater(this::close);
         } else {
             log.error("Create category failed!");
