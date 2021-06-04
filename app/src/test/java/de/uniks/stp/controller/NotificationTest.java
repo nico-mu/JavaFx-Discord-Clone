@@ -207,10 +207,14 @@ public class NotificationTest {
 
         Server server = editor.getOrCreateServer(serverId, serverName);
         Category category = editor.getOrCreateCategory(categoryId, categoryName, server);
-        Channel channel = editor.getOrCreateChannel(channelOneId, "ChannelOne", category);
+        Channel channelOne = editor.getOrCreateChannel(channelOneId, "ChannelOne", category);
         server.withCategories(category);
-        server.withChannels(channel);
-        NotificationService.register(channel);
+        server.withChannels(channelOne);
+        NotificationService.register(channelOne);
+
+        Channel channelTwo = editor.getOrCreateChannel(channelTwoId, "ChannelTwo", category);
+        server.withChannels(channelTwo);
+        NotificationService.register(channelTwo);
 
         currentUser.withAvailableServers(server);
         userOne.withAvailableServers(server);

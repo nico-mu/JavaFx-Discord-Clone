@@ -5,6 +5,7 @@ import org.fulib.builder.ClassModelManager;
 import org.fulib.builder.reflect.Link;
 
 import java.util.List;
+import java.util.SortedSet;
 
 public class GenModel implements ClassModelDecorator {
 
@@ -92,7 +93,7 @@ public class GenModel implements ClassModelDecorator {
         Category category;
 
         @Link("channel")
-        List<ServerMessage> messages;
+        SortedSet<ServerMessage> messages;
 
         @Link("availableChannels")
         List<User> channelMembers;
