@@ -2,10 +2,8 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.*;
-import de.uniks.stp.model.DirectMessage;
-import de.uniks.stp.model.ServerMessage;
-import de.uniks.stp.model.User;
 import de.uniks.stp.notification.NotificationService;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
@@ -19,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.UUID;
 
 public class WebSocketService {
     private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
@@ -123,15 +122,14 @@ public class WebSocketService {
             log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
             return;
         }
+        User chatPartner = editor.getOrCreateChatPartnerOfCurrentUser(sender.getId(), sender.getName());
         DirectMessage msg = new DirectMessage();
-        msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setSender(sender);
-        // show message
-        sender.withPrivateChatMessages(msg);
-        if (!currentUser.getChatPartner().contains(sender)) {
-            currentUser.withChatPartner(sender);
-        }
-        NotificationService.register(sender);
-        NotificationService.onPrivateMessage(sender);
+        msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setId(UUID.randomUUID().toString());
+        msg.setSender(chatPartner);
+        DatabaseService.saveDirectMessage(msg);
+
+        NotificationService.register(chatPartner);
+        NotificationService.onPrivateMessage(chatPartner);
     }
 
     /**
@@ -153,9 +151,15 @@ public class WebSocketService {
             switch (action) {
                 case "userJoined":
                     editor.getOrCreateOtherUser(userId, userName);
+                    if (editor.isChatPartnerOfCurrentUser(userId)) {
+                        editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(true);
+                    }
                     break;
                 case "userLeft":
                     editor.removeOtherUserById(userId);
+                    if (editor.isChatPartnerOfCurrentUser(userId)) {
+                        editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(false);
+                    }
                     break;
                 default:
                     break;

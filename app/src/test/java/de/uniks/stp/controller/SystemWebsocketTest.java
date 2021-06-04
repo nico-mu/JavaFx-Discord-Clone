@@ -5,6 +5,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.component.NavBarHomeElement;
 import de.uniks.stp.component.NavBarUserElement;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.*;
 import de.uniks.stp.router.RouteArgs;
@@ -62,6 +63,7 @@ public class SystemWebsocketTest {
         NetworkClientInjector.setWebSocketClient(webSocketMock);
         StageManager app = new StageManager();
         app.start(stage);
+        DatabaseService.clearAllConversations();
     }
 
     @Test

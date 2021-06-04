@@ -36,17 +36,16 @@ public class PrivateChatView extends VBox {
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
 
     public PrivateChatView() {
-
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.PRIVATE_CHAT_VIEW);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+        this.setId("chat-view");
 
         try {
             fxmlLoader.load();
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
 
         messageList.heightProperty().addListener(heightChangedListener);
@@ -121,5 +120,19 @@ public class PrivateChatView extends VBox {
 
     private void onHeightChanged(Observable observable) {
         chatViewMessageScrollPane.setVvalue(1.0);
+    }
+
+    public void disable() {
+        Platform.runLater(() -> {
+            chatViewSubmitButton.setDisable(true);
+            chatViewMessageInput.setDisable(true);
+        });
+    }
+
+    public void enable() {
+        Platform.runLater(() -> {
+            chatViewSubmitButton.setDisable(false);
+            chatViewMessageInput.setDisable(false);
+        });
     }
 }
