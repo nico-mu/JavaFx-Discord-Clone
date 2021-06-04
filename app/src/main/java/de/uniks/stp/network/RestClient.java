@@ -142,4 +142,17 @@ public class RestClient {
                 .add("members", arrayBuilder.build()).build().toString());
         sendRequest(req, callback);
     }
+
+    public void getServerInvitations(String serverId, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.get(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH);
+        sendRequest(req, callback);
+    }
+
+    public void createServerInvitation(String serverId, String type, int max, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH)
+            .body(Json.createObjectBuilder()
+                .add("type", type)
+                .add("max", max).build().toString());
+        sendRequest(req, callback);
+    }
 }

@@ -6,14 +6,21 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.InviteList;
 import de.uniks.stp.component.InviteListEntry;
 import de.uniks.stp.component.UserCheckList;
+import de.uniks.stp.model.Category;
+import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.json.JSONArray;
+import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +65,32 @@ public class InvitesModal extends AbstractModal {
         createButton.setOnAction(this::onCreatButtonClicked);
         cancelButton.setOnAction(this::onCancelButtonClicked);
         cancelButton.setCancelButton(true);  // use Escape in order to press button
+
+        restClient.getServerInvitations(server.getId(), this::handleGetServerInvitationsResponse);
+    }
+
+    private void handleGetServerInvitationsResponse(HttpResponse<JsonNode> jsonNodeHttpResponse) {
+        log.debug("Received get server invites response: " + jsonNodeHttpResponse.getBody().toPrettyString());
+        if(jsonNodeHttpResponse.isSuccess()) {
+            JSONArray channelsJson = jsonNodeHttpResponse.getBody().getObject().getJSONArray("data");
+            for (Object channel : channelsJson) {
+                JSONObject channelJson = (JSONObject) channel;
+                final String inviteId = channelJson.getString("id");
+                final String inviteLink = channelJson.getString("link");
+                final String type = channelJson.getString("type");
+                final int max = channelJson.getInt("max");
+                final int current = channelJson.getInt("current");
+                final String serverId = channelJson.getString("server");
+                //TODO add invite
+            }
+        }
     }
 
     private void onCreatButtonClicked(ActionEvent actionEvent) {
         setErrorMessage(null);
-
+        Parent createInviteModalView = ViewLoader.loadView(Views.CREATE_INVITE_MODAL);
+        CreateInviteModal createInviteModal = new CreateInviteModal(createInviteModalView, server);
+        createInviteModal.show();
     }
 
     private void setErrorMessage(String label) {

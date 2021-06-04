@@ -13,7 +13,8 @@ public enum Views {
     SERVER_SETTINGS_MODAL("ServerSettingsModal.fxml"),
     CREATE_CATEGORY_MODAL("CreateCategoryModal.fxml"),
     ADD_CHANNEL_MODAL("AddChannelModal.fxml"),
-    INVITES_MODAL("InvitesModal.fxml");
+    INVITES_MODAL("InvitesModal.fxml"),
+    CREATE_INVITE_MODAL("CreateInviteModal.fxml");
 
     public final URL path;
 
