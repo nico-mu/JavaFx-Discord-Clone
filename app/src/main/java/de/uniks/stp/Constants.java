@@ -45,6 +45,11 @@ public class Constants {
     public static final String LBL_CREATE_CHANNEL = "LBL_CREATE_CHANNEL";
     public static final String LBL_MISSING_NAME = "LBL_MISSING_NAME";
     public static final String LBL_MISSING_MEMBERS = "LBL_MISSING_MEMBERS";
+    public static final String LBL_INVITATIONS = "LBL_INVITATIONS";
+    public static final String LBL_INVITATION = "LBL_INVITATION";
+    public static final String LBL_UNTIL = "LBL_UNTIL";
+    public static final String LBL_CURRENT_MAX = "LBL_CURRENT_MAX";
+    public static final String LBL_CREATE_INVITATION = "LBL_CREATE_INVITATION";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";

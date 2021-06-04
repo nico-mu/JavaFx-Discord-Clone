@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+
+<fx:root alignment="CENTER" spacing="12.0" stylesheets="@../style/css/component/user-list.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <Label id="invite-link" fx:id="invite" prefWidth="180.0" text="Label" />
+   <ImageView id="copy-invite" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+         <Image url="@../img/copy.png" />
+      </image></ImageView>
+   <Label id="invite-until" fx:id="until" prefWidth="84.0" text="Label" />
+   <Label id="invite-current-max" fx:id="currentMax" prefWidth="84.0" text="Label" />
+   <ImageView id="delete-invite" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+         <Image url="@../img/delete.png" />
+      </image></ImageView>
+</fx:root>
