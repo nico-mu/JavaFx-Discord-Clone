@@ -117,8 +117,35 @@ public class ServerChatController implements ControllerInterface {
             timestamp = Collections.min(model.getMessages(), messageComparator).getTimestamp();
         }
 
-        NetworkClientInjector.getRestClient().getServerChannelMessages(model.getCategory().getServer().getId(),
-            model.getCategory().getId(), model.getId(), timestamp, this::onLoadMessagesResponse);
+        // test if method was called in showChatView or by button -> handle response differently
+        if(actionEvent.getSource().getClass().toString().equals("class com.jfoenix.controls.JFXButton")){
+            NetworkClientInjector.getRestClient().getServerChannelMessages(model.getCategory().getServer().getId(),
+                model.getCategory().getId(), model.getId(), timestamp, this::onLoadMessagesButtonResponse);
+        }
+        else{
+            NetworkClientInjector.getRestClient().getServerChannelMessages(model.getCategory().getServer().getId(),
+                model.getCategory().getId(), model.getId(), timestamp, this::onLoadMessagesResponse);
+        }
+    }
+
+    /**
+     * Handles response containing older ServerChatMessages. Is only called when load-old-messages-button was pressed
+     * Stops if there were no messages loaded, calls method onLoadMessagesResponse otherwise
+     * @param response
+     */
+    private void onLoadMessagesButtonResponse(HttpResponse<JsonNode> response) {
+        if (response.isSuccess()) {
+            JSONArray messagesJson = response.getBody().getObject().getJSONArray("data");
+
+            if (messagesJson.length() < 50) {
+                // when there are no older messages to show
+                chatView.removeLoadMessagesButton();  //alternative: show note or disable button
+                if (messagesJson.length() == 0) {
+                    return;
+                }
+            }
+            onLoadMessagesResponse(response);
+        }
     }
 
     /**
@@ -132,14 +159,10 @@ public class ServerChatController implements ControllerInterface {
         if (response.isSuccess()) {
             JSONArray messagesJson = response.getBody().getObject().getJSONArray("data");
 
-            if(messagesJson.length() < 50){
-                //when there are no older messages to show
+            if (messagesJson.length() < 50) {
+                // when there are no older messages to show
                 chatView.removeLoadMessagesButton();  //alternative: show note or disable button
-                if(messagesJson.length() == 0) {
-                    return;
-                }
             }
-
             //disable adding new messages to the view for a moment
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
 
