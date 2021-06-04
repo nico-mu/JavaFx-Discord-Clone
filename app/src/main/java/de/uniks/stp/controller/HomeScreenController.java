@@ -93,6 +93,7 @@ public class HomeScreenController implements ControllerInterface {
 
             if (Objects.nonNull(otherUser)) {
                 editor.getOrCreateChatPartnerOfCurrentUser(userId, otherUser.getName());
+                addUserToSidebar(otherUser);
             }
 
             String userName = directMessagePartner.get(userId);
