@@ -14,24 +14,28 @@ public class EmoteRendererTest {
 
         Assertions.assertEquals(5, renderResult.getChildren().size());
         Assertions.assertEquals("Hello ", ((Text) renderResult.getChildren().get(0)).getText());
-        Assertions.assertEquals("\uD83D\uDE00", ((Text) renderResult.getChildren().get(1)).getText());
+        Assertions.assertEquals(EmoteMapping.grinning_face.unicode, ((Text) renderResult.getChildren().get(1)).getText());
         Assertions.assertEquals(" World", ((Text) renderResult.getChildren().get(2)).getText());
-        Assertions.assertEquals("\uD83D\uDE00", ((Text) renderResult.getChildren().get(3)).getText());
+        Assertions.assertEquals(EmoteMapping.grinning_face.unicode, ((Text) renderResult.getChildren().get(3)).getText());
         Assertions.assertEquals("!", ((Text) renderResult.getChildren().get(4)).getText());
 
         renderResult = renderer.render("Hello :grinning_face: World:grinning_fac:!");
 
         Assertions.assertEquals(3, renderResult.getChildren().size());
         Assertions.assertEquals("Hello ", ((Text) renderResult.getChildren().get(0)).getText());
-        Assertions.assertEquals("\uD83D\uDE00", ((Text) renderResult.getChildren().get(1)).getText());
+        Assertions.assertEquals(EmoteMapping.grinning_face.unicode, ((Text) renderResult.getChildren().get(1)).getText());
         Assertions.assertEquals(" World:grinning_fac:!", ((Text) renderResult.getChildren().get(2)).getText());
 
         renderResult = renderer.render("Hello :grinning_face: World:grinning_fac::grinning_face_with_big_eyes:");
 
         Assertions.assertEquals(4, renderResult.getChildren().size());
         Assertions.assertEquals("Hello ", ((Text) renderResult.getChildren().get(0)).getText());
-        Assertions.assertEquals("\uD83D\uDE00", ((Text) renderResult.getChildren().get(1)).getText());
+        Assertions.assertEquals(EmoteMapping.grinning_face.unicode, ((Text) renderResult.getChildren().get(1)).getText());
         Assertions.assertEquals(" World:grinning_fac:", ((Text) renderResult.getChildren().get(2)).getText());
-        Assertions.assertEquals("\uD83D\uDE03", ((Text) renderResult.getChildren().get(3)).getText());
+        Assertions.assertEquals(EmoteMapping.grinning_face_with_big_eyes.unicode, ((Text) renderResult.getChildren().get(3)).getText());
+
+        renderResult = renderer.render(":grinning_face_with_big_eyes::grinning_face_with_big_eyes:");
+        Assertions.assertEquals(2, renderResult.getChildren().size());
+        Assertions.assertEquals(EmoteMapping.grinning_face_with_big_eyes.unicode, ((Text) renderResult.getChildren().get(0)).getText());
     }
 }

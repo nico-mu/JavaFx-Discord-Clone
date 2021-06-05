@@ -34,5 +34,11 @@ public class EmoteParserTest {
 
         parsingResult = EmoteParser.parse(":grinning_fac::grinning_face_with_big_eyes:");
         Assertions.assertEquals(1, parsingResult.size());
+
+        parsingResult = EmoteParser.parse(":grinning_face_with_big_eyes::grinning_face_with_big_eyes:");
+        Assertions.assertEquals(2, parsingResult.size());
+        Assertions.assertEquals(0, parsingResult.get(0).getFirst());
+        Assertions.assertEquals(28, parsingResult.get(0).getSecond());
+        Assertions.assertEquals(29, parsingResult.get(1).getFirst());
     }
 }

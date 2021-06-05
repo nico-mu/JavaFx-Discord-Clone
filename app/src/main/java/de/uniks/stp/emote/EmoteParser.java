@@ -75,7 +75,7 @@ public class EmoteParser {
         Map<String, String> map = new HashMap<>();
 
         for (EmoteMapping entry : EmoteMapping.values()) {
-            map.put(entry.toString(), entry.name);
+            map.put(entry.toString(), entry.unicode);
         };
 
         return map;

@@ -54,10 +54,12 @@ public class EmoteRenderer {
         int from = 0;
 
         for (Triple<Integer, Integer, String> emoteInfo : parsingResult) {
-            Text text = new Text();
-            text.setText(input.substring(from, emoteInfo.getFirst()));
-            text.setFill(getTextFill());
-            renderResult.getChildren().add(text);
+            if (input.substring(from, emoteInfo.getFirst()).length() > 0) {
+                Text text = new Text();
+                text.setText(input.substring(from, emoteInfo.getFirst()));
+                text.setFill(getTextFill());
+                renderResult.getChildren().add(text);
+            }
             renderResult.getChildren().add(emoteRenderStrategy.apply(emoteInfo.getThird()));
             from = emoteInfo.getSecond() + 1;
         }
