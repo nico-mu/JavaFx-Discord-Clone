@@ -146,6 +146,29 @@ public class InvitesModal extends AbstractModal {
         this.close();
     }
 
+    public void onDeleteClicked(ServerInvitation invite) {
+        restClient.deleteServerInvitation(invite.getServer().getId(), invite.getId(), this::handleDeleteServerResponse);
+    }
+
+    private void handleDeleteServerResponse(HttpResponse<JsonNode> jsonNodeHttpResponse) {
+        log.debug("Received delete server invite response: " + jsonNodeHttpResponse.getBody().toPrettyString());
+        if (jsonNodeHttpResponse.isSuccess()) {
+            JSONObject data = jsonNodeHttpResponse.getBody().getObject().getJSONObject("data");
+            String serverId = data.getString("server");
+            String invId = data.getString("id");
+            Server server = editor.getServer(serverId);
+            for (ServerInvitation serverInvitation : server.getInvitations()) {
+                if (serverInvitation.getId().equals(invId)) {
+                    server.withoutInvitations(serverInvitation);
+                    break;
+                }
+            }
+        } else {
+            log.error("Received delete server invite response: " + jsonNodeHttpResponse.getBody().toPrettyString());
+            setErrorMessage(Constants.LBL_CANT_DELETE_INVITATION);
+        }
+    }
+
     @Override
     public void close() {
         createButton.setOnAction(null);

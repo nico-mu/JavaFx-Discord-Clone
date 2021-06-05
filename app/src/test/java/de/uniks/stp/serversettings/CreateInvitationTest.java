@@ -234,6 +234,7 @@ public class CreateInvitationTest {
         Platform.runLater(() -> {
             Assertions.assertEquals(clipboard.getString(), "123456789012345");
         });
+        WaitForAsyncUtils.waitForFxEvents();
 
         robot.clickOn("#delete-invite");
 
