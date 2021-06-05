@@ -10,7 +10,6 @@ import java.util.List;
 public class EmoteParserTest {
     @Test
     public void testEmoteParsing() {
-        Assertions.assertEquals(2, EmoteParser.getEmoteMapping().size());
         Assertions.assertEquals("\uD83D\uDE00", EmoteParser.getEmoteMapping().get("grinning_face"));
 
         LinkedList<Triple<Integer, Integer, String>> parsingResult = EmoteParser.parse(":grinning_face:");
@@ -47,6 +46,6 @@ public class EmoteParserTest {
     public void testHasAllEmotes() {
         List<String> allEmoteNames = EmoteParser.getAllEmoteNames();
 
-        Assertions.assertEquals(2, allEmoteNames.size());
+        Assertions.assertEquals(8, allEmoteNames.size());
     }
 }

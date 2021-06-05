@@ -1,7 +1,8 @@
 package de.uniks.stp.component;
 
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
-import javafx.scene.control.Control;
+import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Window;
 
@@ -16,8 +17,10 @@ public class EmotePickerPopup extends Popup {
         this.setHideOnEscape(true);
         this.setConsumeAutoHidingEvents(false);
 
-        this.getContent().add(emotePicker);
-        emotePicker.render();
+        Platform.runLater(() -> {
+            this.getContent().add(emotePicker);
+            emotePicker.render();
+        });
     }
 
     public EmotePickerPopup setOnEmoteClicked(Consumer<String> emoteClickHandler) {
@@ -28,7 +31,7 @@ public class EmotePickerPopup extends Popup {
         return this;
     }
 
-    public void show(Control anchor) {
+    public void show(VBox anchor) {
         Window parent = anchor.getScene().getWindow();
         Point2D origin = anchor.localToScene(0, 0);
         double anchorY = parent.getY() + origin.getY()

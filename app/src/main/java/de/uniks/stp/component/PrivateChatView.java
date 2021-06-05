@@ -6,10 +6,13 @@ import com.jfoenix.controls.JFXPopup;
 import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.emote.EmoteMapping;
+import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.model.Message;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
@@ -20,8 +23,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Popup;
@@ -38,7 +44,7 @@ public class PrivateChatView extends VBox {
     @FXML
     private JFXButton chatViewSubmitButton;
     @FXML
-    private JFXButton chatViewEmojiButton;
+    private VBox chatViewEmojiButton;
     @FXML
     private JFXTextArea chatViewMessageInput;
     @FXML
@@ -63,6 +69,12 @@ public class PrivateChatView extends VBox {
         }
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
         chatViewEmojiButton.setOnMouseClicked(this::onEmoteClicked);
+        EmoteRenderer renderer = new EmoteRenderer();
+        // Image strategy
+        // renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
+        // chatViewEmojiButton.getChildren().addAll(renderer.setSize(26).render(":" + "grinning_face" + ":"));
+        // Default strategy
+        chatViewEmojiButton.getChildren().addAll(renderer.setSize(16).render(":" + "grinning_face" + ":"));
 
         messageList.heightProperty().addListener(heightChangedListener);
 
@@ -70,6 +82,8 @@ public class PrivateChatView extends VBox {
         popup.setOnEmoteClicked((emoteName) -> {
             chatViewMessageInput.appendText(":" + emoteName + ":");
         });
+
+        chatViewMessageScrollPane.setFitToWidth(true);
     }
 
     private void onEmoteClicked(MouseEvent mouseEvent) {
@@ -94,8 +108,8 @@ public class PrivateChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        PrivateChatMessage privateChatMessage = new PrivateChatMessage(message);
-        privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+        PrivateChatMessage privateChatMessage = new PrivateChatMessage();
+        privateChatMessage.loadMessage(message);
 
         Platform.runLater(() -> {
             messageList.getChildren().add(privateChatMessage);
@@ -149,6 +163,8 @@ public class PrivateChatView extends VBox {
         Platform.runLater(() -> {
             chatViewSubmitButton.setDisable(true);
             chatViewMessageInput.setDisable(true);
+            chatViewEmojiButton.setDisable(true);
+            chatViewEmojiButton.setStyle("-fx-background-color: #292C2E;");
         });
     }
 
@@ -156,6 +172,8 @@ public class PrivateChatView extends VBox {
         Platform.runLater(() -> {
             chatViewSubmitButton.setDisable(false);
             chatViewMessageInput.setDisable(false);
+            chatViewEmojiButton.setDisable(false);
+            chatViewEmojiButton.setStyle("-fx-background-color: #23272a;");
         });
     }
 }

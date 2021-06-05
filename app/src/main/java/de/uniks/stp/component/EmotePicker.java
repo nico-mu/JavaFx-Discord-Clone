@@ -3,9 +3,16 @@ package de.uniks.stp.component;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.emote.EmoteRenderer;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextFlow;
@@ -16,14 +23,14 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Flow;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class EmotePicker extends VBox {
-    private static final Logger log = LoggerFactory.getLogger(EmotePicker.class);
-
     @FXML
     private VBox emotePickerContainer;
+
     private Consumer<String> emoteClickHandler;
 
     public EmotePicker() {
@@ -46,18 +53,25 @@ public class EmotePicker extends VBox {
     }
 
     public void render() {
-        TextFlow result = new TextFlow();
+        FlowPane result = new FlowPane();
+        result.setOrientation(Orientation.HORIZONTAL);
+        result.setAlignment(Pos.TOP_LEFT);
+        EmoteRenderer renderer = new EmoteRenderer().setSize(30);
 
         for (String emote: EmoteParser.getAllEmoteNames()) {
-            TextFlow renderedEmote = new EmoteRenderer().setSize(24).render(":" + emote + ":");
+            // LinkedList<Node> nodes = (LinkedList<Node>) renderer.imageEmoteRenderStrategy(emote);
+            LinkedList<Node> nodes = (LinkedList<Node>) renderer.defaultEmoteRenderStrategy(emote);
 
-            renderedEmote.setOnMouseClicked((k) -> {
-                emoteClickHandler.accept(emote);
-            });
-
-            result.getChildren().add(renderedEmote);
+            for (Node node : nodes) {
+                node.setOnMouseClicked((k) -> {
+                    emoteClickHandler.accept(emote);
+                });
+                result.getChildren().add(node);
+            }
         }
 
-        emotePickerContainer.getChildren().add(result);
+        Platform.runLater(() -> {
+            emotePickerContainer.getChildren().add(result);
+        });
     }
 }

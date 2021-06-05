@@ -29,14 +29,11 @@
                      <Insets />
                   </opaqueInsets>
                </JFXTextArea>
-               <JFXButton fx:id="chatViewEmojiButton" minWidth="30.0" prefHeight="40.0" prefWidth="150.0" styleClass="emoji-button" text="😀" textFill="WHITE" HBox.hgrow="ALWAYS">
+               <VBox fx:id="chatViewEmojiButton" alignment="CENTER" minWidth="30.0" prefHeight="40.0" prefWidth="150.0" styleClass="emoji-button">
                   <HBox.margin>
                      <Insets left="-3.0" right="10.0" />
                   </HBox.margin>
-                  <font>
-                     <Font name="System Bold" size="12.0" />
-                  </font>
-               </JFXButton>
+               </VBox>
                <JFXButton fx:id="chatViewSubmitButton" minWidth="100.0" prefHeight="38.0" prefWidth="150.0" styleClass="submit-button" text="%LBL_CHAT_SEND" textFill="WHITE">
                   <font>
                      <Font name="System Bold" size="12.0" />

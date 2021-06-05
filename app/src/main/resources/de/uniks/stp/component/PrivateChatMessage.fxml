@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
-<fx:root xmlns:fx="http://javafx.com/fxml/1" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" stylesheets="@../style/css/component/private-chat-message.css">
+
+<fx:root stylesheets="@../style/css/component/private-chat-message.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <HBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
-        <TextFlow fx:id="text" styleClass="text"/>
+        <TextFlow fx:id="text" styleClass="text" />
     </HBox>
 </fx:root>
