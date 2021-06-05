@@ -2,6 +2,7 @@ package de.uniks.stp.component;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.util.DateUtil;
 import javafx.fxml.FXML;
@@ -9,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -18,7 +20,7 @@ import java.util.Date;
 
 public class PrivateChatMessage extends HBox {
     @FXML
-    private Text text;
+    private TextFlow text;
 
     public PrivateChatMessage(Message message) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
@@ -32,12 +34,20 @@ public class PrivateChatMessage extends HBox {
         }
 
         String infoPart = formatTime(message.getTimestamp()) + " " + message.getSender().getName() + ": ";
-        text.setText(infoPart + message.getMessage());
+        Text infoPartText = new Text(infoPart);
+        infoPartText.setSelectionFill(Paint.valueOf("#AAAAAA"));
+
+        TextFlow renderResult = new EmoteRenderer().render(message.getMessage());
+
+        // text.setText(message.getMessage());
+        text.getChildren().add(infoPartText);
+        text.getChildren().add(renderResult);
 
         // change color of infoPart
-        text.setSelectionStart(0);
+        /* text.setSelectionStart(0);
         text.setSelectionEnd(infoPart.length());
         text.setSelectionFill(Paint.valueOf("#AAAAAA"));  // grayish-white
+         */
     }
 
     private String formatTime(long time) {
@@ -55,6 +65,6 @@ public class PrivateChatMessage extends HBox {
 
     public void setWidthForWrapping(double width) {
         // 20px padding
-        text.setWrappingWidth(width - 20);
+        // text.setWrappingWidth(width - 20);
     }
 }

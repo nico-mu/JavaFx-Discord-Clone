@@ -12,12 +12,12 @@ import java.util.Objects;
 public class TextWithEmoji extends FlowPane {
 
     public TextWithEmoji() {
-        addEmojiImage();
+        // addEmojiImage();
         addText("Hello World");
         this.setAlignment(Pos.CENTER_LEFT);
     }
 
-    private Image loadEmoji(Emojis emoji) {
+    /* private Image loadEmoji(Emojis emoji) {
         final InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emojis/" + emoji));
         return new Image(inputStream);
     }
@@ -30,7 +30,7 @@ public class TextWithEmoji extends FlowPane {
         imageView.setImage(image);
 
         this.getChildren().add(imageView);
-    }
+    }*/
 
     public void addText(String text) {
         this.getChildren().add(new Text(text));

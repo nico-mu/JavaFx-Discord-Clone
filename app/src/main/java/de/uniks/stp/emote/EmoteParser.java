@@ -27,6 +27,10 @@ public class EmoteParser {
         return emoteMapping.containsKey(emoteName);
     }
 
+    public static String getEmoteByName(String emoteName) {
+        return getEmoteMapping().get(emoteName);
+    }
+
     public static LinkedList<Triple<Integer, Integer, String>> parse(String input) {
         LinkedList<Triple<Integer, Integer, String>> parsingResult = new LinkedList<>();
 
@@ -43,18 +47,16 @@ public class EmoteParser {
                 if (isCollectingEmoteName) {
                     lastEmoteStart = index;
                 }
-                index++;
-                continue;
             }
 
             if (!isCollectingEmoteName && isEmoteName(emoteNameBuffer.toString()) && Objects.nonNull(lastEmoteStart)) {
-                parsingResult.add(new Triple<>(lastEmoteStart, index - 1, emoteNameBuffer.toString()));
+                parsingResult.add(new Triple<>(lastEmoteStart, index, emoteNameBuffer.toString()));
                 emoteNameBuffer = new StringBuilder();
                 lastEmoteStart = null;
             } else if (!isCollectingEmoteName && !isEmoteName(emoteNameBuffer.toString())) {
                 emoteNameBuffer = new StringBuilder();
                 lastEmoteStart = null;
-            } else if (isCollectingEmoteName) {
+            } else if (isCollectingEmoteName && character != ':') {
                 emoteNameBuffer.append(character);
             }
 
@@ -62,7 +64,7 @@ public class EmoteParser {
         }
         // Clear emote name buffer
         if (isEmoteName(emoteNameBuffer.toString()) && Objects.nonNull(lastEmoteStart)) {
-            parsingResult.add(new Triple<>(lastEmoteStart, index - 1, emoteNameBuffer.toString()));
+            parsingResult.add(new Triple<>(lastEmoteStart, index, emoteNameBuffer.toString()));
         }
 
         return parsingResult;
