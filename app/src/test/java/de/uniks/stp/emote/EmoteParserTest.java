@@ -5,10 +5,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class EmoteParserTest {
     @Test
-    public void testEmoteParser() {
+    public void testEmoteParsing() {
         Assertions.assertEquals(2, EmoteParser.getEmoteMapping().size());
         Assertions.assertEquals("\uD83D\uDE00", EmoteParser.getEmoteMapping().get("grinning_face"));
 
@@ -40,5 +41,12 @@ public class EmoteParserTest {
         Assertions.assertEquals(0, parsingResult.get(0).getFirst());
         Assertions.assertEquals(28, parsingResult.get(0).getSecond());
         Assertions.assertEquals(29, parsingResult.get(1).getFirst());
+    }
+
+    @Test
+    public void testHasAllEmotes() {
+        List<String> allEmoteNames = EmoteParser.getAllEmoteNames();
+
+        Assertions.assertEquals(2, allEmoteNames.size());
     }
 }

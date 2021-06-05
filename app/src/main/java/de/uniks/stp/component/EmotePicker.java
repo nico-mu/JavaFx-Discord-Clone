@@ -49,9 +49,9 @@ public class EmotePicker extends VBox {
         TextFlow result = new TextFlow();
 
         for (String emote: EmoteParser.getAllEmoteNames()) {
-            TextFlow renderedEmote = new EmoteRenderer().render(":" + emote + ":");
+            TextFlow renderedEmote = new EmoteRenderer().setSize(24).render(":" + emote + ":");
 
-            result.setOnMouseClicked((k) -> {
+            renderedEmote.setOnMouseClicked((k) -> {
                 emoteClickHandler.accept(emote);
             });
 
