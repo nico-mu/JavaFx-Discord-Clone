@@ -83,7 +83,7 @@ public class ServerScreenController implements ControllerInterface {
         items.get(1).setOnAction(this::onEditServerClicked);
         items.get(2).setOnAction(this::onCreateCategoryClicked);
 
-        settingsContextMenu.setStyle("-fx-background-color: #2c2f33");
+        settingsContextMenu.setStyle("-fx-background-color: #2c2f33;" + "-fx-background-radius: 10px;" + "-fx-border-color: #4059a9;" + "-fx-border-radius: 10px;");
         for(MenuItem menuItem : settingsContextMenu.getItems()) {
             menuItem.setStyle("-fx-text-fill: White");
         }
