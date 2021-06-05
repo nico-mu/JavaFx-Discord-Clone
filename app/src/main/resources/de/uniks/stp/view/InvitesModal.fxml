@@ -14,10 +14,10 @@
             <HBox spacing="12.0" stylesheets="@../style/css/component/user-list.css">
                <children>
                   <Label id="invite-link" fx:id="invite" prefWidth="120.0" text="%LBL_INVITATION" />
-                  <ImageView id="copy-invite" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
                   <Label id="invite-until" fx:id="until" prefWidth="84.0" text="%LBL_TYPE" />
                   <Label id="invite-current-max" fx:id="currentMax" prefWidth="120.0" text="%LBL_CURRENT_MAX" />
-                  <ImageView id="delete-invite" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
                </children>
                <padding>
                   <Insets bottom="9.0" />

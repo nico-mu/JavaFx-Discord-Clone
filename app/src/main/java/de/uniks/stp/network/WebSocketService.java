@@ -3,9 +3,6 @@ package de.uniks.stp.network;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.model.*;
-import de.uniks.stp.model.DirectMessage;
-import de.uniks.stp.model.ServerMessage;
-import de.uniks.stp.model.User;
 import de.uniks.stp.notification.NotificationService;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
@@ -309,8 +306,8 @@ public class WebSocketService {
                     String invId = data.getString("id");
                     String servId = data.getString("server");
                     Server server = editor.getServer(servId);
-                    for(ServerInvitation serverInvitation : server.getInvitations()) {
-                        if(serverInvitation.getId().equals(invId)) {
+                    for (ServerInvitation serverInvitation : server.getInvitations()) {
+                        if (serverInvitation.getId().equals(invId)) {
                             server.withoutInvitations(serverInvitation);
                             break;
                         }

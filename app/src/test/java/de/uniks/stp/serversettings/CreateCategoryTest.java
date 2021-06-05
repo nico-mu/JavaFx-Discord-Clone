@@ -71,13 +71,13 @@ public class CreateCategoryTest {
     }
 
     @Test
-    public void testCreateCategory(FxRobot robot){
+    public void testCreateCategory(FxRobot robot) {
         // prepare start situation
         Editor editor = StageManager.getEditor();
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
-        String serverName ="Plattis Server";
-        String serverId ="12345678";
+        String serverName = "Plattis Server";
+        String serverId = "12345678";
         Server server = new Server().setName(serverName).setId(serverId);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
@@ -129,8 +129,8 @@ public class CreateCategoryTest {
         Editor editor = StageManager.getEditor();
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
-        String serverName ="Plattis Server";
-        String serverId ="12345678";
+        String serverName = "Plattis Server";
+        String serverId = "12345678";
         Server server = new Server().setName(serverName).setId(serverId);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
@@ -149,7 +149,7 @@ public class CreateCategoryTest {
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
 
-        for(int i = 0; i < endpoints.size(); i++) {
+        for (int i = 0; i < endpoints.size(); i++) {
             endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
         }
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);

@@ -6,9 +6,6 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.InviteList;
 import de.uniks.stp.component.InviteListEntry;
-import de.uniks.stp.component.UserCheckList;
-import de.uniks.stp.model.Category;
-import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.ServerInvitation;
 import de.uniks.stp.network.NetworkClientInjector;
@@ -74,7 +71,7 @@ public class InvitesModal extends AbstractModal {
         cancelButton.setCancelButton(true);  // use Escape in order to press button
 
         server.listeners().addPropertyChangeListener(Server.PROPERTY_INVITATIONS, this::onServerInvitationsChanged);
-        for(ServerInvitation serverInvitation : server.getInvitations()) {
+        for (ServerInvitation serverInvitation : server.getInvitations()) {
             invitationAdded(serverInvitation);
         }
         restClient.getServerInvitations(server.getId(), this::handleGetServerInvitationsResponse);
@@ -82,7 +79,7 @@ public class InvitesModal extends AbstractModal {
 
     private void handleGetServerInvitationsResponse(HttpResponse<JsonNode> jsonNodeHttpResponse) {
         log.debug("Received get server invites response: " + jsonNodeHttpResponse.getBody().toPrettyString());
-        if(jsonNodeHttpResponse.isSuccess()) {
+        if (jsonNodeHttpResponse.isSuccess()) {
             JSONArray channelsJson = jsonNodeHttpResponse.getBody().getObject().getJSONArray("data");
             for (Object channel : channelsJson) {
                 JSONObject channelJson = (JSONObject) channel;
@@ -94,7 +91,7 @@ public class InvitesModal extends AbstractModal {
                 final String serverId = channelJson.getString("server");
                 editor.getOrCreateServerInvitation(inviteId, inviteLink, type, max, current, serverId);
             }
-        }else {
+        } else {
             setErrorMessage(Constants.LBL_NOT_SERVER_OWNER);
         }
     }
@@ -111,14 +108,14 @@ public class InvitesModal extends AbstractModal {
     }
 
     private void invitationRemoved(ServerInvitation oldValue) {
-        if(Objects.nonNull(oldValue)) {
+        if (Objects.nonNull(oldValue)) {
             InviteListEntry inviteListEntry = inviteListEntryHashMap.remove(oldValue);
             Platform.runLater(() -> inviteList.removeInviteListEntry(inviteListEntry));
         }
     }
 
     private void invitationAdded(ServerInvitation newValue) {
-        if(Objects.nonNull(newValue)) {
+        if (Objects.nonNull(newValue)) {
             InviteListEntry inviteListEntry = new InviteListEntry(newValue, this);
             Platform.runLater(() -> inviteList.addInviteListEntry(inviteListEntry));
             inviteListEntryHashMap.put(newValue, inviteListEntry);

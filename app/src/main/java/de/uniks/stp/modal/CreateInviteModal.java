@@ -83,7 +83,7 @@ public class CreateInviteModal extends AbstractModal {
         setErrorMessage(null);
         String type = timeCheckBox.isSelected() ? "temporal" : "count";
         String maxString = type.equals("temporal") ? "-1" : maxTextField.getText();
-        if(type.equals("count") && maxString.equals("")) {
+        if (type.equals("count") && maxString.equals("")) {
             setErrorMessage(Constants.LBL_MISSING_MAX_VALUE);
             return;
         }
