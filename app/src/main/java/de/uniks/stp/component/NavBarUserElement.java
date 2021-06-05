@@ -4,7 +4,6 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.NavBarHomeElementActiveEvent;
 import de.uniks.stp.model.User;
-import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.scene.control.Tooltip;

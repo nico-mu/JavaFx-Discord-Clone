@@ -3,6 +3,7 @@ package de.uniks.stp.controller;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
@@ -70,6 +71,7 @@ public class CreateChannelTest {
         NetworkClientInjector.setWebSocketClient(webSocketMock);
         StageManager app = new StageManager();
         app.start(stage);
+        DatabaseService.clearAllConversations();
     }
 
     @Test
@@ -93,6 +95,8 @@ public class CreateChannelTest {
         String categoryName = "TestCategory";
         String categoryId = "catId123";
         Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
+
+        WaitForAsyncUtils.waitForFxEvents();
 
         // assert correct start situation
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());

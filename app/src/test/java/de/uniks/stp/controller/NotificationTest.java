@@ -4,6 +4,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.component.NavBarUserElement;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -82,6 +83,7 @@ public class NotificationTest {
         NetworkClientInjector.setWebSocketClient(webSocketMock);
         StageManager app = new StageManager();
         app.start(stage);
+        DatabaseService.clearAllConversations();
     }
 
     @Test
@@ -288,6 +290,24 @@ public class NotificationTest {
         Platform.runLater(() -> Router.routeWithArgs(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgs));
         WaitForAsyncUtils.waitForFxEvents();
 
+        // handle rest calls that are made when initializing ServerView
+        when(catRes.getBody()).thenReturn(new JsonNode(jCat.toString()));
+        when(catRes.isSuccess()).thenReturn(true);
+
+        verify(restMock).getCategories(eq(serverId), catCallbackCaptor.capture());
+        Callback<JsonNode> catCallback = catCallbackCaptor.getValue();
+        catCallback.completed(catRes);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(true);
+
+        verify(restMock).getChannels(eq(serverId), eq(categoryId), callbackCaptor.capture());
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+        WaitForAsyncUtils.waitForFxEvents();
+
+
         Assertions.assertEquals(2, NotificationService.getServerNotificationCount(server));
         for (Channel c : server.getChannels()) {
             if (c.getId().equals(channelOneId)) {
@@ -325,21 +345,5 @@ public class NotificationTest {
                 Assertions.assertEquals(0, NotificationService.getPublisherNotificationCount(c));
             }
         }
-
-        when(catRes.getBody()).thenReturn(new JsonNode(jCat.toString()));
-        when(catRes.isSuccess()).thenReturn(true);
-
-        verify(restMock).getCategories(eq(serverId), catCallbackCaptor.capture());
-        Callback<JsonNode> catCallback = catCallbackCaptor.getValue();
-        catCallback.completed(catRes);
-        WaitForAsyncUtils.waitForFxEvents();
-
-        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-        when(res.isSuccess()).thenReturn(true);
-
-        verify(restMock).getChannels(eq(serverId), eq(categoryId), callbackCaptor.capture());
-        Callback<JsonNode> callback = callbackCaptor.getValue();
-        callback.completed(res);
-        WaitForAsyncUtils.waitForFxEvents();
     }
 }

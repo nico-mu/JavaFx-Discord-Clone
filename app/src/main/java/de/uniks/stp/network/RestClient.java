@@ -7,7 +7,6 @@ import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
