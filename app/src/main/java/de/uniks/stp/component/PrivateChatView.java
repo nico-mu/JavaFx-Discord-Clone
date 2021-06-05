@@ -48,6 +48,7 @@ public class PrivateChatView extends VBox {
 
     private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
+    private final EmotePickerPopup popup = new EmotePickerPopup();
 
     public PrivateChatView() {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.PRIVATE_CHAT_VIEW);
@@ -61,15 +62,17 @@ public class PrivateChatView extends VBox {
             throw new RuntimeException(exception);
         }
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
-        chatViewEmojiButton.setOnMouseClicked(this::onEmojiClicked);
+        chatViewEmojiButton.setOnMouseClicked(this::onEmoteClicked);
 
         messageList.heightProperty().addListener(heightChangedListener);
 
         chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
+        popup.setOnEmoteClicked((emoteName) -> {
+            chatViewMessageInput.appendText(":" + emoteName + ":");
+        });
     }
 
-    private void onEmojiClicked(MouseEvent mouseEvent) {
-        EmotePickerPopup popup = new EmotePickerPopup();
+    private void onEmoteClicked(MouseEvent mouseEvent) {
         popup.show(chatViewEmojiButton);
     }
 
@@ -93,7 +96,6 @@ public class PrivateChatView extends VBox {
 
         PrivateChatMessage privateChatMessage = new PrivateChatMessage(message);
         privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
-        // TextWithEmoji privateChatMessage = new TextWithEmoji();
 
         Platform.runLater(() -> {
             messageList.getChildren().add(privateChatMessage);

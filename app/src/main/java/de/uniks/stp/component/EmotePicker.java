@@ -1,11 +1,13 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.emote.EmoteRenderer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class EmotePicker extends VBox {
@@ -21,8 +24,7 @@ public class EmotePicker extends VBox {
 
     @FXML
     private VBox emotePickerContainer;
-
-    private Function<String, Node> renderStrategy;
+    private Consumer<String> emoteClickHandler;
 
     public EmotePicker() {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.EMOTE_PICKER);
@@ -38,36 +40,24 @@ public class EmotePicker extends VBox {
         this.setWidth(400);
     }
 
-    public EmotePicker setRenderStrategy(Function<String, Node> renderStrategy) {
-        this.renderStrategy = renderStrategy;
+    public EmotePicker setOnEmoteClicked(Consumer<String> emoteClickHandler) {
+        this.emoteClickHandler = emoteClickHandler;
         return this;
     }
 
     public void render() {
-        if (Objects.isNull(renderStrategy)) {
-            renderStrategy = this::defaultRenderStrategy;
-        }
-
-        List<String> emotes = new LinkedList<>();
-        emotes.add("Emoji1");
         TextFlow result = new TextFlow();
 
-        for (String emote: emotes) {
-            result.getChildren().add(renderStrategy.apply(emote));
+        for (String emote: EmoteParser.getAllEmoteNames()) {
+            TextFlow renderedEmote = new EmoteRenderer().render(":" + emote + ":");
+
+            result.setOnMouseClicked((k) -> {
+                emoteClickHandler.accept(emote);
+            });
+
+            result.getChildren().add(renderedEmote);
         }
 
         emotePickerContainer.getChildren().add(result);
-    }
-
-    private TextFlow defaultRenderStrategy(String emote) {
-        /* Label label = new Label("\uD83D\uDE04");
-        label.setOnMouseClicked((k) -> System.out.println("Clicked"));
-        label.setStyle("-fx-text-fill: white");/*
-         */
-        TextFlow result = new EmoteRenderer().render("");
-
-        log.debug("{}", result.getChildren().size());
-
-        return result;
     }
 }

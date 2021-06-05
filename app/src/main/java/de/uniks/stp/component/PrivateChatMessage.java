@@ -35,7 +35,7 @@ public class PrivateChatMessage extends HBox {
 
         String infoPart = formatTime(message.getTimestamp()) + " " + message.getSender().getName() + ": ";
         Text infoPartText = new Text(infoPart);
-        infoPartText.setSelectionFill(Paint.valueOf("#AAAAAA"));
+        infoPartText.setFill(Paint.valueOf("#AAAAAA"));
 
         TextFlow renderResult = new EmoteRenderer().render(message.getMessage());
 

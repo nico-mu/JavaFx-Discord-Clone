@@ -6,10 +6,7 @@ import javafx.scene.text.TextFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class EmoteParser {
     private static final Logger log = LoggerFactory.getLogger(EmoteParser.class);
@@ -29,6 +26,10 @@ public class EmoteParser {
 
     public static String getEmoteByName(String emoteName) {
         return getEmoteMapping().get(emoteName);
+    }
+
+    public static List<String> getAllEmoteNames() {
+        return new LinkedList<>(emoteMapping.keySet());
     }
 
     public static LinkedList<Triple<Integer, Integer, String>> parse(String input) {
