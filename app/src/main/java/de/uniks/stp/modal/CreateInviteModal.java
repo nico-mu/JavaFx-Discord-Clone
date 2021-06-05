@@ -64,6 +64,7 @@ public class CreateInviteModal extends AbstractModal {
         timeCheckBox.setOnAction(this::onTimeCheckBoxClicked);
         maxCheckBox.setOnAction(this::onMaxCheckBoxClicked);
         timeCheckBox.setSelected(true);
+        maxTextField.setDisable(true);
         maxTextField.textProperty().addListener(((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 maxTextField.setText(newValue.replaceAll("[^\\d]", ""));
@@ -73,10 +74,12 @@ public class CreateInviteModal extends AbstractModal {
 
     private void onMaxCheckBoxClicked(ActionEvent actionEvent) {
         timeCheckBox.setSelected(!maxCheckBox.isSelected());
+        maxTextField.setDisable(false);
     }
 
     private void onTimeCheckBoxClicked(ActionEvent actionEvent) {
         maxCheckBox.setSelected(!timeCheckBox.isSelected());
+        maxTextField.setDisable(true);
     }
 
     private void onCreatButtonClicked(ActionEvent actionEvent) {
