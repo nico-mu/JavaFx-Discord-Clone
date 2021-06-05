@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketClient;
 import de.uniks.stp.router.Router;
@@ -52,6 +53,7 @@ public class LoginTest {
         NetworkClientInjector.setWebSocketClient(webSocketMock);
         StageManager app = new StageManager();
         app.start(stage);
+        DatabaseService.clearAllConversations();
     }
 
     private void clearNameField(FxRobot robot) {

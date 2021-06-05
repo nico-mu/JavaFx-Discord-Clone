@@ -1,7 +1,10 @@
 package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXPopup;
 import com.jfoenix.controls.JFXTextArea;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Message;
 import javafx.application.Platform;
@@ -9,11 +12,20 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Point2D;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.stage.Popup;
+import javafx.stage.Window;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -26,6 +38,8 @@ public class PrivateChatView extends VBox {
     @FXML
     private JFXButton chatViewSubmitButton;
     @FXML
+    private JFXButton chatViewEmojiButton;
+    @FXML
     private JFXTextArea chatViewMessageInput;
     @FXML
     private ScrollPane chatViewMessageScrollPane;
@@ -36,22 +50,27 @@ public class PrivateChatView extends VBox {
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
 
     public PrivateChatView() {
-
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.PRIVATE_CHAT_VIEW);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+        this.setId("chat-view");
 
         try {
             fxmlLoader.load();
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
+        chatViewEmojiButton.setOnMouseClicked(this::onEmojiClicked);
 
         messageList.heightProperty().addListener(heightChangedListener);
 
         chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
+    }
+
+    private void onEmojiClicked(MouseEvent mouseEvent) {
+        EmotePickerPopup popup = new EmotePickerPopup();
+        popup.show(chatViewEmojiButton);
     }
 
     /**
@@ -72,9 +91,9 @@ public class PrivateChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        // PrivateChatMessage privateChatMessage = new PrivateChatMessage(message);
-        // privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
-        TextWithEmoji privateChatMessage = new TextWithEmoji();
+        PrivateChatMessage privateChatMessage = new PrivateChatMessage(message);
+        privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+        // TextWithEmoji privateChatMessage = new TextWithEmoji();
 
         Platform.runLater(() -> {
             messageList.getChildren().add(privateChatMessage);
@@ -122,5 +141,19 @@ public class PrivateChatView extends VBox {
 
     private void onHeightChanged(Observable observable) {
         chatViewMessageScrollPane.setVvalue(1.0);
+    }
+
+    public void disable() {
+        Platform.runLater(() -> {
+            chatViewSubmitButton.setDisable(true);
+            chatViewMessageInput.setDisable(true);
+        });
+    }
+
+    public void enable() {
+        Platform.runLater(() -> {
+            chatViewSubmitButton.setDisable(false);
+            chatViewMessageInput.setDisable(false);
+        });
     }
 }

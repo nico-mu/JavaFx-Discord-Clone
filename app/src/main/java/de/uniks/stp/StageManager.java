@@ -73,6 +73,10 @@ public class StageManager extends Application {
         return editor;
     }
 
+    public static Stage getStage() {
+        return stage;
+    }
+
     private void onLanguagePropertyChange(final PropertyChangeEvent languageChangeEvent) {
         final Languages newLanguage = Languages.fromKeyOrDefault((String) languageChangeEvent.getNewValue());
         ViewLoader.changeLanguage(newLanguage);
