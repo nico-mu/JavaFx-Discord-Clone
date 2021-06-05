@@ -83,6 +83,11 @@ public class ServerScreenController implements ControllerInterface {
         items.get(1).setOnAction(this::onEditServerClicked);
         items.get(2).setOnAction(this::onCreateCategoryClicked);
 
+        settingsContextMenu.setStyle("-fx-background-color: #2c2f33");
+        for(MenuItem menuItem : settingsContextMenu.getItems()) {
+            menuItem.setStyle("-fx-text-fill: White");
+        }
+
         settingsGearLabel.setOnMouseClicked(e -> settingsContextMenu.show(settingsGearLabel, Side.BOTTOM, 0, 0));
 
         categoryListController = new ServerCategoryListController(serverChannelOverview, editor, model);
