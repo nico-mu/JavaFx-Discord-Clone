@@ -155,4 +155,9 @@ public class RestClient {
                 .add("max", max).build().toString());
         sendRequest(req, callback);
     }
+
+    public void deleteServerInvitation(String serverId, String invId, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH + "/" + invId);
+        sendRequest(req, callback);
+    }
 }

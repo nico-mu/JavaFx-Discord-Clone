@@ -124,7 +124,7 @@ public class ServerScreenController implements ControllerInterface {
 
     private void onInviteUserClicked(ActionEvent actionEvent) {
         Parent invitesModalView = ViewLoader.loadView(Views.INVITES_MODAL);
-        InvitesModal invitesModal = new InvitesModal(invitesModalView, model);
+        InvitesModal invitesModal = new InvitesModal(invitesModalView, model, editor);
         invitesModal.show();
     }
 

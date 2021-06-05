@@ -224,4 +224,16 @@ public class Editor {
         List<User> currentUsers = new ArrayList<User>(accord.getOtherUsers());
         accord.withoutOtherUsers(currentUsers);
     }
+
+    public ServerInvitation getOrCreateServerInvitation(String invId, String link, String type, int max, int current,String serverId) {
+        Server server = getServer(serverId);
+        for (ServerInvitation serverInvitation : server.getInvitations()) {
+            if(serverInvitation.getId().equals(invId)) {
+                serverInvitation.setCurrent(current);
+                return serverInvitation;
+            }
+        }
+        ServerInvitation newInvite = new ServerInvitation().setId(invId).setLink(link).setType(type).setMax(max).setCurrent(current).setServer(server);
+        return newInvite;
+    }
 }

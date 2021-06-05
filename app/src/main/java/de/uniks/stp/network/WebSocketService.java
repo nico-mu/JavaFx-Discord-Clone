@@ -305,6 +305,17 @@ public class WebSocketService {
                         }
                     }
                     return;
+                case "inviteExpired":
+                    String invId = data.getString("id");
+                    String servId = data.getString("server");
+                    Server server = editor.getServer(servId);
+                    for(ServerInvitation serverInvitation : server.getInvitations()) {
+                        if(serverInvitation.getId().equals(invId)) {
+                            server.withoutInvitations(serverInvitation);
+                            break;
+                        }
+                    }
+                    return;
                 default:
                     break;
             }

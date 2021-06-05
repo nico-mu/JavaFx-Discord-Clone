@@ -69,6 +69,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("server")
         List<Channel> channels;
+
+        @Link("server")
+        List<ServerInvitation> invitations;
     }
 
     class Category {
@@ -118,5 +121,15 @@ public class GenModel implements ClassModelDecorator {
     class DirectMessage extends Message {
         @Link("privateChatMessages")
         User receiver;
+    }
+
+    class ServerInvitation {
+        String id;
+        String link;
+        String type;
+        int max;
+        int current;
+        @Link("invitations")
+        Server server;
     }
 }

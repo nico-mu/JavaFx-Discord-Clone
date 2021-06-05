@@ -8,18 +8,18 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="12.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="12.0" styleClass="modal" stylesheets="@../style/css/view/create-invite-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <padding>
       <Insets bottom="24.0" left="60.0" right="60.0" top="48.0" />
    </padding>
    <children>
-      <JFXCheckBox id="create-invite-time" text="%LBL_CREATE_INVITATION_TIME" />
-      <JFXCheckBox id="create-invide-max" text="%LBL_MAX" />
-      <JFXTextField id="create-invite-max-textfield" maxWidth="120.0" prefWidth="120.0" />
+      <JFXCheckBox id="create-invite-time" styleClass="checkbox" text="%LBL_CREATE_INVITATION_TIME" />
+      <JFXCheckBox id="create-invide-max" styleClass="checkbox" text="%LBL_MAX" />
+      <JFXTextField id="create-invite-max-textfield" maxWidth="120.0" prefWidth="120.0" styleClass="textfield" />
       <HBox alignment="CENTER" spacing="120.0">
          <children>
-            <JFXButton id="create-invite-create" text="%LBL_CREATE" />
-            <JFXButton id="create-invite-cancel" text="%LBL_CANCEL" />
+            <JFXButton id="create-invite-create" styleClass="add-channel-create-button" text="%LBL_CREATE" />
+            <JFXButton id="create-invite-cancel" styleClass="add-channel-cancel-button" text="%LBL_CANCEL" />
          </children>
          <VBox.margin>
             <Insets bottom="12.0" top="24.0" />
@@ -27,7 +27,7 @@
       </HBox>
       <HBox alignment="CENTER">
          <children>
-            <Label id="create-invite-error" />
+            <Label id="create-invite-error" styleClass="error" />
          </children>
       </HBox>
    </children>
