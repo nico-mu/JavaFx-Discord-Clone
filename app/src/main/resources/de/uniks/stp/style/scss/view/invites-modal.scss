@@ -1,0 +1,31 @@
+@import "../base";
+
+.modal {
+  -fx-background-color: $secondary-background-color;
+}
+
+.list-container {
+  @include secondary-container-mixin;
+  -fx-background-color: $main-background-color;
+}
+
+.label {
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}
+
+.create-button {
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}
+
+.cancel-button {
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}
+
+.error {
+  -fx-text-fill: $error-text-fill;
+}

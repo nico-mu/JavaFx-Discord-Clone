@@ -4,7 +4,9 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
+import de.uniks.stp.modal.AddChannelModal;
 import de.uniks.stp.modal.CreateCategoryModal;
+import de.uniks.stp.modal.InvitesModal;
 import de.uniks.stp.modal.ServerSettingsModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
@@ -121,7 +123,9 @@ public class ServerScreenController implements ControllerInterface {
     }
 
     private void onInviteUserClicked(ActionEvent actionEvent) {
-        // ToDo
+        Parent invitesModalView = ViewLoader.loadView(Views.INVITES_MODAL);
+        InvitesModal invitesModal = new InvitesModal(invitesModalView, model, editor);
+        invitesModal.show();
     }
 
     private void onEditServerClicked(ActionEvent actionEvent) {

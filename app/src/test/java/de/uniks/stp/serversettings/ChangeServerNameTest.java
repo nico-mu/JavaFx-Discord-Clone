@@ -1,14 +1,8 @@
 package de.uniks.stp.serversettings;
 
-import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
-import de.uniks.stp.ViewLoader;
-import de.uniks.stp.component.ServerCategoryElement;
-import de.uniks.stp.component.ServerCategoryList;
-import de.uniks.stp.model.Category;
-import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.*;
@@ -16,13 +10,10 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
-import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -79,13 +70,13 @@ public class ChangeServerNameTest {
     }
 
     @Test
-    public void testChangeServerName(FxRobot robot){
+    public void testChangeServerName(FxRobot robot) {
         // prepare start situation
         Editor editor = StageManager.getEditor();
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
-        String oldName ="Shitty Name";
-        String serverId ="12345678";
+        String oldName = "Shitty Name";
+        String serverId = "12345678";
         editor.getOrCreateAccord()
             .getCurrentUser()
             .withAvailableServers(new Server().setName(oldName).setId(serverId));
@@ -130,8 +121,8 @@ public class ChangeServerNameTest {
     @Test
     public void testServerNameChangedMessage(FxRobot robot) {
         final String SERVER_ID = "12345678";
-        final String OLD_NAME= "Shitty Name";
-        final String NEW_NAME= "Nice Name";
+        final String OLD_NAME = "Shitty Name";
+        final String NEW_NAME = "Nice Name";
 
         // prepare start situation
         Editor editor = StageManager.getEditor();
@@ -156,7 +147,7 @@ public class ChangeServerNameTest {
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
 
-        for(int i = 0; i < endpoints.size(); i++) {
+        for (int i = 0; i < endpoints.size(); i++) {
             endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
         }
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + SERVER_ID);

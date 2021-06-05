@@ -61,7 +61,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     @Override
     public void init() {
-        vBox = (VBox)view;
+        vBox = (VBox) view;
         vBox.getChildren().add(serverCategoryList);
         serverCategoryList.setPrefHeight(vBox.getPrefHeight());
 
@@ -71,7 +71,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     }
 
     private void handleCategories(HttpResponse<JsonNode> response) {
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             JSONArray categoriesJson = response.getBody().getObject().getJSONArray("data");
             for (Object category : categoriesJson) {
                 JSONObject categoryJson = (JSONObject) category;
@@ -82,8 +82,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                 categoryAdded(categoryModel);
                 restClient.getChannels(model.getId(), categoryId, this::handleChannels);
             }
-        }
-        else {
+        } else {
             //TODO: show error message
         }
     }
@@ -117,7 +116,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     }
 
     private void handleChannels(HttpResponse<JsonNode> response) {
-        if(response.isSuccess()) {
+        if (response.isSuccess()) {
             JSONArray channelsJson = response.getBody().getObject().getJSONArray("data");
             for (Object channel : channelsJson) {
                 JSONObject channelJson = (JSONObject) channel;
@@ -136,8 +135,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                 }
                 channelAdded(categoryModel, channelModel);
             }
-        }
-        else {
+        } else {
             //TODO: show error message
         }
     }
@@ -153,7 +151,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         }
     }
 
-    private void channelRemoved(final Category category , final Channel channel) {
+    private void channelRemoved(final Category category, final Channel channel) {
         if (Objects.nonNull(category) && Objects.nonNull(channel) && channelElementHashMap.containsKey(channel)) {
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
@@ -171,7 +169,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             Platform.runLater(() -> serverCategoryElement.addChannelElement(serverChannelElement));
             serverChannelElement.setNotificationCount(NotificationService.getPublisherNotificationCount(channel));
             // show ServerChatView of first loaded channel
-            if(firstChannel){
+            if (firstChannel) {
                 firstChannel = false;
 
                 serverCategoryList.setActiveElement(serverChannelElement);
@@ -190,7 +188,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     public void stop() {
         model.listeners().removePropertyChangeListener(PROPERTY_CATEGORIES, categoriesPropertyChangeListener);
 
-        for (Category category: model.getCategories()) {
+        for (Category category : model.getCategories()) {
             category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
         }
         channelElementHashMap.clear();
