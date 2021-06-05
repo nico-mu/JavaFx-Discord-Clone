@@ -263,6 +263,7 @@ public class CreateChannelTest {
 
         robot.clickOn("#category-head-label");
         WaitForAsyncUtils.waitForFxEvents();
+        robot.point("#add-channel-plus");
         robot.clickOn("#add-channel-plus");
 
         String channelName = "TestChannel";

@@ -16,7 +16,8 @@ public enum Components {
     SERVER_CATEGORY_ELEMENT("ServerCategoryElement.fxml"),
     SERVER_CHANNEL_ELEMENT("ServerChannelElement.fxml"),
     USER_CHECK_LIST_ENTRY("UserCheckListEntry.fxml"),
-    EMOTE_PICKER("EmotePicker.fxml");
+    EMOTE_PICKER("EmotePicker.fxml"),
+    INVITE_LIST_ENTRY("InviteListEntry.fxml");
 
 
     public final URL path;

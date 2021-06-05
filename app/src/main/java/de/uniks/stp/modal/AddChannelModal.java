@@ -107,7 +107,7 @@ public class AddChannelModal extends AbstractModal {
     }
 
     private void handleCreateChannelResponse(HttpResponse<JsonNode> jsonNodeHttpResponse) {
-        log.debug("Received create server response: " + jsonNodeHttpResponse.getBody().toPrettyString());
+        log.debug("Received create channel response: " + jsonNodeHttpResponse.getBody().toPrettyString());
 
         if (jsonNodeHttpResponse.isSuccess()) {
             Platform.runLater(this::close);

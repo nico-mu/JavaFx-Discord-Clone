@@ -88,6 +88,19 @@ public class ServerChatView extends VBox {
         });
     }
 
+    public void insertMessage(int pos, ServerMessage message) {
+        Objects.requireNonNull(messageList);
+        Objects.requireNonNull(message);
+
+        ServerChatMessage chatMessage = new ServerChatMessage(message);
+        chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+
+
+        Platform.runLater(() -> {
+            messageList.getChildren().add(pos, chatMessage);
+        });
+    }
+
     /**
      * Enter typed -> press send Button | Shift-Enter typed -> add new line
      * @param keyEvent
