@@ -76,12 +76,13 @@ public class ServerChatController implements ControllerInterface {
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
         serverChatVBox.getChildren().add(chatView);
 
-        if(model.getMessages().size() < 20){
-            loadMessages(new ActionEvent());
-        } else{
+        if(model.getMessages().size() != 0) {
             for (ServerMessage message : model.getMessages()) {
                 chatView.appendMessage(message);
             }
+        }
+        if(model.getMessages().size() < 20){
+            loadMessages(new ActionEvent());  //load old messages to fill initial view
         }
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
     }
@@ -102,7 +103,19 @@ public class ServerChatController implements ControllerInterface {
 
     private void handleNewMessage(PropertyChangeEvent propertyChangeEvent) {
         ServerMessage msg = (ServerMessage) propertyChangeEvent.getNewValue();
-        chatView.appendMessage(msg);
+        Channel source = (Channel) propertyChangeEvent.getSource();
+
+        if(source.getMessages().last().equals(msg)) {
+            // append message
+            chatView.appendMessage(msg);
+
+        }
+        else {
+            // prepend message
+            int insertPos = source.getMessages().headSet(msg).size();
+            chatView.insertMessage(insertPos, msg);
+        }
+
     }
 
     /**
@@ -113,8 +126,7 @@ public class ServerChatController implements ControllerInterface {
         // timestamp = min timestamp of messages in model. If no messages in model, timestamp = now
         long timestamp = new Date().getTime();
         if(model.getMessages().size() > 0){
-            Comparator<Message> messageComparator = Comparator.comparingLong(Message::getTimestamp);
-            timestamp = Collections.min(model.getMessages(), messageComparator).getTimestamp();
+            timestamp = model.getMessages().first().getTimestamp();
         }
 
         NetworkClientInjector.getRestClient().getServerChannelMessages(model.getCategory().getServer().getId(),
@@ -132,16 +144,13 @@ public class ServerChatController implements ControllerInterface {
         if (response.isSuccess()) {
             JSONArray messagesJson = response.getBody().getObject().getJSONArray("data");
 
-            if(messagesJson.length() < 50){
-                //when there are no older messages to show
+            if (messagesJson.length() < 50) {
+                // when there are no older messages to show
                 chatView.removeLoadMessagesButton();  //alternative: show note or disable button
                 if(messagesJson.length() == 0) {
                     return;
                 }
             }
-
-            //disable adding new messages to the view for a moment
-            model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
 
             // create messages
             for (Object msgObject : messagesJson) {
@@ -164,19 +173,8 @@ public class ServerChatController implements ControllerInterface {
 
                 ServerMessage msg = new ServerMessage();
                 msg.setMessage(msgText).setTimestamp(timestamp).setId(msgId).setSender(sender);
-                msg.setChannel(model);
+                msg.setChannel(model);  //message will be added to view by PropertyChangeListener
             }
-
-            //show messages in chat
-            Platform.runLater(()->{
-                chatView.clearMessages();
-                for (ServerMessage message : model.getMessages()) {
-                    chatView.appendMessage(message);
-                }
-            });
-
-            //enable adding new messages to the view again
-            model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
         } else {
             log.error("receiving old messages failed!");
         }
