@@ -7,7 +7,6 @@ public enum Components {
     USER_LIST_ENTRY("UserListEntry.fxml"),
     NAV_BAR_ELEMENT("NavBarElement.fxml"),
     NAV_BAR_LIST("NavBarList.fxml"),
-    USER_LIST_SIDEBAR_ENTRY("UserListSidebarEntry.fxml"),
     PRIVATE_CHAT_VIEW("PrivateChatView.fxml"),
     SERVER_CHAT_VIEW("ServerChatView.fxml"),
     CHAT_MESSAGE("PrivateChatMessage.fxml"),

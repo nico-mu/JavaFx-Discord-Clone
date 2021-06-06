@@ -3,8 +3,6 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -30,15 +28,7 @@
                         <Insets top="15.0" />
                      </VBox.margin>
                   </Label>
-                  <ScrollPane id="dm-user-list" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
-                     <content>
-                        <VBox>
-                           <padding>
-                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                           </padding>
-                        </VBox>
-                     </content>
-                  </ScrollPane>
+                  <VBox id="direct-messages-container" prefHeight="369.0" prefWidth="188.0" />
                </children>
             </VBox>
          </children></AnchorPane>
