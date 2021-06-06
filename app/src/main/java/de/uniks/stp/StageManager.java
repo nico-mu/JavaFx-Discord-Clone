@@ -53,6 +53,7 @@ public class StageManager extends Application {
             currentController = new MainScreenController(root, editor);
             currentController.init();
             scene = new Scene(root);
+            scene.getStylesheets().add(StageManager.class.getResource("/de/uniks/stp/style/css/component/context-menu.css").toExternalForm());
             stage.setTitle("Accord");
             stage.setScene(scene);
             stage.centerOnScreen();

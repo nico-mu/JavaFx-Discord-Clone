@@ -1,0 +1,22 @@
+@import "../base";
+
+.context-menu {
+  -fx-background-color: $secondary-background-color;
+  -fx-background-radius: 10px;
+  -fx-border-color: $button-color;
+  -fx-border-radius: 10px;
+}
+
+.menu-item .label{
+  -fx-text-fill: $primary-text-fill;
+}
+
+.menu-item:hover{
+  -fx-background-color: $button-color;
+  -fx-background-radius: 10px;
+}
+
+.menu-item:focused {
+  -fx-background-color: $button-color;
+  -fx-background-radius: 10px;
+}
