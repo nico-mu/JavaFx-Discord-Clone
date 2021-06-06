@@ -5,10 +5,14 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
+import de.uniks.stp.component.DirectMessageList;
 import de.uniks.stp.component.UserList;
-import de.uniks.stp.component.UserListSidebarEntry;
+import de.uniks.stp.component.DirectMessageEntry;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.User;
+import de.uniks.stp.notification.NotificationEvent;
+import de.uniks.stp.notification.NotificationService;
+import de.uniks.stp.notification.SubscriberInterface;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
@@ -35,19 +39,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HomeScreenController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(HomeScreenController.class);
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
+    private static final String DIRECT_MESSAGE_CONTAINER_ID = "#direct-messages-container";
     private static final String TOGGLE_ONLINE_BUTTON_ID = "#toggle-online-button";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
-    private static final String AVAILABLE_DM_USERS_ID = "#dm-user-list";
 
     private final AnchorPane view;
     private final Editor editor;
-    private final Map<String, Boolean> knownUsers = new ConcurrentHashMap<>();
     private VBox onlineUsersContainer;
+    private VBox directMessagesContainer;
     private JFXButton showOnlineUsersButton;
     private Label homeScreenLabel;
-    private VBox directMessageUsersList;
-    private final PropertyChangeListener chatPartnerChangeListener = this::onChatPartnerChanged;
     private UserListController userListController;
+    private DirectMessageListController directMessageListController;
     private final HashMap<String, String> directMessagePartner = new HashMap<>();
 
     HomeScreenController(Parent view, Editor editor) {
@@ -62,23 +65,22 @@ public class HomeScreenController implements ControllerInterface {
 
         showOnlineUsersButton = (JFXButton) homeScreenView.lookup(TOGGLE_ONLINE_BUTTON_ID);
         onlineUsersContainer = (VBox) homeScreenView.lookup(ONLINE_USERS_CONTAINER_ID);
+        directMessagesContainer = (VBox) homeScreenView.lookup(DIRECT_MESSAGE_CONTAINER_ID);
         homeScreenLabel = (Label) homeScreenView.lookup(HOME_SCREEN_LABEL_ID);
-        ScrollPane directMessageUsersListScroll = (ScrollPane) homeScreenView.lookup(AVAILABLE_DM_USERS_ID);
-        directMessageUsersList = (VBox) directMessageUsersListScroll.getContent();
 
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
 
+        DirectMessageList directMessageList = new DirectMessageList();
+        directMessageListController = new DirectMessageListController(directMessageList, editor);
+        directMessageListController.init();
+        Platform.runLater(() -> directMessagesContainer.getChildren().add(directMessageList));
         User currentUser = editor.getOrCreateAccord().getCurrentUser();
-        currentUser
-            .listeners()
-            .addPropertyChangeListener(User.PROPERTY_CHAT_PARTNER, chatPartnerChangeListener);
-
         for (Pair<String, String> chatPartner : DatabaseService.getAllConversationPartnerOf(currentUser.getName())) {
             String chatPartnerId = chatPartner.getKey();
             String chatPartnerName = chatPartner.getValue();
             User user = editor.getOrCreateChatPartnerOfCurrentUser(chatPartnerId, chatPartnerName);
 
-            addUserToSidebar(user);
+            directMessageListController.addUserToSidebar(user);
             directMessagePartner.put(chatPartnerId, chatPartnerName);
         }
     }
@@ -93,7 +95,7 @@ public class HomeScreenController implements ControllerInterface {
 
             if (Objects.nonNull(otherUser)) {
                 editor.getOrCreateChatPartnerOfCurrentUser(userId, otherUser.getName());
-                addUserToSidebar(otherUser);
+                directMessageListController.addUserToSidebar(otherUser);
             }
 
             String userName = directMessagePartner.get(userId);
@@ -127,11 +129,12 @@ public class HomeScreenController implements ControllerInterface {
         if (Objects.nonNull(userListController)) {
             userListController.stop();
         }
+        if (Objects.nonNull(directMessageListController)) {
+            directMessageListController.stop();
+        }
+        directMessagesContainer.getChildren().clear();
         showOnlineUsersButton.setOnMouseClicked(null);
-        editor.getOrCreateAccord()
-            .getCurrentUser()
-            .listeners()
-            .removePropertyChangeListener(User.PROPERTY_CHAT_PARTNER, chatPartnerChangeListener);
+
     }
 
     private void subviewCleanup() {
@@ -140,31 +143,5 @@ public class HomeScreenController implements ControllerInterface {
 
     private void handleShowOnlineUsersClicked(MouseEvent mouseEvent) {
         Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
-    }
-
-    private void addUserToSidebar(User otherUser) {
-        if (Objects.isNull(otherUser)) {
-            return;
-        }
-
-        String id = otherUser.getId();
-
-        // Check if user is already in the list
-        if (knownUsers.containsKey(id)) {
-            return;
-        }
-        knownUsers.put(id, true);
-
-        // Add to known users sidebar
-        UserListSidebarEntry userListEntry = new UserListSidebarEntry(otherUser);
-
-        Platform.runLater(() -> {
-            directMessageUsersList.getChildren().add(userListEntry);
-        });
-    }
-
-    private void onChatPartnerChanged(PropertyChangeEvent propertyChangeEvent) {
-        User user = (User) propertyChangeEvent.getNewValue();
-        addUserToSidebar(user);
     }
 }

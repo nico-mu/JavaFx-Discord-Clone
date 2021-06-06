@@ -170,7 +170,7 @@ public class NotificationTest {
 
         Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(userTwo));
         robot.clickOn("#home-button");
-        robot.clickOn("#" + userTwo.getId() + "-UserListSideBarEntry");
+        robot.clickOn("#" + userTwo.getId() + "-DirectMessageEntry");
 
 
         Assertions.assertThrows(EmptyNodeQueryException.class, () -> {

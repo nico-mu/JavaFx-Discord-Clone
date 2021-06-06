@@ -5,25 +5,30 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 import java.io.IOException;
 
-public class UserListSidebarEntry extends HBox {
+public class DirectMessageEntry extends HBox implements NotificationComponentInterface {
 
     @FXML
     private Text userNameText;
     private final User user;
+    private final Font font;
+    private final Font boldFont;
 
-    public UserListSidebarEntry(final User user) {
-        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST_SIDEBAR_ENTRY);
+    public DirectMessageEntry(final User user) {
+        this.user = user;
+        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
-        this.setId(user.getId() + "-UserListSideBarEntry");
 
         try {
             fxmlLoader.load();
@@ -31,9 +36,12 @@ public class UserListSidebarEntry extends HBox {
             throw new RuntimeException(exception);
         }
 
-        this.user = user;
-
         setUserName(user.getName());
+
+        // Has to constant, value is located in user-list.scss
+        font = Font.font(userNameText.getFont().getFamily(), FontWeight.NORMAL, 16.0);
+        boldFont = Font.font(userNameText.getFont().getFamily(), FontWeight.BOLD, 16.0);
+        this.setId(user.getId() + "-DirectMessageEntry");
 
         userNameText.setOnMouseClicked(this::handleClick);
     }
@@ -45,5 +53,21 @@ public class UserListSidebarEntry extends HBox {
 
     public void setUserName(final String userName) {
         userNameText.setText(userName);
+    }
+
+    @Override
+    public void setNotificationCount(int notifications) {
+        setNotificationVisibility(0 < notifications);
+    }
+
+    @Override
+    public void setNotificationVisibility(boolean mode) {
+        Platform.runLater(() -> {
+            if (mode) {
+                userNameText.setFont(boldFont);
+            } else {
+                userNameText.setFont(font);
+            }
+        });
     }
 }
