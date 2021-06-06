@@ -87,10 +87,6 @@ public class PrivateChatView extends VBox {
         chatViewMessageScrollPane.setFitToWidth(true);
     }
 
-    private void onEmoteClicked(MouseEvent mouseEvent) {
-        popup.show(chatViewEmojiButton);
-    }
-
     /**
      * Clears the view
      */
@@ -131,6 +127,10 @@ public class PrivateChatView extends VBox {
                 onSubmitClicked(null);
             }
         }
+    }
+
+    private void onEmoteClicked(MouseEvent mouseEvent) {
+        popup.show(chatViewEmojiButton);
     }
 
     /**

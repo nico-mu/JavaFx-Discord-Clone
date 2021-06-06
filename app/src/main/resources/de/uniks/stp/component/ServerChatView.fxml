@@ -13,16 +13,16 @@
    <children>
       <ScrollPane fx:id="chatViewMessageScrollPane" prefHeight="400.0" prefWidth="600.0" styleClass="message-list" VBox.vgrow="ALWAYS">
          <content>
-            <VBox fx:id="chatVBox" id="chatVBox" alignment="CENTER">
+            <VBox id="chatVBox" fx:id="chatVBox" alignment="CENTER">
                   <children>
-                     <JFXButton fx:id="loadMessagesButton" id="loadMessagesButton" prefHeight="26.0" prefWidth="300.0" styleClass="load-messages-button" text="%LBL_LOAD_MESSAGES" textFill="WHITE" />
-                     <VBox fx:id="messageList" id="messageList" prefHeight="200.0" prefWidth="100.0" />
+                     <JFXButton id="loadMessagesButton" fx:id="loadMessagesButton" prefHeight="26.0" prefWidth="300.0" styleClass="load-messages-button" text="%LBL_LOAD_MESSAGES" textFill="WHITE" />
+                     <VBox id="messageList" fx:id="messageList" prefHeight="200.0" prefWidth="100.0" />
                   </children></VBox>
          </content>
       </ScrollPane>
       <HBox alignment="CENTER_RIGHT" prefHeight="15.0" prefWidth="200.0" VBox.vgrow="SOMETIMES">
          <children>
-            <JFXTextArea fx:id="chatViewMessageInput" id="chatViewMessageInput" promptText="%LBL_CHAT_VIEW_PROMPT" styleClass="message-input" unFocusColor="#23272a" HBox.hgrow="ALWAYS">
+            <JFXTextArea id="chatViewMessageInput" fx:id="chatViewMessageInput" promptText="%LBL_CHAT_VIEW_PROMPT" styleClass="message-input" unFocusColor="#23272a" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
@@ -33,7 +33,8 @@
                   <Insets />
                </opaqueInsets>
             </JFXTextArea>
-            <JFXButton fx:id="chatViewSubmitButton" id="chatViewSubmitButton" minWidth="100.0" prefHeight="38.0" prefWidth="150.0" styleClass="submit-button" text="%LBL_CHAT_SEND" textFill="WHITE" HBox.hgrow="ALWAYS">
+               <VBox fx:id="chatViewEmojiButton" alignment="CENTER" minWidth="30.0" prefHeight="40.0" prefWidth="150.0" styleClass="emoji-button" />
+            <JFXButton id="chatViewSubmitButton" fx:id="chatViewSubmitButton" minWidth="100.0" prefHeight="38.0" prefWidth="150.0" styleClass="submit-button" text="%LBL_CHAT_SEND" textFill="WHITE" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets left="10.0" />
                </HBox.margin>

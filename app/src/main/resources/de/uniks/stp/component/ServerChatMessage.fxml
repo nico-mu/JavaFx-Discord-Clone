@@ -6,6 +6,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
+<?import javafx.scene.text.TextFlow?>
 <fx:root stylesheets="@../style/css/component/server-chat-message.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
 <VBox>
    <children>
@@ -23,11 +24,7 @@
             </Text>
          </children>
       </HBox>
-      <Text fx:id="messageText" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="message-text">
-         <font>
-            <Font size="16.0" />
-         </font>
-      </Text>
+      <TextFlow fx:id="messageText" styleClass="message-text" />
    </children>
 </VBox>
 

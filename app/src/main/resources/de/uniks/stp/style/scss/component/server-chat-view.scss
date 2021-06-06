@@ -10,6 +10,12 @@
   -fx-text-fill: $primary-text-fill;
 }
 
+.emoji-button {
+  -jfx-button-type: FLAT;
+  -fx-background-color: $main-background-color;
+  -fx-text-fill: $primary-text-fill;
+}
+
 .message-input {
   -fx-text-fill: $primary-text-fill;
   -fx-background-color: $main-background-color;

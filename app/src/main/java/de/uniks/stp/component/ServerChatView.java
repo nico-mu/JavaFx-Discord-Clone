@@ -3,6 +3,8 @@ package de.uniks.stp.component;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.emote.EmoteParser;
+import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.model.ServerMessage;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -36,9 +38,12 @@ public class ServerChatView extends VBox {
     private VBox messageList;
     @FXML
     private VBox chatVBox;
+    @FXML
+    private VBox chatViewEmojiButton;
 
     private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
+    private final EmotePickerPopup popup = new EmotePickerPopup();
 
     public ServerChatView(EventHandler<ActionEvent> loadMessagesHandler) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHAT_VIEW);
@@ -52,12 +57,25 @@ public class ServerChatView extends VBox {
         }
 
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
+        chatViewEmojiButton.setOnMouseClicked(this::onEmoteClicked);
+        EmoteRenderer renderer = new EmoteRenderer();
+        // Image strategy
+        // renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
+        // chatViewEmojiButton.getChildren().addAll(renderer.setSize(26).render(":" + "grinning_face" + ":"));
+        // Default strategy
+        chatViewEmojiButton.getChildren().addAll(renderer.setSize(16).render(":" + "grinning_face" + ":"));
 
         messageList.heightProperty().addListener(heightChangedListener);
 
         chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
 
         loadMessagesButton.setOnAction(loadMessagesHandler);
+        popup.setOnEmoteClicked((emoteName) -> {
+            chatViewMessageInput.appendText(":" + emoteName + ":");
+        });
+
+        chatViewMessageScrollPane.setFitToWidth(true);
+
     }
 
     /**
@@ -80,8 +98,8 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ServerChatMessage chatMessage = new ServerChatMessage(message);
-        chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+        ServerChatMessage chatMessage = new ServerChatMessage();
+        chatMessage.loadMessage(message);
 
         Platform.runLater(() -> {
             messageList.getChildren().add(chatMessage);
@@ -92,13 +110,16 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ServerChatMessage chatMessage = new ServerChatMessage(message);
-        chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
-
+        ServerChatMessage chatMessage = new ServerChatMessage();
+        chatMessage.loadMessage(message);
 
         Platform.runLater(() -> {
             messageList.getChildren().add(pos, chatMessage);
         });
+    }
+
+    private void onEmoteClicked(MouseEvent mouseEvent) {
+        popup.show(chatViewEmojiButton);
     }
 
     /**
@@ -122,7 +143,7 @@ public class ServerChatView extends VBox {
      * @param mouseEvent
      */
     private void onSubmitClicked(MouseEvent mouseEvent) {
-        String message = chatViewMessageInput.getText();
+        String message = EmoteParser.toUnicodeString(chatViewMessageInput.getText());
 
         if (message.isEmpty()) {
             return;
