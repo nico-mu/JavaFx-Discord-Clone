@@ -115,11 +115,12 @@ public class EmoteRenderer {
     // Doesn't work
     public List<Node> fontEmoteRenderStrategy(String emoteName) {
         LinkedList<Node> list = new LinkedList<>();
-        InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/OpenMoji-Color.ttf"));
-        Font font = Font.loadFont(inputStream, 40);
+        InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/NotoColorEmoji.ttf"));
+        Font font = Font.loadFont(inputStream, getSize());
         Text text = new Text();
         text.setFont(font);
         text.setText(getEmoteByName(emoteName));
+        text.setFill(getTextFill());
         list.add(text);
         return list;
     }
