@@ -61,6 +61,7 @@ public class EmoteRenderer {
     }
 
     public LinkedList<Node> render(String input) {
+        input = EmoteParser.convertTextWithUnicodeToNames(input);
         LinkedList<Node> renderResult = new LinkedList<>();
         LinkedList<Triple<Integer, Integer, String>> parsingResult = EmoteParser.parse(input);
         int from = 0;

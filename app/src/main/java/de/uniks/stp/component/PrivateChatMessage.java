@@ -2,6 +2,7 @@ package de.uniks.stp.component;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.util.DateUtil;

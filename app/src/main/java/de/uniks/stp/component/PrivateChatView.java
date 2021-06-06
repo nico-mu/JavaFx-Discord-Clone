@@ -7,6 +7,7 @@ import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteMapping;
+import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.model.Message;
 import javafx.application.Platform;
@@ -137,7 +138,7 @@ public class PrivateChatView extends VBox {
      * @param mouseEvent
      */
     private void onSubmitClicked(MouseEvent mouseEvent) {
-        String message = chatViewMessageInput.getText();
+        String message = EmoteParser.toUnicodeString(chatViewMessageInput.getText());
 
         if (message.isEmpty()) {
             return;

@@ -71,6 +71,33 @@ public class EmoteParser {
         return parsingResult;
     }
 
+    public static String convertTextWithUnicodeToNames(String text) {
+        for (String emoteName : getAllEmoteNames()) {
+            text = text.replace(getEmoteByName(emoteName), ":" + emoteName + ":");
+        }
+
+        return text;
+    }
+
+    public static String toUnicodeString(String input) {
+        StringBuilder renderResult = new StringBuilder();
+        LinkedList<Triple<Integer, Integer, String>> parsingResult = EmoteParser.parse(input);
+        int from = 0;
+
+        for (Triple<Integer, Integer, String> emoteInfo : parsingResult) {
+            if (input.substring(from, emoteInfo.getFirst()).length() > 0) {
+                renderResult.append(input.substring(from, emoteInfo.getFirst()));
+            }
+            renderResult.append(getEmoteByName(emoteInfo.getThird()));
+            from = emoteInfo.getSecond() + 1;
+        }
+        if (from < input.length()) {
+            renderResult.append(input.substring(from));
+        }
+
+        return renderResult.toString();
+    }
+
     private static Map<String, String> createEmoteMapping() {
         Map<String, String> map = new HashMap<>();
 
