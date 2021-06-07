@@ -32,6 +32,7 @@ public class StageManager extends Application {
     private static Editor editor;
     private static Stage stage;
     private static ControllerInterface currentController;
+    private static boolean backup = true;
 
     private final PropertyChangeListener languagePropertyChangeListener = this::onLanguagePropertyChange;
 
@@ -83,9 +84,13 @@ public class StageManager extends Application {
 
     }
 
+    public static void setBackupMode(boolean mode) {
+        backup = mode;
+    }
+
     @Override
     public void start(Stage primaryStage) {
-        DatabaseService.init();
+        DatabaseService.init(backup);
 
         stage = primaryStage;
         editor = new Editor();

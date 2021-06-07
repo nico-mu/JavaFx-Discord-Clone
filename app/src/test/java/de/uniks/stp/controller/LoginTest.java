@@ -16,6 +16,7 @@ import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -44,6 +45,7 @@ public class LoginTest {
 
     @Captor
     private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
+    private StageManager app;
 
     @Start
     public void start(Stage stage) {
@@ -51,7 +53,8 @@ public class LoginTest {
         MockitoAnnotations.initMocks(this);
         NetworkClientInjector.setRestClient(restMock);
         NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager app = new StageManager();
+        StageManager.setBackupMode(false);
+        app = new StageManager();
         app.start(stage);
         DatabaseService.clearAllConversations();
     }
@@ -126,4 +129,14 @@ public class LoginTest {
         Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_LOGIN_WRONG_CREDENTIALS), errorLabel.getText());
     }
 
+    @AfterEach
+    void tear(){
+        restMock = null;
+        webSocketMock = null;
+        res = null;
+        callbackCaptor = null;
+        Platform.runLater(app::stop);
+        WaitForAsyncUtils.waitForFxEvents();
+        app = null;
+    }
 }

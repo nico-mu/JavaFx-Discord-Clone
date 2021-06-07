@@ -17,6 +17,7 @@ import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -59,15 +60,18 @@ public class CreateCategoryTest {
     @Captor
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
-    private static final HashMap<String, WSCallback> endpointCallbackHashmap = new HashMap<>();
+    private HashMap<String, WSCallback> endpointCallbackHashmap;
+    private StageManager app;
 
     @Start
     public void start(Stage stage) {
         // start application
         MockitoAnnotations.initMocks(this);
+        endpointCallbackHashmap = new HashMap<>();
         NetworkClientInjector.setRestClient(restMock);
         NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager app = new StageManager();
+        StageManager.setBackupMode(false);
+        app = new StageManager();
         app.start(stage);
     }
 
@@ -239,5 +243,19 @@ public class CreateCategoryTest {
 
         Label categoryNameLabel = robot.lookup("#category-head-label").query();
         Assertions.assertEquals(CATEGORY_NAME, categoryNameLabel.getText());
+    }
+
+    @AfterEach
+    void tear(){
+        restMock = null;
+        webSocketMock = null;
+        res = null;
+        callbackCaptor = null;
+        stringArgumentCaptor = null;
+        wsCallbackArgumentCaptor = null;
+        endpointCallbackHashmap = null;
+        Platform.runLater(app::stop);
+        WaitForAsyncUtils.waitForFxEvents();
+        app = null;
     }
 }
