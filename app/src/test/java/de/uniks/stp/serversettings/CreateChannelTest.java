@@ -1,4 +1,4 @@
-package de.uniks.stp.controller;
+package de.uniks.stp.serversettings;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;

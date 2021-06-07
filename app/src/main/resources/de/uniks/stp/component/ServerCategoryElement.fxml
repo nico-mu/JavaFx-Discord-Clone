@@ -26,6 +26,11 @@
                   <Image url="@../img/blueplus.png" />
                </image>
             </ImageView>
+            <ImageView id="edit-category-gear" fx:id="editCatGear" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" visible="false">
+               <image>
+                  <Image url="@../img/gear.png" />
+               </image>
+            </ImageView>
          </children>
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
