@@ -47,6 +47,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     PropertyChangeListener categoriesPropertyChangeListener = this::onCategoriesPropertyChanged;
     PropertyChangeListener channelPropertyChangeListener = this::onChannelPropertyChanged;
+    PropertyChangeListener categoryNamePropertyChangeListener = this::onCatNamePropertyChanged;
 
     public ServerCategoryListController(Parent view, Editor editor, Server model) {
         this.view = view;
@@ -68,6 +69,10 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         model.listeners().addPropertyChangeListener(PROPERTY_CATEGORIES, categoriesPropertyChangeListener);
 
         restClient.getCategories(model.getId(), this::handleCategories);
+
+        for (Category cat : model.getCategories()) {
+            cat.listeners().addPropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
+        }
     }
 
     private void handleCategories(HttpResponse<JsonNode> response) {
@@ -103,6 +108,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.remove(category);
             Platform.runLater(() -> serverCategoryList.removeElement(serverCategoryElement));
+            category.listeners().removePropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
         }
     }
 
@@ -112,6 +118,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             final ServerCategoryElement serverCategoryElement = new ServerCategoryElement(category);
             categoryElementHashMap.put(category, serverCategoryElement);
             Platform.runLater(() -> serverCategoryList.addElement(serverCategoryElement));
+            category.listeners().addPropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
         }
     }
 
@@ -148,6 +155,14 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             channelAdded(newValue.getCategory(), newValue);
         } else if (Objects.isNull(newValue)) {
             channelRemoved(oldValue.getCategory(), oldValue);
+        }
+    }
+
+    private void onCatNamePropertyChanged(PropertyChangeEvent propertyChangeEvent) {
+        Category category = (Category) propertyChangeEvent.getSource();
+        String newName = (String) propertyChangeEvent.getNewValue();
+        if (Objects.nonNull(category) && Objects.nonNull(newName)) {
+            categoryElementHashMap.get(category).updateText(newName);
         }
     }
 
@@ -190,6 +205,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
         for (Category category : model.getCategories()) {
             category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
+            category.listeners().removePropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
         }
         channelElementHashMap.clear();
         categoryElementHashMap.clear();
