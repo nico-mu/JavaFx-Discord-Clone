@@ -161,7 +161,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     private void onCatNamePropertyChanged(PropertyChangeEvent propertyChangeEvent) {
         Category category = (Category) propertyChangeEvent.getSource();
         String newName = (String) propertyChangeEvent.getNewValue();
-        if (Objects.nonNull(category) && Objects.nonNull(newName)) {
+        if (Objects.nonNull(category) && Objects.nonNull(newName) && categoryElementHashMap.containsKey(category)) {
             categoryElementHashMap.get(category).updateText(newName);
         }
     }
