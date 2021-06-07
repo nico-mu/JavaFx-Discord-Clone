@@ -18,6 +18,7 @@ import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -60,15 +61,18 @@ public class EditCategoryTest {
     @Captor
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
-    private static final HashMap<String, WSCallback> endpointCallbackHashmap = new HashMap<>();
+    private HashMap<String, WSCallback> endpointCallbackHashmap;
+    private StageManager app;
 
     @Start
     public void start(Stage stage) {
         // start application
         MockitoAnnotations.initMocks(this);
+        endpointCallbackHashmap = new HashMap<>();
         NetworkClientInjector.setRestClient(restMock);
         NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager app = new StageManager();
+        StageManager.setBackupMode(false);
+        app = new StageManager();
         app.start(stage);
     }
 
@@ -116,6 +120,7 @@ public class EditCategoryTest {
         Assertions.assertEquals(catName, label.getText());
 
         robot.clickOn("#category-head-label");
+        robot.point("#edit-category-gear");
         robot.clickOn("#edit-category-gear");
 
         // assert that modal is shown
@@ -185,7 +190,8 @@ public class EditCategoryTest {
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
-        server.withCategories(new Category().setName(catName).setId(catId));
+        Category cat = new Category().setName(catName).setId(catId).setServer(server);
+        WaitForAsyncUtils.waitForFxEvents();
 
         // assert correct start situation
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
@@ -193,6 +199,7 @@ public class EditCategoryTest {
 
         // prepare creating category
         robot.clickOn("#category-head-label");
+        robot.point("#edit-category-gear");
         robot.clickOn("#edit-category-gear");
 
         // insert name
@@ -212,15 +219,29 @@ public class EditCategoryTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         // check for correct reactions
-        Category cat = editor.getOrCreateCategory(catId, catName, server);
+        Category queryCat = editor.getOrCreateCategory(catId, catName, server);
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
-        Assertions.assertEquals(catName, cat.getName());
+        Assertions.assertEquals(catName, queryCat.getName());
 
 
         Label errorLabel = robot.lookup("#error-message-label").query();
         Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_EDIT_CATEGORY_FAILED), errorLabel.getText());
 
         robot.clickOn("#cancel-button");
+    }
+
+    @AfterEach
+    void tear(){
+        restMock = null;
+        webSocketMock = null;
+        res = null;
+        callbackCaptor = null;
+        stringArgumentCaptor = null;
+        wsCallbackArgumentCaptor = null;
+        endpointCallbackHashmap = null;
+        Platform.runLater(app::stop);
+        WaitForAsyncUtils.waitForFxEvents();
+        app = null;
     }
 }
