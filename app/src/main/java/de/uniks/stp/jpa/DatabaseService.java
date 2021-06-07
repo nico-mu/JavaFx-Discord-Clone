@@ -21,12 +21,14 @@ import java.util.Objects;
 public class DatabaseService {
     private static EntityManagerFactory entityManagerFactory;
 
-    public static void init() {
+    public static void init(boolean backup) {
         if (Objects.isNull(entityManagerFactory)) {
             entityManagerFactory = Persistence.createEntityManagerFactory("de.uniks.stp.jpa");
         }
 
-        createBackup();
+        if(backup) {
+            createBackup();
+        }
     }
 
     private static void createBackup() {

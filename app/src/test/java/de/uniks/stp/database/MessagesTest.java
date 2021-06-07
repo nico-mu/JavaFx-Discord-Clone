@@ -24,7 +24,7 @@ public class MessagesTest {
 
     @Test
     public void testDirectMessagesDatabaseService() {
-        DatabaseService.init();
+        DatabaseService.init(false);
 
         User currentUser = new User().setName("test-user1").setId("test-user1-id");
         User friend1 = new User().setName("test-user2").setId("test-user2-id");
