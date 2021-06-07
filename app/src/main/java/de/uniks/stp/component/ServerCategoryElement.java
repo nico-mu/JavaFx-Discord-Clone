@@ -61,6 +61,7 @@ public class ServerCategoryElement extends VBox {
         addServerPlus.setOnMouseClicked(this::onAddServerPlusClicked);
         editCatGear.setOnMouseClicked(this::onEditCatGearClicked);
 
+        this.setId(model.getId() + "-ServerCategoryElement");
     }
 
     private void onCategoryMouseEntered(MouseEvent mouseEvent) {
