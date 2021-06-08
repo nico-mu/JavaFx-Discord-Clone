@@ -81,7 +81,12 @@ public class DirectMessageListController implements ControllerInterface, Subscri
         // Add to known users sidebar
         DirectMessageEntry userListEntry = new DirectMessageEntry(otherUser);
         directMessageEntryHashMap.put(id, userListEntry);
-        Platform.runLater(() -> directMessageList.addElement(userListEntry));
+        Platform.runLater(() -> {
+            directMessageList.addElement(userListEntry);
+            if (userListEntry.getDirectMessageEntryText().equals(otherUser.getId() + "-DirectMessageEntryText")) {
+                userListEntry.setNotificationCount(NotificationService.getPublisherNotificationCount(otherUser));
+            }
+        });
     }
 
     private void onChatPartnerChanged(PropertyChangeEvent propertyChangeEvent) {

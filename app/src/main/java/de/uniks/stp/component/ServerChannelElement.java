@@ -4,6 +4,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.ChannelChangeEvent;
 import de.uniks.stp.model.Channel;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
@@ -50,14 +51,17 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         channelText.setText(model.getName());
         channelVBox.setOnMouseClicked(this::onMouseClicked);
 
-        font = Font.font(channelText.getFont().getFamily(), FontWeight.NORMAL, channelText.getFont().getSize());
+        font = channelText.getFont();
         boldFont = Font.font(channelText.getFont().getFamily(), FontWeight.BOLD, channelText.getFont().getSize());
-
-        setNotificationVisibility(false);
+        channelText.setId(model.getId() + "-ChannelElementText");
     }
 
     public void setActive(boolean active) {
         channelElementMarker.setVisible(active);
+    }
+
+    public String getChannelTextId() {
+        return channelText.getId();
     }
 
     @Override

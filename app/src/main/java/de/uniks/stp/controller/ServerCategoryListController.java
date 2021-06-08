@@ -176,13 +176,18 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     }
 
     private void channelAdded(final Category category, final Channel channel) {
-        if (Objects.nonNull(category) && Objects.nonNull(channel) && Objects.nonNull(channel.getName()) && !channelElementHashMap.containsKey(channel)) {
+        if (Objects.nonNull(category) && Objects.nonNull(channel) && Objects.nonNull(channel.getName()) &&
+            !channelElementHashMap.containsKey(channel) && categoryElementHashMap.containsKey(category)) {
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             final ServerChannelElement serverChannelElement = new ServerChannelElement(channel);
             NotificationService.register(channel);
             channelElementHashMap.put(channel, serverChannelElement);
-            Platform.runLater(() -> serverCategoryElement.addChannelElement(serverChannelElement));
-            serverChannelElement.setNotificationCount(NotificationService.getPublisherNotificationCount(channel));
+            Platform.runLater(() -> {
+                serverCategoryElement.addChannelElement(serverChannelElement);
+                if (serverChannelElement.getChannelTextId().equals(channel.getId() + "-ChannelElementText")) {
+                    serverChannelElement.setNotificationCount(NotificationService.getPublisherNotificationCount(channel));
+                }
+            });
             // show ServerChatView of first loaded channel
             if (firstChannel) {
                 firstChannel = false;

@@ -7,5 +7,9 @@ public interface NotificationComponentInterface {
      */
     void setNotificationCount(int notifications);
 
+    /**
+     * gets called by setNotificationCount, DO NOT CALL IT AT ANY OTHER POINT!
+     * @param mode
+     */
     void setNotificationVisibility(boolean mode);
 }
