@@ -320,6 +320,12 @@ public class WebSocketService {
                         }
                     }
                     return;
+                case "categoryUpdated":
+                    String catId = data.getString("id");
+                    String catName = data.getString("name");
+                    Server serv = editor.getServer(data.getString("server"));
+                    editor.getOrCreateCategory(catId, catName, serv).setName(catName);
+                    return;
                 default:
                     break;
             }

@@ -2,8 +2,10 @@ package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.AddChannelModal;
+import de.uniks.stp.modal.EditCategoryModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.view.Views;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -30,6 +32,9 @@ public class ServerCategoryElement extends VBox {
     ImageView addServerPlus;
 
     @FXML
+    ImageView editCatGear;
+
+    @FXML
     VBox categoryChannelList;
     boolean channelListCollapsed = false;
     Category model;
@@ -50,25 +55,35 @@ public class ServerCategoryElement extends VBox {
         categoryHeadArrow.setOnMouseClicked(this::onCategoryArrowClicked);
         categoryHeadLabel.setOnMouseClicked(this::onCategoryArrowClicked);
 
-        categoryHeadPane.setOnMouseEntered(this::onAddChannelPlusMouseEntered);
-        categoryHeadPane.setOnMouseExited(this::onAddChannelPlusMouseExited);
+        categoryHeadPane.setOnMouseEntered(this::onCategoryMouseEntered);
+        categoryHeadPane.setOnMouseExited(this::onCategoryMouseExited);
 
         addServerPlus.setOnMouseClicked(this::onAddServerPlusClicked);
+        editCatGear.setOnMouseClicked(this::onEditCatGearClicked);
 
+        this.setId(model.getId() + "-ServerCategoryElement");
     }
 
-    private void onAddChannelPlusMouseEntered(MouseEvent mouseEvent) {
+    private void onCategoryMouseEntered(MouseEvent mouseEvent) {
         addServerPlus.setVisible(true);
+        editCatGear.setVisible(true);
     }
 
-    private void onAddChannelPlusMouseExited(MouseEvent mouseEvent) {
+    private void onCategoryMouseExited(MouseEvent mouseEvent) {
         addServerPlus.setVisible(false);
+        editCatGear.setVisible(false);
     }
 
     private void onAddServerPlusClicked(MouseEvent mouseEvent) {
         Parent addChannelModalView = ViewLoader.loadView(Views.ADD_CHANNEL_MODAL);
         AddChannelModal addChannelModal = new AddChannelModal(addChannelModalView, model);
         addChannelModal.show();
+    }
+
+    private void onEditCatGearClicked(MouseEvent mouseEvent) {
+        Parent editChannelModelView = ViewLoader.loadView(Views.EDIT_CATEGORY_MODAL);
+        EditCategoryModal editChannelModal = new EditCategoryModal(editChannelModelView, model);
+        editChannelModal.show();
     }
 
     private void onCategoryArrowClicked(MouseEvent mouseEvent) {
@@ -90,6 +105,10 @@ public class ServerCategoryElement extends VBox {
 
     public void removeChannelElement(ServerChannelElement serverChannelElement) {
         categoryChannelList.getChildren().remove(serverChannelElement);
+    }
+
+    public void updateText(String text) {
+        Platform.runLater(() -> categoryHeadLabel.setText(text));
     }
 }
 
