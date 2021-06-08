@@ -67,7 +67,6 @@ public class PrivateChatView extends VBox {
         // Image strategy
         renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
         // chatViewEmojiButton.getChildren().addAll(renderer.setSize(26).render(":" + "grinning_face" + ":"));
-        // Default strategy
         chatViewEmojiButton.getChildren().addAll(renderer.setSize(26).render(":" + "grinning_face" + ":"));
 
         messageList.heightProperty().addListener(heightChangedListener);
@@ -78,12 +77,10 @@ public class PrivateChatView extends VBox {
         });
 
         EmoteTextArea area = new EmoteTextArea();
-        // area.insertEmote("grinning_face");
+        area.insertEmote("grinning_face");
 
         VirtualizedScrollPane scroll = new VirtualizedScrollPane(area);
         scroll.layout();
-
-        // area.appendText("hehoghoseghsoheghhsehgohseghsehoghseghsoheghosoehgohseohghosehghseohghoeshogoheshogehsgohesohghosehogohseoghosheghsohegoheshogoeshgohseohgohseghesohghesgohesohghg");
 
         AtomicReference<Integer> maxCaret = new AtomicReference<>(0);
 
@@ -91,20 +88,12 @@ public class PrivateChatView extends VBox {
         area.caretPositionProperty().addListener((k) -> {
             scroll.layout();
             if (area.getCaretPosition() > maxCaret.get()) {
-                // area.getCaretBounds();
                 maxCaret.set(area.getCaretPosition());
-                /* Platform.runLater(() -> {
-                    scroll.layout();
-                    area.requestFollowCaret();
-                });*/
                 scroll.layout();
-                // area.requestFollowCaret();
             }
         });
 
-        // messageList.getChildren().add(scroll);
-        // scroll.layout();
-        // messageList.getChildren().add(area);
+        messageList.getChildren().add(scroll);
 
         chatViewMessageScrollPane.setFitToWidth(true);
     }

@@ -42,7 +42,7 @@ public class ServerChatMessage extends HBox {
         timestampText.setText(formatTime(message.getTimestamp()));
         nameText.setText(message.getSender().getName());
         EmoteRenderer renderer = new EmoteRenderer().setScalingFactor(2).setSize(16);
-        // renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
+        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
         LinkedList<Node> renderResult = renderer.render(message.getMessage());
 
         for (Node node : renderResult) {

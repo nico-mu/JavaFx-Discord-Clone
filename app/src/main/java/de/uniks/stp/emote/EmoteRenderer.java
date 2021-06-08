@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-;
-
 public class EmoteRenderer {
     private Function<String, List<Node>> emoteRenderStrategy;
     private Paint textFill = Color.WHITE;
@@ -91,7 +89,7 @@ public class EmoteRenderer {
         InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/" + emoteName + ".png"));
         Image image = new Image(inputStream);
         ImageView imageView = new ImageView();
-        // Important to make the emotes properly displayed in private chat
+        // Important to make the emotes properly displayed in chat
         imageView.setScaleX(getScalingFactor());
         imageView.setScaleY(getScalingFactor());
         imageView.setImage(image);
