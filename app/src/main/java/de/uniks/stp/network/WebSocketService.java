@@ -2,9 +2,14 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.component.NavBarElement;
+import de.uniks.stp.event.NavBarElementChangeEvent;
+import de.uniks.stp.event.NavBarHomeElementActiveEvent;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.*;
 import de.uniks.stp.notification.NotificationService;
+import de.uniks.stp.router.Router;
+import javafx.application.Platform;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
+
+import static com.sun.javafx.event.EventUtil.fireEvent;
 
 public class WebSocketService {
     private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
@@ -325,6 +332,10 @@ public class WebSocketService {
                     String catName = data.getString("name");
                     Server serv = editor.getServer(data.getString("server"));
                     editor.getOrCreateCategory(catId, catName, serv).setName(catName);
+                    return;
+                case "serverDeleted":
+                    serverId = data.getString("id");
+                    editor.removeServer(serverId);
                     return;
                 default:
                     break;

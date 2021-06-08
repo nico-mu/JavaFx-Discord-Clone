@@ -40,6 +40,7 @@ public class Constants {
     public static final String LBL_OFF = "LBL_OFF";
     public static final String LBL_NO_CHANGES = "LBL_NO_CHANGES";
     public static final String LBL_RENAME_SERVER_FAILED = "LBL_RENAME_SERVER_FAILED";
+    public static final String LBL_DELETE_SERVER_FAILED = "LBL_DELETE_SERVER_FAILED";
     public static final String LBL_EDIT_SERVER_TITLE = "LBL_EDIT_SERVER_TITLE";
     public static final String LBL_CREATE_CATEGORY_FAILED = "LBL_CREATE_CATEGORY_FAILED";
     public static final String LBL_EDIT_CATEGORY_FAILED = "LBL_EDIT_CATEGORY_FAILED";

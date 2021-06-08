@@ -109,7 +109,35 @@ public class ServerSettingsModal extends AbstractModal {
     }
 
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
-        // ToDo
+        servernameTextField.setDisable(true);
+        //notificationsToggleButton.setDisable(true);  use when fixed
+        saveButton.setDisable(true);
+        cancelButton.setDisable(true);
+        deleteButton.setDisable(true);
+        spinner.setVisible(true);
+
+        RestClient restClient = NetworkClientInjector.getRestClient();
+        restClient.deleteServer(model.getId(), this::handleDeleteServerResponse);
+    }
+
+    private void handleDeleteServerResponse(HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toPrettyString());
+
+        if (response.isSuccess()) {
+            Platform.runLater(this::close);
+        } else {
+            log.error("delete server failed!");
+            setErrorMessage(Constants.LBL_DELETE_SERVER_FAILED);
+
+            Platform.runLater(() -> {
+                servernameTextField.setDisable(false);
+                //notificationsToggleButton.setDisable(false);  use when fixed
+                saveButton.setDisable(false);
+                cancelButton.setDisable(false);
+                deleteButton.setDisable(false);
+                spinner.setVisible(false);
+            });
+        }
     }
 
     /**
