@@ -1,44 +1,37 @@
 package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXListView;
-import com.jfoenix.controls.JFXPopup;
 import com.jfoenix.controls.JFXTextArea;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.emote.EmoteMapping;
 import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.emote.EmoteRenderer;
+import de.uniks.stp.emote.EmoteTextArea;
 import de.uniks.stp.model.Message;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Point2D;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
+import javafx.geometry.Bounds;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.stage.Popup;
-import javafx.stage.Window;
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class PrivateChatView extends VBox {
+    private static final Logger log = LoggerFactory.getLogger(PrivateChatView.class);
 
     @FXML
     private VBox chatViewContainer;
@@ -72,10 +65,10 @@ public class PrivateChatView extends VBox {
         chatViewEmojiButton.setOnMouseClicked(this::onEmoteClicked);
         EmoteRenderer renderer = new EmoteRenderer();
         // Image strategy
-        // renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
+        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
         // chatViewEmojiButton.getChildren().addAll(renderer.setSize(26).render(":" + "grinning_face" + ":"));
         // Default strategy
-        chatViewEmojiButton.getChildren().addAll(renderer.setSize(16).render(":" + "grinning_face" + ":"));
+        chatViewEmojiButton.getChildren().addAll(renderer.setSize(26).render(":" + "grinning_face" + ":"));
 
         messageList.heightProperty().addListener(heightChangedListener);
 
@@ -83,6 +76,35 @@ public class PrivateChatView extends VBox {
         popup.setOnEmoteClicked((emoteName) -> {
             chatViewMessageInput.appendText(":" + emoteName + ":");
         });
+
+        EmoteTextArea area = new EmoteTextArea();
+        // area.insertEmote("grinning_face");
+
+        VirtualizedScrollPane scroll = new VirtualizedScrollPane(area);
+        scroll.layout();
+
+        // area.appendText("hehoghoseghsoheghhsehgohseghsehoghseghsoheghosoehgohseohghosehghseohghoeshogoheshogehsgohesohghosehogohseoghosheghsohegoheshogoeshgohseohgohseghesohghesgohesohghg");
+
+        AtomicReference<Integer> maxCaret = new AtomicReference<>(0);
+
+        // IMPORTANT
+        area.caretPositionProperty().addListener((k) -> {
+            scroll.layout();
+            if (area.getCaretPosition() > maxCaret.get()) {
+                // area.getCaretBounds();
+                maxCaret.set(area.getCaretPosition());
+                /* Platform.runLater(() -> {
+                    scroll.layout();
+                    area.requestFollowCaret();
+                });*/
+                scroll.layout();
+                // area.requestFollowCaret();
+            }
+        });
+
+        // messageList.getChildren().add(scroll);
+        // scroll.layout();
+        // messageList.getChildren().add(area);
 
         chatViewMessageScrollPane.setFitToWidth(true);
     }
@@ -99,6 +121,7 @@ public class PrivateChatView extends VBox {
 
     /**
      * Appends a message at the end of the messages list.
+     *
      * @param message
      */
     public void appendMessage(Message message) {
@@ -115,10 +138,11 @@ public class PrivateChatView extends VBox {
 
     /**
      * Enter typed -> press send Button | Shift-Enter typed -> add new line
+     *
      * @param keyEvent
      */
     private void checkForEnter(KeyEvent keyEvent) {
-        if (keyEvent.getCode() == KeyCode.ENTER)  {
+        if (keyEvent.getCode() == KeyCode.ENTER) {
             if (keyEvent.isShiftDown()) {
                 chatViewMessageInput.appendText(System.getProperty("line.separator"));
             } else {
@@ -135,6 +159,7 @@ public class PrivateChatView extends VBox {
 
     /**
      * If MessageInput is not empty, text is given to method in ServerChatController and MessageInput is cleared.
+     *
      * @param mouseEvent
      */
     private void onSubmitClicked(MouseEvent mouseEvent) {
@@ -150,6 +175,7 @@ public class PrivateChatView extends VBox {
 
     /**
      * Registers a callback that is called whenever the send button is clicked.
+     *
      * @param callback should send message via websocket
      */
     public void setOnMessageSubmit(Consumer<String> callback) {

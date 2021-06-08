@@ -8,11 +8,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;;
+import javafx.scene.text.Text;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
+
+;
 
 public class EmoteRenderer {
     private Function<String, List<Node>> emoteRenderStrategy;

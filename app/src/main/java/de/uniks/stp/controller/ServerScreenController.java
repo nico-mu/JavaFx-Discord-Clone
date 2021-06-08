@@ -4,7 +4,6 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
-import de.uniks.stp.modal.AddChannelModal;
 import de.uniks.stp.modal.CreateCategoryModal;
 import de.uniks.stp.modal.InvitesModal;
 import de.uniks.stp.modal.ServerSettingsModal;

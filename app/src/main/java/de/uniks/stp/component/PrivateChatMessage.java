@@ -2,26 +2,19 @@ package de.uniks.stp.component;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.util.DateUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -44,7 +37,7 @@ public class PrivateChatMessage extends HBox {
 
     public void loadMessage(Message message) {
         EmoteRenderer renderer = new EmoteRenderer().setScalingFactor(2);
-        // renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);;
+        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
 
         String infoPart = formatTime(message.getTimestamp()) + " " + message.getSender().getName() + ": ";
         LinkedList<Node> renderResult = renderer.render(infoPart + message.getMessage());

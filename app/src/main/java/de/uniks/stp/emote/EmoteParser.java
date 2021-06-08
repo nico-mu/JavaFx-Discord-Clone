@@ -1,8 +1,6 @@
 package de.uniks.stp.emote;
 
-import de.uniks.stp.component.EmotePicker;
 import de.uniks.stp.util.Triple;
-import javafx.scene.text.TextFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +71,7 @@ public class EmoteParser {
 
     public static String convertTextWithUnicodeToNames(String text) {
         for (String emoteName : getAllEmoteNames()) {
-            text = text.replace(getEmoteByName(emoteName), ":" + emoteName + ":");
+            text = text.replaceAll(getEmoteByName(emoteName), ":" + emoteName + ":");
         }
 
         return text;
