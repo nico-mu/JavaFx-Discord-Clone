@@ -10,6 +10,7 @@ import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.UserKeyProvider;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -214,6 +215,7 @@ public class LoginScreenController implements ControllerInterface {
         if (response.isSuccess()) {
             setErrorMessage(null);
             String userKey = response.getBody().getObject().getJSONObject("data").getString("userKey");
+            UserKeyProvider.setEditor(editor);
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
             editor.setUserKey(userKey);
 

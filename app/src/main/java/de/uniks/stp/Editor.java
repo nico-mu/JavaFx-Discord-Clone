@@ -259,10 +259,7 @@ public class Editor {
 
     public void prepareLogout(){
         accord.setUserKey("");
-        List<User> currentUsers = new ArrayList<User>(accord.getOtherUsers());
-        accord.withoutOtherUsers(currentUsers);
-        List<User> chatPartners = new ArrayList<User>(accord.getCurrentUser().getChatPartner());
-        accord.getCurrentUser().withoutChatPartner(chatPartners);
+        accord = new Accord().setLanguage(accord.getLanguage());
     }
 
     public ServerInvitation getOrCreateServerInvitation(String invId, String link, String type, int max, int current,String serverId) {

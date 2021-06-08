@@ -4,6 +4,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.*;
@@ -41,7 +42,7 @@ import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(ApplicationExtension.class)
-public class CreateCategoryTest {
+public class EditCategoryTest {
     @Mock
     private RestClient restMock;
 
@@ -80,23 +81,47 @@ public class CreateCategoryTest {
      * @param robot
      */
     @Test
-    public void testCreateCategoryModal(FxRobot robot){
+    public void testEditCategoryName(FxRobot robot){
         // prepare start situation
         Editor editor = StageManager.getEditor();
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
         String serverName ="Plattis Server";
         String serverId ="12345678";
+        String catId = "111";
+        String catName = "CatName";
         Server server = new Server().setName(serverName).setId(serverId);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
+
+        WebSocketService.addServerWebSocket(serverId);
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
-        // prepare creating category
-        robot.clickOn("#settings-label");
-        robot.clickOn("#create-menu-item");
+        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
+
+        for (int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+
+        Category cat = new Category().setId(catId).setName(catName).setServer(server);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // assert correct start situation
+        Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
+        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+
+        Label label = robot.lookup("#category-head-label").query();
+        Assertions.assertEquals(catName, label.getText());
+
+        robot.clickOn("#category-head-label");
+        robot.point("#edit-category-gear");
+        robot.clickOn("#edit-category-gear");
 
         // assert that modal is shown
         Label modalNameLabel = robot.lookup("#enter-category-label").query();
@@ -106,21 +131,30 @@ public class CreateCategoryTest {
         String categoryName = "useful category";
         robot.clickOn("#category-name-text-field");
         robot.write(categoryName);
-        robot.clickOn("#create-button");
+        robot.clickOn("#apply-button");
 
-        JSONObject data = new JSONObject().put("id", "999")
-            .put("name", categoryName)
-            .put("server", serverId)
-            .put("channels", new JSONArray());
-        JSONObject j = new JSONObject().put("status", "success").put("message", "").put("data", data);
-        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        JsonObject jsonObject = Json.createObjectBuilder()
+            .add("action", "categoryUpdated")
+            .add("data",
+                Json.createObjectBuilder()
+                    .add("id", "111")
+                    .add("name", categoryName)
+                    .add("server", serverId)
+                    .build()
+            )
+            .build();
+
+        when(res.getBody()).thenReturn(new JsonNode(jsonObject.toString()));
         when(res.isSuccess()).thenReturn(true);
 
-        verify(restMock).createCategory(eq(serverId), eq(categoryName), callbackCaptor.capture());
+        verify(restMock).updateCategory(eq(serverId), eq(catId), eq(categoryName), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
 
         WaitForAsyncUtils.waitForFxEvents();
+
+        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
+        systemCallback.handleMessage(jsonObject);
 
         // check that modal is no longer shown
         boolean modalShown = true;
@@ -130,6 +164,9 @@ public class CreateCategoryTest {
             modalShown = false;
         }
         Assertions.assertFalse(modalShown);
+
+        label = robot.lookup("#category-head-label").query();
+        Assertions.assertEquals(categoryName, label.getText());
     }
 
     /**
@@ -137,13 +174,15 @@ public class CreateCategoryTest {
      * @param robot
      */
     @Test
-    public void testCreateCategoryFailed(FxRobot robot){
+    public void testEditCategoryFailed(FxRobot robot){
         // prepare start situation
         Editor editor = StageManager.getEditor();
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
         String serverName ="Plattis Server";
         String serverId ="12345678";
+        String catName = "CatName";
+        String catId = "111";
         Server server = new Server().setName(serverName).setId(serverId);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
@@ -151,98 +190,45 @@ public class CreateCategoryTest {
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
+        Category cat = new Category().setName(catName).setId(catId).setServer(server);
+        WaitForAsyncUtils.waitForFxEvents();
+
         // assert correct start situation
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
-        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().size());
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
 
         // prepare creating category
-        robot.clickOn("#settings-label");
-        robot.clickOn("#create-menu-item");
+        robot.clickOn("#category-head-label");
+        robot.point("#edit-category-gear");
+        robot.clickOn("#edit-category-gear");
 
         // insert name
         String categoryName = "useful category";
         robot.clickOn("#category-name-text-field");
         robot.write(categoryName);
-        robot.clickOn("#create-button");
+        robot.clickOn("#apply-button");
 
         JSONObject j = new JSONObject().put("status", "failure").put("message", "something went wrong");
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(false);
 
-        verify(restMock).createCategory(eq(serverId), eq(categoryName), callbackCaptor.capture());
+        verify(restMock).updateCategory(eq(serverId), eq(catId), eq(categoryName), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
 
         WaitForAsyncUtils.waitForFxEvents();
 
         // check for correct reactions
+        Category queryCat = editor.getOrCreateCategory(catId, catName, server);
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
-        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().size());
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
+        Assertions.assertEquals(catName, queryCat.getName());
+
 
         Label errorLabel = robot.lookup("#error-message-label").query();
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_CREATE_CATEGORY_FAILED), errorLabel.getText());
+        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_EDIT_CATEGORY_FAILED), errorLabel.getText());
 
         robot.clickOn("#cancel-button");
-    }
-
-    /**
-     * Tests adding a category by receiving a websocket message
-     * @param robot
-     */
-    @Test
-    public void testCategoryCreatedMessage(FxRobot robot) {
-        final String CATEGORY_NAME = "Useful Category";
-
-        // prepare start situation
-        Editor editor = StageManager.getEditor();
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
-        String serverName ="Plattis Server";
-        String serverId ="12345678";
-        Server server = new Server().setName(serverName).setId(serverId);
-        editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
-
-        WebSocketService.addServerWebSocket(serverId);
-
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", serverId)));
-        WaitForAsyncUtils.waitForFxEvents();
-
-        // assert correct start situation
-        Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
-        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().size());
-
-        // prepare receiving websocket message
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
-
-        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
-        List<String> endpoints = stringArgumentCaptor.getAllValues();
-
-        for(int i = 0; i < endpoints.size(); i++) {
-            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
-        }
-        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
-
-        // receive message
-        JsonObject jsonObject = Json.createObjectBuilder()
-            .add("action", "categoryCreated")
-            .add("data",
-                Json.createObjectBuilder()
-                    .add("id", "1111")
-                    .add("name", CATEGORY_NAME)
-                    .add("server", serverId)
-                    .build()
-            )
-            .build();
-        systemCallback.handleMessage(jsonObject);
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        // check for correct reactions
-        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
-        Assertions.assertEquals(CATEGORY_NAME, editor.getServer(serverId).getCategories().get(0).getName());
-
-        Label categoryNameLabel = robot.lookup("#category-head-label").query();
-        Assertions.assertEquals(CATEGORY_NAME, categoryNameLabel.getText());
     }
 
     @AfterEach

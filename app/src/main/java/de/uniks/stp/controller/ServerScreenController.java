@@ -56,7 +56,6 @@ public class ServerScreenController implements ControllerInterface {
 
     private ContextMenu settingsContextMenu;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
-    PropertyChangeListener channelNotificationPropertyChangeListener = this::onChannelNotificationChange;
 
     public ServerScreenController(Parent view, Editor editor, Server model) {
         this.view = (AnchorPane) view;
@@ -137,10 +136,6 @@ public class ServerScreenController implements ControllerInterface {
         Parent createCategoryModalView = ViewLoader.loadView(Views.CREATE_CATEGORY_MODAL);
         CreateCategoryModal createCategoryModal = new CreateCategoryModal(createCategoryModalView, model, editor);
         createCategoryModal.show();
-    }
-
-    private void onChannelNotificationChange(PropertyChangeEvent propertyChangeEvent) {
-
     }
 
     @Override

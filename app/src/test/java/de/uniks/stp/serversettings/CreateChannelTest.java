@@ -1,4 +1,4 @@
-package de.uniks.stp.controller;
+package de.uniks.stp.serversettings;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
@@ -18,9 +18,7 @@ import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -61,7 +59,9 @@ public class CreateChannelTest {
     @Captor
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
-    private static final HashMap<String, WSCallback> endpointCallbackHashmap = new HashMap<>();
+    private HashMap<String, WSCallback> endpointCallbackHashmap;
+
+    private StageManager app;
 
     @Start
     public void start(Stage stage) {
@@ -69,7 +69,9 @@ public class CreateChannelTest {
         MockitoAnnotations.initMocks(this);
         NetworkClientInjector.setRestClient(restMock);
         NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager app = new StageManager();
+        endpointCallbackHashmap = new HashMap<>();
+        StageManager.setBackupMode(false);
+        app = new StageManager();
         app.start(stage);
         DatabaseService.clearAllConversations();
     }
@@ -340,5 +342,19 @@ public class CreateChannelTest {
         Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
         Assertions.assertEquals(2, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getChannelMembers().size());
         robot.clickOn("#logout-button");
+    }
+
+    @AfterEach
+     void tear(){
+        restMock = null;
+        webSocketMock = null;
+        res = null;
+        callbackCaptor = null;
+        stringArgumentCaptor = null;
+        wsCallbackArgumentCaptor = null;
+        endpointCallbackHashmap = null;
+        Platform.runLater(app::stop);
+        WaitForAsyncUtils.waitForFxEvents();
+        app = null;
     }
 }

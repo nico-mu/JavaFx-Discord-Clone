@@ -1,6 +1,5 @@
 package de.uniks.stp.controller;
 
-import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
@@ -9,11 +8,13 @@ import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.*;
+import de.uniks.stp.network.NetworkClientInjector;
+import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.WebSocketClient;
+import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -23,6 +24,7 @@ import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -36,12 +38,7 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -60,14 +57,7 @@ public class LoadOldMessagesTest {
 
     @Captor
     private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
-
-    @Captor
-    private ArgumentCaptor<String> stringArgumentCaptor;
-
-    @Captor
-    private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
-
-    private static final HashMap<String, WSCallback> endpointCallbackHashmap = new HashMap<>();
+    private StageManager app;
 
     @Start
     public void start(Stage stage) {
@@ -75,7 +65,8 @@ public class LoadOldMessagesTest {
         MockitoAnnotations.initMocks(this);
         NetworkClientInjector.setRestClient(restMock);
         NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager app = new StageManager();
+        StageManager.setBackupMode(false);
+        app = new StageManager();
         app.start(stage);
     }
 
@@ -224,5 +215,16 @@ public class LoadOldMessagesTest {
         messageContainer = (VBox) lastShownChatMessage.getChildren().get(0);
         messageText = (TextFlow) messageContainer.getChildren().get(1);
         Assertions.assertEquals("49", ((Text) messageText.getChildren().get(0)).getText());
+    }
+
+    @AfterEach
+    void tear(){
+        restMock = null;
+        webSocketMock = null;
+        res = null;
+        callbackCaptor = null;
+        Platform.runLater(app::stop);
+        WaitForAsyncUtils.waitForFxEvents();
+        app = null;
     }
 }

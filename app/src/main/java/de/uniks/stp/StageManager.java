@@ -32,6 +32,7 @@ public class StageManager extends Application {
     private static Editor editor;
     private static Stage stage;
     private static ControllerInterface currentController;
+    private static boolean backup = true;
 
     private final PropertyChangeListener languagePropertyChangeListener = this::onLanguagePropertyChange;
 
@@ -53,6 +54,7 @@ public class StageManager extends Application {
             currentController = new MainScreenController(root, editor);
             currentController.init();
             scene = new Scene(root);
+            scene.getStylesheets().add(StageManager.class.getResource("/de/uniks/stp/style/css/component/context-menu.css").toExternalForm());
             stage.setTitle("Accord");
             stage.setScene(scene);
             stage.centerOnScreen();
@@ -86,9 +88,13 @@ public class StageManager extends Application {
 
     }
 
+    public static void setBackupMode(boolean mode) {
+        backup = mode;
+    }
+
     @Override
     public void start(Stage primaryStage) {
-        DatabaseService.init();
+        DatabaseService.init(backup);
 
         stage = primaryStage;
         editor = new Editor();
