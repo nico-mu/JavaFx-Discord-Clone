@@ -184,7 +184,9 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             channelElementHashMap.put(channel, serverChannelElement);
             Platform.runLater(() -> {
                 serverCategoryElement.addChannelElement(serverChannelElement);
-                serverChannelElement.setNotificationCount(NotificationService.getPublisherNotificationCount(channel));
+                if (serverChannelElement.getChannelTextId().equals(channel.getId() + "-ChannelElementText")) {
+                    serverChannelElement.setNotificationCount(NotificationService.getPublisherNotificationCount(channel));
+                }
             });
             // show ServerChatView of first loaded channel
             if (firstChannel) {

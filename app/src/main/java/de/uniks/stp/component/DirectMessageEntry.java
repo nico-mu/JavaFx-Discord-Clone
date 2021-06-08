@@ -42,6 +42,7 @@ public class DirectMessageEntry extends HBox implements NotificationComponentInt
         font = Font.font(userNameText.getFont().getFamily(), FontWeight.NORMAL, 16.0);
         boldFont = Font.font(userNameText.getFont().getFamily(), FontWeight.BOLD, 16.0);
         this.setId(user.getId() + "-DirectMessageEntry");
+        userNameText.setId(user.getId() + "-DirectMessageEntryText");
 
         userNameText.setOnMouseClicked(this::handleClick);
     }
@@ -53,6 +54,10 @@ public class DirectMessageEntry extends HBox implements NotificationComponentInt
 
     public void setUserName(final String userName) {
         userNameText.setText(userName);
+    }
+
+    public String getDirectMessageEntryText() {
+        return userNameText.getId();
     }
 
     @Override

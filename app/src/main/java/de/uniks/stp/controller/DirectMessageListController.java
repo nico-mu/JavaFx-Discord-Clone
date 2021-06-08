@@ -83,7 +83,9 @@ public class DirectMessageListController implements ControllerInterface, Subscri
         directMessageEntryHashMap.put(id, userListEntry);
         Platform.runLater(() -> {
             directMessageList.addElement(userListEntry);
-            userListEntry.setNotificationCount(NotificationService.getPublisherNotificationCount(otherUser));
+            if (userListEntry.getDirectMessageEntryText().equals(otherUser.getId() + "-DirectMessageEntryText")) {
+                userListEntry.setNotificationCount(NotificationService.getPublisherNotificationCount(otherUser));
+            }
         });
     }
 
