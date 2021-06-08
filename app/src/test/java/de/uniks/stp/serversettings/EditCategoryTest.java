@@ -155,7 +155,7 @@ public class EditCategoryTest {
 
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
         systemCallback.handleMessage(jsonObject);
-
+        WaitForAsyncUtils.waitForFxEvents();
         // check that modal is no longer shown
         boolean modalShown = true;
         try{
