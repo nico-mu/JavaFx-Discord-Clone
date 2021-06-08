@@ -36,6 +36,9 @@ public class UserKeyProvider {
     }
 
     public static void setEditor(Editor editor) {
+        if (editor.equals(UserKeyProvider.editor)) {
+            return;
+        }
         UserKeyProvider.editor = editor;
         editor.getOrCreateAccord()
             .listeners()
