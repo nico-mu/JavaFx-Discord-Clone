@@ -54,6 +54,7 @@ public class ServerCategoryElement extends VBox {
         categoryHeadLabel.setText(model.getName());
         categoryHeadArrow.setOnMouseClicked(this::onCategoryArrowClicked);
         categoryHeadLabel.setOnMouseClicked(this::onCategoryArrowClicked);
+        categoryHeadLabel.setId(model.getId() + "-ServerCategoryElementLabel");
 
         categoryHeadPane.setOnMouseEntered(this::onCategoryMouseEntered);
         categoryHeadPane.setOnMouseExited(this::onCategoryMouseExited);
