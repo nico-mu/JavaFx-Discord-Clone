@@ -73,8 +73,11 @@ public class UserInfoController implements ControllerInterface {
         if (!response.isSuccess()) {
             log.error("logout failed");
         }
-        this.editor.prepareLogout();  //delete user related information
-        Platform.runLater(() -> Router.route(Constants.ROUTE_LOGIN));
+
+        Platform.runLater(() ->  {
+            Router.route(Constants.ROUTE_LOGIN);
+            this.editor.prepareLogout();  //delete user related information
+        });
     }
 
     private void onSettingsGearClicked(MouseEvent mouseEvent) {

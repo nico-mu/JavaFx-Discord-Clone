@@ -97,7 +97,6 @@ public class StageManager extends Application {
 
         startLanguageAwareness();
 
-        UserKeyProvider.setEditor(editor);
         WebSocketService.setEditor(editor);
 
         //init Router and go to login
