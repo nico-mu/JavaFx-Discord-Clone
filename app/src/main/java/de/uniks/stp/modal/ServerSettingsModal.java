@@ -9,10 +9,13 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.paint.Paint;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
@@ -41,10 +44,13 @@ public class ServerSettingsModal extends AbstractModal {
     private final JFXButton deleteButton;
 
     private final Server model;
+    private final Parent root;
+    private ConfirmationModal serverSettingsModal;
     private static final Logger log = LoggerFactory.getLogger(ServerSettingsModal.class);
 
     public ServerSettingsModal(Parent root, Server model) {
         super(root);
+        this.root = root;
         this.model = model;
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_SERVER_TITLE));
@@ -109,6 +115,22 @@ public class ServerSettingsModal extends AbstractModal {
     }
 
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
+        Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
+        serverSettingsModal = new ConfirmationModal(confirmationModalView,
+            Constants.LBL_DELETE_SERVER,
+            Constants.LBL_CONFIRM_DELETE_SERVER,
+            this::onYesButtonClicked,
+            this::onNoButtonClicked);
+        serverSettingsModal.show();
+
+        saveButton.setDisable(true);
+        cancelButton.setDisable(true);
+        deleteButton.setDisable(true);
+    }
+
+    private void onYesButtonClicked(ActionEvent actionEvent) {
+        Platform.runLater(serverSettingsModal::close);
+
         servernameTextField.setDisable(true);
         //notificationsToggleButton.setDisable(true);  use when fixed
         saveButton.setDisable(true);
@@ -118,6 +140,13 @@ public class ServerSettingsModal extends AbstractModal {
 
         RestClient restClient = NetworkClientInjector.getRestClient();
         restClient.deleteServer(model.getId(), this::handleDeleteServerResponse);
+    }
+
+    private void onNoButtonClicked(ActionEvent actionEvent) {
+        Platform.runLater(serverSettingsModal::close);
+        saveButton.setDisable(false);
+        cancelButton.setDisable(false);
+        deleteButton.setDisable(false);
     }
 
     private void handleDeleteServerResponse(HttpResponse<JsonNode> response) {
