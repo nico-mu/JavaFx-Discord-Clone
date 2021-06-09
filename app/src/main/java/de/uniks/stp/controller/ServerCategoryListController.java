@@ -163,14 +163,16 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     }
 
     private void goToDefaultChannel() {
-        serverCategoryList.setActiveElement(channelElementHashMap.get(defaultChannel));
-        NotificationService.consume(defaultChannel);
+        if(Objects.nonNull(channelElementHashMap.get(defaultChannel))) {
+            serverCategoryList.setActiveElement(channelElementHashMap.get(defaultChannel));
+            NotificationService.consume(defaultChannel);
 
-        RouteArgs args = new RouteArgs();
-        args.addArgument(":id", defaultChannel.getCategory().getServer().getId());
-        args.addArgument(":categoryId", defaultChannel.getCategory().getId());
-        args.addArgument(":channelId", defaultChannel.getId());
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
+            RouteArgs args = new RouteArgs();
+            args.addArgument(":id", defaultChannel.getCategory().getServer().getId());
+            args.addArgument(":categoryId", defaultChannel.getCategory().getId());
+            args.addArgument(":channelId", defaultChannel.getId());
+            Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
+        }
     }
 
     private void onChannelPropertyChanged(PropertyChangeEvent propertyChangeEvent) {
