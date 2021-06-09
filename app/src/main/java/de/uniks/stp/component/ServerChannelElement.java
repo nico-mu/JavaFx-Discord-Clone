@@ -3,13 +3,15 @@ package de.uniks.stp.component;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.ChannelChangeEvent;
+import de.uniks.stp.modal.EditChannelModal;
 import de.uniks.stp.model.Channel;
-import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -69,7 +71,9 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
     }
 
     private void onEditChannelClicked(MouseEvent mouseEvent) {
-
+        Parent editChannelModalView = ViewLoader.loadView(Views.EDIT_CHANNEL_MODAL);
+        EditChannelModal editChannelModal = new EditChannelModal(editChannelModalView, model);
+        editChannelModal.show();
     }
 
     private void onChannelMouseExited(MouseEvent mouseEvent) {
@@ -78,6 +82,10 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
     private void onChannelMouseEntered(MouseEvent mouseEvent) {
         editChannel.setVisible(true);
+    }
+
+    public void updateText(String newName) {
+        Platform.runLater(() -> channelText.setText(newName));
     }
 
     public void setActive(boolean active) {

@@ -183,6 +183,19 @@ public class Editor {
         return null;
     }
 
+    public Channel getChannelById(String id) {
+        for(Server server : getOrCreateAccord().getCurrentUser().getAvailableServers()) {
+            for(Category category : server.getCategories()) {
+                for(Channel channel : category.getChannels()) {
+                    if(channel.getId().equals(id)) {
+                        return channel;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public User getOrCreateServerMember(String userId, String name, boolean status, Server server) {
         for (User user : server.getUsers()) {
             if (user.getName().equals(name)) {
