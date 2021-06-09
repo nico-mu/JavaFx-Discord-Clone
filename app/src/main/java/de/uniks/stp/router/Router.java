@@ -70,11 +70,9 @@ public class Router {
         }
     }
 
-    public static void forceReloadAndRouteHome() {
+    public static void forceReload() {
         shutdownControllers("");
-        currentArgs = new RouteArgs();
-        currentRoute = null;
-        route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE);
+        route(currentRoute, currentArgs);
     }
 
 

@@ -35,7 +35,7 @@ import static de.uniks.stp.model.Server.PROPERTY_CATEGORIES;
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
 public class ServerCategoryListController implements ControllerInterface, SubscriberInterface {
 
-    private boolean firstChannel = true;
+    private Channel defaultChannel;
     private final Parent view;
     private final Editor editor;
     private final ServerCategoryList serverCategoryList;
@@ -146,9 +146,31 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                 }
                 channelAdded(categoryModel, channelModel);
             }
+            HashMap<String, String> routeArgs = Router.getCurrentArgs();
+            if (routeArgs.containsKey(":channelId") && model.getId().equals(Router.getCurrentArgs().get(":id"))) {
+                String channelId = routeArgs.get(":channelId");
+                for (Channel channel : model.getChannels()) {
+                    if (channel.getId().equals(channelId)) {
+                        serverCategoryList.setActiveElement(channelElementHashMap.get(channel));
+                    }
+                }
+            } else if (routeArgs.containsKey(":id") && model.getId().equals(Router.getCurrentArgs().get(":id"))) {
+                goToDefaultChannel();
+            }
         } else {
             //TODO: show error message
         }
+    }
+
+    private void goToDefaultChannel() {
+        serverCategoryList.setActiveElement(channelElementHashMap.get(defaultChannel));
+        NotificationService.consume(defaultChannel);
+
+        RouteArgs args = new RouteArgs();
+        args.addArgument(":id", defaultChannel.getCategory().getServer().getId());
+        args.addArgument(":categoryId", defaultChannel.getCategory().getId());
+        args.addArgument(":channelId", defaultChannel.getId());
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
     }
 
     private void onChannelPropertyChanged(PropertyChangeEvent propertyChangeEvent) {
@@ -203,17 +225,11 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                 }
             });
             // show ServerChatView of first loaded channel
-            if (firstChannel) {
-                firstChannel = false;
-
-                serverCategoryList.setActiveElement(serverChannelElement);
-                NotificationService.consume(channel);
-
-                RouteArgs args = new RouteArgs();
-                args.addArgument(":id", channel.getCategory().getServer().getId());
-                args.addArgument(":categoryId", channel.getCategory().getId());
-                args.addArgument(":channelId", channel.getId());
-                Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
+            if (Objects.isNull(defaultChannel)) {
+                defaultChannel = channel;
+                if (!Router.getCurrentArgs().containsKey(":channelId")) {
+                    goToDefaultChannel();
+                }
             }
         }
     }
