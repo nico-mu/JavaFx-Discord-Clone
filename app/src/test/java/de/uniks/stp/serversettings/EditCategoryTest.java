@@ -77,7 +77,7 @@ public class EditCategoryTest {
     }
 
     /**
-     * Tests the CreateCategoryModal: Checks for correct Rest call and closing the modal on success
+     * Tests the EditCategoryModal: Checks for correct Rest call and closing the modal on success
      * @param robot
      */
     @Test
@@ -170,7 +170,7 @@ public class EditCategoryTest {
     }
 
     /**
-     * Tests error message in CreateCategoryModal
+     * Tests error message in EditCategoryModal
      * @param robot
      */
     @Test
