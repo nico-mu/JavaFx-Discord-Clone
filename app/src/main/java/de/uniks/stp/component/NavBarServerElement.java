@@ -17,6 +17,7 @@ public class NavBarServerElement extends NavBarNotificationElement {
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
 
     public NavBarServerElement(Server model) {
+        navBarElement.setId(model.getId()+"-navBarElement");
         this.model = model;
         Tooltip.install(navBarElement, new Tooltip(model.getName()));
         imageView.setImage(ViewLoader.loadImage("server.png"));
