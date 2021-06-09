@@ -44,8 +44,9 @@ public class ServerChatView extends VBox {
     private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
     private final EmotePickerPopup popup = new EmotePickerPopup();
+    private final String language;
 
-    public ServerChatView(EventHandler<ActionEvent> loadMessagesHandler) {
+    public ServerChatView(EventHandler<ActionEvent> loadMessagesHandler, String language) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHAT_VIEW);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -55,7 +56,7 @@ public class ServerChatView extends VBox {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-
+        this.language = language;
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
         chatViewEmojiButton.setOnMouseClicked(this::onEmoteClicked);
         EmoteRenderer renderer = new EmoteRenderer();
@@ -98,7 +99,8 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ServerChatMessage chatMessage = new ServerChatMessage();
+
+        ServerChatMessage chatMessage = new ServerChatMessage(language);
         chatMessage.loadMessage(message);
 
         Platform.runLater(() -> {
@@ -110,7 +112,7 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ServerChatMessage chatMessage = new ServerChatMessage();
+        ServerChatMessage chatMessage = new ServerChatMessage(language);
         chatMessage.loadMessage(message);
 
         Platform.runLater(() -> {

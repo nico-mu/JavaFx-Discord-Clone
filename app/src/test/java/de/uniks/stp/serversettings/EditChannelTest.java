@@ -3,8 +3,8 @@ package de.uniks.stp.serversettings;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
-import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Category;
+import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.*;
@@ -13,12 +13,16 @@ import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -40,7 +44,7 @@ import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(ApplicationExtension.class)
-public class CreateChannelTest {
+public class EditChannelTest {
     @Mock
     private RestClient restMock;
 
@@ -60,180 +64,22 @@ public class CreateChannelTest {
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
     private HashMap<String, WSCallback> endpointCallbackHashmap;
-
     private StageManager app;
 
     @Start
     public void start(Stage stage) {
         // start application
         MockitoAnnotations.initMocks(this);
+        endpointCallbackHashmap = new HashMap<>();
         NetworkClientInjector.setRestClient(restMock);
         NetworkClientInjector.setWebSocketClient(webSocketMock);
-        endpointCallbackHashmap = new HashMap<>();
         StageManager.setBackupMode(false);
         app = new StageManager();
         app.start(stage);
-        DatabaseService.clearAllConversations();
     }
 
     @Test
-    public void createChannelFailed(FxRobot robot) {
-        // prepare start situation
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
-        String serverName = "TestServer";
-        String serverId = "12345678";
-        Server testServer = new Server().setName(serverName).setId(serverId);
-        editor.getOrCreateAccord()
-            .getCurrentUser()
-            .withAvailableServers(testServer);
-
-        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
-        WaitForAsyncUtils.waitForFxEvents();
-
-        String categoryName = "TestCategory";
-        String categoryId = "catId123";
-        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        // assert correct start situation
-        Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
-        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
-        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
-
-        robot.clickOn("#" + categoryId + "-ServerCategoryElementLabel");
-        robot.clickOn("#add-channel-plus");
-        robot.clickOn("#add-channel-create-button");
-
-        JSONObject j = new JSONObject().put("status", "failure").put("message", "Missing name")
-            .put("data", new JSONObject());
-        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-        when(res.isSuccess()).thenReturn(false);
-
-        verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(""), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
-        Callback<JsonNode> callback = callbackCaptor.getValue();
-        callback.completed(res);
-        WaitForAsyncUtils.waitForFxEvents();
-
-        Label errorLabel = robot.lookup("#add-channel-error").query();
-
-        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
-        Assertions.assertNotEquals("", errorLabel.getText());
-
-        String channelName = "TestChannel";
-
-        robot.clickOn("#add-channel-name-textfield");
-        robot.write(channelName);
-        robot.clickOn("#privileged-checkbox");
-        robot.clickOn("#add-channel-create-button");
-
-        j = new JSONObject().put("status", "failure").put("message", "Missing members")
-            .put("data", new JSONObject());
-        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-        when(res.isSuccess()).thenReturn(false);
-
-        verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(channelName), eq(true), eq(new ArrayList<String>()), callbackCaptor.capture());
-        callback = callbackCaptor.getValue();
-        callback.completed(res);
-        WaitForAsyncUtils.waitForFxEvents();
-
-        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
-        errorLabel = robot.lookup("#add-channel-error").query();
-        Assertions.assertNotEquals("", errorLabel.getText());
-        robot.clickOn("#add-channel-cancel-button");
-        robot.clickOn("#logout-button");
-    }
-
-    @Test
-    public void createNotPrivilegedChannel(FxRobot robot) {
-        // prepare start situation
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
-        String serverName = "TestServer";
-        String serverId = "12345678";
-        Server testServer = new Server().setName(serverName).setId(serverId);
-        editor.getOrCreateAccord()
-            .getCurrentUser()
-            .withAvailableServers(testServer);
-
-        String categoryName = "TestCategory";
-        String categoryId = "catId123";
-
-        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
-        WaitForAsyncUtils.waitForFxEvents();
-
-        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
-
-        // assert correct start situation
-        Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
-        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
-        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        robot.clickOn("#" + category.getId() + "-ServerCategoryElementLabel");
-        robot.clickOn("#add-channel-plus");
-
-        String channelName = "TestChannel";
-
-        robot.clickOn("#add-channel-name-textfield");
-        robot.write(channelName);
-        robot.clickOn("#add-channel-create-button");
-
-        JSONObject j = new JSONObject().put("status", "success")
-            .put("data", new JSONObject());
-        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-        when(res.isSuccess()).thenReturn(true);
-
-        verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(channelName), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
-        Callback<JsonNode> callback = callbackCaptor.getValue();
-        callback.completed(res);
-        WaitForAsyncUtils.waitForFxEvents();
-
-        WebSocketService.addServerWebSocket(serverId);
-
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
-
-        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
-        List<String> endpoints = stringArgumentCaptor.getAllValues();
-
-        for (int i = 0; i < endpoints.size(); i++) {
-            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
-        }
-        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
-
-        String channelId = "channel1234";
-        JsonObject jsonObject = Json.createObjectBuilder()
-            .add("action", "channelCreated")
-            .add("data",
-                Json.createObjectBuilder()
-                    .add("id", channelId)
-                    .add("name", channelName)
-                    .add("type", "text")
-                    .add("privileged", false)
-                    .add("category", categoryId)
-                    .add("members", Json.createArrayBuilder().build())
-                    .build()
-            )
-            .build();
-        systemCallback.handleMessage(jsonObject);
-        WaitForAsyncUtils.waitForFxEvents();
-
-        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
-        Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
-        robot.clickOn("#logout-button");
-    }
-
-    @Test
-    public void createPrivilegedChannel(FxRobot robot) {
-        // prepare start situation
+    public void editServerFailedTest(FxRobot robot) {
         Editor editor = StageManager.getEditor();
 
         editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
@@ -256,22 +102,102 @@ public class CreateChannelTest {
         WaitForAsyncUtils.waitForFxEvents();
         Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
 
-        // assert correct start situation
-        Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
-        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
-        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
-
+        String channelId = "chId1234";
+        String channelName = "testChannel";
+        Channel channel = new Channel().setName(channelName).setId(channelId).setPrivileged(false).setType("text");
+        category.withChannels(channel);
+        testServer.withChannels(channel);
         WaitForAsyncUtils.waitForFxEvents();
 
-        robot.clickOn("#" + categoryId + "-ServerCategoryElementLabel");
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+
+
+        robot.clickOn("#channel-container");
+        robot.point("#channel-container");
+        robot.point("#edit-channel");
+        robot.clickOn("#edit-channel");
+
+        robot.clickOn("#edit-channel-create-button");
+
+        JSONObject j = new JSONObject().put("status", "failure").put("message", "Missing name")
+            .put("data", new JSONObject());
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(false);
+
+        verify(restMock).editTextChannel(eq(serverId), eq(categoryId), eq(channelId), eq(""), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
-        robot.point("#add-channel-plus");
-        robot.clickOn("#add-channel-plus");
 
-        String channelName = "TestChannel";
+        Label errorLabel = robot.lookup("#edit-channel-error").query();
 
-        robot.clickOn("#add-channel-name-textfield");
-        robot.write(channelName);
+        Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
+        Assertions.assertNotEquals("", errorLabel.getText());
+
+        String newChannelName = "TestChannel";
+
+        robot.clickOn("#edit-channel-name-textfield");
+        robot.write(newChannelName);
+        robot.clickOn("#privileged-checkbox");
+        robot.clickOn("#edit-channel-create-button");
+
+        j = new JSONObject().put("status", "failure").put("message", "Missing members")
+            .put("data", new JSONObject());
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(false);
+
+        verify(restMock).editTextChannel(eq(serverId), eq(categoryId), eq(channelId), eq(newChannelName), eq(true), eq(new ArrayList<String>()), callbackCaptor.capture());
+        callback = callbackCaptor.getValue();
+        callback.completed(res);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
+        errorLabel = robot.lookup("#edit-channel-error").query();
+        Assertions.assertNotEquals("", errorLabel.getText());
+        robot.clickOn("#edit-channel-cancel-button");
+    }
+
+    @Test
+    public void editChannelTest(FxRobot robot) {
+        Editor editor = StageManager.getEditor();
+
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
+
+        String serverName = "TestServer";
+        String serverId = "12345678";
+        Server testServer = new Server().setName(serverName).setId(serverId);
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .withAvailableServers(testServer);
+
+        User testUser1 = new User().setName("TestUser2").setId("2").withAvailableServers(testServer);
+        User testUser2 = new User().setName("TestUser3").setId("3").withAvailableServers(testServer);
+
+        String categoryName = "TestCategory";
+        String categoryId = "catId123";
+
+        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        WaitForAsyncUtils.waitForFxEvents();
+        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
+
+        String channelId = "chId1234";
+        String channelName = "testChannel";
+        Channel channel = new Channel().setName(channelName).setId(channelId).setPrivileged(false).setType("text");
+        category.withChannels(channel);
+        testServer.withChannels(channel);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+
+        robot.clickOn("#channel-container");
+        robot.point("#channel-container");
+        robot.point("#edit-channel");
+        robot.clickOn("#edit-channel");
+
+        String newChannelName = "edited";
+        robot.clickOn("#edit-channel-name-textfield");
+        robot.write(newChannelName);
         robot.clickOn("#privileged-checkbox");
 
         VBox userCheckList = robot.lookup("#user-list-vbox").query();
@@ -294,20 +220,23 @@ public class CreateChannelTest {
 
         Assertions.assertEquals(3, userCheckList.getChildren().size());
 
-        robot.clickOn("#add-channel-create-button");
-
-        JSONObject j = new JSONObject().put("status", "success")
-            .put("data", new JSONObject());
-        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-        when(res.isSuccess()).thenReturn(true);
+        robot.clickOn("#edit-channel-create-button");
 
         ArrayList<String> members = new ArrayList<>();
         members.add("2");
         members.add("1");
-        verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(channelName), eq(true), eq(members), callbackCaptor.capture());
+
+        JSONObject j = new JSONObject().put("status", "failure").put("message", "Missing name")
+            .put("data", new JSONObject());
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(true);
+
+        verify(restMock).editTextChannel(eq(serverId), eq(categoryId), eq(channelId), eq("edited"), eq(true), eq(members), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
 
         WebSocketService.addServerWebSocket(serverId);
 
@@ -321,13 +250,12 @@ public class CreateChannelTest {
         }
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
 
-        String channelId = "channel1234";
         JsonObject jsonObject = Json.createObjectBuilder()
-            .add("action", "channelCreated")
+            .add("action", "channelUpdated")
             .add("data",
                 Json.createObjectBuilder()
                     .add("id", channelId)
-                    .add("name", channelName)
+                    .add("name", newChannelName)
                     .add("type", "text")
                     .add("privileged", true)
                     .add("category", categoryId)
@@ -338,14 +266,96 @@ public class CreateChannelTest {
         systemCallback.handleMessage(jsonObject);
         WaitForAsyncUtils.waitForFxEvents();
 
+        Assertions.assertEquals(newChannelName, channel.getName());
+        Assertions.assertEquals(true, channel.isPrivileged());
+        Assertions.assertEquals(2, channel.getChannelMembers().size());
+        String channelNameId = "#" + channelId + "-ChannelElementText";
+        Text channelNameText = robot.lookup(channelNameId).query();
+        Assertions.assertEquals(newChannelName, channelNameText.getText());
+    }
+
+    @Test
+    public void deleteChannelTest(FxRobot robot) {
+        Editor editor = StageManager.getEditor();
+
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
+
+        String serverName = "TestServer";
+        String serverId = "12345678";
+        Server testServer = new Server().setName(serverName).setId(serverId);
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .withAvailableServers(testServer);
+
+        String categoryName = "TestCategory";
+        String categoryId = "catId123";
+
+        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        WaitForAsyncUtils.waitForFxEvents();
+        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
+
+        String channelId = "chId1234";
+        String channelName = "testChannel";
+        Channel channel = new Channel().setName(channelName).setId(channelId).setPrivileged(false).setType("text");
+        category.withChannels(channel);
+        testServer.withChannels(channel);
+        WaitForAsyncUtils.waitForFxEvents();
+
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
-        Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
-        Assertions.assertEquals(2, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getChannelMembers().size());
-        robot.clickOn("#logout-button");
+
+        robot.clickOn("#channel-container");
+        robot.point("#channel-container");
+        robot.point("#edit-channel");
+        robot.clickOn("#edit-channel");
+
+        robot.clickOn("#delete-channel");
+        robot.clickOn("#no-button");
+        robot.clickOn("#delete-channel");
+        robot.clickOn("#yes-button");
+
+        JSONObject j = new JSONObject().put("status", "success").put("message", "")
+            .put("data", new JSONObject());
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(true);
+
+        verify(restMock).deleteChannel(eq(serverId), eq(categoryId), eq(channelId), callbackCaptor.capture());
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+
+        WebSocketService.addServerWebSocket(serverId);
+
+        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
+
+        for (int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
+
+        JsonObject jsonObject = Json.createObjectBuilder()
+            .add("action", "channelDeleted")
+            .add("data",
+                Json.createObjectBuilder()
+                    .add("id", channelId)
+                    .add("name", channelName)
+                    .add("category", categoryId)
+                    .build()
+            )
+            .build();
+        systemCallback.handleMessage(jsonObject);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
     }
 
     @AfterEach
-     void tear(){
+    void tear() {
         restMock = null;
         webSocketMock = null;
         res = null;

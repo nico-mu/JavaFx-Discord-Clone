@@ -82,7 +82,7 @@ public class StageManager extends Application {
     private void onLanguagePropertyChange(final PropertyChangeEvent languageChangeEvent) {
         final Languages newLanguage = Languages.fromKeyOrDefault((String) languageChangeEvent.getNewValue());
         ViewLoader.changeLanguage(newLanguage);
-        Router.forceReloadAndRouteHome();
+        Router.forceReload();
 
         DatabaseService.saveAccordSetting(AccordSettingKey.LANGUAGE, newLanguage.key);
 

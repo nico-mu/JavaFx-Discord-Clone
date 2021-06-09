@@ -1,6 +1,5 @@
 package de.uniks.stp.router;
 
-import de.uniks.stp.Constants;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.controller.ControllerInterface;
 
@@ -70,11 +69,9 @@ public class Router {
         }
     }
 
-    public static void forceReloadAndRouteHome() {
+    public static void forceReload() {
         shutdownControllers("");
-        currentArgs = new RouteArgs();
-        currentRoute = null;
-        route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE);
+        route(currentRoute, currentArgs);
     }
 
 

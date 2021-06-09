@@ -293,6 +293,7 @@ public class WebSocketService {
                             if (category.getId().equals(categoryId)) {
                                 category.withChannels(channel);
                                 modifiedServer = server;
+                                channel.setServer(server);
                             }
                         }
                     }
@@ -325,6 +326,40 @@ public class WebSocketService {
                     String catName = data.getString("name");
                     Server serv = editor.getServer(data.getString("server"));
                     editor.getOrCreateCategory(catId, catName, serv).setName(catName);
+                    return;
+                case "channelUpdated":
+                    String chId = data.getString("id");
+                    String chName = data.getString("name");
+                    String chType = data.getString("type");
+                    Boolean priv = data.getBoolean("privileged");
+                    JsonArray jsonMembers = data.getJsonArray("members");
+
+                    Channel ch = editor.getChannelById(chId);
+                    ch.setName(chName);
+                    ch.setType(chType);
+                    ch.setPrivileged(priv);
+                    ch.withoutChannelMembers(ch.getChannelMembers());
+
+                    if (priv && Objects.nonNull(ch)) {
+                        ArrayList<String> membersList = new ArrayList<>();
+                        for (int i = 0; i < jsonMembers.size(); i++) {
+                            membersList.add(jsonMembers.getString(i));
+                        }
+                        for (User user : ch.getServer().getUsers()) {
+                            if (membersList.contains(user.getId())) {
+                                ch.withChannelMembers(user);
+                            }
+                        }
+                    }
+                    return;
+                case "serverDeleted":
+                    serverId = data.getString("id");
+                    editor.removeServer(serverId);
+                    return;
+                case "channelDeleted":
+                    channelId = data.getString("id");
+                    categoryId = data.getString("category");
+                    editor.deleteChannel(channelId);
                     return;
                 default:
                     break;

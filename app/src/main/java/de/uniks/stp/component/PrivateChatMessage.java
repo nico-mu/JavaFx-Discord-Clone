@@ -1,6 +1,5 @@
 package de.uniks.stp.component;
 
-import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.model.Message;
@@ -15,15 +14,15 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.LinkedList;
+import java.util.Locale;
 
 public class PrivateChatMessage extends HBox {
     @FXML
     private TextFlow text;
+    private final String language;
 
-    public PrivateChatMessage() {
+    public PrivateChatMessage(String language) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -33,13 +32,13 @@ public class PrivateChatMessage extends HBox {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+        this.language = language;
     }
 
     public void loadMessage(Message message) {
         EmoteRenderer renderer = new EmoteRenderer().setScalingFactor(2);
         renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
-
-        String infoPart = formatTime(message.getTimestamp()) + " " + message.getSender().getName() + ": ";
+        String infoPart = DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)) + " " + message.getSender().getName() + ": ";
         LinkedList<Node> renderResult = renderer.render(infoPart + message.getMessage());
         // change color of infoPart
         Text textWithInfoPart = (Text) renderResult.get(0);
@@ -52,18 +51,5 @@ public class PrivateChatMessage extends HBox {
                 text.getChildren().add(node);
             });
         }
-    }
-
-    private String formatTime(long time) {
-        Date date = new Date();
-        date.setTime(time);
-
-        if (DateUtil.isToday(date)) {
-            return ViewLoader.loadLabel(Constants.LBL_TIME_FORMATTING_TODAY) + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(date);
-        } else if (DateUtil.isYesterday(date)) {
-            return ViewLoader.loadLabel(Constants.LBL_TIME_FORMATTING_YESTERDAY) + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(date);
-        }
-
-        return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date);
     }
 }

@@ -1,7 +1,5 @@
 package de.uniks.stp.emote;
 
-import de.uniks.stp.util.Triple;
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -15,7 +13,6 @@ import org.reactfx.util.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedList;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 

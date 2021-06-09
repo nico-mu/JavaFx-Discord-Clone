@@ -2,6 +2,7 @@ package de.uniks.stp.emote;
 
 import javafx.scene.paint.Color;
 import org.fxmisc.richtext.model.Codec;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

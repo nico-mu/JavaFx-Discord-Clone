@@ -3,13 +3,16 @@ package de.uniks.stp.component;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.ChannelChangeEvent;
+import de.uniks.stp.modal.EditChannelModal;
 import de.uniks.stp.model.Channel;
-import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -31,6 +34,12 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
     @FXML
     VBox channelVBox;
 
+    @FXML
+    HBox channelContainer;
+
+    @FXML
+    ImageView editChannel;
+
     Channel model;
 
     private final Font font;
@@ -51,9 +60,32 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         channelText.setText(model.getName());
         channelVBox.setOnMouseClicked(this::onMouseClicked);
 
+        channelContainer.setOnMouseEntered(this::onChannelMouseEntered);
+        channelContainer.setOnMouseExited(this::onChannelMouseExited);
+
+        editChannel.setOnMouseClicked(this::onEditChannelClicked);
+
         font = channelText.getFont();
         boldFont = Font.font(channelText.getFont().getFamily(), FontWeight.BOLD, channelText.getFont().getSize());
         channelText.setId(model.getId() + "-ChannelElementText");
+    }
+
+    private void onEditChannelClicked(MouseEvent mouseEvent) {
+        Parent editChannelModalView = ViewLoader.loadView(Views.EDIT_CHANNEL_MODAL);
+        EditChannelModal editChannelModal = new EditChannelModal(editChannelModalView, model);
+        editChannelModal.show();
+    }
+
+    private void onChannelMouseExited(MouseEvent mouseEvent) {
+        editChannel.setVisible(false);
+    }
+
+    private void onChannelMouseEntered(MouseEvent mouseEvent) {
+        editChannel.setVisible(true);
+    }
+
+    public void updateText(String newName) {
+        Platform.runLater(() -> channelText.setText(newName));
     }
 
     public void setActive(boolean active) {

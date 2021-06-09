@@ -1,9 +1,11 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.NavBarList;
 import de.uniks.stp.component.NavBarServerElement;
 import de.uniks.stp.component.NavBarUserElement;
+import de.uniks.stp.event.NavBarHomeElementActiveEvent;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -16,6 +18,7 @@ import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.notification.SubscriberInterface;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
@@ -28,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -81,6 +85,15 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     }
 
     private void serverRemoved(final Server server) {
+        // in case the deleted server is currently shown: show home screen
+        HashMap<String, String> currentArgs = Router.getCurrentArgs();
+        if(currentArgs.containsKey(":id")){
+            if(currentArgs.get(":id").equals(server.getId())){
+                Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE));
+                navBarList.fireEvent(new NavBarHomeElementActiveEvent());
+            }
+        }
+
         if (Objects.nonNull(server) && navBarServerElementHashMap.containsKey(server)) {
             final NavBarServerElement navBarElement = navBarServerElementHashMap.remove(server);
             Platform.runLater(() -> navBarList.removeElement(navBarElement));
@@ -106,6 +119,14 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
                 final Server server = editor.getOrCreateServer(serverId, name);
                 serverAdded(server);
+            }
+            if (Router.getCurrentArgs().containsKey(":id") && Router.getCurrentArgs().containsKey(":channelId")) {
+                String activeServerId = Router.getCurrentArgs().get(":id");
+                for (Server server : editor.getOrCreateAccord().getCurrentUser().getAvailableServers()) {
+                    if (server.getId().equals(activeServerId) && navBarServerElementHashMap.containsKey(server)) {
+                        navBarList.setActiveElement(navBarServerElementHashMap.get(server));
+                    }
+                }
             }
         } else {
             log.error("Response was unsuccessful, error code: " + response.getStatusText());

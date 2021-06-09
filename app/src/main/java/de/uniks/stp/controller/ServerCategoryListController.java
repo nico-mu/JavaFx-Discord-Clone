@@ -35,7 +35,7 @@ import static de.uniks.stp.model.Server.PROPERTY_CATEGORIES;
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
 public class ServerCategoryListController implements ControllerInterface, SubscriberInterface {
 
-    private boolean firstChannel = true;
+    private Channel defaultChannel;
     private final Parent view;
     private final Editor editor;
     private final ServerCategoryList serverCategoryList;
@@ -48,6 +48,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     PropertyChangeListener categoriesPropertyChangeListener = this::onCategoriesPropertyChanged;
     PropertyChangeListener channelPropertyChangeListener = this::onChannelPropertyChanged;
     PropertyChangeListener categoryNamePropertyChangeListener = this::onCatNamePropertyChanged;
+    PropertyChangeListener channelNamePropertyChangeListener = this::onChannelNamePropertyChanged;
 
     public ServerCategoryListController(Parent view, Editor editor, Server model) {
         this.view = view;
@@ -69,10 +70,6 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         model.listeners().addPropertyChangeListener(PROPERTY_CATEGORIES, categoriesPropertyChangeListener);
 
         restClient.getCategories(model.getId(), this::handleCategories);
-
-        for (Category cat : model.getCategories()) {
-            cat.listeners().addPropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
-        }
     }
 
     private void handleCategories(HttpResponse<JsonNode> response) {
@@ -147,14 +144,35 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         }
     }
 
+    private void goToDefaultChannel() {
+        if(channelElementHashMap.containsKey(defaultChannel)) {
+            goToChannel(defaultChannel);
+
+            RouteArgs args = new RouteArgs();
+            args.addArgument(":id", defaultChannel.getCategory().getServer().getId());
+            args.addArgument(":categoryId", defaultChannel.getCategory().getId());
+            args.addArgument(":channelId", defaultChannel.getId());
+            Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
+        }
+    }
+
+    private void goToChannel(Channel channel) {
+        if(channelElementHashMap.containsKey(channel)) {
+            ServerChannelElement element = channelElementHashMap.get(channel);
+            serverCategoryList.setActiveElement(element);
+            NotificationService.consume(channel);
+        }
+    }
+
     private void onChannelPropertyChanged(PropertyChangeEvent propertyChangeEvent) {
         final Channel oldValue = (Channel) propertyChangeEvent.getOldValue();
         final Channel newValue = (Channel) propertyChangeEvent.getNewValue();
+        final Category category = (Category) propertyChangeEvent.getSource();
 
         if (Objects.isNull(oldValue)) {
             channelAdded(newValue.getCategory(), newValue);
         } else if (Objects.isNull(newValue)) {
-            channelRemoved(oldValue.getCategory(), oldValue);
+            channelRemoved(category, oldValue);
         }
     }
 
@@ -166,12 +184,22 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         }
     }
 
+    private void onChannelNamePropertyChanged(PropertyChangeEvent propertyChangeEvent) {
+        Channel channel = (Channel) propertyChangeEvent.getSource();
+        String newName = (String) propertyChangeEvent.getNewValue();
+        if (Objects.nonNull(channel) && Objects.nonNull(newName) && channelElementHashMap.containsKey(channel)) {
+            channelElementHashMap.get(channel).updateText(newName);
+        }
+    }
+
     private void channelRemoved(final Category category, final Channel channel) {
         if (Objects.nonNull(category) && Objects.nonNull(channel) && channelElementHashMap.containsKey(channel)) {
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
             Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
+            channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             NotificationService.removePublisher(channel);
+            goToDefaultChannel();
         }
     }
 
@@ -181,6 +209,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             final ServerChannelElement serverChannelElement = new ServerChannelElement(channel);
             NotificationService.register(channel);
+            channel.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             channelElementHashMap.put(channel, serverChannelElement);
             Platform.runLater(() -> {
                 serverCategoryElement.addChannelElement(serverChannelElement);
@@ -188,18 +217,16 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                     serverChannelElement.setNotificationCount(NotificationService.getPublisherNotificationCount(channel));
                 }
             });
+            HashMap<String, String> currentRouteArgs = Router.getCurrentArgs();
             // show ServerChatView of first loaded channel
-            if (firstChannel) {
-                firstChannel = false;
-
-                serverCategoryList.setActiveElement(serverChannelElement);
-                NotificationService.consume(channel);
-
-                RouteArgs args = new RouteArgs();
-                args.addArgument(":id", channel.getCategory().getServer().getId());
-                args.addArgument(":categoryId", channel.getCategory().getId());
-                args.addArgument(":channelId", channel.getId());
-                Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
+            if (Objects.isNull(defaultChannel)) {
+                defaultChannel = channel;
+                if (!currentRouteArgs.containsKey(":channelId")) {
+                    goToDefaultChannel();
+                }
+            }
+            if(currentRouteArgs.containsKey(":channelId") && currentRouteArgs.get(":channelId").equals(channel.getId())) {
+                goToChannel(channel);
             }
         }
     }
@@ -211,6 +238,9 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         for (Category category : model.getCategories()) {
             category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
             category.listeners().removePropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
+        }
+        for (Channel channel : model.getChannels()) {
+            channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
         }
         channelElementHashMap.clear();
         categoryElementHashMap.clear();

@@ -1,36 +1,27 @@
 package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.emote.*;
+import de.uniks.stp.emote.EmoteParser;
+import de.uniks.stp.emote.EmoteRenderer;
+import de.uniks.stp.emote.EmoteTextArea;
 import de.uniks.stp.model.Message;
-import de.uniks.stp.util.Triple;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Bounds;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.fxmisc.richtext.model.StyledDocument;
-import org.reactfx.util.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.util.LinkedList;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class PrivateChatView extends VBox {
@@ -53,8 +44,9 @@ public class PrivateChatView extends VBox {
     private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
     private final EmotePickerPopup popup = new EmotePickerPopup();
+    private final String language;
 
-    public PrivateChatView() {
+    public PrivateChatView(String language) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.PRIVATE_CHAT_VIEW);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -65,6 +57,7 @@ public class PrivateChatView extends VBox {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+        this.language = language;
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
         chatViewEmojiButton.setOnMouseClicked(this::onEmoteClicked);
         EmoteRenderer renderer = new EmoteRenderer();
@@ -113,7 +106,7 @@ public class PrivateChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        PrivateChatMessage privateChatMessage = new PrivateChatMessage();
+        PrivateChatMessage privateChatMessage = new PrivateChatMessage(language);
         privateChatMessage.loadMessage(message);
 
         Platform.runLater(() -> {
