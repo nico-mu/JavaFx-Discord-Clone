@@ -36,12 +36,11 @@ public class UserKeyProvider {
     }
 
     public static void setEditor(Editor editor) {
-        if (editor.equals(UserKeyProvider.editor)) {
-            return;
-        }
         UserKeyProvider.editor = editor;
-        editor.getOrCreateAccord()
-            .listeners()
-            .addPropertyChangeListener(Accord.PROPERTY_USER_KEY, userKeyChangeListener);
+        if (UserKeyProvider.editor.getOrCreateAccord().listeners().getPropertyChangeListeners(Accord.PROPERTY_USER_KEY).length == 0) {
+            UserKeyProvider.editor.getOrCreateAccord()
+                .listeners()
+                .addPropertyChangeListener(Accord.PROPERTY_USER_KEY, userKeyChangeListener);
+        }
     }
 }
