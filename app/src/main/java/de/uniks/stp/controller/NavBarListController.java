@@ -1,9 +1,11 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.NavBarList;
 import de.uniks.stp.component.NavBarServerElement;
 import de.uniks.stp.component.NavBarUserElement;
+import de.uniks.stp.event.NavBarHomeElementActiveEvent;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -83,6 +85,15 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     }
 
     private void serverRemoved(final Server server) {
+        // in case the deleted server is currently shown: show home screen
+        HashMap<String, String> currentArgs = Router.getCurrentArgs();
+        if(currentArgs.containsKey(":id")){
+            if(currentArgs.get(":id").equals(server.getId())){
+                Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE));
+                navBarList.fireEvent(new NavBarHomeElementActiveEvent());
+            }
+        }
+
         if (Objects.nonNull(server) && navBarServerElementHashMap.containsKey(server)) {
             final NavBarServerElement navBarElement = navBarServerElementHashMap.remove(server);
             Platform.runLater(() -> navBarList.removeElement(navBarElement));

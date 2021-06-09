@@ -326,6 +326,10 @@ public class WebSocketService {
                     Server serv = editor.getServer(data.getString("server"));
                     editor.getOrCreateCategory(catId, catName, serv).setName(catName);
                     return;
+                case "serverDeleted":
+                    serverId = data.getString("id");
+                    editor.removeServer(serverId);
+                    return;
                 default:
                     break;
             }
