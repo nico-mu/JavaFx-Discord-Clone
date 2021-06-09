@@ -274,6 +274,86 @@ public class EditChannelTest {
         Assertions.assertEquals(newChannelName, channelNameText.getText());
     }
 
+    @Test
+    public void deleteChannelTest(FxRobot robot) {
+        Editor editor = StageManager.getEditor();
+
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
+
+        String serverName = "TestServer";
+        String serverId = "12345678";
+        Server testServer = new Server().setName(serverName).setId(serverId);
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .withAvailableServers(testServer);
+
+        String categoryName = "TestCategory";
+        String categoryId = "catId123";
+
+        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        WaitForAsyncUtils.waitForFxEvents();
+        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
+
+        String channelId = "chId1234";
+        String channelName = "testChannel";
+        Channel channel = new Channel().setName(channelName).setId(channelId).setPrivileged(false).setType("text");
+        category.withChannels(channel);
+        testServer.withChannels(channel);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+
+        robot.clickOn("#channel-container");
+        robot.point("#channel-container");
+        robot.point("#edit-channel");
+        robot.clickOn("#edit-channel");
+
+        robot.clickOn("#delete-channel");
+        robot.clickOn("#no-button");
+        robot.clickOn("#delete-channel");
+        robot.clickOn("#yes-button");
+
+        JSONObject j = new JSONObject().put("status", "success").put("message", "")
+            .put("data", new JSONObject());
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(true);
+
+        verify(restMock).deleteChannel(eq(serverId), eq(categoryId), eq(channelId), callbackCaptor.capture());
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+
+        WebSocketService.addServerWebSocket(serverId);
+
+        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
+
+        for (int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
+
+        JsonObject jsonObject = Json.createObjectBuilder()
+            .add("action", "channelDeleted")
+            .add("data",
+                Json.createObjectBuilder()
+                    .add("id", channelId)
+                    .add("name", channelName)
+                    .add("category", categoryId)
+                    .build()
+            )
+            .build();
+        systemCallback.handleMessage(jsonObject);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+    }
+
     @AfterEach
     void tear() {
         restMock = null;

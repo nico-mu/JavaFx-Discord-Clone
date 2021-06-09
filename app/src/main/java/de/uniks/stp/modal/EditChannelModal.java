@@ -12,6 +12,7 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -47,6 +48,7 @@ public class EditChannelModal extends AbstractModal {
     private Category category;
     private Channel channel;
     private RestClient restClient;
+    private ConfirmationModal confirmationModal;
 
     public EditChannelModal(Parent root, Channel channel) {
         super(root);
@@ -88,7 +90,44 @@ public class EditChannelModal extends AbstractModal {
     }
 
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
+        Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
+        confirmationModal = new ConfirmationModal(confirmationModalView,
+            Constants.LBL_DELETE_CHANNEL,
+            Constants.LBL_CONFIRM_DELETE_CHANNEL,
+            this::onYesButtonClicked,
+            this::onNoButtonClicked);
+        confirmationModal.show();
 
+        // disabling buttons improves the view
+        editButton.setDisable(true);
+        cancelButton.setDisable(true);
+        deleteButton.setDisable(true);
+
+    }
+
+    private void onNoButtonClicked(ActionEvent actionEvent) {
+        Platform.runLater(confirmationModal::close);
+        editButton.setDisable(false);
+        cancelButton.setDisable(false);
+        deleteButton.setDisable(false);
+    }
+
+    private void onYesButtonClicked(ActionEvent actionEvent) {
+        Platform.runLater(confirmationModal::close);
+        editButton.setDisable(false);
+        cancelButton.setDisable(false);
+        deleteButton.setDisable(false);
+        restClient.deleteChannel(channel.getServer().getId(), channel.getCategory().getId(), channel.getId(), this::handleDeleteChannelResponse);
+    }
+
+    private void handleDeleteChannelResponse(HttpResponse<JsonNode> jsonNodeHttpResponse) {
+        log.debug("Received delete channel response: " + jsonNodeHttpResponse.getBody().toPrettyString());
+
+        if (jsonNodeHttpResponse.isSuccess()) {
+            Platform.runLater(this::close);
+        }else {
+            log.error("Unhandled create server response: " + jsonNodeHttpResponse.getBody().toPrettyString());
+        }
     }
 
     private void filterUsers(String newValue) {

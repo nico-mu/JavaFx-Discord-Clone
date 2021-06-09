@@ -64,6 +64,8 @@ public class Constants {
     public static final String LBL_EDIT_CHANNEL = "LBL_EDIT_CHANNEL";
     public static final String LBL_EDIT = "LBL_EDIT";
     public static final String LBL_DELETE = "LBL_DELETE";
+    public static final String LBL_DELETE_CHANNEL = "LBL_DELETE_CHANNEL";
+    public static final String LBL_CONFIRM_DELETE_CHANNEL = "LBL_CONFIRM_DELETE_CHANNEL";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";

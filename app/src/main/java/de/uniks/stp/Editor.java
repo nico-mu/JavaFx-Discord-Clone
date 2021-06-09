@@ -293,4 +293,10 @@ public class Editor {
         ServerInvitation newInvite = new ServerInvitation().setId(invId).setLink(link).setType(type).setMax(max).setCurrent(current).setServer(server);
         return newInvite;
     }
+
+    public void deleteChannel(String channelId) {
+        Channel channel = getChannelById(channelId);
+        channel.setServer(null);
+        channel.getCategory().withoutChannels(channel);
+    }
 }
