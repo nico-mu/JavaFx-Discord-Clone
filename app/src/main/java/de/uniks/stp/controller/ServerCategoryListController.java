@@ -74,7 +74,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         for (Category cat : model.getCategories()) {
             cat.listeners().addPropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
         }
-        for(Channel channel : model.getChannels()) {
+        for (Channel channel : model.getChannels()) {
             channel.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
         }
     }
@@ -242,7 +242,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
             category.listeners().removePropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
         }
-        for(Channel channel : model.getChannels()) {
+        for (Channel channel : model.getChannels()) {
             channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
         }
         channelElementHashMap.clear();
