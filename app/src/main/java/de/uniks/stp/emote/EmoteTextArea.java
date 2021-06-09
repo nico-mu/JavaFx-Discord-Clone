@@ -1,7 +1,11 @@
 package de.uniks.stp.emote;
 
+import de.uniks.stp.util.Triple;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import org.fxmisc.richtext.GenericStyledArea;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.TextExt;
@@ -11,6 +15,7 @@ import org.reactfx.util.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
@@ -22,23 +27,19 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
 
     public EmoteTextArea() {
         super(
-            ParStyle.EMPTY,                                               // default paragraph style
-            (paragraph, style) -> paragraph.setStyle(style.toCss()),        // paragraph style setter
-            TextStyle.EMPTY.updateFontSize(12).updateFontFamily("Serif").updateTextColor(Color.BLACK),  // default segment style
+            ParStyle.EMPTY, // default paragraph style
+            (paragraph, style) -> paragraph.setStyle(style.toCss()),  // paragraph style setter
+            TextStyle.EMPTY.updateFontSize(13).updateTextColor(Color.WHITE),  // default segment style
             styledTextOps._or(linkedImageOps, (s1, s2) -> Optional.empty()),                            // segment operations
             seg -> createNode(seg, (text, style) -> text.setStyle(style.toCss())));                     // Node creator and segment style setter
-        setStyle("-fx-background-color: gray;");
+        setAutoScrollOnDragDesired(false);
+        setStyle("-fx-background-color: #23272a;");
         setWrapText(true);
-        // setAutoScrollOnDragDesired(true);
-        // Really important line
-        // requestFollowCaret();
+        setPlaceholder(createPlaceholder());
     }
 
     public void insertEmote(String emoteName) {
-        ReadOnlyStyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> ros =
-            ReadOnlyStyledDocument.fromSegment(Either.right(new RealLinkedImage(emoteName + ".png")),
-                ParStyle.EMPTY, TextStyle.EMPTY, this.getSegOps());
-        insert(getCaretPosition(), ros);
+        insertEmote(emoteName, getCaretPosition());
     }
 
     public void insertEmote(String emoteName, int index) {
@@ -60,17 +61,30 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
                     sb.append(":").append(image.toString()).append(":");
                 });
             }
+            // sb.append(System.getProperty("line.separator"));
         });
 
         return sb.toString();
     }
 
+    public void enable() {
+
+    }
+
+    public void disable() {
+
+    }
+
+    private Text createPlaceholder() {
+        Text text = new Text();
+        text.setFill(Color.WHITE);
+        text.setTextAlignment(TextAlignment.LEFT);
+        return text;
+    }
+
     private static Node createNode(StyledSegment<Either<String, LinkedImage>, TextStyle> seg, BiConsumer<? super TextExt, TextStyle> applyStyle) {
         return seg.getSegment().unify(
-            text -> {
-                TextExt textNode = (TextExt) StyledTextArea.createStyledTextNode(text, seg.getStyle(), applyStyle);
-                return textNode;
-            },
+            text -> StyledTextArea.createStyledTextNode(text, seg.getStyle(), applyStyle),
             LinkedImage::createNode
         );
     }

@@ -62,7 +62,7 @@ public class EmoteParser {
             index++;
         }
         // Clear emote name buffer
-        if (isEmoteName(emoteNameBuffer.toString()) && Objects.nonNull(lastEmoteStart)) {
+        if (isEmoteName(emoteNameBuffer.toString()) && input.charAt(input.length() - 1) == ':' && Objects.nonNull(lastEmoteStart)) {
             parsingResult.add(new Triple<>(lastEmoteStart, index, emoteNameBuffer.toString()));
         }
 

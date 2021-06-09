@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXTextArea?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.HBox?>
@@ -18,23 +17,16 @@
          </ScrollPane>
          <HBox alignment="CENTER_RIGHT" prefHeight="15.0" prefWidth="200.0" VBox.vgrow="SOMETIMES">
             <children>
-               <JFXTextArea fx:id="chatViewMessageInput" promptText="%LBL_CHAT_VIEW_PROMPT" styleClass="message-input" unFocusColor="#23272a" HBox.hgrow="ALWAYS">
-                  <HBox.margin>
-                     <Insets />
-                  </HBox.margin>
-                  <font>
-                     <Font size="14.0" />
-                  </font>
-                  <opaqueInsets>
-                     <Insets />
-                  </opaqueInsets>
-               </JFXTextArea>
-               <VBox fx:id="chatViewEmojiButton" alignment="CENTER" minWidth="30.0" prefHeight="40.0" prefWidth="150.0" styleClass="emoji-button">
+               <VBox fx:id="chatViewMessageInput" minHeight="40.0" styleClass="message-input" HBox.hgrow="ALWAYS">
+                  <padding>
+                     <Insets bottom="5.0" left="5.0" right="10.0" top="5.0" />
+                  </padding></VBox>
+               <VBox fx:id="chatViewEmojiButton" alignment="CENTER" minWidth="30.0" prefHeight="100.0" prefWidth="40.0" styleClass="emoji-button">
                   <HBox.margin>
                      <Insets left="-3.0" right="10.0" />
                   </HBox.margin>
                </VBox>
-               <JFXButton fx:id="chatViewSubmitButton" minWidth="100.0" prefHeight="38.0" prefWidth="150.0" styleClass="submit-button" text="%LBL_CHAT_SEND" textFill="WHITE">
+               <JFXButton fx:id="chatViewSubmitButton" minWidth="100.0" prefHeight="100.0" prefWidth="130.0" styleClass="submit-button" text="%LBL_CHAT_SEND" textFill="WHITE">
                   <font>
                      <Font name="System Bold" size="12.0" />
                   </font>

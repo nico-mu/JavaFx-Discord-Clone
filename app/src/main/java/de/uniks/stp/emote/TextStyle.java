@@ -14,7 +14,7 @@ import java.util.Optional;
 /**
  * Holds information about the style of a text fragment.
  */
-class TextStyle {
+public class TextStyle {
 
     public static final TextStyle EMPTY = new TextStyle();
 
@@ -255,22 +255,20 @@ class TextStyle {
             }
         }
 
-        if (fontSize.isPresent()) {
-            sb.append("-fx-font-size: " + fontSize.get() + "pt;");
-        }
+        fontSize.ifPresent(integer -> sb.append("-fx-font-size: ").append(integer).append("px;"));
 
-        if (fontFamily.isPresent()) {
-            sb.append("-fx-font-family: " + fontFamily.get() + ";");
-        }
+        fontFamily.ifPresent(s -> sb.append("-fx-font-family: ").append(s).append(";"));
 
         if (textColor.isPresent()) {
             Color color = textColor.get();
-            sb.append("-fx-fill: " + cssColor(color) + ";");
+            sb.append("-fx-fill: ").append(cssColor(color)).append(";");
+        } else {
+            sb.append("-fx-fill: ").append("white").append(";");
         }
 
         if (backgroundColor.isPresent()) {
             Color color = backgroundColor.get();
-            sb.append("-rtfx-background-color: " + cssColor(color) + ";");
+            sb.append("-rtfx-background-color: ").append(cssColor(color)).append(";");
         }
 
         return sb.toString();

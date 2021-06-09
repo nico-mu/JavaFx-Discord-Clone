@@ -3,10 +3,9 @@ package de.uniks.stp.component;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.emote.EmoteParser;
-import de.uniks.stp.emote.EmoteRenderer;
-import de.uniks.stp.emote.EmoteTextArea;
+import de.uniks.stp.emote.*;
 import de.uniks.stp.model.Message;
+import de.uniks.stp.util.Triple;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -17,13 +16,17 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.model.StyledDocument;
+import org.reactfx.util.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -40,11 +43,12 @@ public class PrivateChatView extends VBox {
     @FXML
     private VBox chatViewEmojiButton;
     @FXML
-    private JFXTextArea chatViewMessageInput;
+    private VBox chatViewMessageInput;
     @FXML
     private ScrollPane chatViewMessageScrollPane;
     @FXML
     private VBox messageList;
+    private EmoteTextArea emoteTextArea;
 
     private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
@@ -66,34 +70,26 @@ public class PrivateChatView extends VBox {
         EmoteRenderer renderer = new EmoteRenderer();
         // Image strategy
         renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
-        // chatViewEmojiButton.getChildren().addAll(renderer.setSize(26).render(":" + "grinning_face" + ":"));
         chatViewEmojiButton.getChildren().addAll(renderer.setSize(26).render(":" + "grinning_face" + ":"));
 
         messageList.heightProperty().addListener(heightChangedListener);
 
-        chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
-        popup.setOnEmoteClicked((emoteName) -> {
-            chatViewMessageInput.appendText(":" + emoteName + ":");
-        });
+        // TODO: Change color of the cursor
+        emoteTextArea = new EmoteTextArea();
+        emoteTextArea.setOnKeyPressed(this::checkForEnter);
+        VirtualizedScrollPane<EmoteTextArea> scroll = new VirtualizedScrollPane<>(emoteTextArea);
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        EmoteTextArea area = new EmoteTextArea();
-        area.insertEmote("grinning_face");
-
-        VirtualizedScrollPane scroll = new VirtualizedScrollPane(area);
-        scroll.layout();
-
-        AtomicReference<Integer> maxCaret = new AtomicReference<>(0);
-
-        // IMPORTANT
-        area.caretPositionProperty().addListener((k) -> {
+        // The scrolling works but it's not a good solution
+        emoteTextArea.caretPositionProperty().addListener((k) -> {
+            emoteTextArea.layout();
             scroll.layout();
-            if (area.getCaretPosition() > maxCaret.get()) {
-                maxCaret.set(area.getCaretPosition());
-                scroll.layout();
-            }
+            emoteTextArea.layout();
+            scroll.layout();
         });
 
-        messageList.getChildren().add(scroll);
+        chatViewMessageInput.getChildren().add(scroll);
+        popup.setOnEmoteClicked(emoteTextArea::insertEmote);
 
         chatViewMessageScrollPane.setFitToWidth(true);
     }
@@ -133,10 +129,10 @@ public class PrivateChatView extends VBox {
     private void checkForEnter(KeyEvent keyEvent) {
         if (keyEvent.getCode() == KeyCode.ENTER) {
             if (keyEvent.isShiftDown()) {
-                chatViewMessageInput.appendText(System.getProperty("line.separator"));
+                // TODO: The new line is not displayed in chat
+                emoteTextArea.appendText(System.getProperty("line.separator"));
+                emoteTextArea.layout();
             } else {
-                String text = chatViewMessageInput.getText();
-                chatViewMessageInput.setText(text.substring(0, text.length() - 1));
                 onSubmitClicked(null);
             }
         }
@@ -152,12 +148,12 @@ public class PrivateChatView extends VBox {
      * @param mouseEvent
      */
     private void onSubmitClicked(MouseEvent mouseEvent) {
-        String message = EmoteParser.toUnicodeString(chatViewMessageInput.getText());
+        String message = EmoteParser.toUnicodeString(emoteTextArea.getStringContent());
 
         if (message.isEmpty()) {
             return;
         }
-        chatViewMessageInput.clear();
+        emoteTextArea.clear();
 
         submitListener.accept(message);
     }
@@ -179,14 +175,20 @@ public class PrivateChatView extends VBox {
         Platform.runLater(() -> {
             chatViewSubmitButton.setDisable(true);
             chatViewMessageInput.setDisable(true);
+            emoteTextArea.setDisable(true);
             chatViewEmojiButton.setDisable(true);
             chatViewEmojiButton.setStyle("-fx-background-color: #292C2E;");
+            emoteTextArea.setStyle("-fx-background-color: #292C2E;");
+            chatViewMessageInput.setStyle("-fx-background-color: #292C2E;");
         });
     }
 
     public void enable() {
         Platform.runLater(() -> {
             chatViewSubmitButton.setDisable(false);
+            emoteTextArea.setDisable(false);
+            emoteTextArea.setStyle("-fx-background-color: #23272a;");
+            chatViewMessageInput.setStyle("-fx-background-color:#23272a;");
             chatViewMessageInput.setDisable(false);
             chatViewEmojiButton.setDisable(false);
             chatViewEmojiButton.setStyle("-fx-background-color: #23272a;");

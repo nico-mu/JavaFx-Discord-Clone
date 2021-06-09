@@ -35,8 +35,8 @@ public class RealLinkedImage implements LinkedImage {
         InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/" + getImagePath()));
         Image image = new Image(inputStream);
         ImageView imageView = new ImageView();
-        imageView.setScaleX(1.5);
-        imageView.setScaleY(1.5);
+        imageView.setScaleX(1.75);
+        imageView.setScaleY(1.75);
         imageView.setFitWidth(13);
         imageView.setFitHeight(13);
         imageView.setImage(image);
