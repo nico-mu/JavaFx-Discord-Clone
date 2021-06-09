@@ -54,7 +54,7 @@ public class EditChannelModal extends AbstractModal {
         this.channel = channel;
         this.restClient = NetworkClientInjector.getRestClient();
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_CREATE_CHANNEL));
+        setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_CHANNEL));
         channelName = (JFXTextField) view.lookup(EDIT_CHANNEL_NAME_TEXTFIELD);
         privileged = (JFXCheckBox) view.lookup(PRIVILEGED_CHECKBOX);
         filter = (JFXTextField) view.lookup(FILTER_USER_TEXTFIELD);

@@ -58,6 +58,9 @@ public class Constants {
     public static final String LBL_MISSING_MAX_VALUE = "LBL_MISSING_MAX_VALUE";
     public static final String LBL_CANT_DELETE_INVITATION = "LBL_CANT_DELETE_INVITATION";
     public static final String LBL_NOT_SERVER_OWNER = "LBL_NOT_SERVER_OWNER";
+    public static final String LBL_EDIT_CHANNEL = "LBL_EDIT_CHANNEL";
+    public static final String LBL_EDIT = "LBL_EDIT";
+    public static final String LBL_DELETE = "LBL_DELETE";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";

@@ -20,13 +20,13 @@
       <HBox id="user-check-list-container" maxHeight="240.0" prefHeight="240.0" prefWidth="200.0" styleClass="user-check-list-container" />
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="120.0">
          <children>
-            <JFXButton id="edit-channel-create-button" styleClass="edit-channel-create-button" text="%LBL_CREATE" />
+            <JFXButton id="edit-channel-create-button" styleClass="edit-channel-create-button" text="%LBL_EDIT" />
             <JFXButton id="edit-channel-cancel-button" styleClass="edit-channel-cancel-button" text="%LBL_CANCEL" />
          </children>
       </HBox>
       <HBox alignment="CENTER">
          <children>
-            <JFXButton id="delete-channel" styleClass="edit-channel-create-button" />
+            <JFXButton id="delete-channel" styleClass="edit-channel-create-button" text="%LBL_DELETE" />
          </children>
       </HBox>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
