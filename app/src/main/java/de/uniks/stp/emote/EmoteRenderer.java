@@ -3,12 +3,14 @@ package de.uniks.stp.emote;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.util.Triple;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 import java.io.InputStream;
 import java.util.LinkedList;
@@ -20,7 +22,7 @@ public class EmoteRenderer {
     private Function<String, List<Node>> emoteRenderStrategy;
     private Paint textFill = Color.WHITE;
     private int size = 16;
-    private int scalingFactor = 1;
+    private double scalingFactor = 1;
 
     public EmoteRenderer() {
         this.emoteRenderStrategy = this::defaultEmoteRenderStrategy;
@@ -38,7 +40,7 @@ public class EmoteRenderer {
         return size;
     }
 
-    public int getScalingFactor() {
+    public double getScalingFactor() {
         return scalingFactor;
     }
 
@@ -52,7 +54,7 @@ public class EmoteRenderer {
         return this;
     }
 
-    public EmoteRenderer setScalingFactor(int scalingFactor) {
+    public EmoteRenderer setScalingFactor(double scalingFactor) {
         this.scalingFactor = scalingFactor;
         return this;
     }
@@ -82,6 +84,13 @@ public class EmoteRenderer {
         }
 
         return renderResult;
+    }
+
+    public void renderInto(String text, TextFlow container) {
+        LinkedList<Node> renderResult = render(text);
+        for (Node node : renderResult) {
+            container.getChildren().add(node);
+        }
     }
 
     public List<Node> imageEmoteRenderStrategy(String emoteName) {

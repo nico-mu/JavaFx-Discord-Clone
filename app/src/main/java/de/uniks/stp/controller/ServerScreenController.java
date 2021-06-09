@@ -4,6 +4,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
+import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.modal.CreateCategoryModal;
 import de.uniks.stp.modal.InvitesModal;
 import de.uniks.stp.modal.ServerSettingsModal;
@@ -19,6 +20,7 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -26,9 +28,11 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.LinkedList;
 import java.util.Objects;
 
 import static de.uniks.stp.view.Views.SERVER_SCREEN;
@@ -45,7 +49,7 @@ public class ServerScreenController implements ControllerInterface {
     private FlowPane serverScreenView;
     private final Editor editor;
     private final Server model;
-    private Label serverNameLabel;
+    private TextFlow serverNameLabel;
     private VBox serverChannelOverview;
     private ServerCategoryListController categoryListController;
     private FlowPane serverChatContainer;
@@ -53,6 +57,7 @@ public class ServerScreenController implements ControllerInterface {
     private ServerUserListController serverUserListController;
     private FlowPane serverUserListContainer;
     private Label settingsGearLabel;
+    private final EmoteRenderer renderer = new EmoteRenderer();
 
     private ContextMenu settingsContextMenu;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
@@ -73,8 +78,11 @@ public class ServerScreenController implements ControllerInterface {
         settingsContextMenu = settingsGearLabel.getContextMenu();
 
         view.getChildren().add(serverScreenView);
-        serverNameLabel = (Label) view.lookup(SERVER_NAME_LABEL_ID);
-        serverNameLabel.setText(model.getName());
+        serverNameLabel = (TextFlow) view.lookup(SERVER_NAME_LABEL_ID);
+        renderer.setSize(16).setScalingFactor(2.5);
+        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
+        // TODO: Rename label to text flow
+        renderer.renderInto(model.getName(), serverNameLabel);
 
         ObservableList<MenuItem> items = settingsContextMenu.getItems();
         items.get(0).setOnAction(this::onInviteUserClicked);
@@ -117,7 +125,10 @@ public class ServerScreenController implements ControllerInterface {
     }
 
     private void onServerNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        Platform.runLater(()-> serverNameLabel.setText(model.getName()));
+        Platform.runLater(()-> {
+            serverNameLabel.getChildren().clear();
+            renderer.renderInto(model.getName(), serverNameLabel);
+        });
     }
 
     private void onInviteUserClicked(ActionEvent actionEvent) {

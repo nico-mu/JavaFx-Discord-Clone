@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.text.TextFlow?>
 <fx:root id="channel-list-element" prefHeight="41.0" prefWidth="197.0" styleClass="channel-list-element" stylesheets="@../style/css/component/server-category-list.css" type="VBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox id="category-head-pane" fx:id="categoryHeadPane" alignment="CENTER" prefHeight="41.0" prefWidth="161.0" spacing="5.0" styleClass="category-head-pane">
@@ -20,7 +21,7 @@
                   </ImageView>
                </children>
             </VBox>
-            <Label id="category-head-label" fx:id="categoryHeadLabel" prefHeight="44.0" prefWidth="127.0" styleClass="category-head-label" text="Label" />
+            <TextFlow id="category-head-label" fx:id="categoryHeadLabel" prefHeight="44.0" prefWidth="127.0" styleClass="category-head-label"/>
             <ImageView id="add-channel-plus" fx:id="addServerPlus" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" visible="false">
                <image>
                   <Image url="@../img/blueplus.png" />

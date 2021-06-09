@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.emote.EmoteRenderer;
+import de.uniks.stp.emote.EmoteTextArea;
 import de.uniks.stp.model.ServerMessage;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -18,6 +19,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -29,7 +31,7 @@ public class ServerChatView extends VBox {
     @FXML
     private JFXButton chatViewSubmitButton;
     @FXML
-    private JFXTextArea chatViewMessageInput;
+    private VBox chatViewMessageInput;
     @FXML
     private ScrollPane chatViewMessageScrollPane;
     @FXML
@@ -44,6 +46,7 @@ public class ServerChatView extends VBox {
     private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
     private final EmotePickerPopup popup = new EmotePickerPopup();
+    private final EmoteTextArea emoteTextArea;
     private final String language;
 
     public ServerChatView(EventHandler<ActionEvent> loadMessagesHandler, String language) {
@@ -61,19 +64,30 @@ public class ServerChatView extends VBox {
         chatViewEmojiButton.setOnMouseClicked(this::onEmoteClicked);
         EmoteRenderer renderer = new EmoteRenderer();
         // Image strategy
-        // renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
-        // chatViewEmojiButton.getChildren().addAll(renderer.setSize(26).render(":" + "grinning_face" + ":"));
-        // Default strategy
-        chatViewEmojiButton.getChildren().addAll(renderer.setSize(16).render(":" + "grinning_face" + ":"));
+        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
+        chatViewEmojiButton.getChildren().addAll(renderer.setSize(26).render(":" + "grinning_face" + ":"));
 
         messageList.heightProperty().addListener(heightChangedListener);
+
+        emoteTextArea = new EmoteTextArea();
+        emoteTextArea.setOnKeyPressed(this::checkForEnter);
+        VirtualizedScrollPane<EmoteTextArea> scroll = new VirtualizedScrollPane<>(emoteTextArea);
+        // VirtualizedScrollPaneDecorator<EmoteTextArea> scroll = new VirtualizedScrollPaneDecorator<>(emoteTextArea, "Write Something");
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        // The scrolling works but it's not a good solution
+        emoteTextArea.caretPositionProperty().addListener((k) -> {
+            emoteTextArea.layout();
+            scroll.layout();
+            emoteTextArea.layout();
+            scroll.layout();
+        });
 
         chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
 
         loadMessagesButton.setOnAction(loadMessagesHandler);
-        popup.setOnEmoteClicked((emoteName) -> {
-            chatViewMessageInput.appendText(":" + emoteName + ":");
-        });
+        chatViewMessageInput.getChildren().add(scroll);
+        popup.setOnEmoteClicked(emoteTextArea::insertEmote);
 
         chatViewMessageScrollPane.setFitToWidth(true);
 
@@ -129,12 +143,12 @@ public class ServerChatView extends VBox {
      * @param keyEvent
      */
     private void checkForEnter(KeyEvent keyEvent) {
-        if (keyEvent.getCode() == KeyCode.ENTER)  {
+        if (keyEvent.getCode() == KeyCode.ENTER) {
             if (keyEvent.isShiftDown()) {
-                chatViewMessageInput.appendText(System.getProperty("line.separator"));
+                // TODO: The new line is not displayed in chat
+                emoteTextArea.appendText(System.getProperty("line.separator"));
+                emoteTextArea.layout();
             } else {
-                String text = chatViewMessageInput.getText();
-                chatViewMessageInput.setText(text.substring(0, text.length() - 1));
                 onSubmitClicked(null);
             }
         }
@@ -145,12 +159,12 @@ public class ServerChatView extends VBox {
      * @param mouseEvent
      */
     private void onSubmitClicked(MouseEvent mouseEvent) {
-        String message = EmoteParser.toUnicodeString(chatViewMessageInput.getText());
+        String message = EmoteParser.toUnicodeString(emoteTextArea.getStringContent());
 
         if (message.isEmpty()) {
             return;
         }
-        chatViewMessageInput.clear();
+        emoteTextArea.clear();
 
         submitListener.accept(message);
     }

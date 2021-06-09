@@ -27,12 +27,13 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
             ParStyle.EMPTY, // default paragraph style
             (paragraph, style) -> paragraph.setStyle(style.toCss()),  // paragraph style setter
             TextStyle.EMPTY.updateFontSize(13).updateTextColor(Color.WHITE),  // default segment style
-            styledTextOps._or(linkedImageOps, (s1, s2) -> Optional.empty()),                            // segment operations
-            seg -> createNode(seg, (text, style) -> text.setStyle(style.toCss())));                     // Node creator and segment style setter
+            styledTextOps._or(linkedImageOps, (s1, s2) -> Optional.empty()), // segment operations
+            seg -> createNode(seg, (text, style) -> text.setStyle(style.toCss()))); // Node creator and segment style setter
         setAutoScrollOnDragDesired(false);
         setStyle("-fx-background-color: #23272a;");
         setWrapText(true);
-        setPlaceholder(createPlaceholder());
+        // TODO: The placeholder is not rendered properly
+        setPlaceholder(createPlaceholder("Write something"));
     }
 
     public void insertEmote(String emoteName) {
@@ -72,10 +73,12 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
 
     }
 
-    private Text createPlaceholder() {
+    private Text createPlaceholder(String placeholder) {
         Text text = new Text();
         text.setFill(Color.WHITE);
         text.setTextAlignment(TextAlignment.LEFT);
+        text.setUnderline(true);
+        text.setText(placeholder);
         return text;
     }
 
