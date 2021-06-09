@@ -12,6 +12,7 @@ import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketClient;
 import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
@@ -65,6 +66,7 @@ public class LoadOldMessagesTest {
         NetworkClientInjector.setRestClient(restMock);
         NetworkClientInjector.setWebSocketClient(webSocketMock);
         StageManager.setBackupMode(false);
+        NotificationService.setMuted(true);
         app = new StageManager();
         app.start(stage);
     }
