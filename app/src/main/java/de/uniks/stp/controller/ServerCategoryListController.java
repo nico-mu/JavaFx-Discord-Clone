@@ -48,6 +48,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     PropertyChangeListener categoriesPropertyChangeListener = this::onCategoriesPropertyChanged;
     PropertyChangeListener channelPropertyChangeListener = this::onChannelPropertyChanged;
     PropertyChangeListener categoryNamePropertyChangeListener = this::onCatNamePropertyChanged;
+    PropertyChangeListener channelNamePropertyChangeListener = this::onChannelNamePropertyChanged;
 
     public ServerCategoryListController(Parent view, Editor editor, Server model) {
         this.view = view;
@@ -72,6 +73,9 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
         for (Category cat : model.getCategories()) {
             cat.listeners().addPropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
+        }
+        for (Channel channel : model.getChannels()) {
+            channel.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
         }
     }
 
@@ -188,11 +192,20 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         }
     }
 
+    private void onChannelNamePropertyChanged(PropertyChangeEvent propertyChangeEvent) {
+        Channel channel = (Channel) propertyChangeEvent.getSource();
+        String newName = (String) propertyChangeEvent.getNewValue();
+        if (Objects.nonNull(channel) && Objects.nonNull(newName) && channelElementHashMap.containsKey(channel)) {
+            channelElementHashMap.get(channel).updateText(newName);
+        }
+    }
+
     private void channelRemoved(final Category category, final Channel channel) {
         if (Objects.nonNull(category) && Objects.nonNull(channel) && channelElementHashMap.containsKey(channel)) {
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
             Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
+            channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             NotificationService.removePublisher(channel);
         }
     }
@@ -203,6 +216,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             final ServerChannelElement serverChannelElement = new ServerChannelElement(channel);
             NotificationService.register(channel);
+            channel.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             channelElementHashMap.put(channel, serverChannelElement);
             Platform.runLater(() -> {
                 serverCategoryElement.addChannelElement(serverChannelElement);
@@ -227,6 +241,9 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         for (Category category : model.getCategories()) {
             category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
             category.listeners().removePropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
+        }
+        for (Channel channel : model.getChannels()) {
+            channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
         }
         channelElementHashMap.clear();
         categoryElementHashMap.clear();

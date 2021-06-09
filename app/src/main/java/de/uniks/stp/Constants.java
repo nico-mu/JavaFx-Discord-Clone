@@ -40,7 +40,10 @@ public class Constants {
     public static final String LBL_OFF = "LBL_OFF";
     public static final String LBL_NO_CHANGES = "LBL_NO_CHANGES";
     public static final String LBL_RENAME_SERVER_FAILED = "LBL_RENAME_SERVER_FAILED";
+    public static final String LBL_DELETE_SERVER_FAILED = "LBL_DELETE_SERVER_FAILED";
     public static final String LBL_EDIT_SERVER_TITLE = "LBL_EDIT_SERVER_TITLE";
+    public static final String LBL_DELETE_SERVER = "LBL_DELETE_SERVER";
+    public static final String LBL_CONFIRM_DELETE_SERVER = "LBL_CONFIRM_DELETE_SERVER";
     public static final String LBL_CREATE_CATEGORY_FAILED = "LBL_CREATE_CATEGORY_FAILED";
     public static final String LBL_EDIT_CATEGORY_FAILED = "LBL_EDIT_CATEGORY_FAILED";
     public static final String LBL_CREATE_CATEGORY_TITLE = "LBL_CREATE_CATEGORY_TITLE";
@@ -58,6 +61,9 @@ public class Constants {
     public static final String LBL_MISSING_MAX_VALUE = "LBL_MISSING_MAX_VALUE";
     public static final String LBL_CANT_DELETE_INVITATION = "LBL_CANT_DELETE_INVITATION";
     public static final String LBL_NOT_SERVER_OWNER = "LBL_NOT_SERVER_OWNER";
+    public static final String LBL_EDIT_CHANNEL = "LBL_EDIT_CHANNEL";
+    public static final String LBL_EDIT = "LBL_EDIT";
+    public static final String LBL_DELETE = "LBL_DELETE";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";

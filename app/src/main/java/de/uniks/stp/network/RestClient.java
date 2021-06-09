@@ -42,6 +42,11 @@ public class RestClient {
         sendRequest(req, callback);
     }
 
+    public void deleteServer(String id, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + id);
+        sendRequest(req, callback);
+    }
+
     public void createCategory(String id, String name, Callback<JsonNode> callback) {
         HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + id + Constants.REST_CATEGORY_PATH)
             .body(Json.createObjectBuilder().add("name", name).build().toString());
@@ -163,6 +168,19 @@ public class RestClient {
 
     public void deleteServerInvitation(String serverId, String invId, Callback<JsonNode> callback) {
         HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH + "/" + invId);
+        sendRequest(req, callback);
+    }
+
+    public void editTextChannel(String serverId, String categoryId, String channelId, String channelName, Boolean privileged, ArrayList<String> members, Callback<JsonNode> callback) {
+        JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+        for(String userId : members){
+            arrayBuilder.add(userId);
+        }
+        HttpRequest<?> req = Unirest.put(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH + "/" + channelId)
+            .body(Json.createObjectBuilder()
+                .add("name", channelName)
+                .add("privileged", privileged)
+                .add("members", arrayBuilder.build()).build().toString());
         sendRequest(req, callback);
     }
 }

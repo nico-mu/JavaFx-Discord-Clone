@@ -2,7 +2,7 @@ package de.uniks.stp;
 
 import de.uniks.stp.model.*;
 import de.uniks.stp.view.Languages;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,30 +37,38 @@ public class Editor {
         final User currentUser = getOrCreateAccord().getCurrentUser();
         final Map<String, Server> serverMap = availableServersAsServerIdMap();
 
-        if(serverMap.containsKey(id)) {
+        if (serverMap.containsKey(id)) {
             return serverMap.get(id);
         }
         return new Server().setName(name).setId(id).withUsers(currentUser);
     }
 
-    public List<Server> getAvailableServers(){
+    public List<Server> getAvailableServers() {
         return accord.getCurrentUser().getAvailableServers();
     }
 
     public Server getServer(final String id) {
         final Map<String, Server> serverMap = availableServersAsServerIdMap();
 
-        if(serverMap.containsKey(id)) {
+        if (serverMap.containsKey(id)) {
             return serverMap.get(id);
         }
         return null;
+    }
+
+    public void removeServer(final String id) {
+        final Map<String, Server> serverMap = availableServersAsServerIdMap();
+
+        if(serverMap.containsKey(id)) {
+            accord.getCurrentUser().withoutAvailableServers(serverMap.get(id));
+        }
     }
 
     public User getOrCreateOtherUser(final String userId, final String name) {
         User other = null;
         final User currentUser = getOrCreateAccord().getCurrentUser();
 
-        if(Objects.nonNull(currentUser) && name.equals(currentUser.getName())){
+        if (Objects.nonNull(currentUser) && name.equals(currentUser.getName())) {
             currentUser.setId(userId);
         }
 
@@ -84,8 +92,8 @@ public class Editor {
 
     public User getOtherUser(String username) {
         List<User> otherUsers = accord.getOtherUsers();
-        for(User user: otherUsers){
-            if(user.getName().equals(username)){
+        for (User user : otherUsers) {
+            if (user.getName().equals(username)) {
                 return user;
             }
         }
@@ -115,9 +123,9 @@ public class Editor {
     }
 
     public Category getOrCreateCategory(final String categoryId, final String name, final Server server) {
-        if(Objects.nonNull(server)) {
+        if (Objects.nonNull(server)) {
             for (Category category : server.getCategories()) {
-                if(category.getId().equals(categoryId)) {
+                if (category.getId().equals(categoryId)) {
                     return category;
                 }
             }
@@ -129,9 +137,9 @@ public class Editor {
     }
 
     public Category getCategory(final String categoryId, final Server server) {
-        if(Objects.nonNull(server)) {
+        if (Objects.nonNull(server)) {
             for (Category category : server.getCategories()) {
-                if(category.getId().equals(categoryId)) {
+                if (category.getId().equals(categoryId)) {
                     return category;
                 }
             }
@@ -140,9 +148,9 @@ public class Editor {
     }
 
     public Channel getOrCreateChannel(final String channelId, final String name, final Category category) {
-        if(Objects.nonNull(category)) {
-            for(Channel channel: category.getChannels()) {
-                if(channel.getId().equals(channelId)) {
+        if (Objects.nonNull(category)) {
+            for (Channel channel : category.getChannels()) {
+                if (channel.getId().equals(channelId)) {
                     return channel;
                 }
             }
@@ -154,9 +162,9 @@ public class Editor {
     }
 
     public Channel getChannel(final String channelId, final Category category) {
-        if(Objects.nonNull(category)) {
+        if (Objects.nonNull(category)) {
             for (Channel channel : category.getChannels()) {
-                if(channel.getId().equals(channelId)) {
+                if (channel.getId().equals(channelId)) {
                     return channel;
                 }
             }
@@ -166,10 +174,10 @@ public class Editor {
 
     // channelId is unique for complete server, not just for a category
     public Channel getChannel(final String channelId, final Server server) {
-        if(Objects.nonNull(server)) {
-            for(Category category: server.getCategories()){
+        if (Objects.nonNull(server)) {
+            for (Category category : server.getCategories()) {
                 for (Channel channel : category.getChannels()) {
-                    if(channel.getId().equals(channelId)) {
+                    if (channel.getId().equals(channelId)) {
                         return channel;
                     }
                 }
@@ -177,6 +185,19 @@ public class Editor {
             for (Channel channel : server.getChannels()) {
                 if (channel.getId().equals(channelId)) {
                     return channel;
+                }
+            }
+        }
+        return null;
+    }
+
+    public Channel getChannelById(String id) {
+        for (Server server : getOrCreateAccord().getCurrentUser().getAvailableServers()) {
+            for (Category category : server.getCategories()) {
+                for (Channel channel : category.getChannels()) {
+                    if (channel.getId().equals(id)) {
+                        return channel;
+                    }
                 }
             }
         }
@@ -253,18 +274,18 @@ public class Editor {
     }
 
     public boolean isChatPartnerOfCurrentUser(String userId) {
-       return Objects.nonNull(getChatPartnerOfCurrentUserById(userId));
+        return Objects.nonNull(getChatPartnerOfCurrentUserById(userId));
     }
 
-    public void prepareLogout(){
+    public void prepareLogout() {
         accord.setUserKey("");
         accord = new Accord().setLanguage(accord.getLanguage());
     }
 
-    public ServerInvitation getOrCreateServerInvitation(String invId, String link, String type, int max, int current,String serverId) {
+    public ServerInvitation getOrCreateServerInvitation(String invId, String link, String type, int max, int current, String serverId) {
         Server server = getServer(serverId);
         for (ServerInvitation serverInvitation : server.getInvitations()) {
-            if(serverInvitation.getId().equals(invId)) {
+            if (serverInvitation.getId().equals(invId)) {
                 serverInvitation.setCurrent(current);
                 return serverInvitation;
             }
