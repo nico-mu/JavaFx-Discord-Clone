@@ -34,7 +34,7 @@ public class AudioService {
             return;
         }
         if (Objects.isNull(notificationSoundFile)) {
-            setNotificationSoundFile("default.wav");
+            setNotificationSoundFile("gaming-lock.wav");
         }
         MediaPlayer mediaPlayer = new MediaPlayer(notificationSoundFile);
         mediaPlayer.play();
