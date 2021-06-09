@@ -16,6 +16,7 @@ import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.notification.SubscriberInterface;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -106,6 +108,14 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
                 final Server server = editor.getOrCreateServer(serverId, name);
                 serverAdded(server);
+            }
+            if (Router.getCurrentArgs().containsKey(":id") && Router.getCurrentArgs().containsKey(":channelId")) {
+                String activeServerId = Router.getCurrentArgs().get(":id");
+                for (Server server : editor.getOrCreateAccord().getCurrentUser().getAvailableServers()) {
+                    if (server.getId().equals(activeServerId) && navBarServerElementHashMap.containsKey(server)) {
+                        navBarList.setActiveElement(navBarServerElementHashMap.get(server));
+                    }
+                }
             }
         } else {
             log.error("Response was unsuccessful, error code: " + response.getStatusText());
