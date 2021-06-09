@@ -109,7 +109,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
                 final Server server = editor.getOrCreateServer(serverId, name);
                 serverAdded(server);
             }
-            if (Router.getCurrentArgs().containsKey(":id")) {
+            if (Router.getCurrentArgs().containsKey(":id") && Router.getCurrentArgs().containsKey(":channelId")) {
                 String activeServerId = Router.getCurrentArgs().get(":id");
                 for (Server server : editor.getOrCreateAccord().getCurrentUser().getAvailableServers()) {
                     if (server.getId().equals(activeServerId) && navBarServerElementHashMap.containsKey(server)) {
