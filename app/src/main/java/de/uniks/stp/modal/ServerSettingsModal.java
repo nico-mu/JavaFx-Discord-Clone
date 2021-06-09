@@ -14,8 +14,6 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.scene.effect.BlendMode;
-import javafx.scene.paint.Paint;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
@@ -114,6 +112,10 @@ public class ServerSettingsModal extends AbstractModal {
         this.close();
     }
 
+    /**
+     * Shows ConfirmationModal
+     * @param actionEvent
+     */
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
         Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
         serverSettingsModal = new ConfirmationModal(confirmationModalView,
@@ -123,11 +125,16 @@ public class ServerSettingsModal extends AbstractModal {
             this::onNoButtonClicked);
         serverSettingsModal.show();
 
+        // disabling buttons improves the view
         saveButton.setDisable(true);
         cancelButton.setDisable(true);
         deleteButton.setDisable(true);
     }
 
+    /**
+     * Used as onAction Method of Yes-Button in ConfirmationModal for server deletion
+     * @param actionEvent
+     */
     private void onYesButtonClicked(ActionEvent actionEvent) {
         Platform.runLater(serverSettingsModal::close);
 
@@ -142,6 +149,10 @@ public class ServerSettingsModal extends AbstractModal {
         restClient.deleteServer(model.getId(), this::handleDeleteServerResponse);
     }
 
+    /**
+     * Used as onAction Method of No-Button in ConfirmationModal for server deletion
+     * @param actionEvent
+     */
     private void onNoButtonClicked(ActionEvent actionEvent) {
         Platform.runLater(serverSettingsModal::close);
         saveButton.setDisable(false);
@@ -149,6 +160,11 @@ public class ServerSettingsModal extends AbstractModal {
         deleteButton.setDisable(false);
     }
 
+    /**
+     * when successful: View is closed, server is deleted when WebSocketMessage is received
+     * When unsuccessful: shows error message, hides spinner and enables control elements
+     * @param response
+     */
     private void handleDeleteServerResponse(HttpResponse<JsonNode> response) {
         log.debug(response.getBody().toPrettyString());
 

@@ -85,14 +85,12 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     }
 
     private void serverRemoved(final Server server) {
-
+        // in case the deleted server is currently shown: show home screen
         HashMap<String, String> currentArgs = Router.getCurrentArgs();
         if(currentArgs.containsKey(":id")){
             if(currentArgs.get(":id").equals(server.getId())){
                 Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE));
                 navBarList.fireEvent(new NavBarHomeElementActiveEvent());
-                // or: Router.forceReloadAndRouteHome()
-                //return;
             }
         }
 
