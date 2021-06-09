@@ -45,9 +45,12 @@ public class Constants {
     public static final String LBL_DELETE_SERVER = "LBL_DELETE_SERVER";
     public static final String LBL_CONFIRM_DELETE_SERVER = "LBL_CONFIRM_DELETE_SERVER";
     public static final String LBL_CREATE_CATEGORY_FAILED = "LBL_CREATE_CATEGORY_FAILED";
-    public static final String LBL_EDIT_CATEGORY_FAILED = "LBL_EDIT_CATEGORY_FAILED";
+    public static final String LBL_RENAME_CATEGORY_FAILED = "LBL_RENAME_CATEGORY_FAILED";
+    public static final String LBL_DELETE_CATEGORY_FAILED = "LBL_DELETE_CATEGORY_FAILED";
     public static final String LBL_CREATE_CATEGORY_TITLE = "LBL_CREATE_CATEGORY_TITLE";
     public static final String LBL_EDIT_CATEGORY_TITLE = "LBL_EDIT_CATEGORY_TITLE";
+    public static final String LBL_DELETE_CATEGORY = "LBL_DELETE_CATEGORY";
+    public static final String LBL_CONFIRM_DELETE_CATEGORY = "LBL_CONFIRM_DELETE_CATEGORY";
     public static final String LBL_CREATE_CHANNEL = "LBL_CREATE_CHANNEL";
     public static final String LBL_MISSING_NAME = "LBL_MISSING_NAME";
     public static final String LBL_MISSING_MEMBERS = "LBL_MISSING_MEMBERS";
