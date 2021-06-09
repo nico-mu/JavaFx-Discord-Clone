@@ -150,7 +150,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                         serverCategoryList.setActiveElement(channelElementHashMap.get(channel));
                     }
                 }
-            } else if (routeArgs.containsKey(":id")) {
+            } else if (routeArgs.containsKey(":id") && model.getId().equals(Router.getCurrentArgs().get(":id"))) {
                 serverCategoryList.setActiveElement(channelElementHashMap.get(defaultChannel));
                 NotificationService.consume(defaultChannel);
 
