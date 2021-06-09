@@ -151,18 +151,22 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                     }
                 }
             } else if (routeArgs.containsKey(":id") && model.getId().equals(Router.getCurrentArgs().get(":id"))) {
-                serverCategoryList.setActiveElement(channelElementHashMap.get(defaultChannel));
-                NotificationService.consume(defaultChannel);
-
-                RouteArgs args = new RouteArgs();
-                args.addArgument(":id", defaultChannel.getCategory().getServer().getId());
-                args.addArgument(":categoryId", defaultChannel.getCategory().getId());
-                args.addArgument(":channelId", defaultChannel.getId());
-                Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
+                goToDefaultChannel();
             }
         } else {
             //TODO: show error message
         }
+    }
+
+    private void goToDefaultChannel() {
+        serverCategoryList.setActiveElement(channelElementHashMap.get(defaultChannel));
+        NotificationService.consume(defaultChannel);
+
+        RouteArgs args = new RouteArgs();
+        args.addArgument(":id", defaultChannel.getCategory().getServer().getId());
+        args.addArgument(":categoryId", defaultChannel.getCategory().getId());
+        args.addArgument(":channelId", defaultChannel.getId());
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
     }
 
     private void onChannelPropertyChanged(PropertyChangeEvent propertyChangeEvent) {
@@ -209,6 +213,9 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             // show ServerChatView of first loaded channel
             if (Objects.isNull(defaultChannel)) {
                 defaultChannel = channel;
+                if (!Router.getCurrentArgs().containsKey(":channelId")) {
+                    goToDefaultChannel();
+                }
             }
         }
     }
