@@ -28,7 +28,7 @@ The things you need before installing the software.
 There are a few things you need to know when using Accord.
 
 * Accord can not run the same instance multiple times. You need two jars in separate directories in order to run multiple accord instances.
-* Jars can be compiled by running the "jar task" by gradle and can be found afterwards in .../app/build/libs.
+* Jars can be compiled by running the "jar task" by gradle and can be found afterwards in .../app/build/libs. The "build jar" task location is in the gradle menu under Tasks/build/jar.
 
 ### Server
 
