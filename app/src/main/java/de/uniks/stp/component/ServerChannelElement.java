@@ -10,6 +10,7 @@ import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -31,6 +32,12 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
     @FXML
     VBox channelVBox;
 
+    @FXML
+    HBox channelContainer;
+
+    @FXML
+    ImageView editChannel;
+
     Channel model;
 
     private final Font font;
@@ -51,9 +58,26 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         channelText.setText(model.getName());
         channelVBox.setOnMouseClicked(this::onMouseClicked);
 
+        channelContainer.setOnMouseEntered(this::onChannelMouseEntered);
+        channelContainer.setOnMouseExited(this::onChannelMouseExited);
+
+        editChannel.setOnMouseClicked(this::onEditChannelClicked);
+
         font = channelText.getFont();
         boldFont = Font.font(channelText.getFont().getFamily(), FontWeight.BOLD, channelText.getFont().getSize());
         channelText.setId(model.getId() + "-ChannelElementText");
+    }
+
+    private void onEditChannelClicked(MouseEvent mouseEvent) {
+
+    }
+
+    private void onChannelMouseExited(MouseEvent mouseEvent) {
+        editChannel.setVisible(false);
+    }
+
+    private void onChannelMouseEntered(MouseEvent mouseEvent) {
+        editChannel.setVisible(true);
     }
 
     public void setActive(boolean active) {
