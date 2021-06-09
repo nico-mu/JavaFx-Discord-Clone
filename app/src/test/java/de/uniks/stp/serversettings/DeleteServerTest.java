@@ -132,7 +132,7 @@ public class DeleteServerTest {
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        // check that ConfirmationModal is no longer shown
+        // check that ServerSettingsModal is no longer shown
         modalShown = true;
         try{
             modalNameLabel = robot.lookup("#enter-servername-label").query();
