@@ -12,7 +12,8 @@ import java.util.Objects;
 
 public class AudioService {
     private static Media notificationSoundFile;
-    private static Logger log = LoggerFactory.getLogger(AudioService.class);
+    private static final Logger log = LoggerFactory.getLogger(AudioService.class);
+    private static final String headlessCheck = System.getProperty("testfx.headless");
 
     public static void setNotificationSoundFile(String name) {
         URL resPath = AudioService.class.getResource("audio/notification/" + name);
@@ -29,6 +30,9 @@ public class AudioService {
     }
 
     public static void playNotificationSound() {
+        if (Objects.nonNull(headlessCheck) && headlessCheck.equals("true")) {
+            return;
+        }
         if (Objects.isNull(notificationSoundFile)) {
             setNotificationSoundFile("default.wav");
         }

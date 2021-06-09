@@ -85,7 +85,6 @@ public class NotificationTest {
         NetworkClientInjector.setRestClient(restMock);
         NetworkClientInjector.setWebSocketClient(webSocketMock);
         StageManager.setBackupMode(false);
-        NotificationService.setMuted(true);
         app = new StageManager();
         app.start(stage);
         DatabaseService.clearAllConversations();
