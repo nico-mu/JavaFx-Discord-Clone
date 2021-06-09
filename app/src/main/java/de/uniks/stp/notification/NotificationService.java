@@ -1,5 +1,6 @@
 package de.uniks.stp.notification;
 
+import de.uniks.stp.AudioService;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -89,6 +90,7 @@ public class NotificationService {
         }
         event.increaseNotificationsAndGet();
         notifyUser(event);
+        AudioService.playNotificationSound();
     }
 
     public static void onChannelMessage(Channel publisher) {
@@ -102,6 +104,7 @@ public class NotificationService {
         }
         event.increaseNotificationsAndGet();
         notifyChannel(event);
+        AudioService.playNotificationSound();
     }
 
     public static NotificationEvent consume(User publisher) {
