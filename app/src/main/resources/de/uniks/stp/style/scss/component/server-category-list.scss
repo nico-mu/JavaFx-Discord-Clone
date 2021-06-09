@@ -8,8 +8,13 @@
   -fx-background-color: $secondary-background-color;
 }
 
+.category-head-pane:hover {
+  -fx-background-color: $hover-background-color;
+  -fx-background-radius: 8px;
+}
+
 .category-head-label {
-  -fx-background-color: $secondary-background-color;
+  -fx-background-color: transparent;
   -fx-text-fill: $primary-text-fill;
   -fx-font-size: 12px;
 }
@@ -20,6 +25,11 @@
 
 .channel-container {
   -fx-background-color: $secondary-background-color;
+}
+
+.channel-container:hover {
+  -fx-background-color: $hover-background-color;
+  -fx-background-radius: 8px;
 }
 
 .channel-text {

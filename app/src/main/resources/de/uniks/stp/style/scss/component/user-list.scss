@@ -4,3 +4,8 @@
   -fx-font-size: 16px;
   -fx-fill: $primary-text-fill;
 }
+
+.user-name-container:hover {
+  -fx-background-color: $hover-background-color;
+  -fx-background-radius: 8px;
+}
