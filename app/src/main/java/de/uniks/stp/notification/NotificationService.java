@@ -19,7 +19,6 @@ public class NotificationService {
     private static final ConcurrentHashMap<NotificationEvent, List<SubscriberInterface>> userNotifications = new ConcurrentHashMap<>();
     private static final List<SubscriberInterface> userSubscriber = new CopyOnWriteArrayList<>();
     private static final List<SubscriberInterface> channelSubscriber = new CopyOnWriteArrayList<>();
-    private static boolean muted = false;
 
     public static void register(User publisher) {
         if (Objects.isNull(publisher)) {
@@ -91,9 +90,6 @@ public class NotificationService {
         }
         event.increaseNotificationsAndGet();
         notifyUser(event);
-        if (!muted) {
-            AudioService.playNotificationSound();
-        }
     }
 
     public static void onChannelMessage(Channel publisher) {
@@ -107,9 +103,6 @@ public class NotificationService {
         }
         event.increaseNotificationsAndGet();
         notifyChannel(event);
-        if (!muted) {
-            AudioService.playNotificationSound();
-        }
     }
 
     public static NotificationEvent consume(User publisher) {
@@ -163,10 +156,6 @@ public class NotificationService {
             return event.getNotifications();
         }
         return 0;
-    }
-
-    public static boolean setMuted(boolean isMuted) {
-        return muted = isMuted;
     }
 
     private static NotificationEvent handleNotificationEvent(Object source) {
