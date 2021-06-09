@@ -90,6 +90,7 @@ public class NotificationService {
         }
         event.increaseNotificationsAndGet();
         notifyUser(event);
+        AudioService.playNotificationSound();
     }
 
     public static void onChannelMessage(Channel publisher) {
@@ -103,6 +104,7 @@ public class NotificationService {
         }
         event.increaseNotificationsAndGet();
         notifyChannel(event);
+        AudioService.playNotificationSound();
     }
 
     public static NotificationEvent consume(User publisher) {
