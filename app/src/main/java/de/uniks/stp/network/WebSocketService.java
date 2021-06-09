@@ -351,6 +351,10 @@ public class WebSocketService {
                         }
                     }
                     return;
+                case "serverDeleted":
+                    serverId = data.getString("id");
+                    editor.removeServer(serverId);
+                    return;
                 default:
                     break;
             }

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class ServerUserListController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(ServerUserListController.class);
@@ -57,6 +58,10 @@ public class ServerUserListController implements ControllerInterface {
     private void onAvailableUsersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
         User user = (User) propertyChangeEvent.getNewValue();
 
+        if(Objects.isNull(user)){
+            // in case the server was deleted
+            return;
+        }
         if (user.isStatus()) {
             onlineUser(user);
             return;

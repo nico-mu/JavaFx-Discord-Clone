@@ -9,6 +9,7 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -41,10 +42,13 @@ public class ServerSettingsModal extends AbstractModal {
     private final JFXButton deleteButton;
 
     private final Server model;
+    private final Parent root;
+    private ConfirmationModal serverSettingsModal;
     private static final Logger log = LoggerFactory.getLogger(ServerSettingsModal.class);
 
     public ServerSettingsModal(Parent root, Server model) {
         super(root);
+        this.root = root;
         this.model = model;
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_SERVER_TITLE));
@@ -108,8 +112,77 @@ public class ServerSettingsModal extends AbstractModal {
         this.close();
     }
 
+    /**
+     * Shows ConfirmationModal
+     * @param actionEvent
+     */
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
-        // ToDo
+        Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
+        serverSettingsModal = new ConfirmationModal(confirmationModalView,
+            Constants.LBL_DELETE_SERVER,
+            Constants.LBL_CONFIRM_DELETE_SERVER,
+            this::onYesButtonClicked,
+            this::onNoButtonClicked);
+        serverSettingsModal.show();
+
+        // disabling buttons improves the view
+        saveButton.setDisable(true);
+        cancelButton.setDisable(true);
+        deleteButton.setDisable(true);
+    }
+
+    /**
+     * Used as onAction Method of Yes-Button in ConfirmationModal for server deletion
+     * @param actionEvent
+     */
+    private void onYesButtonClicked(ActionEvent actionEvent) {
+        Platform.runLater(serverSettingsModal::close);
+
+        servernameTextField.setDisable(true);
+        //notificationsToggleButton.setDisable(true);  use when fixed
+        saveButton.setDisable(true);
+        cancelButton.setDisable(true);
+        deleteButton.setDisable(true);
+        spinner.setVisible(true);
+
+        RestClient restClient = NetworkClientInjector.getRestClient();
+        restClient.deleteServer(model.getId(), this::handleDeleteServerResponse);
+    }
+
+    /**
+     * Used as onAction Method of No-Button in ConfirmationModal for server deletion
+     * @param actionEvent
+     */
+    private void onNoButtonClicked(ActionEvent actionEvent) {
+        Platform.runLater(serverSettingsModal::close);
+        saveButton.setDisable(false);
+        cancelButton.setDisable(false);
+        deleteButton.setDisable(false);
+    }
+
+    /**
+     * when successful: View is closed, server is deleted when WebSocketMessage is received
+     * When unsuccessful: shows error message, hides spinner and enables control elements
+     * @param response
+     */
+    private void handleDeleteServerResponse(HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toPrettyString());
+
+        if (response.isSuccess()) {
+            Platform.runLater(this::close);
+        } else {
+            log.error("delete server failed!");
+            setErrorMessage(Constants.LBL_DELETE_SERVER_FAILED);
+
+            Platform.runLater(() -> {
+                servernameTextField.setDisable(false);
+                //notificationsToggleButton.setDisable(false);  use when fixed
+                saveButton.setDisable(false);
+                cancelButton.setDisable(false);
+                deleteButton.setDisable(false);
+                spinner.setVisible(false);
+            });
+        }
     }
 
     /**

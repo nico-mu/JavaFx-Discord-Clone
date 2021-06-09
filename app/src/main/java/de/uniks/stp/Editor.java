@@ -56,6 +56,14 @@ public class Editor {
         return null;
     }
 
+    public void removeServer(final String id) {
+        final Map<String, Server> serverMap = availableServersAsServerIdMap();
+
+        if(serverMap.containsKey(id)) {
+            accord.getCurrentUser().withoutAvailableServers(serverMap.get(id));
+        }
+    }
+
     public User getOrCreateOtherUser(final String userId, final String name) {
         User other = null;
         final User currentUser = getOrCreateAccord().getCurrentUser();

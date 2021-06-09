@@ -1,0 +1,36 @@
+@import "../base";
+
+.confirmation-modal {
+  -fx-background-color: $secondary-background-color;
+  -fx-background-radius: 25;
+  -fx-border-color:$main-background-color $main-background-color $main-background-color $main-background-color;
+  -fx-border-width: 4px;
+  -fx-border-radius: 25;
+}
+
+.title-label {
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 20px;
+}
+
+.confirm-label {
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 18px;
+}
+
+.yes-no-container {
+  -fx-border-color: $main-background-color transparent transparent transparent;
+  -fx-border-width: 2px;
+}
+
+.yes-button {
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}
+
+.no-button {
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}
