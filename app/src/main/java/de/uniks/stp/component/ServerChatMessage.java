@@ -2,6 +2,8 @@ package de.uniks.stp.component;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.jpa.AccordSettingKey;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.util.DateUtil;
 import javafx.fxml.FXML;
@@ -12,6 +14,7 @@ import javafx.scene.text.Text;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class ServerChatMessage extends HBox {
     @FXML
@@ -21,7 +24,7 @@ public class ServerChatMessage extends HBox {
     @FXML
     private Text timestampText;
 
-    public ServerChatMessage(Message message) {
+    public ServerChatMessage(Message message, String language) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -32,23 +35,10 @@ public class ServerChatMessage extends HBox {
             throw new RuntimeException(exception);
         }
 
-        timestampText.setText(formatTime(message.getTimestamp()));
+        timestampText.setText(DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)));
         nameText.setText(message.getSender().getName());
         messageText.setText(message.getMessage());
 
-    }
-
-    private String formatTime(long time) {
-        Date date = new Date();
-        date.setTime(time);
-
-        if (DateUtil.isToday(date)) {
-            return ViewLoader.loadLabel(Constants.LBL_TIME_FORMATTING_TODAY) + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(date);
-        } else if (DateUtil.isYesterday(date)) {
-            return ViewLoader.loadLabel(Constants.LBL_TIME_FORMATTING_YESTERDAY) + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(date);
-        }
-
-        return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date);
     }
 
     public void setWidthForWrapping(double width) {
