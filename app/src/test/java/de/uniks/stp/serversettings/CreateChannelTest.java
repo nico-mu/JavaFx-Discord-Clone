@@ -105,7 +105,7 @@ public class CreateChannelTest {
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
         Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
 
-        robot.clickOn("#category-head-label");
+        robot.clickOn("#" + categoryId + "-ServerCategoryElementLabel");
         robot.clickOn("#add-channel-plus");
         robot.clickOn("#add-channel-create-button");
 
@@ -178,7 +178,7 @@ public class CreateChannelTest {
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        robot.clickOn("#category-head-label");
+        robot.clickOn("#" + category.getId() + "-ServerCategoryElementLabel");
         robot.clickOn("#add-channel-plus");
 
         String channelName = "TestChannel";
@@ -263,7 +263,7 @@ public class CreateChannelTest {
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        robot.clickOn("#category-head-label");
+        robot.clickOn("#" + categoryId + "-ServerCategoryElementLabel");
         WaitForAsyncUtils.waitForFxEvents();
         robot.point("#add-channel-plus");
         robot.clickOn("#add-channel-plus");
