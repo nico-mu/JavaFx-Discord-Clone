@@ -71,7 +71,7 @@ public class ServerChatController implements ControllerInterface {
      * Also adds all messages from model in the View and creates PropertyChangeListener that will do so in the future.
      */
     private void showChatView() {
-        chatView = new ServerChatView(this::loadMessages);
+        chatView = new ServerChatView(this::loadMessages, editor.getOrCreateAccord().getLanguage());
 
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
         serverChatVBox.getChildren().add(chatView);

@@ -241,7 +241,7 @@ public class CreateCategoryTest {
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
         Assertions.assertEquals(CATEGORY_NAME, editor.getServer(serverId).getCategories().get(0).getName());
 
-        Label categoryNameLabel = robot.lookup("#category-head-label").query();
+        Label categoryNameLabel = robot.lookup("#1111-ServerCategoryElementLabel").query();
         Assertions.assertEquals(CATEGORY_NAME, categoryNameLabel.getText());
     }
 

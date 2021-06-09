@@ -116,10 +116,10 @@ public class EditCategoryTest {
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
         Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
 
-        Label label = robot.lookup("#category-head-label").query();
+        Label label = robot.lookup("#" + cat.getId() + "-ServerCategoryElementLabel").query();
         Assertions.assertEquals(catName, label.getText());
 
-        robot.clickOn("#category-head-label");
+        robot.clickOn("#" + cat.getId() + "-ServerCategoryElementLabel");
         robot.point("#edit-category-gear");
         robot.clickOn("#edit-category-gear");
 
@@ -155,7 +155,7 @@ public class EditCategoryTest {
 
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
         systemCallback.handleMessage(jsonObject);
-
+        WaitForAsyncUtils.waitForFxEvents();
         // check that modal is no longer shown
         boolean modalShown = true;
         try{
@@ -165,7 +165,7 @@ public class EditCategoryTest {
         }
         Assertions.assertFalse(modalShown);
 
-        label = robot.lookup("#category-head-label").query();
+        label = robot.lookup("#" + cat.getId() + "-ServerCategoryElementLabel").query();
         Assertions.assertEquals(categoryName, label.getText());
     }
 
@@ -198,7 +198,7 @@ public class EditCategoryTest {
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
 
         // prepare creating category
-        robot.clickOn("#category-head-label");
+        robot.clickOn("#" + cat.getId() + "-ServerCategoryElementLabel");
         robot.point("#edit-category-gear");
         robot.clickOn("#edit-category-gear");
 

@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Message;
+import de.uniks.stp.view.Languages;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -34,8 +35,9 @@ public class PrivateChatView extends VBox {
 
     private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
+    private final String language;
 
-    public PrivateChatView() {
+    public PrivateChatView(String language) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.PRIVATE_CHAT_VIEW);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -46,6 +48,7 @@ public class PrivateChatView extends VBox {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+        this.language = language;
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
 
         messageList.heightProperty().addListener(heightChangedListener);
@@ -71,7 +74,7 @@ public class PrivateChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        PrivateChatMessage privateChatMessage = new PrivateChatMessage(message);
+        PrivateChatMessage privateChatMessage = new PrivateChatMessage(message, language);
         privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
 
         Platform.runLater(() -> {
