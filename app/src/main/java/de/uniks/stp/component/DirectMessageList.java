@@ -27,8 +27,6 @@ public class DirectMessageList extends ScrollPane {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-        container.setPadding(new Insets(10.0d, 5.0d, 10.0d, 5.0d));
-        container.setSpacing(10.0d);
     }
 
     public void addElement(final DirectMessageEntry item) {
