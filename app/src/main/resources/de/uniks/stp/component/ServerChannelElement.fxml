@@ -10,14 +10,14 @@
 <fx:root id="channel-container" fx:id="channelContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="170.0" spacing="5.0" styleClass="channel-container" stylesheets="@../style/css/component/server-category-list.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Pane id="channel-element-marker" fx:id="channelElementMarker" prefHeight="30.0" prefWidth="23.0" styleClass="channel-element-marker" visible="false" />
-      <HBox alignment="CENTER">
+      <HBox id="channel-name-container" alignment="CENTER">
          <children>
             <VBox fx:id="channelVBox" alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="145.0">
                <children>
                   <Text fx:id="channelText" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="channel-text" wrappingWidth="160.0" />
                </children>
             </VBox>
-            <ImageView fx:id="editChannel" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" visible="false">
+            <ImageView id="edit-channel" fx:id="editChannel" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" visible="false">
                <image>
                   <Image url="@../img/gear.png" />
                </image>
