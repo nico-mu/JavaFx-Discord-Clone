@@ -183,4 +183,9 @@ public class RestClient {
                 .add("members", arrayBuilder.build()).build().toString());
         sendRequest(req, callback);
     }
+
+    public void deleteChannel(String serverId, String categoryId, String channelId, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId);
+        sendRequest(req, callback);
+    }
 }
