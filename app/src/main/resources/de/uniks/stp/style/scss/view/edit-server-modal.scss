@@ -1,0 +1,43 @@
+@import "../base";
+
+.edit-channel-modal {
+  -fx-background-color: $secondary-background-color;
+}
+
+.edit-channel-name-textfield {
+  -fx-text-fill: $primary-text-fill;
+  -fx-prompt-text-fill: $button-color;
+  -fx-font-size: 14px;
+}
+
+.privileged-checkbox {
+  -fx-text-fill: $primary-text-fill;
+  -jfx-checked-color: $button-color;
+}
+
+.filter-user-textfield {
+  -fx-text-fill: $primary-text-fill;
+  -fx-prompt-text-fill: $button-color;
+  -fx-font-size: 14px;
+}
+
+.user-check-list-container {
+  @include secondary-container-mixin;
+  -fx-background-color: $main-background-color;
+}
+
+.edit-channel-create-button {
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}
+
+.edit-channel-cancel-button {
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}
+
+.edit-channel-error {
+  -fx-text-fill: $error-text-fill;
+}
