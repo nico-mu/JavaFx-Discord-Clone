@@ -6,15 +6,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
 import java.io.InputStream;
 import java.util.Objects;
-import java.util.concurrent.Flow;
 
 public class RealLinkedImage implements LinkedImage {
     private final String emoteName;

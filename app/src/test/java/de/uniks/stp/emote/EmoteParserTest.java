@@ -43,15 +43,8 @@ public class EmoteParserTest {
     }
 
     @Test
-    public void testHasAllEmotes() {
-        List<String> allEmoteNames = EmoteParser.getAllEmoteNames();
-
-        Assertions.assertEquals(8, allEmoteNames.size());
-    }
-
-    @Test
     public void testUnicodeToEmoteNames() {
         String parsingResult = EmoteParser.convertTextWithUnicodeToNames("Hello World \uD83D\uDE00\uD83D\uDE04");
-        Assertions.assertEquals(parsingResult, "Hello World :grinning_face::grinning_face_with_smiling_eyes:");
+        Assertions.assertEquals("Hello World :grinning_face::smiling_face_with_open_mouth_and_smiling_eyes:", parsingResult);
     }
 }

@@ -1,15 +1,9 @@
 package de.uniks.stp.emote;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.util.Triple;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

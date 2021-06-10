@@ -1,7 +1,6 @@
 package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.emote.EmoteRenderer;
@@ -72,7 +71,6 @@ public class ServerChatView extends VBox {
         emoteTextArea = new EmoteTextArea();
         emoteTextArea.setOnKeyPressed(this::checkForEnter);
         VirtualizedScrollPane<EmoteTextArea> scroll = new VirtualizedScrollPane<>(emoteTextArea);
-        // VirtualizedScrollPaneDecorator<EmoteTextArea> scroll = new VirtualizedScrollPaneDecorator<>(emoteTextArea, "Write Something");
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         // The scrolling works but it's not a good solution
@@ -145,7 +143,6 @@ public class ServerChatView extends VBox {
     private void checkForEnter(KeyEvent keyEvent) {
         if (keyEvent.getCode() == KeyCode.ENTER) {
             if (keyEvent.isShiftDown()) {
-                // TODO: The new line is not displayed in chat
                 emoteTextArea.appendText(System.getProperty("line.separator"));
                 emoteTextArea.layout();
             } else {

@@ -121,7 +121,6 @@ public class PrivateChatView extends VBox {
     private void checkForEnter(KeyEvent keyEvent) {
         if (keyEvent.getCode() == KeyCode.ENTER) {
             if (keyEvent.isShiftDown()) {
-                // TODO: The new line is not displayed in chat
                 emoteTextArea.appendText(System.getProperty("line.separator"));
                 emoteTextArea.layout();
             } else {
@@ -167,23 +166,17 @@ public class PrivateChatView extends VBox {
         Platform.runLater(() -> {
             chatViewSubmitButton.setDisable(true);
             chatViewMessageInput.setDisable(true);
-            emoteTextArea.setDisable(true);
             chatViewEmojiButton.setDisable(true);
-            chatViewEmojiButton.setStyle("-fx-background-color: #292C2E;");
-            emoteTextArea.setStyle("-fx-background-color: #292C2E;");
-            chatViewMessageInput.setStyle("-fx-background-color: #292C2E;");
+            emoteTextArea.disable();
         });
     }
 
     public void enable() {
         Platform.runLater(() -> {
             chatViewSubmitButton.setDisable(false);
-            emoteTextArea.setDisable(false);
-            emoteTextArea.setStyle("-fx-background-color: #23272a;");
-            chatViewMessageInput.setStyle("-fx-background-color:#23272a;");
+            emoteTextArea.enable();
             chatViewMessageInput.setDisable(false);
             chatViewEmojiButton.setDisable(false);
-            chatViewEmojiButton.setStyle("-fx-background-color: #23272a;");
         });
     }
 }
