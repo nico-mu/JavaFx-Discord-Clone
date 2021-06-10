@@ -1,6 +1,7 @@
 package de.uniks.stp.modal;
 
 import com.jfoenix.controls.JFXButton;
+import de.uniks.stp.AudioService;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
@@ -11,6 +12,7 @@ import javafx.scene.Parent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.MissingResourceException;
 
@@ -21,7 +23,8 @@ public class SettingsModal extends AbstractModal {
     public static final String SETTINGS_COMBO_SELECT_LANGUAGE = "#combo-select-language";
     private final JFXButton applyButton;
     private final JFXButton cancelButton;
-    private final KeyBasedComboBox comboBox;
+    private final KeyBasedComboBox languageComboBox;
+    private final KeyBasedComboBox notificationComboBox;
     private final Editor editor;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
 
@@ -34,10 +37,15 @@ public class SettingsModal extends AbstractModal {
         applyButton = (JFXButton) view.lookup(SETTINGS_APPLY_BUTTON);
         cancelButton = (JFXButton) view.lookup(SETTINGS_CANCEL_BUTTON);
 
-        comboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_LANGUAGE);
+        languageComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_LANGUAGE);
 
-        comboBox.addOptions(getLanguages());
-        comboBox.setSelection(editor.getOrCreateAccord().getLanguage());
+        languageComboBox.addOptions(getLanguages());
+        languageComboBox.setSelection(editor.getOrCreateAccord().getLanguage());
+
+        notificationComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_LANGUAGE);
+
+        notificationComboBox.addOptions(getNotificationSounds());
+        notificationComboBox.setSelection(editor.getOrCreateAccord().getLanguage());
 
         applyButton.setOnAction(this::onApplyButtonClicked);
         applyButton.setDefaultButton(true);  // use Enter in order to press button
@@ -61,12 +69,24 @@ public class SettingsModal extends AbstractModal {
         return languageMap;
     }
 
+    public HashMap<String, String> getNotificationSounds() {
+        HashMap<String, String> notificationSoundMap = new HashMap<>();
+        File[] files = AudioService.getNotificationSoundFiles();
+        for (File file : files) {
+            if (file.isFile()) {
+                notificationSoundMap.put(file.toURI().toString(), file.getName());
+            }
+        }
+        return notificationSoundMap;
+    }
+
     private void onCancelButtonClicked(ActionEvent actionEvent) {
         this.close();
     }
 
     private void onApplyButtonClicked(ActionEvent actionEvent) {
-        editor.getOrCreateAccord().setLanguage(comboBox.getSelection());
+        editor.getOrCreateAccord().setLanguage(languageComboBox.getSelection());
+        AudioService.setNotificationSoundFile(notificationComboBox.getSelection());
         this.close();
     }
 

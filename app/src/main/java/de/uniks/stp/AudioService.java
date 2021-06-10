@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
@@ -16,17 +17,7 @@ public class AudioService {
     private static final String headlessCheck = System.getProperty("testfx.headless");
 
     public static void setNotificationSoundFile(String name) {
-        URL resPath = AudioService.class.getResource("audio/notification/" + name);
-        String fileURI = null;
-        try {
-            if (Objects.isNull(resPath)) {
-                return;
-            }
-            fileURI = new File(resPath.toURI()).toURI().toString();
-        } catch (URISyntaxException e) {
-            log.error("Could not find notification audio file " + name);
-        }
-        notificationSoundFile = new Media(fileURI);
+        notificationSoundFile = new Media(getNotificationSoundResource(name));
     }
 
     public static void playNotificationSound() {
@@ -38,5 +29,27 @@ public class AudioService {
         }
         MediaPlayer mediaPlayer = new MediaPlayer(notificationSoundFile);
         mediaPlayer.play();
+    }
+
+    public static String getNotificationSoundResource(String name) {
+        URL resPath;
+        if (name.equals(".")) {
+            resPath = AudioService.class.getResource("audio/notification");
+        } else {
+            resPath = AudioService.class.getResource("audio/notification/" + name);
+        }
+        try {
+            if (Objects.isNull(resPath)) {
+                return "";
+            }
+            return new File(resPath.toURI()).toURI().toString();
+        } catch (URISyntaxException e) {
+            log.error("Could not find notification audio file " + name);
+        }
+        return "";
+    }
+
+    public static File[] getNotificationSoundFiles() {
+        return new File(getNotificationSoundResource(".")).listFiles();
     }
 }
