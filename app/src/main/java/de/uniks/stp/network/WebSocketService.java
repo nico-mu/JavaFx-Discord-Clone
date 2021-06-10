@@ -361,6 +361,11 @@ public class WebSocketService {
                     categoryId = data.getString("category");
                     editor.deleteChannel(channelId);
                     return;
+                case "categoryDeleted":
+                    categoryId = data.getString("id");
+                    serverId = data.getString("server");
+                    editor.deleteCategory(serverId, categoryId);
+                    return;
                 default:
                     break;
             }

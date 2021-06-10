@@ -3,26 +3,36 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXSpinner?>
 <?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXToggleButton?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox id="create-category-container" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="385.0" styleClass="create-category-modal" stylesheets="@../style/css/view/create-category-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox id="edit-category-container" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="373.0" prefWidth="385.0" styleClass="edit-category-modal" stylesheets="@../style/css/view/edit-category-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Pane prefHeight="20.0" />
       <AnchorPane prefHeight="60.0" prefWidth="243.0">
-         <Label id="enter-category-label" prefHeight="30.0" prefWidth="235.0" styleClass="enter-category-label" text="%LBL_NAME" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="0.0" />
-         <JFXTextField id="category-name-text-field" layoutX="51.0" layoutY="36.0" prefHeight="32.0" prefWidth="243.0" promptText="%LBL_CATEGORY_NAME" styleClass="category-name-text-field" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="30.0" />
+         <Label id="enter-category-name-label" prefHeight="30.0" prefWidth="235.0" styleClass="enter-category-name-label" text="%LBL_NAME" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="0.0" />
+         <JFXTextField id="category-name-text-field" layoutX="51.0" layoutY="36.0" prefHeight="32.0" prefWidth="243.0" promptText="%LBL_NEW_SERVER_NAME" styleClass="category-name-text-field" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="30.0" />
+      </AnchorPane>
+      <Pane prefHeight="27.0" prefWidth="386.0" />
+      <AnchorPane prefHeight="62.0" prefWidth="386.0">
+         <Label id="notifications-label" styleClass="notifications-label" layoutX="28.0" layoutY="-1.0" prefHeight="30.0" prefWidth="235.0" text="%LBL_NOTIFICATIONS" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="0.0" />
+         <JFXToggleButton id="notifications-toggle-button" layoutX="28.0" layoutY="15.0" prefHeight="58.0" prefWidth="78.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="15.0" />
+         <Label id="notifications-activated-label" styleClass="notifications-activated-label" layoutX="116.0" layoutY="28.0" AnchorPane.leftAnchor="95.0" AnchorPane.topAnchor="30.0" />
       </AnchorPane>
       <StackPane prefHeight="75.0" prefWidth="386.0">
-         <Label id="error-message-label" prefHeight="32.0" styleClass="error-message-label" />
-         <JFXSpinner id="spinner" prefHeight="56.0" radius="15.0" styleClass="spinner" visible="false" />
+         <Label id="error-message-label" styleClass="error-message-label" prefHeight="32.0" />
+         <JFXSpinner id="spinner" styleClass="spinner" prefHeight="56.0" radius="15.0" visible="false" />
       </StackPane>
-      <AnchorPane prefHeight="45.0" prefWidth="386.0">
-         <JFXButton id="apply-button" prefHeight="30.0" prefWidth="110.0" styleClass="create-button" text="%LBL_APPLY" AnchorPane.leftAnchor="50.0" />
+      <AnchorPane styleClass="save-cancel-container" prefHeight="45.0" prefWidth="386.0">
+         <JFXButton id="save-button" prefHeight="30.0" prefWidth="110.0" styleClass="save-button" text="%LBL_SAVE" AnchorPane.leftAnchor="50.0" />
          <JFXButton id="cancel-button" prefHeight="30.0" prefWidth="110.0" styleClass="cancel-button" text="%LBL_CANCEL" AnchorPane.rightAnchor="50.0" />
+      </AnchorPane>
+      <AnchorPane prefHeight="60.0" prefWidth="386.0">
+         <JFXButton id="delete-button" prefHeight="30.0" prefWidth="110.0" styleClass="delete-button" text="%LBL_DELETE" AnchorPane.leftAnchor="50.0" AnchorPane.topAnchor="15.0" />
       </AnchorPane>
    </children>
 </VBox>
