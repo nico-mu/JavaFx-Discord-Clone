@@ -13,6 +13,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
@@ -49,8 +50,8 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
     Channel model;
 
-    private final Font font = null;
-    private final Font boldFont = null;
+    private final Font font;
+    private final Font boldFont;
     private final EmoteRenderer renderer = new EmoteRenderer();
 
     public ServerChannelElement(Channel model) {
@@ -64,7 +65,7 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
             throw new RuntimeException(exception);
         }
         this.model = model;
-        // TODO: Long names make problems
+        // TODO: Long names create problems
         renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy).setScalingFactor(2);
         renderer.renderInto(model.getName(), channelText);
         channelVBox.setOnMouseClicked(this::onMouseClicked);
@@ -74,8 +75,9 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
         editChannel.setOnMouseClicked(this::onEditChannelClicked);
 
-        // font = channelText.getFont();
-        // boldFont = Font.font(channelText.getFont().getFamily(), FontWeight.BOLD, channelText.getFont().getSize());
+        Text sampleTextNode = ((Text) channelText.getChildren().get(0));
+        font = sampleTextNode.getFont();
+        boldFont = Font.font(sampleTextNode.getFont().getFamily(), FontWeight.BOLD, sampleTextNode.getFont().getSize());
         channelText.setId(model.getId() + "-ChannelElementText");
     }
 
@@ -117,9 +119,17 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
     public void setNotificationVisibility(boolean mode) {
         Platform.runLater(() -> {
             if (mode) {
-                // channelText.setFont(boldFont);
+                for (Node node : channelText.getChildren()) {
+                    if (node instanceof Text) {
+                        ((Text) node).setFont(boldFont);
+                    }
+                }
             } else {
-                // channelText.setFont(font);
+                for (Node node : channelText.getChildren()) {
+                    if (node instanceof Text) {
+                        ((Text) node).setFont(font);
+                    }
+                }
             }
         });
     }

@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class EmoteParser {
-    private static final Logger log = LoggerFactory.getLogger(EmoteParser.class);
     private static final Map<String, String> emoteMapping;
 
     static {
@@ -107,7 +106,7 @@ public class EmoteParser {
 
         for (Triple<Integer, Integer, String> emoteInfo : parsingResult) {
             if (input.substring(from, emoteInfo.getFirst()).length() > 0) {
-                renderResult.append(input.substring(from, emoteInfo.getFirst()));
+                renderResult.append(input, from, emoteInfo.getFirst());
             }
             renderResult.append(getEmoteByName(emoteInfo.getThird()));
             from = emoteInfo.getSecond() + 1;

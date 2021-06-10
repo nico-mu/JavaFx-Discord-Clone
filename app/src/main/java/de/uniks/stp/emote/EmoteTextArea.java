@@ -1,9 +1,9 @@
 package de.uniks.stp.emote;
 
+import de.uniks.stp.Constants;
+import de.uniks.stp.ViewLoader;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import org.fxmisc.richtext.GenericStyledArea;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.TextExt;
@@ -14,13 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, LinkedImage>, TextStyle> {
-    private static final Logger log = LoggerFactory.getLogger(EmoteTextArea.class);
-
     private final static TextOps<String, TextStyle> styledTextOps = SegmentOps.styledTextOps();
     private final static LinkedImageOps<TextStyle> linkedImageOps = new LinkedImageOps<>();
+    private final static String PLACEHOLDER_TEXT = ViewLoader.loadLabel(Constants.LBL_TEXT_AREA_PLACEHOLDER);
 
     public EmoteTextArea() {
         super(
@@ -32,8 +32,8 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
         setAutoScrollOnDragDesired(false);
         setStyle("-fx-background-color: #23272a;");
         setWrapText(true);
-        // TODO: The placeholder is not rendered properly
-        setPlaceholder(createPlaceholder("Write something"));
+        // Add placeholder by default and delete it on focus
+        configurePlaceholder();
     }
 
     public void insertEmote(String emoteName) {
@@ -65,21 +65,29 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
         return sb.toString().stripTrailing();
     }
 
-    public void enable() {
-
+    private void configurePlaceholder() {
+        final AtomicBoolean hasPlaceholder = new AtomicBoolean(true);
+        insertPlaceholder();
+        this.focusedProperty().addListener((k) -> {
+            if (isFocused() && hasPlaceholder.get()) {
+                clear();
+                ReadOnlyStyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> ros =
+                    ReadOnlyStyledDocument.fromSegment(Either.left(""),
+                        ParStyle.EMPTY, TextStyle.EMPTY, this.getSegOps());
+                insert(0, ros);
+                hasPlaceholder.set(false);
+            } else if (getStringContent().isEmpty()) {
+                insertPlaceholder();
+                hasPlaceholder.set(true);
+            }
+        });
     }
 
-    public void disable() {
-
-    }
-
-    private Text createPlaceholder(String placeholder) {
-        Text text = new Text();
-        text.setFill(Color.WHITE);
-        text.setTextAlignment(TextAlignment.LEFT);
-        text.setUnderline(true);
-        text.setText(placeholder);
-        return text;
+    private void insertPlaceholder() {
+        ReadOnlyStyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> ros =
+            ReadOnlyStyledDocument.fromSegment(Either.left(EmoteTextArea.PLACEHOLDER_TEXT),
+                ParStyle.EMPTY, TextStyle.EMPTY.updateTextColor(Color.GRAY), this.getSegOps());
+        insert(0, ros);
     }
 
     private static Node createNode(StyledSegment<Either<String, LinkedImage>, TextStyle> seg, BiConsumer<? super TextExt, TextStyle> applyStyle) {
