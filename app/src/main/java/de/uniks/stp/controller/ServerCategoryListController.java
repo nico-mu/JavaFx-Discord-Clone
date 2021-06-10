@@ -109,7 +109,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
             HashMap<String, String> currentArgs = Router.getCurrentArgs();
             // in case a channel of the deleted category is currently shown: reload server
-            if(currentArgs.get(":categoryId").equals(category.getId())){
+            if(currentArgs.containsKey(":categoryId") && currentArgs.get(":categoryId").equals(category.getId())){
                 RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
                 Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
             }
@@ -212,7 +212,9 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
             HashMap<String, String> currentArgs = Router.getCurrentArgs();
             // in case the deleted channel is currently shown: reload server
-            if(currentArgs.get(":categoryId").equals(category.getId()) && currentArgs.get(":channelId").equals(channel.getId())){
+            if(currentArgs.containsKey(":categoryId") && currentArgs.containsKey(":categoryId")
+                    && currentArgs.get(":categoryId").equals(category.getId())
+                    && currentArgs.get(":channelId").equals(channel.getId())){
                 RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
                 Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
             }
