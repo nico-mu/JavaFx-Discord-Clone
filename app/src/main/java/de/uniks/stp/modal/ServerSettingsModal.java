@@ -42,13 +42,11 @@ public class ServerSettingsModal extends AbstractModal {
     private final JFXButton deleteButton;
 
     private final Server model;
-    private final Parent root;
-    private ConfirmationModal serverSettingsModal;
+    private ConfirmationModal deleteConfirmationModal;
     private static final Logger log = LoggerFactory.getLogger(ServerSettingsModal.class);
 
     public ServerSettingsModal(Parent root, Server model) {
         super(root);
-        this.root = root;
         this.model = model;
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_SERVER_TITLE));
@@ -118,12 +116,12 @@ public class ServerSettingsModal extends AbstractModal {
      */
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
         Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
-        serverSettingsModal = new ConfirmationModal(confirmationModalView,
+        deleteConfirmationModal = new ConfirmationModal(confirmationModalView,
             Constants.LBL_DELETE_SERVER,
             Constants.LBL_CONFIRM_DELETE_SERVER,
             this::onYesButtonClicked,
             this::onNoButtonClicked);
-        serverSettingsModal.show();
+        deleteConfirmationModal.show();
 
         // disabling buttons improves the view
         saveButton.setDisable(true);
@@ -136,7 +134,7 @@ public class ServerSettingsModal extends AbstractModal {
      * @param actionEvent
      */
     private void onYesButtonClicked(ActionEvent actionEvent) {
-        Platform.runLater(serverSettingsModal::close);
+        Platform.runLater(deleteConfirmationModal::close);
 
         servernameTextField.setDisable(true);
         //notificationsToggleButton.setDisable(true);  use when fixed
@@ -154,7 +152,7 @@ public class ServerSettingsModal extends AbstractModal {
      * @param actionEvent
      */
     private void onNoButtonClicked(ActionEvent actionEvent) {
-        Platform.runLater(serverSettingsModal::close);
+        Platform.runLater(deleteConfirmationModal::close);
         saveButton.setDisable(false);
         cancelButton.setDisable(false);
         deleteButton.setDisable(false);

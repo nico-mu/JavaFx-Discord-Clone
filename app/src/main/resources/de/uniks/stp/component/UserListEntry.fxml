@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Text?>
-<fx:root xmlns:fx="http://javafx.com/fxml/1" stylesheets="@../style/css/component/user-list.css" type="HBox"
-         xmlns="http://javafx.com/javafx/11.0.1">
-    <Text fx:id="userNameText" id="user-list-entry-text" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="user-name" text="&lt;UserName&gt;"/>
+
+<fx:root prefWidth="90.0" styleClass="user-name-container" stylesheets="@../style/css/component/user-list.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <Text id="user-list-entry-text" fx:id="userNameText" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="user-name" text="&lt;UserName&gt;" wrappingWidth="90" />
+   <padding>
+      <Insets bottom="3.0" left="12.0" top="3.0" />
+   </padding>
 </fx:root>

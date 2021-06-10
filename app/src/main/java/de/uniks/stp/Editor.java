@@ -147,6 +147,12 @@ public class Editor {
         return null;
     }
 
+    public void deleteCategory(String serverId, String categoryId){
+        Server server = getServer(serverId);
+        Category delCat = getCategory(categoryId, server);
+        server.withoutCategories(delCat);
+    }
+
     public Channel getOrCreateChannel(final String channelId, final String name, final Category category) {
         if (Objects.nonNull(category)) {
             for (Channel channel : category.getChannels()) {

@@ -77,7 +77,7 @@ public class EditCategoryTest {
     }
 
     /**
-     * Tests the CreateCategoryModal: Checks for correct Rest call and closing the modal on success
+     * Tests the EditCategoryModal: Checks for correct Rest call and closing the modal on success
      * @param robot
      */
     @Test
@@ -124,14 +124,14 @@ public class EditCategoryTest {
         robot.clickOn("#edit-category-gear");
 
         // assert that modal is shown
-        Label modalNameLabel = robot.lookup("#enter-category-label").query();
+        Label modalNameLabel = robot.lookup("#enter-category-name-label").query();
         Assertions.assertEquals("Name", modalNameLabel.getText());
 
         // create category
         String categoryName = "useful category";
         robot.clickOn("#category-name-text-field");
         robot.write(categoryName);
-        robot.clickOn("#apply-button");
+        robot.clickOn("#save-button");
 
         JsonObject jsonObject = Json.createObjectBuilder()
             .add("action", "categoryUpdated")
@@ -159,7 +159,7 @@ public class EditCategoryTest {
         // check that modal is no longer shown
         boolean modalShown = true;
         try{
-            modalNameLabel = robot.lookup("#enter-category-label").query();
+            modalNameLabel = robot.lookup("#enter-category-name-label").query();
         } catch (Exception e) {
             modalShown = false;
         }
@@ -170,7 +170,7 @@ public class EditCategoryTest {
     }
 
     /**
-     * Tests error message in CreateCategoryModal
+     * Tests error message in EditCategoryModal
      * @param robot
      */
     @Test
@@ -206,7 +206,7 @@ public class EditCategoryTest {
         String categoryName = "useful category";
         robot.clickOn("#category-name-text-field");
         robot.write(categoryName);
-        robot.clickOn("#apply-button");
+        robot.clickOn("#save-button");
 
         JSONObject j = new JSONObject().put("status", "failure").put("message", "something went wrong");
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
@@ -226,7 +226,7 @@ public class EditCategoryTest {
 
 
         Label errorLabel = robot.lookup("#error-message-label").query();
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_EDIT_CATEGORY_FAILED), errorLabel.getText());
+        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_RENAME_CATEGORY_FAILED), errorLabel.getText());
 
         robot.clickOn("#cancel-button");
     }
