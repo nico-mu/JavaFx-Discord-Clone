@@ -218,8 +218,8 @@ public class LoginScreenController implements ControllerInterface {
             setErrorMessage(null);
             String userKey = response.getBody().getObject().getJSONObject("data").getString("userKey");
             UserKeyProvider.setEditor(editor);
-            StageManager.languageService = new LanguageService(editor);
-            StageManager.languageService.startLanguageAwareness();
+            StageManager.setLanguageService(new LanguageService(editor));
+            StageManager.getLanguageService().startLanguageAwareness();
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
             editor.setUserKey(userKey);
 

@@ -28,7 +28,8 @@ public class StageManager extends Application {
     private static Stage stage;
     private static ControllerInterface currentController;
     private static boolean backup = true;
-    public static LanguageService languageService;
+
+    private static LanguageService languageService;
 
     public static void cleanup() {
         if (Objects.nonNull(currentController)) {
@@ -73,6 +74,14 @@ public class StageManager extends Application {
         backup = mode;
     }
 
+    public static LanguageService getLanguageService() {
+        return languageService;
+    }
+
+    public static void setLanguageService(LanguageService languageService) {
+        StageManager.languageService = languageService;
+    }
+
     @Override
     public void start(Stage primaryStage) {
         DatabaseService.init(backup);
@@ -111,6 +120,5 @@ public class StageManager extends Application {
         } catch (Exception e) {
             log.error("Error while trying to shutdown", e);
         }
-
     }
 }
