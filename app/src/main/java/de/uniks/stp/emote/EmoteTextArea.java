@@ -59,10 +59,10 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
                     sb.append(":").append(image.toString()).append(":");
                 });
             }
-            // sb.append(System.getProperty("line.separator"));
+            sb.append(System.getProperty("line.separator"));
         });
 
-        return sb.toString();
+        return sb.toString().stripTrailing();
     }
 
     public void enable() {

@@ -57,7 +57,7 @@
                <Insets />
             </FlowPane.margin>
             <children>
-                  <TextFlow id="channel-name-label" prefHeight="40.0" prefWidth="190.0" styleClass="channel-name-label">
+                  <TextFlow id="channel-name-label" prefHeight="40.0" prefWidth="190.0" maxHeight="40" styleClass="channel-name-label">
                   <VBox.margin>
                      <Insets left="10.0" />
                   </VBox.margin>

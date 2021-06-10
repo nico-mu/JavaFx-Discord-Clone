@@ -12,12 +12,17 @@ import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -28,7 +33,7 @@ import java.io.IOException;
 public class ServerChannelElement extends HBox implements NotificationComponentInterface {
 
     @FXML
-    TextFlow channelText;
+    HBox channelText;
 
     @FXML
     Pane channelElementMarker;
@@ -58,11 +63,14 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-
         this.model = model;
         // TODO: Long names make problems
         renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy).setScalingFactor(2);
+        channelText.maxHeight(100);
         channelText.getChildren().clear();
+        channelText.maxWidth(20);
+        channelText.setPrefWidth(20);
+        this.setMaxWidth(30);
         renderer.renderInto(model.getName(), channelText);
         channelVBox.setOnMouseClicked(this::onMouseClicked);
 

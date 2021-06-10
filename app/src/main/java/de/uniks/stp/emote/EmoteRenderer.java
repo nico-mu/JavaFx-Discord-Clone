@@ -6,6 +6,10 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
@@ -89,6 +93,13 @@ public class EmoteRenderer {
     public void renderInto(String text, TextFlow container) {
         LinkedList<Node> renderResult = render(text);
         for (Node node : renderResult) {
+            container.getChildren().add(node);
+        }
+    }
+    public void renderInto(String text, HBox container) {
+        LinkedList<Node> renderResult = render(text);
+        for (Node node : renderResult) {
+            HBox.setHgrow(node, Priority.ALWAYS);
             container.getChildren().add(node);
         }
     }

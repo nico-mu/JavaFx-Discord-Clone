@@ -6,17 +6,17 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Text?>
 
 <?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.layout.FlowPane?>
 <fx:root id="channel-container" fx:id="channelContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="170.0" spacing="5.0" styleClass="channel-container" stylesheets="@../style/css/component/server-category-list.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Pane id="channel-element-marker" fx:id="channelElementMarker" minWidth="-Infinity" prefHeight="30.0" prefWidth="4.0" styleClass="channel-element-marker" visible="false" />
-      <HBox id="channel-name-container" alignment="CENTER">
+      <HBox id="channel-name-container" alignment="CENTER" maxHeight="200.0">
          <children>
-            <VBox fx:id="channelVBox" alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="140.0">
+            <VBox fx:id="channelVBox" alignment="CENTER" maxHeight="200.0" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="140.0">
                <children>
-                  <TextFlow fx:id="channelText" styleClass="channel-text" />
+                  <HBox fx:id="channelText" maxHeight="30.0" maxWidth="20.0" styleClass="channel-text" />
                </children>
                <padding>
                   <Insets left="4.0" />
