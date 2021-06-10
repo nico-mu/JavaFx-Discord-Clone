@@ -161,6 +161,13 @@ public class NotificationService {
         return 0;
     }
 
+    public static void reset() {
+        channelSubscriber.clear();
+        userSubscriber.clear();
+        channelNotifications.clear();
+        userNotifications.clear();
+    }
+
     private static NotificationEvent handleNotificationEvent(Object source) {
         if (Objects.isNull(source)) {
             return null;

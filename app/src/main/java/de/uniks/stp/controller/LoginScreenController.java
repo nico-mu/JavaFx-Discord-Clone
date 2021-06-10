@@ -10,6 +10,7 @@ import de.uniks.stp.language.LanguageService;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.UserKeyProvider;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -220,6 +221,7 @@ public class LoginScreenController implements ControllerInterface {
             StageManager.setAudioService(new AudioService(editor));
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
             editor.setUserKey(userKey);
+            NotificationService.reset();
 
             if (rememberMeCheckBox.isSelected()) {
                 // Save in db
