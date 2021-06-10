@@ -15,7 +15,7 @@
       <Pane prefHeight="20.0" />
       <AnchorPane prefHeight="60.0" prefWidth="243.0">
          <Label id="enter-category-name-label" prefHeight="30.0" prefWidth="235.0" styleClass="enter-category-name-label" text="%LBL_NAME" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="0.0" />
-         <JFXTextField id="category-name-text-field" layoutX="51.0" layoutY="36.0" prefHeight="32.0" prefWidth="243.0" promptText="%LBL_NEW_SERVER_NAME" styleClass="category-name-text-field" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="30.0" />
+         <JFXTextField id="category-name-text-field" layoutX="51.0" layoutY="36.0" prefHeight="32.0" prefWidth="243.0" promptText="%LBL_CATEGORY_NAME" styleClass="category-name-text-field" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="30.0" />
       </AnchorPane>
       <Pane prefHeight="27.0" prefWidth="386.0" />
       <AnchorPane prefHeight="62.0" prefWidth="386.0">
