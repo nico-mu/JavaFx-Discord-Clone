@@ -3,17 +3,14 @@ package de.uniks.stp;
 import de.uniks.stp.controller.ControllerInterface;
 import de.uniks.stp.controller.LoginScreenController;
 import de.uniks.stp.controller.MainScreenController;
-import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.DatabaseService;
-import de.uniks.stp.jpa.model.AccordSettingDTO;
-import de.uniks.stp.model.Accord;
+import de.uniks.stp.language.LanguageService;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.UserKeyProvider;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
-import de.uniks.stp.view.Languages;
 import de.uniks.stp.view.Views;
 import javafx.application.Application;
 import javafx.scene.Parent;
@@ -22,8 +19,6 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Objects;
 
 public class StageManager extends Application {
@@ -34,7 +29,8 @@ public class StageManager extends Application {
     private static ControllerInterface currentController;
     private static boolean backup = true;
 
-    private final PropertyChangeListener languagePropertyChangeListener = this::onLanguagePropertyChange;
+    private static LanguageService languageService;
+    private static AudioService audioService;
 
     public static void cleanup() {
         if (Objects.nonNull(currentController)) {
@@ -79,18 +75,26 @@ public class StageManager extends Application {
         return stage;
     }
 
-    private void onLanguagePropertyChange(final PropertyChangeEvent languageChangeEvent) {
-        final Languages newLanguage = Languages.fromKeyOrDefault((String) languageChangeEvent.getNewValue());
-        ViewLoader.changeLanguage(newLanguage);
-        Router.forceReload();
-
-        DatabaseService.saveAccordSetting(AccordSettingKey.LANGUAGE, newLanguage.key);
-
-    }
-
     public static void setBackupMode(boolean mode) {
         backup = mode;
     }
+
+    public static LanguageService getLanguageService() {
+        return languageService;
+    }
+
+    public static void setLanguageService(LanguageService languageService) {
+        StageManager.languageService = languageService;
+    }
+
+    public static AudioService getAudioService() {
+        return audioService;
+    }
+
+    public static void setAudioService(AudioService audioService) {
+        StageManager.audioService = audioService;
+    }
+
 
     @Override
     public void start(Stage primaryStage) {
@@ -98,8 +102,9 @@ public class StageManager extends Application {
 
         stage = primaryStage;
         editor = new Editor();
-
-        startLanguageAwareness();
+        languageService = new LanguageService(editor);
+        languageService.startLanguageAwareness();
+        audioService = new AudioService(editor);
 
         UserKeyProvider.setEditor(editor);
         WebSocketService.setEditor(editor);
@@ -111,23 +116,12 @@ public class StageManager extends Application {
         stage.show();
     }
 
-    private void startLanguageAwareness() {
-        final AccordSettingDTO accordLanguageSetting = DatabaseService.getAccordSetting(AccordSettingKey.LANGUAGE);
-        final Languages language = Objects.nonNull(accordLanguageSetting) ?
-            Languages.fromKeyOrDefault(accordLanguageSetting.getValue()) : Languages.getDefault();
-
-        final Accord accord = editor.getOrCreateAccord();
-        accord.setLanguage(language.key);
-        ViewLoader.changeLanguage(language);
-        accord.listeners().addPropertyChangeListener(Accord.PROPERTY_LANGUAGE, languagePropertyChangeListener);
-    }
-
     @Override
     public void stop() {
         try {
             super.stop();
 
-            stopLanguageAwareness();
+            languageService.stopLanguageAwareness();
 
             if (currentController != null) {
                 currentController.stop();
@@ -141,11 +135,5 @@ public class StageManager extends Application {
         } catch (Exception e) {
             log.error("Error while trying to shutdown", e);
         }
-
-    }
-
-    private void stopLanguageAwareness() {
-        final Accord accord = editor.getOrCreateAccord();
-        accord.listeners().removePropertyChangeListener(languagePropertyChangeListener);
     }
 }

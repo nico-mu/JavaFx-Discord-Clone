@@ -6,6 +6,7 @@ import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ServerCategoryElement;
 import de.uniks.stp.component.ServerCategoryList;
 import de.uniks.stp.component.ServerChannelElement;
+import de.uniks.stp.event.NavBarHomeElementActiveEvent;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -102,10 +103,23 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     private void categoryRemoved(final Category category) {
         if (Objects.nonNull(category) && categoryElementHashMap.containsKey(category)) {
-            category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
-            final ServerCategoryElement serverCategoryElement = categoryElementHashMap.remove(category);
-            Platform.runLater(() -> serverCategoryList.removeElement(serverCategoryElement));
-            category.listeners().removePropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
+            for(Channel channel: category.getChannels()){
+                NotificationService.removePublisher(channel);
+            }
+
+            HashMap<String, String> currentArgs = Router.getCurrentArgs();
+            // in case a channel of the deleted category is currently shown: reload server
+            if(currentArgs.containsKey(":categoryId") && currentArgs.get(":categoryId").equals(category.getId())){
+                RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
+                Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+            }
+            //else: remove category element in list
+            else{
+                category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
+                final ServerCategoryElement serverCategoryElement = categoryElementHashMap.remove(category);
+                Platform.runLater(() -> serverCategoryList.removeElement(serverCategoryElement));
+                category.listeners().removePropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
+            }
         }
     }
 
@@ -194,12 +208,23 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     private void channelRemoved(final Category category, final Channel channel) {
         if (Objects.nonNull(category) && Objects.nonNull(channel) && channelElementHashMap.containsKey(channel)) {
-            final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
-            final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
-            Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
-            channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             NotificationService.removePublisher(channel);
-            goToDefaultChannel();
+
+            HashMap<String, String> currentArgs = Router.getCurrentArgs();
+            // in case the deleted channel is currently shown: reload server
+            if(currentArgs.containsKey(":categoryId") && currentArgs.containsKey(":categoryId")
+                    && currentArgs.get(":categoryId").equals(category.getId())
+                    && currentArgs.get(":channelId").equals(channel.getId())){
+                RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
+                Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+            }
+            // else: remove channel element in list
+            else{
+                final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
+                final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
+                Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
+                channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
+            }
         }
     }
 

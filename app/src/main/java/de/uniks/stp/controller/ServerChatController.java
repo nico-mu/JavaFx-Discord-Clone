@@ -8,6 +8,7 @@ import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
@@ -38,6 +39,8 @@ public class ServerChatController implements ControllerInterface {
 
     private ServerChatView chatView;
     private PropertyChangeListener messagesChangeListener = this::handleNewMessage;
+    private PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
+    private final EmoteRenderer renderer = new EmoteRenderer();
 
     public ServerChatController(Parent view, Editor editor, Channel model) {
         this.view = view;
@@ -50,11 +53,11 @@ public class ServerChatController implements ControllerInterface {
         channelNameLabel = (TextFlow) view.lookup(CHANNEL_NAME_LABEL_ID);
         serverChatVBox = (VBox)view.lookup(SERVER_CHAT_VBOX);
 
-        EmoteRenderer renderer = new EmoteRenderer();
         renderer.setSize(16).setScalingFactor(2.5);
         renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
         channelNameLabel.getChildren().clear();
         renderer.renderInto(model.getName(), channelNameLabel);
+        model.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
 
         showChatView();
     }
@@ -67,6 +70,7 @@ public class ServerChatController implements ControllerInterface {
         }
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
+            model.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
         }
     }
 
@@ -120,6 +124,13 @@ public class ServerChatController implements ControllerInterface {
             chatView.insertMessage(insertPos, msg);
         }
 
+    }
+
+    private void onChannelNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        Platform.runLater(()-> {
+            channelNameLabel.getChildren().clear();
+            renderer.renderInto(model.getName(), channelNameLabel);
+        });
     }
 
     /**
