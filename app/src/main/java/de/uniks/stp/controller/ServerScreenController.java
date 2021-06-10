@@ -40,7 +40,7 @@ import static de.uniks.stp.view.Views.SERVER_SCREEN;
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER)
 public class ServerScreenController implements ControllerInterface {
 
-    private static final String SERVER_NAME_LABEL_ID = "#server-name-label";
+    private static final String SERVER_NAME_ID = "#server-name";
     private static final String SERVER_CHANNEL_OVERVIEW = "#server-channel-overview";
     private static final String SERVER_CHAT_CONTAINER = "#server-chat-container";
     private static final String SERVER_USER_LIST_CONTAINER = "#server-user-list-container";
@@ -49,7 +49,7 @@ public class ServerScreenController implements ControllerInterface {
     private FlowPane serverScreenView;
     private final Editor editor;
     private final Server model;
-    private TextFlow serverNameLabel;
+    private TextFlow serverName;
     private VBox serverChannelOverview;
     private ServerCategoryListController categoryListController;
     private FlowPane serverChatContainer;
@@ -78,12 +78,11 @@ public class ServerScreenController implements ControllerInterface {
         settingsContextMenu = settingsGearLabel.getContextMenu();
 
         view.getChildren().add(serverScreenView);
-        serverNameLabel = (TextFlow) view.lookup(SERVER_NAME_LABEL_ID);
-        renderer.setSize(16).setScalingFactor(2.5);
+        serverName = (TextFlow) view.lookup(SERVER_NAME_ID);
+        renderer.setSize(20).setScalingFactor(2);
         renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
-        // TODO: Rename label to text flow
-        serverNameLabel.getChildren().clear();
-        renderer.renderInto(model.getName(), serverNameLabel);
+        serverName.getChildren().clear();
+        renderer.renderInto(model.getName(), serverName);
 
         ObservableList<MenuItem> items = settingsContextMenu.getItems();
         items.get(0).setOnAction(this::onInviteUserClicked);
@@ -127,8 +126,8 @@ public class ServerScreenController implements ControllerInterface {
 
     private void onServerNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
         Platform.runLater(()-> {
-            serverNameLabel.getChildren().clear();
-            renderer.renderInto(model.getName(), serverNameLabel);
+            serverName.getChildren().clear();
+            renderer.renderInto(model.getName(), serverName);
         });
     }
 

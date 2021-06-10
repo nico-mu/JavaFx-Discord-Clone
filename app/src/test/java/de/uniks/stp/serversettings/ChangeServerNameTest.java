@@ -10,6 +10,8 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -93,8 +95,8 @@ public class ChangeServerNameTest {
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
         Assertions.assertEquals(oldName, editor.getServer(serverId).getName());
 
-        Label serverLabel = robot.lookup("#server-name-label").query();
-        Assertions.assertEquals(oldName, serverLabel.getText());
+        TextFlow serverLabel = robot.lookup("#server-name").query();
+        Assertions.assertEquals(oldName, ((Text) serverLabel.getChildren().get(0)).getText());
 
         // prepare changing server name
         robot.clickOn("#settings-label");
@@ -118,7 +120,7 @@ public class ChangeServerNameTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         // check for correct reactions
-        Assertions.assertEquals(newName, serverLabel.getText());
+        Assertions.assertEquals(newName, ((Text) serverLabel.getChildren().get(0)).getText());
         Assertions.assertEquals(newName, editor.getServer(serverId).getName());
     }
 
@@ -142,8 +144,8 @@ public class ChangeServerNameTest {
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
         Assertions.assertEquals(OLD_NAME, editor.getServer(SERVER_ID).getName());
 
-        Label serverLabel = robot.lookup("#server-name-label").query();
-        Assertions.assertEquals(OLD_NAME, serverLabel.getText());
+        TextFlow serverLabel = robot.lookup("#server-name").query();
+        Assertions.assertEquals(OLD_NAME, ((Text) serverLabel.getChildren().get(0)).getText());
 
         // prepare receiving websocket message
         verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
@@ -172,8 +174,8 @@ public class ChangeServerNameTest {
 
         // check for correct reactions
         Assertions.assertEquals(NEW_NAME, editor.getServer(SERVER_ID).getName());
-        serverLabel = robot.lookup("#server-name-label").query();
-        Assertions.assertEquals(NEW_NAME, serverLabel.getText());
+        serverLabel = robot.lookup("#server-name").query();
+        Assertions.assertEquals(NEW_NAME, ((Text) serverLabel.getChildren().get(0)).getText());
     }
 
     @AfterEach

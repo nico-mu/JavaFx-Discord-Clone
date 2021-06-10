@@ -5,7 +5,6 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.emote.EmoteTextArea;
-import de.uniks.stp.emote.VirtualizedScrollPaneDecorator;
 import de.uniks.stp.model.Message;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -71,7 +70,6 @@ public class PrivateChatView extends VBox {
         emoteTextArea = new EmoteTextArea();
         emoteTextArea.setOnKeyPressed(this::checkForEnter);
         VirtualizedScrollPane<EmoteTextArea> scroll = new VirtualizedScrollPane<>(emoteTextArea);
-        // VirtualizedScrollPaneDecorator<EmoteTextArea> scroll = new VirtualizedScrollPaneDecorator<>(emoteTextArea, "Write Something");
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         // The scrolling works but it's not a good solution

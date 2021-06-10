@@ -20,7 +20,7 @@
          <children>
             <HBox id="server-name-container" alignment="CENTER_LEFT" prefHeight="54.0" prefWidth="198.0" styleClass="server-name-container">
                <children>
-                  <TextFlow id="server-name-label" prefHeight="32.0" prefWidth="140.0" styleClass="server-name-label">
+                  <TextFlow id="server-name" prefHeight="32.0" prefWidth="140.0" styleClass="server-name-label">
                      <HBox.margin>
                         <Insets left="5.0" />
                      </HBox.margin>

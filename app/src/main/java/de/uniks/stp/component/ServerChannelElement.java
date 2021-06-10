@@ -33,7 +33,7 @@ import java.io.IOException;
 public class ServerChannelElement extends HBox implements NotificationComponentInterface {
 
     @FXML
-    HBox channelText;
+    TextFlow channelText;
 
     @FXML
     Pane channelElementMarker;
@@ -66,11 +66,6 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         this.model = model;
         // TODO: Long names make problems
         renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy).setScalingFactor(2);
-        channelText.maxHeight(100);
-        channelText.getChildren().clear();
-        channelText.maxWidth(20);
-        channelText.setPrefWidth(20);
-        this.setMaxWidth(30);
         renderer.renderInto(model.getName(), channelText);
         channelVBox.setOnMouseClicked(this::onMouseClicked);
 
