@@ -1,6 +1,7 @@
 package de.uniks.stp.notification;
 
 import de.uniks.stp.AudioService;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
