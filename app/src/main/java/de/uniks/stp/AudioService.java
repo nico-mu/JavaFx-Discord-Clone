@@ -9,15 +9,18 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class AudioService {
     private static Media notificationSoundFile;
-    private static final Logger log = LoggerFactory.getLogger(AudioService.class);
+    private static String notificationSoundFileName;
     private static final String headlessCheck = System.getProperty("testfx.headless");
 
     public static void setNotificationSoundFile(String name) {
-        notificationSoundFile = new Media(getNotificationSoundResource(name));
+        File file = Objects.requireNonNull(getNotificationSoundResource(name));
+        notificationSoundFileName = file.getName();
+        notificationSoundFile = new Media(file.toURI().toString());
     }
 
     public static void playNotificationSound() {
@@ -31,25 +34,24 @@ public class AudioService {
         mediaPlayer.play();
     }
 
-    public static String getNotificationSoundResource(String name) {
+    public static File getNotificationSoundResource(String name) {
         URL resPath;
         if (name.equals(".")) {
             resPath = AudioService.class.getResource("audio/notification");
         } else {
             resPath = AudioService.class.getResource("audio/notification/" + name);
         }
-        try {
-            if (Objects.isNull(resPath)) {
-                return "";
-            }
-            return new File(resPath.toURI()).toURI().toString();
-        } catch (URISyntaxException e) {
-            log.error("Could not find notification audio file " + name);
+        if (Objects.isNull(resPath)) {
+            return null;
         }
-        return "";
+        return new File(resPath.getPath());
     }
 
     public static File[] getNotificationSoundFiles() {
-        return new File(getNotificationSoundResource(".")).listFiles();
+        return Objects.requireNonNull(getNotificationSoundResource(".")).listFiles();
+    }
+
+    public static String getNotificationSoundFileName() {
+        return notificationSoundFileName;
     }
 }

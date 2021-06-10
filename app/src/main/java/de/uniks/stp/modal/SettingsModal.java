@@ -21,6 +21,7 @@ public class SettingsModal extends AbstractModal {
     public static final String SETTINGS_APPLY_BUTTON = "#settings-apply-button";
     public static final String SETTINGS_CANCEL_BUTTON = "#settings-cancel-button";
     public static final String SETTINGS_COMBO_SELECT_LANGUAGE = "#combo-select-language";
+    public static final String SETTINGS_COMBO_SELECT_NOTIFICATION_SOUND = "#combo-select-notification-sound";
     private final JFXButton applyButton;
     private final JFXButton cancelButton;
     private final KeyBasedComboBox languageComboBox;
@@ -42,10 +43,10 @@ public class SettingsModal extends AbstractModal {
         languageComboBox.addOptions(getLanguages());
         languageComboBox.setSelection(editor.getOrCreateAccord().getLanguage());
 
-        notificationComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_LANGUAGE);
+        notificationComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_NOTIFICATION_SOUND);
 
         notificationComboBox.addOptions(getNotificationSounds());
-        notificationComboBox.setSelection(editor.getOrCreateAccord().getLanguage());
+        notificationComboBox.setSelection(AudioService.getNotificationSoundFileName());
 
         applyButton.setOnAction(this::onApplyButtonClicked);
         applyButton.setDefaultButton(true);  // use Enter in order to press button
@@ -74,7 +75,7 @@ public class SettingsModal extends AbstractModal {
         File[] files = AudioService.getNotificationSoundFiles();
         for (File file : files) {
             if (file.isFile()) {
-                notificationSoundMap.put(file.toURI().toString(), file.getName());
+                notificationSoundMap.put(file.getName(), file.getName().substring(0, file.getName().lastIndexOf('.')));
             }
         }
         return notificationSoundMap;
