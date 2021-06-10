@@ -3,11 +3,13 @@ package de.uniks.stp.controller;
 import com.jfoenix.controls.*;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
+import de.uniks.stp.language.LanguageService;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.UserKeyProvider;
@@ -216,6 +218,8 @@ public class LoginScreenController implements ControllerInterface {
             setErrorMessage(null);
             String userKey = response.getBody().getObject().getJSONObject("data").getString("userKey");
             UserKeyProvider.setEditor(editor);
+            StageManager.setLanguageService(new LanguageService(editor));
+            StageManager.getLanguageService().startLanguageAwareness();
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
             editor.setUserKey(userKey);
 
