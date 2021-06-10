@@ -1,10 +1,7 @@
 package de.uniks.stp.modal;
 
 import com.jfoenix.controls.JFXButton;
-import de.uniks.stp.AudioService;
-import de.uniks.stp.Constants;
-import de.uniks.stp.Editor;
-import de.uniks.stp.ViewLoader;
+import de.uniks.stp.*;
 import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.view.Languages;
 import javafx.event.ActionEvent;
@@ -87,7 +84,7 @@ public class SettingsModal extends AbstractModal {
 
     private void onApplyButtonClicked(ActionEvent actionEvent) {
         editor.getOrCreateAccord().setLanguage(languageComboBox.getSelection());
-        AudioService.setNotificationSoundFile(notificationComboBox.getSelection());
+        StageManager.getAudioService().setNotificationSoundFile(notificationComboBox.getSelection());
         this.close();
     }
 

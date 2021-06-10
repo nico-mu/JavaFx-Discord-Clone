@@ -30,6 +30,7 @@ public class StageManager extends Application {
     private static boolean backup = true;
 
     private static LanguageService languageService;
+    private static AudioService audioService;
 
     public static void cleanup() {
         if (Objects.nonNull(currentController)) {
@@ -82,6 +83,15 @@ public class StageManager extends Application {
         StageManager.languageService = languageService;
     }
 
+    public static AudioService getAudioService() {
+        return audioService;
+    }
+
+    public static void setAudioService(AudioService audioService) {
+        StageManager.audioService = audioService;
+    }
+
+
     @Override
     public void start(Stage primaryStage) {
         DatabaseService.init(backup);
@@ -90,6 +100,7 @@ public class StageManager extends Application {
         editor = new Editor();
         languageService = new LanguageService(editor);
         languageService.startLanguageAwareness();
+        audioService = new AudioService(editor);
 
         UserKeyProvider.setEditor(editor);
         WebSocketService.setEditor(editor);

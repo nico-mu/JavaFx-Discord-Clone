@@ -17,6 +17,7 @@ public class GenModel implements ClassModelDecorator {
     class Accord {
         String language;
         String userKey;
+        String notificationSound;
 
         @Link("accord")
         User currentUser;

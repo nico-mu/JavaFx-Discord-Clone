@@ -1,5 +1,8 @@
 package de.uniks.stp;
 
+import de.uniks.stp.jpa.AccordSettingKey;
+import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.model.Accord;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -16,17 +19,23 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class AudioService {
-    private Media notificationSoundFile;
-    private String notificationSoundFileName;
-    private final String headlessCheck = System.getProperty("testfx.headless");
+    private static final String DEFAULT_SOUND_FILE = "gaming-lock.wav";
+    private static Media notificationSoundFile;
+    private static String notificationSoundFileName;
+    private static final String headlessCheck = System.getProperty("testfx.headless");
     private final PropertyChangeListener notificationSoundPropertyChangeListener = this::onNotificationSoundPropertyChange;
     private final Editor editor;
 
 
     public AudioService(Editor editor) {
-        setNotificationSoundFile("gaming-lock.wav");
         this.editor = editor;
         this.editor.getOrCreateAccord().listeners().addPropertyChangeListener(Accord.PROPERTY_NOTIFICATION_SOUND, notificationSoundPropertyChangeListener);
+        AccordSettingDTO settingsDTO = DatabaseService.getAccordSetting(AccordSettingKey.NOTIFICATION_SOUND);
+        if (Objects.nonNull(settingsDTO)) {
+            setNotificationSoundFile(settingsDTO.getValue());
+        } else {
+            setNotificationSoundFile(DEFAULT_SOUND_FILE);
+        }
     }
 
     public void stop() {
@@ -34,12 +43,16 @@ public class AudioService {
     }
 
     public void setNotificationSoundFile(String name) {
+        if (Objects.isNull(name)) {
+            name = DEFAULT_SOUND_FILE;
+        }
         File file = Objects.requireNonNull(getNotificationSoundResource(name));
         notificationSoundFileName = file.getName();
         notificationSoundFile = new Media(file.toURI().toString());
+        editor.getOrCreateAccord().setNotificationSound(notificationSoundFileName);
     }
 
-    public void playNotificationSound() {
+    public static void playNotificationSound() {
         if (Objects.nonNull(headlessCheck) && headlessCheck.equals("true")) {
             return;
         }
@@ -47,7 +60,7 @@ public class AudioService {
         mediaPlayer.play();
     }
 
-    public File getNotificationSoundResource(String name) {
+    public static File getNotificationSoundResource(String name) {
         URL resPath;
         if (name.equals(".")) {
             resPath = AudioService.class.getResource("audio/notification");
@@ -60,15 +73,16 @@ public class AudioService {
         return new File(resPath.getPath());
     }
 
-    public File[] getNotificationSoundFiles() {
+    public static File[] getNotificationSoundFiles() {
         return Objects.requireNonNull(getNotificationSoundResource(".")).listFiles();
     }
 
-    public String getNotificationSoundFileName() {
+    public static String getNotificationSoundFileName() {
         return notificationSoundFileName;
     }
 
     private void onNotificationSoundPropertyChange(PropertyChangeEvent propertyChangeEvent) {
-
+        final String newNotificationSound = (String) propertyChangeEvent.getNewValue();
+        DatabaseService.saveAccordSetting(AccordSettingKey.NOTIFICATION_SOUND, newNotificationSound);
     }
 }

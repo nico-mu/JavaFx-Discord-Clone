@@ -1,10 +1,7 @@
 package de.uniks.stp.controller;
 
 import com.jfoenix.controls.*;
-import de.uniks.stp.Constants;
-import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
-import de.uniks.stp.ViewLoader;
+import de.uniks.stp.*;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.DatabaseService;
@@ -220,6 +217,7 @@ public class LoginScreenController implements ControllerInterface {
             UserKeyProvider.setEditor(editor);
             StageManager.setLanguageService(new LanguageService(editor));
             StageManager.getLanguageService().startLanguageAwareness();
+            StageManager.setAudioService(new AudioService(editor));
             editor.setCurrentUser(editor.getOrCreateUser(name, true));
             editor.setUserKey(userKey);
 
