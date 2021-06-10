@@ -82,6 +82,7 @@ public class ServerScreenController implements ControllerInterface {
         renderer.setSize(16).setScalingFactor(2.5);
         renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
         // TODO: Rename label to text flow
+        serverNameLabel.getChildren().clear();
         renderer.renderInto(model.getName(), serverNameLabel);
 
         ObservableList<MenuItem> items = settingsContextMenu.getItems();

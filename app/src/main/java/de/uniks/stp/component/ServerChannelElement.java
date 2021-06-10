@@ -2,6 +2,7 @@ package de.uniks.stp.component;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.event.ChannelChangeEvent;
 import de.uniks.stp.modal.EditChannelModal;
 import de.uniks.stp.model.Channel;
@@ -20,13 +21,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
 
 public class ServerChannelElement extends HBox implements NotificationComponentInterface {
 
     @FXML
-    Text channelText;
+    TextFlow channelText;
 
     @FXML
     Pane channelElementMarker;
@@ -42,8 +44,9 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
     Channel model;
 
-    private final Font font;
-    private final Font boldFont;
+    private final Font font = null;
+    private final Font boldFont = null;
+    private final EmoteRenderer renderer = new EmoteRenderer();
 
     public ServerChannelElement(Channel model) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHANNEL_ELEMENT);
@@ -57,7 +60,10 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         }
 
         this.model = model;
-        channelText.setText(model.getName());
+        // TODO: Long names make problems
+        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy).setScalingFactor(2);
+        channelText.getChildren().clear();
+        renderer.renderInto(model.getName(), channelText);
         channelVBox.setOnMouseClicked(this::onMouseClicked);
 
         channelContainer.setOnMouseEntered(this::onChannelMouseEntered);
@@ -65,8 +71,8 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
         editChannel.setOnMouseClicked(this::onEditChannelClicked);
 
-        font = channelText.getFont();
-        boldFont = Font.font(channelText.getFont().getFamily(), FontWeight.BOLD, channelText.getFont().getSize());
+        // font = channelText.getFont();
+        // boldFont = Font.font(channelText.getFont().getFamily(), FontWeight.BOLD, channelText.getFont().getSize());
         channelText.setId(model.getId() + "-ChannelElementText");
     }
 
@@ -85,7 +91,10 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
     }
 
     public void updateText(String newName) {
-        Platform.runLater(() -> channelText.setText(newName));
+        Platform.runLater(() -> {
+            channelText.getChildren().clear();
+            renderer.renderInto(newName, channelText);
+        });
     }
 
     public void setActive(boolean active) {
@@ -105,9 +114,9 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
     public void setNotificationVisibility(boolean mode) {
         Platform.runLater(() -> {
             if (mode) {
-                channelText.setFont(boldFont);
+                // channelText.setFont(boldFont);
             } else {
-                channelText.setFont(font);
+                // channelText.setFont(font);
             }
         });
     }

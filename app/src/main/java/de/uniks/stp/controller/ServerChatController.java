@@ -2,6 +2,7 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerChatView;
+import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
@@ -11,6 +12,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
@@ -32,7 +34,7 @@ public class ServerChatController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;
     private final Channel model;
-    private Label channelNameLabel;
+    private TextFlow channelNameLabel;
     private VBox serverChatVBox;
 
     private ServerChatView chatView;
@@ -46,10 +48,14 @@ public class ServerChatController implements ControllerInterface {
 
     @Override
     public void init() {
-        channelNameLabel = (Label)view.lookup(CHANNEL_NAME_LABEL_ID);
+        channelNameLabel = (TextFlow) view.lookup(CHANNEL_NAME_LABEL_ID);
         serverChatVBox = (VBox)view.lookup(SERVER_CHAT_VBOX);
 
-        channelNameLabel.setText(model.getName());
+        EmoteRenderer renderer = new EmoteRenderer();
+        renderer.setSize(16).setScalingFactor(2.5);
+        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
+        channelNameLabel.getChildren().clear();
+        renderer.renderInto(model.getName(), channelNameLabel);
 
         showChatView();
     }

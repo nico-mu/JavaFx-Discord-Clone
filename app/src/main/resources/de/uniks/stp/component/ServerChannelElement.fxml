@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
+<?import javafx.scene.text.TextFlow?>
 <fx:root id="channel-container" fx:id="channelContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="170.0" spacing="5.0" styleClass="channel-container" stylesheets="@../style/css/component/server-category-list.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Pane id="channel-element-marker" fx:id="channelElementMarker" minWidth="-Infinity" prefHeight="30.0" prefWidth="4.0" styleClass="channel-element-marker" visible="false" />
@@ -15,7 +16,7 @@
          <children>
             <VBox fx:id="channelVBox" alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="140.0">
                <children>
-                  <Text fx:id="channelText" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="channel-text" wrappingWidth="146.0" />
+                  <TextFlow fx:id="channelText" styleClass="channel-text" />
                </children>
                <padding>
                   <Insets left="4.0" />
