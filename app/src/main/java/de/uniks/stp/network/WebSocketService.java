@@ -293,6 +293,7 @@ public class WebSocketService {
                             if (category.getId().equals(categoryId)) {
                                 category.withChannels(channel);
                                 modifiedServer = server;
+                                channel.setServer(server);
                             }
                         }
                     }
@@ -354,6 +355,16 @@ public class WebSocketService {
                 case "serverDeleted":
                     serverId = data.getString("id");
                     editor.removeServer(serverId);
+                    return;
+                case "channelDeleted":
+                    channelId = data.getString("id");
+                    categoryId = data.getString("category");
+                    editor.deleteChannel(channelId);
+                    return;
+                case "categoryDeleted":
+                    categoryId = data.getString("id");
+                    serverId = data.getString("server");
+                    editor.deleteCategory(serverId, categoryId);
                     return;
                 default:
                     break;

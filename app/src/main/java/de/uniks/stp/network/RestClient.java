@@ -59,6 +59,11 @@ public class RestClient {
         sendRequest(req, callback);
     }
 
+    public void deleteCategory(String serverId, String categoryId, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId);
+        sendRequest(req, callback);
+    }
+
     public static void stop() {
         executorService.shutdown();
         Unirest.shutDown();
@@ -181,6 +186,11 @@ public class RestClient {
                 .add("name", channelName)
                 .add("privileged", privileged)
                 .add("members", arrayBuilder.build()).build().toString());
+        sendRequest(req, callback);
+    }
+
+    public void deleteChannel(String serverId, String categoryId, String channelId, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId);
         sendRequest(req, callback);
     }
 }

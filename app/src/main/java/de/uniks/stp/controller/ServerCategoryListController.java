@@ -6,6 +6,7 @@ import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ServerCategoryElement;
 import de.uniks.stp.component.ServerCategoryList;
 import de.uniks.stp.component.ServerChannelElement;
+import de.uniks.stp.event.NavBarHomeElementActiveEvent;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -70,13 +71,6 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         model.listeners().addPropertyChangeListener(PROPERTY_CATEGORIES, categoriesPropertyChangeListener);
 
         restClient.getCategories(model.getId(), this::handleCategories);
-
-        for (Category cat : model.getCategories()) {
-            cat.listeners().addPropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
-        }
-        for (Channel channel : model.getChannels()) {
-            channel.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
-        }
     }
 
     private void handleCategories(HttpResponse<JsonNode> response) {
@@ -109,10 +103,23 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     private void categoryRemoved(final Category category) {
         if (Objects.nonNull(category) && categoryElementHashMap.containsKey(category)) {
-            category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
-            final ServerCategoryElement serverCategoryElement = categoryElementHashMap.remove(category);
-            Platform.runLater(() -> serverCategoryList.removeElement(serverCategoryElement));
-            category.listeners().removePropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
+            for(Channel channel: category.getChannels()){
+                NotificationService.removePublisher(channel);
+            }
+
+            HashMap<String, String> currentArgs = Router.getCurrentArgs();
+            // in case a channel of the deleted category is currently shown: reload server
+            if(currentArgs.containsKey(":categoryId") && currentArgs.get(":categoryId").equals(category.getId())){
+                RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
+                Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+            }
+            //else: remove category element in list
+            else{
+                category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
+                final ServerCategoryElement serverCategoryElement = categoryElementHashMap.remove(category);
+                Platform.runLater(() -> serverCategoryList.removeElement(serverCategoryElement));
+                category.listeners().removePropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
+            }
         }
     }
 
@@ -146,41 +153,40 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                 }
                 channelAdded(categoryModel, channelModel);
             }
-            HashMap<String, String> routeArgs = Router.getCurrentArgs();
-            if (routeArgs.containsKey(":channelId") && model.getId().equals(Router.getCurrentArgs().get(":id"))) {
-                String channelId = routeArgs.get(":channelId");
-                for (Channel channel : model.getChannels()) {
-                    if (channel.getId().equals(channelId)) {
-                        serverCategoryList.setActiveElement(channelElementHashMap.get(channel));
-                    }
-                }
-            } else if (routeArgs.containsKey(":id") && model.getId().equals(Router.getCurrentArgs().get(":id"))) {
-                goToDefaultChannel();
-            }
         } else {
             //TODO: show error message
         }
     }
 
     private void goToDefaultChannel() {
-        serverCategoryList.setActiveElement(channelElementHashMap.get(defaultChannel));
-        NotificationService.consume(defaultChannel);
+        if(channelElementHashMap.containsKey(defaultChannel)) {
+            goToChannel(defaultChannel);
 
-        RouteArgs args = new RouteArgs();
-        args.addArgument(":id", defaultChannel.getCategory().getServer().getId());
-        args.addArgument(":categoryId", defaultChannel.getCategory().getId());
-        args.addArgument(":channelId", defaultChannel.getId());
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
+            RouteArgs args = new RouteArgs();
+            args.addArgument(":id", defaultChannel.getCategory().getServer().getId());
+            args.addArgument(":categoryId", defaultChannel.getCategory().getId());
+            args.addArgument(":channelId", defaultChannel.getId());
+            Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
+        }
+    }
+
+    private void goToChannel(Channel channel) {
+        if(channelElementHashMap.containsKey(channel)) {
+            ServerChannelElement element = channelElementHashMap.get(channel);
+            serverCategoryList.setActiveElement(element);
+            NotificationService.consume(channel);
+        }
     }
 
     private void onChannelPropertyChanged(PropertyChangeEvent propertyChangeEvent) {
         final Channel oldValue = (Channel) propertyChangeEvent.getOldValue();
         final Channel newValue = (Channel) propertyChangeEvent.getNewValue();
+        final Category category = (Category) propertyChangeEvent.getSource();
 
         if (Objects.isNull(oldValue)) {
             channelAdded(newValue.getCategory(), newValue);
         } else if (Objects.isNull(newValue)) {
-            channelRemoved(oldValue.getCategory(), oldValue);
+            channelRemoved(category, oldValue);
         }
     }
 
@@ -202,11 +208,23 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     private void channelRemoved(final Category category, final Channel channel) {
         if (Objects.nonNull(category) && Objects.nonNull(channel) && channelElementHashMap.containsKey(channel)) {
-            final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
-            final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
-            Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
-            channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             NotificationService.removePublisher(channel);
+
+            HashMap<String, String> currentArgs = Router.getCurrentArgs();
+            // in case the deleted channel is currently shown: reload server
+            if(currentArgs.containsKey(":categoryId") && currentArgs.containsKey(":categoryId")
+                    && currentArgs.get(":categoryId").equals(category.getId())
+                    && currentArgs.get(":channelId").equals(channel.getId())){
+                RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
+                Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+            }
+            // else: remove channel element in list
+            else{
+                final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
+                final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
+                Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
+                channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
+            }
         }
     }
 
@@ -224,12 +242,16 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                     serverChannelElement.setNotificationCount(NotificationService.getPublisherNotificationCount(channel));
                 }
             });
+            HashMap<String, String> currentRouteArgs = Router.getCurrentArgs();
             // show ServerChatView of first loaded channel
             if (Objects.isNull(defaultChannel)) {
                 defaultChannel = channel;
-                if (!Router.getCurrentArgs().containsKey(":channelId")) {
+                if (!currentRouteArgs.containsKey(":channelId")) {
                     goToDefaultChannel();
                 }
+            }
+            if(currentRouteArgs.containsKey(":channelId") && currentRouteArgs.get(":channelId").equals(channel.getId())) {
+                goToChannel(channel);
             }
         }
     }

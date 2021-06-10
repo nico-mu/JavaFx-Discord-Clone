@@ -147,6 +147,12 @@ public class Editor {
         return null;
     }
 
+    public void deleteCategory(String serverId, String categoryId){
+        Server server = getServer(serverId);
+        Category delCat = getCategory(categoryId, server);
+        server.withoutCategories(delCat);
+    }
+
     public Channel getOrCreateChannel(final String channelId, final String name, final Category category) {
         if (Objects.nonNull(category)) {
             for (Channel channel : category.getChannels()) {
@@ -292,5 +298,11 @@ public class Editor {
         }
         ServerInvitation newInvite = new ServerInvitation().setId(invId).setLink(link).setType(type).setMax(max).setCurrent(current).setServer(server);
         return newInvite;
+    }
+
+    public void deleteChannel(String channelId) {
+        Channel channel = getChannelById(channelId);
+        channel.setServer(null);
+        channel.getCategory().withoutChannels(channel);
     }
 }

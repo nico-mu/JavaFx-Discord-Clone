@@ -1,10 +1,10 @@
 package de.uniks.stp.serversettings;
 
-import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.*;
@@ -12,11 +12,11 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(ApplicationExtension.class)
-public class DeleteServerTest {
+public class DeleteCategoryTest {
     @Mock
     private RestClient restMock;
 
@@ -61,7 +61,7 @@ public class DeleteServerTest {
     @Captor
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
-    private HashMap<String, WSCallback> endpointCallbackHashmap = new HashMap<>();
+    private HashMap<String, WSCallback> endpointCallbackHashmap;
     private StageManager app;
 
     @Start
@@ -77,37 +77,61 @@ public class DeleteServerTest {
     }
 
     /**
-     * Tests the ServerSettingsModal and ConfirmationModal: Checks for correct Rest call, opening and closing of the modals
+     * Tests the EditCategoryModal & ConfirmationModal: Checks for correct Rest call and opening/closing the modals
      * @param robot
      */
     @Test
-    public void testDeleteServerModal(FxRobot robot) {
+    public void testDeleteCategoryModals(FxRobot robot){
         // prepare start situation
         Editor editor = StageManager.getEditor();
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
         String serverName ="Plattis Server";
         String serverId ="12345678";
+        String catId = "111";
+        String catName = "CatName";
         Server server = new Server().setName(serverName).setId(serverId);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
+
+        WebSocketService.addServerWebSocket(serverId);
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
-        // prepare deleting server
-        robot.clickOn("#settings-label");
-        robot.clickOn("#edit-menu-item");
+        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
-        // assert that ServerSettingsModal is shown
-        Label modalNameLabel = robot.lookup("#enter-servername-label").query();
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
+
+        for (int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+
+        Category cat = new Category().setId(catId).setName(catName).setServer(server);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // assert correct start situation
+        Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
+        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+
+        Label label = robot.lookup("#" + cat.getId() + "-ServerCategoryElementLabel").query();
+        Assertions.assertEquals(catName, label.getText());
+
+        robot.clickOn("#" + cat.getId() + "-ServerCategoryElementLabel");
+        robot.point("#edit-category-gear");
+        robot.clickOn("#edit-category-gear");
+
+        // assert that EditCategoryModal is shown
+        Label modalNameLabel = robot.lookup("#enter-category-name-label").query();
         Assertions.assertEquals("Name", modalNameLabel.getText());
 
         robot.clickOn("#delete-button");
 
         // assert that ConfirmationModal is shown
         Label confiModalTitleLabel = robot.lookup("#title-label").query();
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_DELETE_SERVER), confiModalTitleLabel.getText());
+        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_DELETE_CATEGORY), confiModalTitleLabel.getText());
 
         robot.clickOn("#yes-button");
 
@@ -122,20 +146,20 @@ public class DeleteServerTest {
 
 
         JSONObject j = new JSONObject().put("status", "success").put("message", "")
-            .put("data", new JSONObject().put("id", serverId).put("name", serverName));
+            .put("data", new JSONObject().put("id", catId).put("name", catName).put("server", serverId).put("channels", new JSONArray()));
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
 
-        verify(restMock).deleteServer(eq(serverId), callbackCaptor.capture());
+        verify(restMock).deleteCategory(eq(serverId), eq(catId), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        // check that ServerSettingsModal is no longer shown
+        // check that EditCategoryModal is no longer shown
         modalShown = true;
         try{
-            modalNameLabel = robot.lookup("#enter-servername-label").query();
+            modalNameLabel = robot.lookup("#enter-category-name-label").query();
         } catch (Exception e) {
             modalShown = false;
         }
@@ -143,39 +167,61 @@ public class DeleteServerTest {
     }
 
     /**
-     * Tests error message in ServerSettingsModal
+     * Tests error message in EditCategoryModal
      * @param robot
      */
     @Test
-    public void testDeleteServerFailed(FxRobot robot) {
+    public void testDeleteCategoryFailed(FxRobot robot){
         // prepare start situation
         Editor editor = StageManager.getEditor();
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
-        WaitForAsyncUtils.waitForFxEvents();
-
+        String serverName ="Plattis Server";
         String serverId ="12345678";
-        Server server = new Server().setName("Plattis Server").setId(serverId);
+        String catId = "111";
+        String catName = "CatName";
+        Server server = new Server().setName(serverName).setId(serverId);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
+        WebSocketService.addServerWebSocket(serverId);
+
+        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
-        robot.clickOn("#"+serverId+"-navBarElement");
+        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
-        // prepare deleting server
-        robot.clickOn("#settings-label");
-        robot.clickOn("#edit-menu-item");
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
 
-        // assert that ServerSettingsModal is shown
-        Label modalNameLabel = robot.lookup("#enter-servername-label").query();
+        for (int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+
+        Category cat = new Category().setId(catId).setName(catName).setServer(server);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // assert correct start situation
+        Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
+        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+
+        Label label = robot.lookup("#" + cat.getId() + "-ServerCategoryElementLabel").query();
+        Assertions.assertEquals(catName, label.getText());
+
+        robot.clickOn("#" + cat.getId() + "-ServerCategoryElementLabel");
+        robot.point("#edit-category-gear");
+        robot.clickOn("#edit-category-gear");
+
+        // assert that EditCategoryModal is shown
+        Label modalNameLabel = robot.lookup("#enter-category-name-label").query();
         Assertions.assertEquals("Name", modalNameLabel.getText());
 
         robot.clickOn("#delete-button");
 
         // assert that ConfirmationModal is shown
         Label confiModalTitleLabel = robot.lookup("#title-label").query();
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_DELETE_SERVER), confiModalTitleLabel.getText());
+        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_DELETE_CATEGORY), confiModalTitleLabel.getText());
 
         robot.clickOn("#yes-button");
 
@@ -189,55 +235,58 @@ public class DeleteServerTest {
         Assertions.assertFalse(modalShown);
 
 
-        JSONObject j = new JSONObject().put("status", "success").put("message", "")
+        JSONObject j = new JSONObject().put("status", "failure").put("message", "")
             .put("data", new JSONObject());
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(false);
 
-        verify(restMock).deleteServer(eq(serverId), callbackCaptor.capture());
+        verify(restMock).deleteCategory(eq(serverId), eq(catId), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        // check that ServerSettingsModal is shown with error message
-        modalNameLabel = robot.lookup("#enter-servername-label").query();
+        // check that EditCategoryModal is shown with error message
+        modalNameLabel = robot.lookup("#enter-category-name-label").query();
         Assertions.assertEquals("Name", modalNameLabel.getText());
         Label errorLabel = robot.lookup("#error-message-label").query();
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_DELETE_SERVER_FAILED), errorLabel.getText());
+        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_DELETE_CATEGORY_FAILED), errorLabel.getText());
 
         robot.clickOn("#cancel-button");
     }
 
     /**
-     * Tests deletion of the opened server by receiving a websocket message
+     * Tests deleting category by receiving a websocket message
      * @param robot
      */
     @Test
-    public void testCurrentServerDeletedMessage(FxRobot robot) {
+    public void testCategoryDeletedMessage(FxRobot robot){
         // prepare start situation
         Editor editor = StageManager.getEditor();
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
-        WaitForAsyncUtils.waitForFxEvents();
-
-        String serverName = "Plattis Server";
+        String serverName ="Plattis Server";
         String serverId ="12345678";
+        String catId = "111";
+        String catName = "CatName";
         Server server = new Server().setName(serverName).setId(serverId);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
+        WebSocketService.addServerWebSocket(serverId);
+
+        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
-        robot.clickOn("#"+serverId+"-navBarElement");
+        Category cat = new Category().setId(catId).setName(catName).setServer(server);
+        WaitForAsyncUtils.waitForFxEvents();
 
         // assert correct start situation
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
-        Pane serverNavBarElement = robot.lookup("#"+serverId+"-navBarElement").query();
-        Assertions.assertNotNull(serverNavBarElement);
-        Label serverLabel = robot.lookup("#server-name-label").query();
-        Assertions.assertEquals(serverName, serverLabel.getText());
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
 
+        Label catLabel = robot.lookup("#" + catId + "-ServerCategoryElementLabel").query();
+        Assertions.assertEquals(catName, catLabel.getText());
 
         // prepare receiving websocket message
         verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
@@ -245,95 +294,20 @@ public class DeleteServerTest {
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
 
-        for(int i = 0; i < endpoints.size(); i++) {
+        for (int i = 0; i < endpoints.size(); i++) {
             endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
         }
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
 
-        // receive message
-        JsonObject jsonObject = Json.createObjectBuilder()
-            .add("action", "serverDeleted")
-            .add("data",
-                Json.createObjectBuilder()
-                    .add("id", serverId)
-                    .add("name", serverName)
-                    .build()
-            )
-            .build();
-        systemCallback.handleMessage(jsonObject);
 
-        WaitForAsyncUtils.waitForFxEvents();
-
-        // check for correct reactions
-        Assertions.assertEquals(0, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
-
-        //check that Home Screen is shown
-        JFXButton onlineUsersLabel = robot.lookup("#toggle-online-button").query();
-        Assertions.assertEquals("Online", onlineUsersLabel.getText());
-
-        // check that ServerNavBarElement is no longer shown
-        boolean shown = true;
-        try{
-            serverNavBarElement = robot.lookup("#"+serverId+"-navBarElement").query();
-        } catch (Exception e) {
-            shown = false;
-        }
-        Assertions.assertFalse(shown);
-    }
-
-    /**
-     * Tests deleting server by receiving a websocket message while other server is shown
-     * @param robot
-     */
-    @Test
-    public void testServerDeletedMessage(FxRobot robot) {
-        // prepare start situation
-        Editor editor = StageManager.getEditor();
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
-        WaitForAsyncUtils.waitForFxEvents();
-
-        String deleteServerName = "Plattis outdated Server";
-        String deleteServerId ="1111111";
-        Server deleteServer = new Server().setName(deleteServerName).setId(deleteServerId);
-        editor.getOrCreateAccord().getCurrentUser().withAvailableServers(deleteServer);
-
-        String serverTwoName = "Plattis useful Server";
-        String serverTwoId ="42";
-        Server serverTwo = new Server().setName(serverTwoName).setId(serverTwoId);
-        editor.getOrCreateAccord().getCurrentUser().withAvailableServers(serverTwo);
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        robot.clickOn("#"+serverTwoId+"-navBarElement");
-
-        // assert correct start situation
-        Assertions.assertEquals(2, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
-        Pane deleteServerNavBarElement = robot.lookup("#"+deleteServerId+"-navBarElement").query();
-        Assertions.assertNotNull(deleteServerNavBarElement);
-        Label shownServerLabel = robot.lookup("#server-name-label").query();
-        Assertions.assertEquals(serverTwoName, shownServerLabel.getText());
-
-
-        // prepare receiving websocket message
-        verify(webSocketMock, times(6)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
-
-        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
-        List<String> endpoints = stringArgumentCaptor.getAllValues();
-
-        for(int i = 0; i < endpoints.size(); i++) {
-            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
-        }
-        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + deleteServerId);
 
         // receive message
         JsonObject jsonObject = Json.createObjectBuilder()
-            .add("action", "serverDeleted")
+            .add("action", "categoryDeleted")
             .add("data",
                 Json.createObjectBuilder()
-                    .add("id", deleteServerId)
-                    .add("name", deleteServerName)
+                    .add("id", catId)
+                    .add("server", serverId)
                     .build()
             )
             .build();
@@ -343,15 +317,11 @@ public class DeleteServerTest {
 
         // check for correct reactions
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
-
-        //check that ServerTwo is still shown
-        shownServerLabel = robot.lookup("#server-name-label").query();
-        Assertions.assertEquals(serverTwoName, shownServerLabel.getText());
-
-        // check that ServerNavBarElement of deleted server is no longer shown
+        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().size());
+        // check that categoryElement is no longer shown
         boolean shown = true;
         try{
-            deleteServerNavBarElement = robot.lookup("#"+deleteServerId+"-navBarElement").query();
+            catLabel = robot.lookup("#" + catId + "-ServerCategoryElementLabel").query();
         } catch (Exception e) {
             shown = false;
         }
