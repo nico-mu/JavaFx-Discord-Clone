@@ -13,10 +13,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class EmoteParser {
-    private static final Map<String, String> emoteMapping;
+    private static final Map<String, String> emoteMapping = new HashMap<>();;
 
     static {
-        emoteMapping = createEmoteMapping();
         InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/emote-list.json"));
         String text = new BufferedReader(
             new InputStreamReader(inputStream, StandardCharsets.UTF_8))
@@ -118,15 +117,5 @@ public class EmoteParser {
             String emoteName = ((JSONObject) emoteInfo).getString("description").replaceAll(" ", "_").toLowerCase();
             emoteMapping.put(emoteName, emote);
         });
-    }
-
-    private static Map<String, String> createEmoteMapping() {
-        Map<String, String> map = new HashMap<>();
-
-        for (EmoteMapping entry : EmoteMapping.values()) {
-            map.put(entry.toString(), entry.unicode);
-        };
-
-        return map;
     }
 }
