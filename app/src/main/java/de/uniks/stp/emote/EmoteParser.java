@@ -30,14 +30,11 @@ public class EmoteParser {
         .lines()
             .collect(Collectors.joining("\n"));
         JSONObject jsonObject = new JSONObject(text);
-        JSONArray jsonArray = jsonObject.getJSONArray("Smileys & People");
         
-        jsonArray.forEach((emoteInfo) -> {
-            String emote = ((JSONObject) emoteInfo).getString("emoji");
-            String emoteName = ((JSONObject) emoteInfo).getString("description").replaceAll(" ", "_").toLowerCase();
-            emoteMapping.put(emoteName, emote);
-        });
-
+        addEmotesFromJSONArray(jsonObject.getJSONArray("Smileys & People"));
+        addEmotesFromJSONArray(jsonObject.getJSONArray("Objects"));
+        addEmotesFromJSONArray(jsonObject.getJSONArray("Animals & Nature"));
+        addEmotesFromJSONArray(jsonObject.getJSONArray("Flags"));
     }
 
     public static Map<String, String> getEmoteMapping() {
@@ -120,6 +117,14 @@ public class EmoteParser {
         }
 
         return renderResult.toString();
+    }
+
+    private static void addEmotesFromJSONArray(JSONArray jsonArray) {
+        jsonArray.forEach((emoteInfo) -> {
+            String emote = ((JSONObject) emoteInfo).getString("emoji");
+            String emoteName = ((JSONObject) emoteInfo).getString("description").replaceAll(" ", "_").toLowerCase();
+            emoteMapping.put(emoteName, emote);
+        });
     }
 
     private static Map<String, String> createEmoteMapping() {

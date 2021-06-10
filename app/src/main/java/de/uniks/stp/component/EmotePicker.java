@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
@@ -16,7 +17,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
-public class EmotePicker extends VBox {
+public class EmotePicker extends ScrollPane {
     @FXML
     private VBox emotePickerContainer;
 
@@ -33,7 +34,9 @@ public class EmotePicker extends VBox {
             throw new RuntimeException(exception);
         }
 
-        this.setWidth(400);
+        setFitToWidth(true);
+        setFitToHeight(true);
+        setHbarPolicy(ScrollBarPolicy.NEVER);
     }
 
     public EmotePicker setOnEmoteClicked(Consumer<String> emoteClickHandler) {
@@ -44,7 +47,7 @@ public class EmotePicker extends VBox {
     public void render() {
         FlowPane result = new FlowPane();
         result.setOrientation(Orientation.HORIZONTAL);
-        result.setAlignment(Pos.TOP_LEFT);
+        result.setAlignment(Pos.TOP_CENTER);
         EmoteRenderer renderer = new EmoteRenderer().setSize(30);
 
         for (String emote: EmoteParser.getAllEmoteNames()) {

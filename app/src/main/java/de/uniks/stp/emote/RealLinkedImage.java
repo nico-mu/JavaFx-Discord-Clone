@@ -1,6 +1,7 @@
 package de.uniks.stp.emote;
 
 import de.uniks.stp.ViewLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -40,6 +41,7 @@ public class RealLinkedImage implements LinkedImage {
     @Override
     public Node createNode() {
         HBox container = new HBox();
+        container.setPadding(new Insets(2,4,0,4));
         container.setAlignment(Pos.CENTER);
         String hexCode = (String) EmoteParser.getEmoteByName(getEmoteName()).codePoints().mapToObj(Integer::toHexString).toArray()[0];
         InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/openmoji/" + hexCode.toUpperCase() + ".png"));
@@ -50,13 +52,7 @@ public class RealLinkedImage implements LinkedImage {
         imageView.setFitWidth(12);
         imageView.setFitHeight(12);
         imageView.setImage(image);
-        container.getChildren().addAll(createSpacer(), imageView, createSpacer());
+        container.getChildren().addAll(imageView);
         return container;
-    }
-
-    private Text createSpacer() {
-        Text text = new Text("  ");
-        text.setFont(Font.font(10));
-        return text;
     }
 }

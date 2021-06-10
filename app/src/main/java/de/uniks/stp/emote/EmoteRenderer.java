@@ -108,23 +108,27 @@ public class EmoteRenderer {
     public List<Node> imageEmoteRenderStrategy(String emoteName) {
         LinkedList<Node> nodeList = new LinkedList<>();
         String hexCode = (String) getEmoteByName(emoteName).codePoints().mapToObj(Integer::toHexString).toArray()[0];
-        InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/openmoji/" + hexCode.toUpperCase() + ".png"));
-        Image image = new Image(inputStream);
-        ImageView imageView = new ImageView();
-        // Important to make the emotes properly displayed in chat
-        imageView.setScaleX(getScalingFactor());
-        imageView.setScaleY(getScalingFactor());
-        imageView.setImage(image);
-        if (scalingFactor >= 2) {
-            imageView.setFitHeight(getSize() - 5);
-            imageView.setFitWidth(getSize() - 5);
-            nodeList.add(createSpacer());
-            nodeList.add(imageView);
-            nodeList.add(createSpacer());
-        } else {
-            imageView.setFitHeight(getSize());
-            imageView.setFitWidth(getSize());
-            nodeList.add(imageView);
+        try {
+            InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/openmoji/" + hexCode.toUpperCase() + ".png"));
+            Image image = new Image(inputStream);
+            ImageView imageView = new ImageView();
+            // Important to make the emotes properly displayed in chat
+            imageView.setScaleX(getScalingFactor());
+            imageView.setScaleY(getScalingFactor());
+            imageView.setImage(image);
+            if (scalingFactor >= 2) {
+                imageView.setFitHeight(getSize() - 5);
+                imageView.setFitWidth(getSize() - 5);
+                nodeList.add(createSpacer());
+                nodeList.add(imageView);
+                nodeList.add(createSpacer());
+            } else {
+                imageView.setFitHeight(getSize());
+                imageView.setFitWidth(getSize());
+                nodeList.add(imageView);
+            }
+        } catch (Exception e) {
+            return nodeList;
         }
 
         return nodeList;
