@@ -1,6 +1,7 @@
 package de.uniks.stp.notification;
 
 import de.uniks.stp.AudioService;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -158,6 +159,13 @@ public class NotificationService {
             return event.getNotifications();
         }
         return 0;
+    }
+
+    public static void reset() {
+        channelSubscriber.clear();
+        userSubscriber.clear();
+        channelNotifications.clear();
+        userNotifications.clear();
     }
 
     private static NotificationEvent handleNotificationEvent(Object source) {

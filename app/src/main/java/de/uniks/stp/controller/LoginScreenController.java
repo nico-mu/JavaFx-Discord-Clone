@@ -1,10 +1,7 @@
 package de.uniks.stp.controller;
 
 import com.jfoenix.controls.*;
-import de.uniks.stp.Constants;
-import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
-import de.uniks.stp.ViewLoader;
+import de.uniks.stp.*;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.DatabaseService;
@@ -14,6 +11,7 @@ import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.UserKeyProvider;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -221,9 +219,11 @@ public class LoginScreenController implements ControllerInterface {
             UserKeyProvider.setEditor(editor);
             StageManager.setLanguageService(new LanguageService(editor));
             StageManager.getLanguageService().startLanguageAwareness();
+            StageManager.setAudioService(new AudioService(editor));
             User currentUser = editor.getOrCreateUser(name, true).setPassword(password);
             editor.setCurrentUser(currentUser);
             editor.setUserKey(userKey);
+            NotificationService.reset();
 
             if (rememberMeCheckBox.isSelected()) {
                 // Save in db
