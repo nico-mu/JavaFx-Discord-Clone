@@ -38,6 +38,7 @@ public class ServerChatController implements ControllerInterface {
 
     private ServerChatView chatView;
     private PropertyChangeListener messagesChangeListener = this::handleNewMessage;
+    private PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
 
     public ServerChatController(Parent view, Editor editor, Channel model) {
         this.view = view;
@@ -51,6 +52,7 @@ public class ServerChatController implements ControllerInterface {
         serverChatVBox = (VBox)view.lookup(SERVER_CHAT_VBOX);
 
         channelNameLabel.setText(model.getName());
+        model.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
 
         showChatView();
     }
@@ -63,6 +65,7 @@ public class ServerChatController implements ControllerInterface {
         }
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
+            model.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
         }
     }
 
@@ -116,6 +119,10 @@ public class ServerChatController implements ControllerInterface {
             chatView.insertMessage(insertPos, msg);
         }
 
+    }
+
+    private void onChannelNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        Platform.runLater(()-> channelNameLabel.setText(model.getName()));
     }
 
     /**
