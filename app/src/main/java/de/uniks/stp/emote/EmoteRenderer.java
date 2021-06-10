@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class EmoteRenderer {
     private Function<String, List<Node>> emoteRenderStrategy;
@@ -106,7 +107,8 @@ public class EmoteRenderer {
 
     public List<Node> imageEmoteRenderStrategy(String emoteName) {
         LinkedList<Node> nodeList = new LinkedList<>();
-        InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/" + emoteName + ".png"));
+        String hexCode = (String) getEmoteByName(emoteName).codePoints().mapToObj(Integer::toHexString).toArray()[0];
+        InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/openmoji/" + hexCode.toUpperCase() + ".png"));
         Image image = new Image(inputStream);
         ImageView imageView = new ImageView();
         // Important to make the emotes properly displayed in chat
@@ -144,7 +146,7 @@ public class EmoteRenderer {
     }
 
     private Text createSpacer() {
-        Text text = createTextNode(" ");
+        Text text = createTextNode("  ");
         text.setFont(Font.font(10));
         return text;
     }

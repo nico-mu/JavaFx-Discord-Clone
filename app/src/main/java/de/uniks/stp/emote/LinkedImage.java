@@ -19,7 +19,7 @@ public interface LinkedImage {
             public void encode(DataOutputStream os, LinkedImage linkedImage) throws IOException {
                 if (linkedImage.isReal()) {
                     os.writeBoolean(true);
-                    String externalPath = linkedImage.getImagePath().replace("\\", "/");
+                    String externalPath = (linkedImage.getEmoteName() + ".png").replace("\\", "/");
                     Codec.STRING_CODEC.encode(os, externalPath);
                 } else {
                     os.writeBoolean(false);
@@ -41,10 +41,7 @@ public interface LinkedImage {
 
     boolean isReal();
 
-    /**
-     * @return The path of the image to render.
-     */
-    String getImagePath();
+    String getEmoteName();
 
     Node createNode();
 }

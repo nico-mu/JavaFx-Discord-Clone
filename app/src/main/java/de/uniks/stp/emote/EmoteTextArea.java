@@ -42,7 +42,7 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
 
     public void insertEmote(String emoteName, int index) {
         ReadOnlyStyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> ros =
-            ReadOnlyStyledDocument.fromSegment(Either.right(new RealLinkedImage(emoteName + ".png")),
+            ReadOnlyStyledDocument.fromSegment(Either.right(new RealLinkedImage(emoteName)),
                 ParStyle.EMPTY, TextStyle.EMPTY, this.getSegOps());
         insert(index, ros);
     }

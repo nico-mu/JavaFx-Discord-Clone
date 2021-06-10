@@ -10,7 +10,7 @@ public class EmptyLinkedImage implements LinkedImage {
     }
 
     @Override
-    public String getImagePath() {
+    public String getEmoteName() {
         return "";
     }
 
