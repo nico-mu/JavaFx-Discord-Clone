@@ -1,19 +1,19 @@
 package de.uniks.stp.component;
 
-import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.jpa.AccordSettingKey;
-import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.util.DateUtil;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.util.Pair;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 public class ServerChatMessage extends HBox {
@@ -23,8 +23,14 @@ public class ServerChatMessage extends HBox {
     private Text nameText;
     @FXML
     private Text timestampText;
+    @FXML
+    private VBox textVBox;
+    private Message message;
+    private String language;
 
     public ServerChatMessage(Message message, String language) {
+        this.message = message;
+        this.language = language;
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -39,6 +45,11 @@ public class ServerChatMessage extends HBox {
         nameText.setText(message.getSender().getName());
         messageText.setText(message.getMessage());
 
+    }
+
+    public void addButton(Pair<String, String> inviteIds, EventHandler<ActionEvent> onButtonPressed){
+        JoinServerButton button = new JoinServerButton(inviteIds, onButtonPressed);
+        Platform.runLater(()-> textVBox.getChildren().add(button));
     }
 
     public void setWidthForWrapping(double width) {

@@ -1,18 +1,21 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerChatView;
 import de.uniks.stp.model.Channel;
-import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
@@ -22,7 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.*;
+import java.util.Date;
+import java.util.Objects;
 
 public class ServerChatController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(ServerChatController.class);
@@ -81,7 +85,9 @@ public class ServerChatController implements ControllerInterface {
 
         if(model.getMessages().size() != 0) {
             for (ServerMessage message : model.getMessages()) {
-                chatView.appendMessage(message);
+                //check if message contains a server invite link
+                Pair<String, String> ids = getInviteIds(message);
+                chatView.appendMessage(message, ids, this::joinServer);
             }
         }
         if(model.getMessages().size() < 20){
@@ -108,17 +114,41 @@ public class ServerChatController implements ControllerInterface {
         ServerMessage msg = (ServerMessage) propertyChangeEvent.getNewValue();
         Channel source = (Channel) propertyChangeEvent.getSource();
 
+        //check if message contains a server invite link
+        Pair<String, String> ids = getInviteIds(msg);
+
         if(source.getMessages().last().equals(msg)) {
             // append message
-            chatView.appendMessage(msg);
+            chatView.appendMessage(msg, ids, this::joinServer);
 
         }
         else {
             // prepend message
             int insertPos = source.getMessages().headSet(msg).size();
-            chatView.insertMessage(insertPos, msg);
+            chatView.insertMessage(insertPos, msg, ids, this::joinServer);
         }
 
+        EventHandler<ActionEvent> onButtonPressed = this::joinServer;
+    }
+
+    private void joinServer(ActionEvent actionEvent) {
+        Pair<String, String> inviteIds = (Pair<String, String>) actionEvent.getSource();
+        String serverId = inviteIds.getKey();
+        String inviteId = inviteIds.getValue();
+
+        User currentUser = editor.getOrCreateAccord().getCurrentUser();
+        NetworkClientInjector.getRestClient().joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
+            (response)-> onJoinServerResponse(serverId, response));
+    }
+
+    private void onJoinServerResponse(String serverId, HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toPrettyString());
+
+        if(response.isSuccess()){
+            Platform.runLater(Router::forceReload);
+        } else{
+            log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
+        }
     }
 
     private void onChannelNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
@@ -185,5 +215,29 @@ public class ServerChatController implements ControllerInterface {
         } else {
             log.error("receiving old messages failed!");
         }
+    }
+
+    private Pair<String, String> getInviteIds(ServerMessage msg){
+        //ToDo: mögliche Probleme: mehrere Links (erkennt nur ersten), ein halber und ein ganzer Link (bricht ab), ...
+        String msgText = msg.getMessage();
+        String invitePrefix = Constants.REST_SERVER_BASE_URL + Constants.REST_SERVER_PATH + "/";
+        if(msgText.contains(invitePrefix)){
+            try{
+                int startIndex = msgText.indexOf(invitePrefix);
+                int serverIdIndex = startIndex+invitePrefix.length();
+                String msgWithoutPrefix = msgText.substring(serverIdIndex);
+                String partWithIds = msgWithoutPrefix.split(" ")[0];
+
+
+                String serverId = partWithIds.split(Constants.REST_INVITES_PATH+"/")[0];
+                String inviteId = partWithIds.split(Constants.REST_INVITES_PATH+"/")[1];
+                if(! editor.serverAdded(serverId)){
+                    return new Pair<String, String>(serverId, inviteId);
+                }
+            } catch(Exception e){
+                //happens when the String is not a link or is incorrect
+            }
+        }
+        return null;
     }
 }

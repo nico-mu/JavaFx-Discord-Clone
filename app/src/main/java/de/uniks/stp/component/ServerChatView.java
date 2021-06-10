@@ -16,6 +16,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -76,25 +77,32 @@ public class ServerChatView extends VBox {
     /**
      * Appends a message at the end of the messages list.
      * @param message
+     * @param iniviteIds
      */
-    public void appendMessage(ServerMessage message) {
+    public void appendMessage(ServerMessage message, Pair<String, String> iniviteIds, EventHandler<ActionEvent> onButtonPressed) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
         ServerChatMessage chatMessage = new ServerChatMessage(message, language);
         chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+        if(iniviteIds != null){
+            chatMessage.addButton(iniviteIds, onButtonPressed);
+        }
 
         Platform.runLater(() -> {
             messageList.getChildren().add(chatMessage);
         });
     }
 
-    public void insertMessage(int pos, ServerMessage message) {
+    public void insertMessage(int pos, ServerMessage message, Pair<String, String> inviteIds, EventHandler<ActionEvent> onButtonPressed) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
         ServerChatMessage chatMessage = new ServerChatMessage(message, language);
         chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+        if(inviteIds != null){
+            chatMessage.addButton(inviteIds, onButtonPressed);
+        }
 
 
         Platform.runLater(() -> {
