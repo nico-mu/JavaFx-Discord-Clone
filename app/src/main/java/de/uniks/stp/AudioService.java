@@ -12,9 +12,12 @@ import org.slf4j.LoggerFactory;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -70,7 +73,12 @@ public class AudioService {
         if (Objects.isNull(resPath)) {
             return null;
         }
-        return new File(resPath.getPath());
+        try {
+            return new File(URLDecoder.decode(resPath.getPath(), StandardCharsets.UTF_8.name()));
+        } catch (UnsupportedEncodingException e) {
+            // not going to happen - value came from JDK's own StandardCharsets
+        }
+        return null;
     }
 
     public static File[] getNotificationSoundFiles() {
