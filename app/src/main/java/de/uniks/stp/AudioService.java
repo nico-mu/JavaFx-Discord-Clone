@@ -70,7 +70,8 @@ public class AudioService {
         if (Objects.isNull(resPath)) {
             return null;
         }
-        return new File(resPath.getPath());
+        String path = resPath.getPath().replace("%20", " ");
+        return new File(path);
     }
 
     public static File[] getNotificationSoundFiles() {
