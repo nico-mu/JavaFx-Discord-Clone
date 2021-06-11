@@ -76,6 +76,8 @@ public class EditChannelModal extends AbstractModal {
         cancelButton.setCancelButton(true);  // use Escape in order to press button
         deleteButton.setOnAction(this::onDeleteButtonClicked);
 
+        channelName.setText(channel.getName());
+
         filter.textProperty().addListener(((observable, oldValue, newValue) -> {
             filterUsers(newValue);
         }));

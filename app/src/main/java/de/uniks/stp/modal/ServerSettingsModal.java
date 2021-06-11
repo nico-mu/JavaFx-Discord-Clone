@@ -62,6 +62,7 @@ public class ServerSettingsModal extends AbstractModal {
 
         // ToDo: load current Notification setting
         notificationsLabel.setText(ViewLoader.loadLabel(Constants.LBL_ON));
+        servernameTextField.setText(model.getName());
 
         saveButton.setOnAction(this::onSaveButtonClicked);
         saveButton.setDefaultButton(true);  // use Enter in order to press button
