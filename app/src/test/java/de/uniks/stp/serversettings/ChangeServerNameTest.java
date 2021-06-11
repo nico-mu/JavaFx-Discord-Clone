@@ -79,7 +79,7 @@ public class ChangeServerNameTest {
         Editor editor = StageManager.getEditor();
         editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
-        String oldName = "Shitty Name";
+        String oldName = "Shitty-Name";
         String serverId = "12345678";
         editor.getOrCreateAccord()
             .getCurrentUser()
@@ -102,7 +102,7 @@ public class ChangeServerNameTest {
 
         // change name
         String newName = "Nice Name";
-        robot.clickOn("#servername-text-field");
+        robot.doubleClickOn("#servername-text-field");
         robot.write(newName);
         robot.clickOn("#save-button");
 
