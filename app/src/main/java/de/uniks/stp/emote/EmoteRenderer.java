@@ -1,12 +1,9 @@
 package de.uniks.stp.emote;
 
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.util.Triple;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
@@ -26,7 +23,7 @@ public class EmoteRenderer {
     private double scalingFactor = 1;
 
     public EmoteRenderer() {
-        this.emoteRenderStrategy = this::defaultEmoteRenderStrategy;
+        this.emoteRenderStrategy = this::imageEmoteRenderStrategy;
     }
 
     public String getEmoteByName(String emoteName) {
@@ -68,16 +65,16 @@ public class EmoteRenderer {
     public LinkedList<Node> render(String input) {
         input = EmoteParser.convertTextWithUnicodeToNames(input);
         LinkedList<Node> renderResult = new LinkedList<>();
-        LinkedList<Triple<Integer, Integer, String>> parsingResult = EmoteParser.parse(input);
+        LinkedList<EmoteParserResult> parsingResult = EmoteParser.parse(input);
         int from = 0;
 
-        for (Triple<Integer, Integer, String> emoteInfo : parsingResult) {
-            if (input.substring(from, emoteInfo.getFirst()).length() > 0) {
-                Text text = createTextNode(input.substring(from, emoteInfo.getFirst()));
+        for (EmoteParserResult emoteInfo : parsingResult) {
+            if (input.substring(from, emoteInfo.getStartIndex()).length() > 0) {
+                Text text = createTextNode(input.substring(from, emoteInfo.getStartIndex()));
                 renderResult.add(text);
             }
-            renderResult.addAll(emoteRenderStrategy.apply(emoteInfo.getThird()));
-            from = emoteInfo.getSecond() + 1;
+            renderResult.addAll(emoteRenderStrategy.apply(emoteInfo.getEmoteName()));
+            from = emoteInfo.getEndIndex() + 1;
         }
         if (from < input.length()) {
             Text text = createTextNode(input.substring(from));
@@ -90,13 +87,6 @@ public class EmoteRenderer {
     public void renderInto(String text, TextFlow container) {
         LinkedList<Node> renderResult = render(text);
         for (Node node : renderResult) {
-            container.getChildren().add(node);
-        }
-    }
-    public void renderInto(String text, HBox container) {
-        LinkedList<Node> renderResult = render(text);
-        for (Node node : renderResult) {
-            HBox.setHgrow(node, Priority.ALWAYS);
             container.getChildren().add(node);
         }
     }
@@ -124,13 +114,14 @@ public class EmoteRenderer {
                 nodeList.add(imageView);
             }
         } catch (Exception e) {
+            // Emotes where no picture can be found are not displayed.
             return nodeList;
         }
 
         return nodeList;
     }
 
-    public List<Node> defaultEmoteRenderStrategy(String emoteName) {
+    public List<Node> textEmoteRenderStrategy(String emoteName) {
         LinkedList<Node> list = new LinkedList<>();
         list.add(createTextNode(getEmoteByName(emoteName)));
         return list;

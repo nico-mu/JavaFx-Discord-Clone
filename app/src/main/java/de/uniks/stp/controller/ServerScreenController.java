@@ -78,7 +78,6 @@ public class ServerScreenController implements ControllerInterface {
         view.getChildren().add(serverScreenView);
         serverName = (TextFlow) view.lookup(SERVER_NAME_ID);
         renderer.setSize(20).setScalingFactor(2);
-        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
         serverName.getChildren().clear();
         renderer.renderInto(model.getName(), serverName);
 

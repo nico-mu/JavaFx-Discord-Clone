@@ -52,7 +52,6 @@ public class ServerCategoryElement extends VBox {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
         renderer.renderInto(model.getName(), categoryHeadLabel);
         categoryHeadArrow.setOnMouseClicked(this::onCategoryArrowClicked);
         categoryHeadLabel.setOnMouseClicked(this::onCategoryArrowClicked);

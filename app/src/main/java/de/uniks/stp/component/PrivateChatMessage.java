@@ -37,7 +37,6 @@ public class PrivateChatMessage extends HBox {
 
     public void loadMessage(Message message) {
         EmoteRenderer renderer = new EmoteRenderer().setScalingFactor(2);
-        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
         String infoPart = DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)) + " " + message.getSender().getName() + ": ";
         LinkedList<Node> renderResult = renderer.render(infoPart + message.getMessage());
         // change color of infoPart

@@ -1,45 +1,43 @@
 package de.uniks.stp.emote;
 
-import de.uniks.stp.util.Triple;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class EmoteParserTest {
     @Test
     public void testEmoteParsing() {
         Assertions.assertEquals("\uD83D\uDE00", EmoteParser.getEmoteMapping().get("grinning_face"));
 
-        LinkedList<Triple<Integer, Integer, String>> parsingResult = EmoteParser.parse(":grinning_face:");
+        LinkedList<EmoteParserResult> parsingResult = EmoteParser.parse(":grinning_face:");
 
         Assertions.assertEquals(1, parsingResult.size());
-        Assertions.assertEquals(0, parsingResult.get(0).getFirst());
-        Assertions.assertEquals(14, parsingResult.get(0).getSecond());
-        Assertions.assertEquals("grinning_face", parsingResult.get(0).getThird());
+        Assertions.assertEquals(0, parsingResult.get(0).getStartIndex());
+        Assertions.assertEquals(14, parsingResult.get(0).getEndIndex());
+        Assertions.assertEquals("grinning_face", parsingResult.get(0).getEmoteName());
 
-        parsingResult = EmoteParser.parse("Hallo Welt :grinning_face:, :grinning_face_with_big_eyes:");
+        parsingResult = EmoteParser.parse("Hallo Welt :grinning_face:, :grinning_face_with_smiling_eyes:");
 
         Assertions.assertEquals(2, parsingResult.size());
-        Assertions.assertEquals(11, parsingResult.get(0).getFirst());
-        Assertions.assertEquals(25, parsingResult.get(0).getSecond());
-        Assertions.assertEquals("grinning_face", parsingResult.get(0).getThird());
-        Assertions.assertEquals("grinning_face_with_big_eyes", parsingResult.get(1).getThird());
+        Assertions.assertEquals(11, parsingResult.get(0).getStartIndex());
+        Assertions.assertEquals(25, parsingResult.get(0).getEndIndex());
+        Assertions.assertEquals("grinning_face", parsingResult.get(0).getEmoteName());
+        Assertions.assertEquals("grinning_face_with_smiling_eyes", parsingResult.get(1).getEmoteName());
 
-        parsingResult = EmoteParser.parse("Hallo Welt :grinning_fac:, :grinning_face_with_big_eyes:");
+        parsingResult = EmoteParser.parse("Hallo Welt :grinning_fac:, :grinning_face_with_smiling_eyes:");
 
         Assertions.assertEquals(1, parsingResult.size());
-        Assertions.assertEquals("grinning_face_with_big_eyes", parsingResult.get(0).getThird());
+        Assertions.assertEquals("grinning_face_with_smiling_eyes", parsingResult.get(0).getEmoteName());
 
-        parsingResult = EmoteParser.parse(":grinning_fac::grinning_face_with_big_eyes:");
+        parsingResult = EmoteParser.parse(":grinning_fac::grinning_face_with_smiling_eyes:");
         Assertions.assertEquals(1, parsingResult.size());
 
-        parsingResult = EmoteParser.parse(":grinning_face_with_big_eyes::grinning_face_with_big_eyes:");
+        parsingResult = EmoteParser.parse(":grinning_face_with_smiling_eyes::grinning_face_with_smiling_eyes:");
         Assertions.assertEquals(2, parsingResult.size());
-        Assertions.assertEquals(0, parsingResult.get(0).getFirst());
-        Assertions.assertEquals(28, parsingResult.get(0).getSecond());
-        Assertions.assertEquals(29, parsingResult.get(1).getFirst());
+        Assertions.assertEquals(0, parsingResult.get(0).getStartIndex());
+        Assertions.assertEquals(32, parsingResult.get(0).getEndIndex());
+        Assertions.assertEquals(33, parsingResult.get(1).getStartIndex());
     }
 
     @Test

@@ -61,7 +61,7 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         }
         this.model = model;
         // TODO: Long names create problems
-        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy).setScalingFactor(2);
+        renderer.setScalingFactor(2);
         renderer.renderInto(model.getName(), channelText);
         channelVBox.setOnMouseClicked(this::onMouseClicked);
 

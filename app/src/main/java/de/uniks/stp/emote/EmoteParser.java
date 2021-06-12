@@ -1,7 +1,6 @@
 package de.uniks.stp.emote;
 
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.util.Triple;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 
@@ -45,8 +44,8 @@ public class EmoteParser {
         return new LinkedList<>(emoteMapping.keySet());
     }
 
-    public static LinkedList<Triple<Integer, Integer, String>> parse(String input) {
-        LinkedList<Triple<Integer, Integer, String>> parsingResult = new LinkedList<>();
+    public static LinkedList<EmoteParserResult> parse(String input) {
+        LinkedList<EmoteParserResult> parsingResult = new LinkedList<>();
 
         int index = 0;
         Integer lastEmoteStart = null;
@@ -64,7 +63,10 @@ public class EmoteParser {
             }
 
             if (!isCollectingEmoteName && isEmoteName(emoteNameBuffer.toString()) && Objects.nonNull(lastEmoteStart)) {
-                parsingResult.add(new Triple<>(lastEmoteStart, index, emoteNameBuffer.toString()));
+                parsingResult.add(new EmoteParserResult()
+                    .setStartIndex(lastEmoteStart)
+                    .setEndIndex(index)
+                    .setEmoteName(emoteNameBuffer.toString()));
                 emoteNameBuffer = new StringBuilder();
                 lastEmoteStart = null;
             } else if (!isCollectingEmoteName && !isEmoteName(emoteNameBuffer.toString())) {
@@ -78,7 +80,10 @@ public class EmoteParser {
         }
         // Clear emote name buffer
         if (isEmoteName(emoteNameBuffer.toString()) && input.charAt(input.length() - 1) == ':' && Objects.nonNull(lastEmoteStart)) {
-            parsingResult.add(new Triple<>(lastEmoteStart, index, emoteNameBuffer.toString()));
+            parsingResult.add(new EmoteParserResult()
+                .setStartIndex(lastEmoteStart)
+                .setEndIndex(index)
+                .setEmoteName(emoteNameBuffer.toString()));
         }
 
         return parsingResult;
@@ -94,15 +99,15 @@ public class EmoteParser {
 
     public static String toUnicodeString(String input) {
         StringBuilder renderResult = new StringBuilder();
-        LinkedList<Triple<Integer, Integer, String>> parsingResult = EmoteParser.parse(input);
+        LinkedList<EmoteParserResult> parsingResult = EmoteParser.parse(input);
         int from = 0;
 
-        for (Triple<Integer, Integer, String> emoteInfo : parsingResult) {
-            if (input.substring(from, emoteInfo.getFirst()).length() > 0) {
-                renderResult.append(input, from, emoteInfo.getFirst());
+        for (EmoteParserResult emoteInfo : parsingResult) {
+            if (input.substring(from, emoteInfo.getStartIndex()).length() > 0) {
+                renderResult.append(input, from, emoteInfo.getStartIndex());
             }
-            renderResult.append(getEmoteByName(emoteInfo.getThird()));
-            from = emoteInfo.getSecond() + 1;
+            renderResult.append(getEmoteByName(emoteInfo.getEmoteName()));
+            from = emoteInfo.getEndIndex() + 1;
         }
         if (from < input.length()) {
             renderResult.append(input.substring(from));

@@ -61,8 +61,6 @@ public class PrivateChatView extends VBox {
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
         chatViewEmojiButton.setOnMouseClicked(this::onEmoteClicked);
         EmoteRenderer renderer = new EmoteRenderer();
-        // Image strategy
-        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
         chatViewEmojiButton.getChildren().addAll(renderer.setSize(26).render(":" + "grinning_face" + ":"));
 
         messageList.heightProperty().addListener(heightChangedListener);

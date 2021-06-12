@@ -54,7 +54,6 @@ public class ServerChatController implements ControllerInterface {
         serverChatVBox = (VBox)view.lookup(SERVER_CHAT_VBOX);
 
         renderer.setSize(16).setScalingFactor(2.5);
-        renderer.setEmoteRenderStrategy(renderer::imageEmoteRenderStrategy);
         channelNameLabel.getChildren().clear();
         renderer.renderInto(model.getName(), channelNameLabel);
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
