@@ -61,7 +61,7 @@ public class WebSocketService {
     public static void addServerWebSocket(String serverId) {
         String endpoint = Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId;
         if (!pathWebSocketClientHashMap.containsKey(endpoint)) {
-            final WebSocketClient systemServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, WebSocketService::onServerSystemMessage);
+            final WebSocketClient systemServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, (msg) -> onServerSystemMessage(msg, serverId));
             pathWebSocketClientHashMap.put(endpoint, systemServerWSC);
         }
 
@@ -241,7 +241,7 @@ public class WebSocketService {
      *
      * @param jsonStructure
      */
-    private static void onServerSystemMessage(JsonStructure jsonStructure) {
+    private static void onServerSystemMessage(JsonStructure jsonStructure, String serverId) {
         log.debug("received server system message: {}", jsonStructure.toString());
 
         JsonObject jsonObject = jsonStructure.asJsonObject();
@@ -255,13 +255,11 @@ public class WebSocketService {
                 case "userJoined":
                     String userId = data.getString("id");
                     String userName = data.getString("name");
-                    String serverId = data.getString("serverId");
                     editor.setServerMemberOnline(userId, userName, editor.getServer(serverId));
                     return;
                 case "userLeft":
                     userId = data.getString("id");
                     userName = data.getString("name");
-                    serverId = data.getString("serverId");
                     editor.setServerMemberOffline(userId, userName, editor.getServer(serverId));
                     return;
                 case "serverUpdated":
