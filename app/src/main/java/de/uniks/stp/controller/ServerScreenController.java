@@ -4,6 +4,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
+import de.uniks.stp.component.TextWithEmoteSupport;
 import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.modal.CreateCategoryModal;
 import de.uniks.stp.modal.InvitesModal;
@@ -47,7 +48,7 @@ public class ServerScreenController implements ControllerInterface {
     private FlowPane serverScreenView;
     private final Editor editor;
     private final Server model;
-    private TextFlow serverName;
+    private TextWithEmoteSupport serverName;
     private VBox serverChannelOverview;
     private ServerCategoryListController categoryListController;
     private FlowPane serverChatContainer;
@@ -76,10 +77,9 @@ public class ServerScreenController implements ControllerInterface {
         settingsContextMenu = settingsGearLabel.getContextMenu();
 
         view.getChildren().add(serverScreenView);
-        serverName = (TextFlow) view.lookup(SERVER_NAME_ID);
-        renderer.setSize(20).setScalingFactor(2);
-        serverName.getChildren().clear();
-        renderer.renderInto(model.getName(), serverName);
+        serverName = (TextWithEmoteSupport) view.lookup(SERVER_NAME_ID);
+        serverName.getRenderer().setSize(20).setScalingFactor(2);
+        serverName.setText(model.getName());
 
         ObservableList<MenuItem> items = settingsContextMenu.getItems();
         items.get(0).setOnAction(this::onInviteUserClicked);
@@ -123,8 +123,7 @@ public class ServerScreenController implements ControllerInterface {
 
     private void onServerNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
         Platform.runLater(()-> {
-            serverName.getChildren().clear();
-            renderer.renderInto(model.getName(), serverName);
+            serverName.setText(model.getName());
         });
     }
 

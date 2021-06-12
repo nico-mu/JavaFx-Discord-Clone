@@ -24,7 +24,7 @@ public class ServerCategoryElement extends VBox {
     ImageView categoryHeadArrow;
 
     @FXML
-    TextFlow categoryHeadLabel;
+    TextWithEmoteSupport categoryHeadLabel;
 
     @FXML
     HBox categoryHeadPane;
@@ -52,10 +52,10 @@ public class ServerCategoryElement extends VBox {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-        renderer.renderInto(model.getName(), categoryHeadLabel);
-        categoryHeadArrow.setOnMouseClicked(this::onCategoryArrowClicked);
+        categoryHeadLabel.setText(model.getName());
         categoryHeadLabel.setOnMouseClicked(this::onCategoryArrowClicked);
         categoryHeadLabel.setId(model.getId() + "-ServerCategoryElementLabel");
+        categoryHeadArrow.setOnMouseClicked(this::onCategoryArrowClicked);
 
         categoryHeadPane.setOnMouseEntered(this::onCategoryMouseEntered);
         categoryHeadPane.setOnMouseExited(this::onCategoryMouseExited);
@@ -111,8 +111,7 @@ public class ServerCategoryElement extends VBox {
 
     public void updateText(String text) {
         Platform.runLater(() -> {
-            categoryHeadLabel.getChildren().clear();
-            renderer.renderInto(text, categoryHeadLabel);
+            categoryHeadLabel.setText(text);
         });
     }
 }

@@ -19,7 +19,7 @@ import java.util.Locale;
 
 public class PrivateChatMessage extends HBox {
     @FXML
-    private TextFlow text;
+    private TextWithEmoteSupport text;
     private final String language;
 
     public PrivateChatMessage(String language) {
@@ -36,19 +36,14 @@ public class PrivateChatMessage extends HBox {
     }
 
     public void loadMessage(Message message) {
-        EmoteRenderer renderer = new EmoteRenderer().setScalingFactor(2);
         String infoPart = DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)) + " " + message.getSender().getName() + ": ";
-        LinkedList<Node> renderResult = renderer.render(infoPart + message.getMessage());
+        text.setText(infoPart + message.getMessage());
         // change color of infoPart
-        Text textWithInfoPart = (Text) renderResult.get(0);
-        textWithInfoPart.setSelectionStart(0);
-        textWithInfoPart.setSelectionEnd(infoPart.length());
-        textWithInfoPart.setSelectionFill(Paint.valueOf("#AAAAAA"));
-
-        for (Node node : renderResult) {
-            Platform.runLater(() -> {
-                text.getChildren().add(node);
-            });
-        }
+        Platform.runLater(() -> {
+            Text textWithInfoPart = (Text) text.getChildren().get(0);
+            textWithInfoPart.setSelectionStart(0);
+            textWithInfoPart.setSelectionEnd(infoPart.length());
+            textWithInfoPart.setSelectionFill(Paint.valueOf("#AAAAAA"));
+        });
     }
 }

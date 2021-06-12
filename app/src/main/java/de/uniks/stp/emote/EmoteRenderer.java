@@ -84,13 +84,6 @@ public class EmoteRenderer {
         return renderResult;
     }
 
-    public void renderInto(String text, TextFlow container) {
-        LinkedList<Node> renderResult = render(text);
-        for (Node node : renderResult) {
-            container.getChildren().add(node);
-        }
-    }
-
     public List<Node> imageEmoteRenderStrategy(String emoteName) {
         LinkedList<Node> nodeList = new LinkedList<>();
         String hexCode = (String) getEmoteByName(emoteName).codePoints().mapToObj(Integer::toHexString).toArray()[0];

@@ -29,7 +29,7 @@ import java.io.IOException;
 public class ServerChannelElement extends HBox implements NotificationComponentInterface {
 
     @FXML
-    TextFlow channelText;
+    TextWithEmoteSupport channelText;
 
     @FXML
     Pane channelElementMarker;
@@ -47,7 +47,6 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
     private final Font font;
     private final Font boldFont;
-    private final EmoteRenderer renderer = new EmoteRenderer();
 
     public ServerChannelElement(Channel model) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHANNEL_ELEMENT);
@@ -61,8 +60,7 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         }
         this.model = model;
         // TODO: Long names create problems
-        renderer.setScalingFactor(2);
-        renderer.renderInto(model.getName(), channelText);
+        channelText.setText(model.getName());
         channelVBox.setOnMouseClicked(this::onMouseClicked);
 
         channelContainer.setOnMouseEntered(this::onChannelMouseEntered);
@@ -92,8 +90,7 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
     public void updateText(String newName) {
         Platform.runLater(() -> {
-            channelText.getChildren().clear();
-            renderer.renderInto(newName, channelText);
+            channelText.setText(newName);
         });
     }
 

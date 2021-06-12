@@ -2,6 +2,7 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerChatView;
+import de.uniks.stp.component.TextWithEmoteSupport;
 import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.ServerMessage;
@@ -34,13 +35,12 @@ public class ServerChatController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;
     private final Channel model;
-    private TextFlow channelNameLabel;
+    private TextWithEmoteSupport channelNameLabel;
     private VBox serverChatVBox;
 
     private ServerChatView chatView;
-    private PropertyChangeListener messagesChangeListener = this::handleNewMessage;
-    private PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
-    private final EmoteRenderer renderer = new EmoteRenderer();
+    private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
+    private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
 
     public ServerChatController(Parent view, Editor editor, Channel model) {
         this.view = view;
@@ -50,12 +50,11 @@ public class ServerChatController implements ControllerInterface {
 
     @Override
     public void init() {
-        channelNameLabel = (TextFlow) view.lookup(CHANNEL_NAME_LABEL_ID);
+        channelNameLabel = (TextWithEmoteSupport) view.lookup(CHANNEL_NAME_LABEL_ID);
         serverChatVBox = (VBox)view.lookup(SERVER_CHAT_VBOX);
+        channelNameLabel.getRenderer().setSize(16).setScalingFactor(2);
+        channelNameLabel.setText(model.getName());
 
-        renderer.setSize(16).setScalingFactor(2.5);
-        channelNameLabel.getChildren().clear();
-        renderer.renderInto(model.getName(), channelNameLabel);
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
 
         showChatView();
@@ -127,8 +126,7 @@ public class ServerChatController implements ControllerInterface {
 
     private void onChannelNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
         Platform.runLater(()-> {
-            channelNameLabel.getChildren().clear();
-            renderer.renderInto(model.getName(), channelNameLabel);
+            channelNameLabel.setText(model.getName());
         });
     }
 
