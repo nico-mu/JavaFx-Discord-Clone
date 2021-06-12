@@ -15,6 +15,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.slf4j.Logger;
@@ -32,18 +33,18 @@ public class PrivateChatView extends VBox {
     @FXML
     private JFXButton chatViewSubmitButton;
     @FXML
-    private VBox chatViewEmojiButton;
-    @FXML
     private VBox chatViewMessageInput;
     @FXML
     private ScrollPane chatViewMessageScrollPane;
     @FXML
     private VBox messageList;
+    @FXML
+    private HBox chatViewControlsContainer;
     private final EmoteTextArea emoteTextArea;
+    private final EmotePickerButton emotePickerButton;
 
     private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
-    private final EmotePickerPopup popup = new EmotePickerPopup();
     private final String language;
 
     public PrivateChatView(String language) {
@@ -59,9 +60,6 @@ public class PrivateChatView extends VBox {
         }
         this.language = language;
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
-        chatViewEmojiButton.setOnMouseClicked(this::onEmoteClicked);
-        EmoteRenderer renderer = new EmoteRenderer();
-        chatViewEmojiButton.getChildren().addAll(renderer.setSize(26).render(":" + "grinning_face" + ":"));
 
         messageList.heightProperty().addListener(heightChangedListener);
 
@@ -79,9 +77,10 @@ public class PrivateChatView extends VBox {
         });
 
         chatViewMessageInput.getChildren().add(scroll);
-        popup.setOnEmoteClicked(emoteTextArea::insertEmote);
-
         chatViewMessageScrollPane.setFitToWidth(true);
+        emotePickerButton = new EmotePickerButton();
+        chatViewControlsContainer.getChildren().add(1, emotePickerButton);
+        emotePickerButton.setOnEmoteClicked(emoteTextArea::insertEmote);
     }
 
     /**
@@ -127,10 +126,6 @@ public class PrivateChatView extends VBox {
         }
     }
 
-    private void onEmoteClicked(MouseEvent mouseEvent) {
-        popup.show(chatViewEmojiButton);
-    }
-
     /**
      * If MessageInput is not empty, text is given to method in ServerChatController and MessageInput is cleared.
      *
@@ -164,7 +159,7 @@ public class PrivateChatView extends VBox {
         Platform.runLater(() -> {
             chatViewSubmitButton.setDisable(true);
             chatViewMessageInput.setDisable(true);
-            chatViewEmojiButton.setDisable(true);
+            emotePickerButton.setDisable(true);
             emoteTextArea.disable();
         });
     }
@@ -174,7 +169,7 @@ public class PrivateChatView extends VBox {
             chatViewSubmitButton.setDisable(false);
             emoteTextArea.enable();
             chatViewMessageInput.setDisable(false);
-            chatViewEmojiButton.setDisable(false);
+            emotePickerButton.setDisable(false);
         });
     }
 }
