@@ -5,7 +5,6 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
-
 <fx:root alignment="CENTER" spacing="12.0" stylesheets="@../style/css/component/user-list.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <Label id="invite-link" fx:id="invite" prefWidth="120.0" text="Label" />
    <ImageView id="copy-invite" fx:id="copy" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">

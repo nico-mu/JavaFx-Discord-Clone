@@ -1,6 +1,5 @@
 package de.uniks.stp.router;
 
-import de.uniks.stp.Constants;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.controller.ControllerInterface;
 

@@ -3,7 +3,6 @@ package de.uniks.stp.controller;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerChatView;
 import de.uniks.stp.model.Channel;
-import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
@@ -22,7 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.*;
+import java.util.Date;
+import java.util.Objects;
 
 public class ServerChatController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(ServerChatController.class);
