@@ -1,9 +1,6 @@
 package de.uniks.stp.component;
 
-import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.jpa.AccordSettingKey;
-import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.util.DateUtil;
 import javafx.fxml.FXML;
@@ -12,8 +9,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 public class ServerChatMessage extends HBox {

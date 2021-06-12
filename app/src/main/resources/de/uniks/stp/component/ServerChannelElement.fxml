@@ -3,11 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-
 <fx:root id="channel-container" fx:id="channelContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="170.0" spacing="5.0" styleClass="channel-container" stylesheets="@../style/css/component/server-category-list.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Pane id="channel-element-marker" fx:id="channelElementMarker" minWidth="-Infinity" prefHeight="30.0" prefWidth="4.0" styleClass="channel-element-marker" visible="false" />

@@ -6,19 +6,14 @@ import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.model.Accord;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class AudioService {

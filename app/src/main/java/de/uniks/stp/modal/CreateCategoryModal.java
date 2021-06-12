@@ -15,8 +15,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
-import kong.unirest.json.JSONArray;
-import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
