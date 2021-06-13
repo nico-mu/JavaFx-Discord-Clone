@@ -39,7 +39,6 @@ public class ServerCategoryElement extends VBox {
     VBox categoryChannelList;
     boolean channelListCollapsed = false;
     Category model;
-    private final EmoteRenderer renderer = new EmoteRenderer().setScalingFactor(2).setSize(18);
 
     public ServerCategoryElement(Category model) {
         this.model = model;
@@ -52,6 +51,7 @@ public class ServerCategoryElement extends VBox {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+        categoryHeadLabel.getRenderer().setScalingFactor(2).setSize(18);
         categoryHeadLabel.setText(model.getName());
         categoryHeadLabel.setOnMouseClicked(this::onCategoryArrowClicked);
         categoryHeadLabel.setId(model.getId() + "-ServerCategoryElementLabel");

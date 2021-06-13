@@ -54,7 +54,6 @@ public class ServerScreenController implements ControllerInterface {
     private ServerUserListController serverUserListController;
     private FlowPane serverUserListContainer;
     private Label settingsGearLabel;
-    private final EmoteRenderer renderer = new EmoteRenderer();
 
     private ContextMenu settingsContextMenu;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
