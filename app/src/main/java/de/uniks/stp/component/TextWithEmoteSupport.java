@@ -8,6 +8,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 import java.util.LinkedList;
+import java.util.Objects;
 
 public class TextWithEmoteSupport extends TextFlow {
     private final EmoteRenderer renderer = new EmoteRenderer().setScalingFactor(2);
@@ -24,6 +25,10 @@ public class TextWithEmoteSupport extends TextFlow {
     }
 
     public void setFont(Font font) {
+        if (Objects.isNull(font)) {
+            return;
+        }
+
         for (Node node : getChildren()) {
             if (node instanceof Text) {
                 ((Text) node).setFont(font);

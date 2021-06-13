@@ -45,8 +45,8 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
     Channel model;
 
-    private final Font font;
-    private final Font boldFont;
+    private Font font = null;
+    private Font boldFont = null;
 
     public ServerChannelElement(Channel model) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHANNEL_ELEMENT);
@@ -61,6 +61,7 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         this.model = model;
         // TODO: Long names create problems
         channelText.setText(model.getName());
+        channelText.setFont(Font.font(16));
         channelVBox.setOnMouseClicked(this::onMouseClicked);
 
         channelContainer.setOnMouseEntered(this::onChannelMouseEntered);
@@ -68,9 +69,14 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
         editChannel.setOnMouseClicked(this::onEditChannelClicked);
 
-        Text sampleTextNode = ((Text) channelText.getChildren().get(0));
-        font = sampleTextNode.getFont();
-        boldFont = Font.font(sampleTextNode.getFont().getFamily(), FontWeight.BOLD, sampleTextNode.getFont().getSize());
+        for (Node node : channelText.getChildren()) {
+            if (node instanceof Text) {
+                Text sampleTextNode = ((Text) node);
+                font = sampleTextNode.getFont();
+                boldFont = Font.font(sampleTextNode.getFont().getFamily(), FontWeight.BOLD, sampleTextNode.getFont().getSize());
+                break;
+            }
+        }
         channelText.setId(model.getId() + "-ChannelElementText");
     }
 
