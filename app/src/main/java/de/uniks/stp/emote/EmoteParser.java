@@ -116,10 +116,23 @@ public class EmoteParser {
         return renderResult.toString();
     }
 
+    private static boolean isParsableEmoteName(String str)
+    {
+        for (int i = 0; i < str.length(); i++) {
+            if (!Character.isLetter(str.charAt(i)) && str.charAt(i) != '_' && str.charAt(i) != '-') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static void addEmotesFromJSONArray(JSONArray jsonArray) {
         jsonArray.forEach((emoteInfo) -> {
             String emote = ((JSONObject) emoteInfo).getString("emoji");
             String emoteName = ((JSONObject) emoteInfo).getString("description").replaceAll(" ", "_").toLowerCase();
+            if (!isParsableEmoteName(emoteName)) {
+                return;
+            }
             emoteMapping.put(emoteName, emote);
         });
     }

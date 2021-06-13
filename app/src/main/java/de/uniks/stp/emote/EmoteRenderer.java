@@ -47,11 +47,6 @@ public class EmoteRenderer {
         return this;
     }
 
-    public EmoteRenderer setTextFill(Paint textFill) {
-        this.textFill = textFill;
-        return this;
-    }
-
     public EmoteRenderer setScalingFactor(double scalingFactor) {
         this.scalingFactor = scalingFactor;
         return this;
