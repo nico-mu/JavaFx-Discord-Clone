@@ -11,7 +11,6 @@ import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Locale;

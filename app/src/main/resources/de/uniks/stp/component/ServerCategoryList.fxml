@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
 <fx:root type="ScrollPane" stylesheets="@../style/css/component/server-category-list.css" xmlns="http://javafx.com/javafx/11.0.1"
          styleClass="scrollable-list-background" xmlns:fx="http://javafx.com/fxml/1">
     <VBox fx:id="container" styleClass="scrollable-list-background"/>

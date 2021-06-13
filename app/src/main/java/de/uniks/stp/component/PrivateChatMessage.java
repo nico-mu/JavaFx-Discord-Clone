@@ -1,20 +1,15 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.util.DateUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.Locale;
 
 public class PrivateChatMessage extends HBox {

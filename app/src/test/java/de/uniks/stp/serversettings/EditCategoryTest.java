@@ -131,7 +131,7 @@ public class EditCategoryTest {
 
         // create category
         String categoryName = "useful category";
-        robot.clickOn("#category-name-text-field");
+        robot.doubleClickOn("#category-name-text-field");
         robot.write(categoryName);
         robot.clickOn("#save-button");
 
@@ -206,7 +206,7 @@ public class EditCategoryTest {
 
         // insert name
         String categoryName = "useful category";
-        robot.clickOn("#category-name-text-field");
+        robot.doubleClickOn("#category-name-text-field");
         robot.write(categoryName);
         robot.clickOn("#save-button");
 

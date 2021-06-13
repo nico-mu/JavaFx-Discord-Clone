@@ -1,5 +1,6 @@
 package de.uniks.stp.serversettings;
 
+import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
@@ -117,7 +118,10 @@ public class EditChannelTest {
         robot.point("#channel-container");
         robot.point("#edit-channel");
         robot.clickOn("#edit-channel");
-
+        JFXTextField nameTextfield = robot.lookup("#edit-channel-name-textfield").query();
+        Platform.runLater(() -> nameTextfield.clear());
+        WaitForAsyncUtils.waitForFxEvents();
+    
         robot.clickOn("#edit-channel-create-button");
 
         JSONObject j = new JSONObject().put("status", "failure").put("message", "Missing name")
@@ -197,7 +201,7 @@ public class EditChannelTest {
         robot.clickOn("#edit-channel");
 
         String newChannelName = "edited";
-        robot.clickOn("#edit-channel-name-textfield");
+        robot.doubleClickOn("#edit-channel-name-textfield");
         robot.write(newChannelName);
         robot.clickOn("#privileged-checkbox");
 

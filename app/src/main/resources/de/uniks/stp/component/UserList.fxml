@@ -2,7 +2,6 @@
 
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.VBox?>
-
 <fx:root prefHeight="472.0" prefWidth="696.0" styleClass="container" stylesheets="@../style/css/component/user-list.css" type="ScrollPane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <VBox id="user-list-vbox" fx:id="container" styleClass="container" />
 </fx:root>
