@@ -17,12 +17,12 @@ import java.util.Locale;
 
 public class ServerChatMessage extends HBox {
     @FXML
-    private TextFlow messageText;
+    private TextWithEmoteSupport messageText;
     @FXML
     private Text nameText;
     @FXML
     private Text timestampText;
-    private String language;
+    private final String language;
 
     public ServerChatMessage(String language) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHAT_MESSAGE);
@@ -41,13 +41,6 @@ public class ServerChatMessage extends HBox {
         timestampText.setText(DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)));
         timestampText.setText(DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)));
         nameText.setText(message.getSender().getName());
-        EmoteRenderer renderer = new EmoteRenderer().setScalingFactor(2).setSize(16);
-        LinkedList<Node> renderResult = renderer.render(message.getMessage());
-
-        for (Node node : renderResult) {
-            Platform.runLater(() -> {
-                messageText.getChildren().add(node);
-            });
-        }
+        messageText.setText(message.getMessage());
     }
 }

@@ -3,6 +3,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
+<?import de.uniks.stp.component.TextWithEmoteSupport?>
 <fx:root stylesheets="@../style/css/component/server-chat-message.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
 <VBox>
    <children>
@@ -20,7 +21,7 @@
             </Text>
          </children>
       </HBox>
-      <TextFlow fx:id="messageText" styleClass="message-text" />
+      <TextWithEmoteSupport fx:id="messageText" styleClass="message-text" />
    </children>
 </VBox>
 

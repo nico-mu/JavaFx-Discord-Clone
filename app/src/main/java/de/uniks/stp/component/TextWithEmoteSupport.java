@@ -16,7 +16,6 @@ public class TextWithEmoteSupport extends TextFlow {
 
         for (Node node : renderResult) {
             getChildren().add(node);
-
         }
 
         return this;
