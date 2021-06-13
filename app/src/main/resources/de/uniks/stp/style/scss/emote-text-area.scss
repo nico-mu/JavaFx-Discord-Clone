@@ -1,0 +1,26 @@
+@import "./base";
+
+.emote-text-area {
+    -fx-background-color: $main-background-color;
+}
+
+.caret {
+    -fx-stroke: white;
+    -fx-fill: white;
+}
+
+.text-style {
+    -fx-font-size: 13px;
+    -fx-text-fill: white;
+}
+.text-style-gray {
+    -fx-font-size: 13px;
+    -fx-text-fill: #808080;
+}
+
+.par-style {
+    -fx-background-color: $main-background-color;
+    -fx-fill: white;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+}

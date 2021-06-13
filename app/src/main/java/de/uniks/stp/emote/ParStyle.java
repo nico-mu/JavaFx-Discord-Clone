@@ -9,17 +9,6 @@ class ParStyle {
 
     @Override
     public String toString() {
-        return toCss();
-    }
-
-    public String toCss() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("-fx-background-color: #23272a;");
-        sb.append("-fx-fill: white;");
-        sb.append("-fx-text-fill: white;");
-        sb.append("-fx-font-size: 13px");
-
-        return sb.toString();
+        return "";
     }
 }

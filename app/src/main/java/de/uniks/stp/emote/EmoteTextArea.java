@@ -1,6 +1,7 @@
 package de.uniks.stp.emote;
 
 import de.uniks.stp.Constants;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
@@ -11,6 +12,7 @@ import org.fxmisc.richtext.model.*;
 import org.reactfx.collection.LiveList;
 import org.reactfx.util.Either;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
@@ -18,24 +20,28 @@ import java.util.function.BiConsumer;
 public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, LinkedImage>, TextStyle> {
     private final static TextOps<String, TextStyle> styledTextOps = SegmentOps.styledTextOps();
     private final static LinkedImageOps<TextStyle> linkedImageOps = new LinkedImageOps<>();
-    private final static String MAIN_COLOR = "#23272a";
 
     private final String PLACEHOLDER_TEXT = ViewLoader.loadLabel(Constants.LBL_TEXT_AREA_PLACEHOLDER);
     private final ReadOnlyStyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> placeholderNode =
         ReadOnlyStyledDocument.fromSegment(Either.left(PLACEHOLDER_TEXT),
-            ParStyle.EMPTY, TextStyle.EMPTY.updateTextColor(Color.GRAY), this.getSegOps());
+            ParStyle.EMPTY, TextStyle.GRAY, this.getSegOps());
     private final AtomicBoolean hasPlaceholder = new AtomicBoolean(true);
 
     public EmoteTextArea() {
         super(
             ParStyle.EMPTY, // default paragraph style
-            (paragraph, style) -> paragraph.setStyle(style.toCss()),  // paragraph style setter
-            TextStyle.EMPTY.updateFontSize(13).updateTextColor(Color.WHITE),  // default segment style
+            (paragraph, style) -> {  // paragraph style setter
+                paragraph.getStyleClass().add("par-style");
+            },
+            TextStyle.EMPTY,  // default segment style
             styledTextOps._or(linkedImageOps, (s1, s2) -> Optional.empty()), // segment operations
-            seg -> createNode(seg, (text, style) -> text.setStyle(style.toCss()))); // Node creator and segment style setter
+            seg -> createNode(seg, (text, style) -> {
+                text.getStyleClass().add(style.getStyleClass());
+            })); // Node creator and segment style setter
         setAutoScrollOnDragDesired(false);
-        setStyle("-fx-background-color: " + MAIN_COLOR + ";");
         setWrapText(true);
+        getStyleClass().add("emote-text-area");
+        getStylesheets().add(Objects.requireNonNull(StageManager.class.getResource("/de/uniks/stp/style/css/emote-text-area.css")).toExternalForm());
         // Add placeholder by default and delete it on focus
         configurePlaceholder();
     }
