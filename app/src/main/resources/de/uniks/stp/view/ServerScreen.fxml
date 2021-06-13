@@ -6,12 +6,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<<<<<<< HEAD
-
-<?import javafx.scene.text.TextFlow?>
 <?import de.uniks.stp.component.TextWithEmoteSupport?>
-=======
->>>>>>> master
 <FlowPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="472.0" prefWidth="696.0" styleClass="container" stylesheets="@../style/css/view/server.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <HBox prefHeight="472.0" prefWidth="698.0">
         <FlowPane id="server-overview-container" alignment="TOP_CENTER" prefHeight="472.0" prefWidth="221.0" styleClass="server-overview">
