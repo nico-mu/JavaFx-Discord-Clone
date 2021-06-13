@@ -4,7 +4,6 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import javafx.scene.Node;
-import javafx.scene.paint.Color;
 import org.fxmisc.richtext.GenericStyledArea;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.TextExt;
