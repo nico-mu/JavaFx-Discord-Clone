@@ -111,17 +111,9 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
     public void setNotificationVisibility(boolean mode) {
         Platform.runLater(() -> {
             if (mode) {
-                for (Node node : channelText.getChildren()) {
-                    if (node instanceof Text) {
-                        ((Text) node).setFont(boldFont);
-                    }
-                }
+                channelText.setFont(boldFont);
             } else {
-                for (Node node : channelText.getChildren()) {
-                    if (node instanceof Text) {
-                        ((Text) node).setFont(font);
-                    }
-                }
+                channelText.setFont(font);
             }
         });
     }

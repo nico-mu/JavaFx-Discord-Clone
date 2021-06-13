@@ -3,6 +3,8 @@ package de.uniks.stp.component;
 import de.uniks.stp.emote.EmoteRenderer;
 import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 import java.util.LinkedList;
@@ -19,6 +21,14 @@ public class TextWithEmoteSupport extends TextFlow {
         }
 
         return this;
+    }
+
+    public void setFont(Font font) {
+        for (Node node : getChildren()) {
+            if (node instanceof Text) {
+                ((Text) node).setFont(font);
+            }
+        }
     }
 
     public EmoteRenderer getRenderer() {
