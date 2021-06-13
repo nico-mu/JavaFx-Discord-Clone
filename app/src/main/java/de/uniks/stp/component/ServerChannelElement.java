@@ -2,6 +2,7 @@ package de.uniks.stp.component;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.event.ChannelChangeEvent;
 import de.uniks.stp.modal.EditChannelModal;
 import de.uniks.stp.model.Channel;
@@ -11,6 +12,7 @@ import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -20,13 +22,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
 
 public class ServerChannelElement extends HBox implements NotificationComponentInterface {
 
     @FXML
-    Text channelText;
+    TextWithEmoteSupport channelText;
 
     @FXML
     Pane channelElementMarker;
@@ -42,8 +45,8 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
     Channel model;
 
-    private final Font font;
-    private final Font boldFont;
+    private Font font = null;
+    private Font boldFont = null;
 
     public ServerChannelElement(Channel model) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHANNEL_ELEMENT);
@@ -55,9 +58,10 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-
         this.model = model;
+        // TODO: Long names create problems
         channelText.setText(model.getName());
+        channelText.setFont(Font.font(16));
         channelVBox.setOnMouseClicked(this::onMouseClicked);
 
         channelContainer.setOnMouseEntered(this::onChannelMouseEntered);
@@ -65,8 +69,14 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
         editChannel.setOnMouseClicked(this::onEditChannelClicked);
 
-        font = channelText.getFont();
-        boldFont = Font.font(channelText.getFont().getFamily(), FontWeight.BOLD, channelText.getFont().getSize());
+        for (Node node : channelText.getChildren()) {
+            if (node instanceof Text) {
+                Text sampleTextNode = ((Text) node);
+                font = sampleTextNode.getFont();
+                boldFont = Font.font(sampleTextNode.getFont().getFamily(), FontWeight.BOLD, sampleTextNode.getFont().getSize());
+                break;
+            }
+        }
         channelText.setId(model.getId() + "-ChannelElementText");
     }
 
@@ -85,7 +95,9 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
     }
 
     public void updateText(String newName) {
-        Platform.runLater(() -> channelText.setText(newName));
+        Platform.runLater(() -> {
+            channelText.setText(newName);
+        });
     }
 
     public void setActive(boolean active) {

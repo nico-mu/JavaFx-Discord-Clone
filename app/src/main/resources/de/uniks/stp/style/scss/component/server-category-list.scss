@@ -39,6 +39,10 @@
   -fx-font-size: 12px;
 }
 
+.channel-text:hover, .channel-container:hover .channel-text {
+  -fx-background-color: $hover-background-color;
+}
+
 .channel-element-marker {
   -fx-background-color: $button-color;
 }

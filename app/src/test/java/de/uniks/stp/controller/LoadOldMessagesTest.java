@@ -18,6 +18,7 @@ import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -139,18 +140,18 @@ public class LoadOldMessagesTest {
         VBox messageList = robot.lookup("#messageList").query();
         ServerChatMessage firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
         VBox messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
-        Text messageText = (Text) messageContainer.getChildren().get(1);
-        Assertions.assertEquals(firstOldMessage, messageText.getText());
+        TextFlow messageText = (TextFlow) messageContainer.getChildren().get(1);
+        Assertions.assertEquals(firstOldMessage, ((Text) messageText.getChildren().get(0)).getText());
 
         ServerChatMessage secondShownChatMessage = (ServerChatMessage) messageList.getChildren().get(1);
         messageContainer = (VBox) secondShownChatMessage.getChildren().get(0);
-        messageText = (Text) messageContainer.getChildren().get(1);
-        Assertions.assertEquals(secondOldMessage, messageText.getText());
+        messageText = (TextFlow) messageContainer.getChildren().get(1);
+        Assertions.assertEquals(secondOldMessage, ((Text) messageText.getChildren().get(0)).getText());
 
         ServerChatMessage thirdShownChatMessage = (ServerChatMessage) messageList.getChildren().get(2);
         messageContainer = (VBox) thirdShownChatMessage.getChildren().get(0);
-        messageText = (Text) messageContainer.getChildren().get(1);
-        Assertions.assertEquals(thirdOldMessage, messageText.getText());
+        messageText = (TextFlow) messageContainer.getChildren().get(1);
+        Assertions.assertEquals(thirdOldMessage, ((Text) messageText.getChildren().get(0)).getText());
     }
 
     @Test
@@ -208,13 +209,13 @@ public class LoadOldMessagesTest {
         VBox messageList = robot.lookup("#messageList").query();
         ServerChatMessage firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
         VBox messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
-        Text messageText = (Text) messageContainer.getChildren().get(1);
-        Assertions.assertEquals("0", messageText.getText());
+        TextFlow messageText = (TextFlow) messageContainer.getChildren().get(1);
+        Assertions.assertEquals("0", ((Text) messageText.getChildren().get(0)).getText());
 
         ServerChatMessage lastShownChatMessage = (ServerChatMessage) messageList.getChildren().get(49);
         messageContainer = (VBox) lastShownChatMessage.getChildren().get(0);
-        messageText = (Text) messageContainer.getChildren().get(1);
-        Assertions.assertEquals("49", messageText.getText());
+        messageText = (TextFlow) messageContainer.getChildren().get(1);
+        Assertions.assertEquals("49", ((Text) messageText.getChildren().get(0)).getText());
     }
 
     @AfterEach

@@ -1,0 +1,7 @@
+@import "../base";
+
+.emote-button {
+   -jfx-button-type: FLAT;
+   -fx-background-color: $main-background-color;
+   -fx-text-fill: $primary-text-fill;
+ }

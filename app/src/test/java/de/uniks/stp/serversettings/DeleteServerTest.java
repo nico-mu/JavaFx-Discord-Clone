@@ -13,6 +13,8 @@ import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -235,8 +237,8 @@ public class DeleteServerTest {
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
         Pane serverNavBarElement = robot.lookup("#"+serverId+"-navBarElement").query();
         Assertions.assertNotNull(serverNavBarElement);
-        Label serverLabel = robot.lookup("#server-name-label").query();
-        Assertions.assertEquals(serverName, serverLabel.getText());
+        TextFlow serverLabel = robot.lookup("#server-name").query();
+        Assertions.assertEquals(serverName, ((Text) serverLabel.getChildren().get(0)).getText());
 
 
         // prepare receiving websocket message
@@ -312,8 +314,8 @@ public class DeleteServerTest {
         Assertions.assertEquals(2, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
         Pane deleteServerNavBarElement = robot.lookup("#"+deleteServerId+"-navBarElement").query();
         Assertions.assertNotNull(deleteServerNavBarElement);
-        Label shownServerLabel = robot.lookup("#server-name-label").query();
-        Assertions.assertEquals(serverTwoName, shownServerLabel.getText());
+        TextFlow shownServerLabel = robot.lookup("#server-name").query();
+        Assertions.assertEquals(serverTwoName, ((Text) shownServerLabel.getChildren().get(0)).getText());
 
 
         // prepare receiving websocket message
@@ -345,8 +347,8 @@ public class DeleteServerTest {
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
 
         //check that ServerTwo is still shown
-        shownServerLabel = robot.lookup("#server-name-label").query();
-        Assertions.assertEquals(serverTwoName, shownServerLabel.getText());
+        shownServerLabel = robot.lookup("#server-name").query();
+        Assertions.assertEquals(serverTwoName, ((Text) shownServerLabel.getChildren().get(0)).getText());
 
         // check that ServerNavBarElement of deleted server is no longer shown
         boolean shown = true;

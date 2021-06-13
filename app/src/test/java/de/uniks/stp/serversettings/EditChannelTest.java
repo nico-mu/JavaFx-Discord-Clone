@@ -15,6 +15,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -274,8 +275,8 @@ public class EditChannelTest {
         Assertions.assertEquals(true, channel.isPrivileged());
         Assertions.assertEquals(2, channel.getChannelMembers().size());
         String channelNameId = "#" + channelId + "-ChannelElementText";
-        Text channelNameText = robot.lookup(channelNameId).query();
-        Assertions.assertEquals(newChannelName, channelNameText.getText());
+        TextFlow channelNameText = robot.lookup(channelNameId).query();
+        Assertions.assertEquals(newChannelName, ((Text) channelNameText.getChildren().get(0)).getText());
     }
 
     @Test
