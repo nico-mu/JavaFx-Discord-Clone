@@ -27,7 +27,7 @@ public class MessageDTO {
     @Column(name = "SENDER_NAME", updatable = false)
     private String senderName;
 
-    @Column(name = "MESSAGE", updatable = false)
+    @Column(name = "MESSAGE", updatable = false, columnDefinition = "text")
     private String message;
 
     @Column(name = "TIMESTAMP", updatable = false, nullable = false)
