@@ -23,6 +23,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +128,7 @@ public class PrivateChatController implements ControllerInterface {
                 if((ids != null) && (!editor.serverAdded(ids.getKey()))){
                     chatView.appendMessageWithButton(message, ids, this::joinServer);
                 } else{
-                    chatView.appendMessage(message, this::joinServer);
+                    chatView.appendMessage(message);
                 }
             } else {
                 String senderId = directMessageDTO.getSender();
@@ -176,7 +177,7 @@ public class PrivateChatController implements ControllerInterface {
             if((ids != null) && (!editor.serverAdded(ids.getKey()))){
                 chatView.appendMessageWithButton(directMessage, ids, this::joinServer);
             } else{
-                chatView.appendMessage(directMessage, this::joinServer);
+                chatView.appendMessage(directMessage);
             }
         }
     }
@@ -200,16 +201,38 @@ public class PrivateChatController implements ControllerInterface {
         String inviteId = ids.split("-")[1];
 
         User currentUser = editor.getOrCreateAccord().getCurrentUser();
-        NetworkClientInjector.getRestClient().joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(), this::onJoinServerResponse);
+        NetworkClientInjector.getRestClient().joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
+            (response) -> onJoinServerResponse(serverId, response));
     }
 
-    private void onJoinServerResponse(HttpResponse<JsonNode> response) {
+    private void onJoinServerResponse(String serverId, HttpResponse<JsonNode> response) {
         log.debug(response.getBody().toPrettyString());
 
         if(response.isSuccess()){
-            Platform.runLater(Router::forceReload);  //server will be added and button no longer be shown at invite message
+            NetworkClientInjector.getRestClient().getServerInformation(serverId, this::onServerInformationResponse);
         } else{
             log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
+        }
+    }
+
+    private void onServerInformationResponse(HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toString());
+        if(response.isSuccess()){
+            JSONObject resJson = response.getBody().getObject().getJSONObject("data");
+            final String serverId = resJson.getString("id");
+            final String serverName = resJson.getString("name");
+
+            // add server to model -> to NavBar List
+            editor.getOrCreateServer(serverId, serverName);
+
+            // reload chatView -> some button might not be needed anymore
+            Platform.runLater(()->{
+                onlineUsersContainer.getChildren().remove(chatView);
+                chatView.stop();
+                showChatView();
+            });
+        } else{
+            log.error("Error trying to load information of new server");
         }
     }
 }

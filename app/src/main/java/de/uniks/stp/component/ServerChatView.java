@@ -104,9 +104,8 @@ public class ServerChatView extends VBox {
     /**
      * Appends a message at the end of the messages list.
      * @param message
-     * @param onButtonPressed
      */
-    public void appendMessage(ServerMessage message, EventHandler<ActionEvent> onButtonPressed) {
+    public void appendMessage(ServerMessage message) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
@@ -141,9 +140,8 @@ public class ServerChatView extends VBox {
      * Inserts a message at given position
      * @param pos
      * @param message
-     * @param onButtonPressed
      */
-    public void insertMessage(int pos, ServerMessage message, EventHandler<ActionEvent> onButtonPressed) {
+    public void insertMessage(int pos, ServerMessage message) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
