@@ -14,12 +14,8 @@ import java.io.IOException;
 public class JoinServerButton extends HBox {
     @FXML
     private JFXButton joinServerButton;
-    private Pair<String, String> inviteIds;
-    private EventHandler<ActionEvent> handleButtonPressed;
 
     public JoinServerButton(Pair<String, String> inviteIds, EventHandler<ActionEvent> handleButtonPressed) {
-        this.inviteIds = inviteIds;
-        this.handleButtonPressed = handleButtonPressed;
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.JOIN_SERVER_BUTTON);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -30,11 +26,7 @@ public class JoinServerButton extends HBox {
             throw new RuntimeException(exception);
         }
 
-        joinServerButton.setOnAction(this::onButtonPressed);
-    }
-
-    private void onButtonPressed(ActionEvent actionEvent) {
-        ActionEvent ae = new ActionEvent(inviteIds, null);
-        handleButtonPressed.handle(ae);
+        joinServerButton.setId(inviteIds.getKey() + "-" + inviteIds.getValue());
+        joinServerButton.setOnAction(handleButtonPressed);
     }
 }

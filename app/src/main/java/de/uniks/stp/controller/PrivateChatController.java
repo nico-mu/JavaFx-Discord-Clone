@@ -1,5 +1,6 @@
 package de.uniks.stp.controller;
 
+import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
@@ -184,16 +185,16 @@ public class PrivateChatController implements ControllerInterface {
     }
 
     private void joinServer(ActionEvent actionEvent) {
-        Pair<String, String> inviteIds = (Pair<String, String>) actionEvent.getSource();
-        String serverId = inviteIds.getKey();
-        String inviteId = inviteIds.getValue();
+        JFXButton button = (JFXButton) actionEvent.getSource();
+        String ids = button.getId();
+        String serverId = ids.split("-")[0];
+        String inviteId = ids.split("-")[1];
 
         User currentUser = editor.getOrCreateAccord().getCurrentUser();
-        NetworkClientInjector.getRestClient().joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
-            (response)-> onJoinServerResponse(serverId, response));
+        NetworkClientInjector.getRestClient().joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(), this::onJoinServerResponse);
     }
 
-    private void onJoinServerResponse(String serverId, HttpResponse<JsonNode> response) {
+    private void onJoinServerResponse(HttpResponse<JsonNode> response) {
         log.debug(response.getBody().toPrettyString());
 
         if(response.isSuccess()){
@@ -204,7 +205,7 @@ public class PrivateChatController implements ControllerInterface {
     }
 
     private Pair<String, String> getInviteIds(String msg){
-        // mögliche Probleme: mehrere Links (erkennt nur ersten), ein halber und ein ganzer Link
+        // possible problems: multiple links in one message, or '-' in server/invite id
         String invitePrefix = Constants.REST_SERVER_BASE_URL + Constants.REST_SERVER_PATH + "/";
         if(msg.contains(invitePrefix)){
             try{
