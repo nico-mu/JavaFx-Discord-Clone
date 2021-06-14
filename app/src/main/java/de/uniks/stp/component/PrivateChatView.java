@@ -74,6 +74,7 @@ public class PrivateChatView extends VBox {
             scroll.layout();
             emoteTextArea.layout();
             scroll.layout();
+            emoteTextArea.requestFollowCaret();
         });
 
         chatViewMessageInput.getChildren().add(scroll);

@@ -76,6 +76,7 @@ public class ServerChatView extends VBox {
             scroll.layout();
             emoteTextArea.layout();
             scroll.layout();
+            emoteTextArea.requestFollowCaret();
         });
 
         chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
