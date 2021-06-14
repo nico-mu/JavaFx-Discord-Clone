@@ -112,7 +112,7 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(message);
 
 
-        ServerChatMessage chatMessage = new ServerChatMessage(language);
+        ChatMessage chatMessage = new ChatMessage(language);
         chatMessage.loadMessage(message);
         if(iniviteIds != null){
             chatMessage.addButton(iniviteIds, onButtonPressed);
@@ -127,7 +127,7 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ServerChatMessage chatMessage = new ServerChatMessage(language);
+        ChatMessage chatMessage = new ChatMessage(language);
         chatMessage.loadMessage(message);
         if(inviteIds != null){
             chatMessage.addButton(inviteIds, onButtonPressed);

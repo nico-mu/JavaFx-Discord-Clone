@@ -102,7 +102,7 @@ public class PrivateChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        PrivateChatMessage privateChatMessage = new PrivateChatMessage(language);
+        ChatMessage privateChatMessage = new ChatMessage(language);
         privateChatMessage.loadMessage(message);
 
         Platform.runLater(() -> {
