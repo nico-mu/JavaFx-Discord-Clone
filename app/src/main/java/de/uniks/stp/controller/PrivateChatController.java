@@ -14,6 +14,7 @@ import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.util.MessageUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -122,8 +123,12 @@ public class PrivateChatController implements ControllerInterface {
                 message.setSender(currentUser);
 
                 // check if message contains a server invite link
-                Pair<String, String> ids = getInviteIds(message.getMessage());
-                chatView.appendMessage(message, ids, this::joinServer);
+                Pair<String, String> ids = MessageUtil.getInviteIds(message.getMessage());
+                if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                    chatView.appendMessageWithButton(message, ids, this::joinServer);
+                } else{
+                    chatView.appendMessage(message, this::joinServer);
+                }
             } else {
                 String senderId = directMessageDTO.getSender();
                 String senderName = directMessageDTO.getSenderName();
@@ -167,8 +172,12 @@ public class PrivateChatController implements ControllerInterface {
 
         if (Objects.nonNull(directMessage)) {
             // check if message contains a server invite link
-            Pair<String, String> ids = getInviteIds(directMessage.getMessage());
-            chatView.appendMessage(directMessage, ids, this::joinServer);
+            Pair<String, String> ids = MessageUtil.getInviteIds(directMessage.getMessage());
+            if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                chatView.appendMessageWithButton(directMessage, ids, this::joinServer);
+            } else{
+                chatView.appendMessage(directMessage, this::joinServer);
+            }
         }
     }
 
@@ -202,27 +211,5 @@ public class PrivateChatController implements ControllerInterface {
         } else{
             log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
         }
-    }
-
-    private Pair<String, String> getInviteIds(String msg){
-        // possible problems: multiple links in one message, or '-' in server/invite id
-        String invitePrefix = Constants.REST_SERVER_BASE_URL + Constants.REST_SERVER_PATH + "/";
-        if(msg.contains(invitePrefix)){
-            try{
-                int startIndex = msg.indexOf(invitePrefix);
-                int serverIdIndex = startIndex+invitePrefix.length();
-                String msgWithoutPrefix = msg.substring(serverIdIndex);
-                String serverId = msgWithoutPrefix.split(Constants.REST_INVITES_PATH+"/")[0];
-
-                String inviteIdPart = msgWithoutPrefix.split(Constants.REST_INVITES_PATH+"/")[1];
-                String inviteId = inviteIdPart.split("[ "+ System.getProperty("line.separator") + "]")[0];
-                if(! editor.serverAdded(serverId)){
-                    return new Pair<String, String>(serverId, inviteId);
-                }
-            } catch(Exception e){
-                //happens when the String is not a link or is incorrect
-            }
-        }
-        return null;
     }
 }

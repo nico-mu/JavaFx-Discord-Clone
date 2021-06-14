@@ -104,33 +104,71 @@ public class ServerChatView extends VBox {
     /**
      * Appends a message at the end of the messages list.
      * @param message
-     * @param iniviteIds
+     * @param onButtonPressed
      */
-    public void appendMessage(ServerMessage message, Pair<String, String> iniviteIds, EventHandler<ActionEvent> onButtonPressed) {
+    public void appendMessage(ServerMessage message, EventHandler<ActionEvent> onButtonPressed) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
         ChatMessage chatMessage = new ChatMessage(language);
         chatMessage.loadMessage(message);
-        if(iniviteIds != null){
-            chatMessage.addButton(iniviteIds, onButtonPressed);
-        }
 
         Platform.runLater(() -> {
             messageList.getChildren().add(chatMessage);
         });
     }
 
-    public void insertMessage(int pos, ServerMessage message, Pair<String, String> inviteIds, EventHandler<ActionEvent> onButtonPressed) {
+    /**
+     * Appends a message at the end of the messages list and creates a button
+     * @param message
+     * @param inviteIds
+     * @param onButtonPressed
+     */
+    public void appendMessageWithButton(ServerMessage message, Pair<String, String> inviteIds, EventHandler<ActionEvent> onButtonPressed) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
         ChatMessage chatMessage = new ChatMessage(language);
         chatMessage.loadMessage(message);
-        if(inviteIds != null){
-            chatMessage.addButton(inviteIds, onButtonPressed);
-        }
+        chatMessage.addButton(inviteIds, onButtonPressed);
 
+        Platform.runLater(() -> {
+            messageList.getChildren().add(chatMessage);
+        });
+    }
+
+    /**
+     * Inserts a message at given position
+     * @param pos
+     * @param message
+     * @param onButtonPressed
+     */
+    public void insertMessage(int pos, ServerMessage message, EventHandler<ActionEvent> onButtonPressed) {
+        Objects.requireNonNull(messageList);
+        Objects.requireNonNull(message);
+
+        ChatMessage chatMessage = new ChatMessage(language);
+        chatMessage.loadMessage(message);
+
+        Platform.runLater(() -> {
+            messageList.getChildren().add(pos, chatMessage);
+        });
+    }
+
+    /**
+     * Inserts a message with button at given position
+     * @param pos
+     * @param message
+     * @param inviteIds
+     * @param onButtonPressed
+     */
+    public void insertMessageWithButton(int pos, ServerMessage message, Pair<String, String> inviteIds, EventHandler<ActionEvent> onButtonPressed) {
+        Objects.requireNonNull(messageList);
+        Objects.requireNonNull(message);
+
+        ChatMessage chatMessage = new ChatMessage(language);
+        chatMessage.loadMessage(message);
+        chatMessage.addButton(inviteIds, onButtonPressed);
 
         Platform.runLater(() -> {
             messageList.getChildren().add(pos, chatMessage);

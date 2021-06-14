@@ -98,18 +98,34 @@ public class PrivateChatView extends VBox {
 
     /**
      * Appends a message at the end of the messages list.
-     *
      * @param message
+     * @param onButtonPressed
      */
-    public void appendMessage(Message message, Pair<String, String> iniviteIds, EventHandler<ActionEvent> onButtonPressed) {
+    public void appendMessage(Message message, EventHandler<ActionEvent> onButtonPressed) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
         ChatMessage chatMessage = new ChatMessage(language);
         chatMessage.loadMessage(message);
-        if(iniviteIds != null){
-            chatMessage.addButton(iniviteIds, onButtonPressed);
-        }
+
+        Platform.runLater(() -> {
+            messageList.getChildren().add(chatMessage);
+        });
+    }
+
+    /**
+     * Appends a message with button at the end of the messages list.
+     * @param message
+     * @param iniviteIds
+     * @param onButtonPressed
+     */
+    public void appendMessageWithButton(Message message, Pair<String, String> iniviteIds, EventHandler<ActionEvent> onButtonPressed) {
+        Objects.requireNonNull(messageList);
+        Objects.requireNonNull(message);
+
+        ChatMessage chatMessage = new ChatMessage(language);
+        chatMessage.loadMessage(message);
+        chatMessage.addButton(iniviteIds, onButtonPressed);
 
         Platform.runLater(() -> {
             messageList.getChildren().add(chatMessage);

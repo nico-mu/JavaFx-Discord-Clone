@@ -11,6 +11,7 @@ import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.util.MessageUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -88,8 +89,12 @@ public class ServerChatController implements ControllerInterface {
         if(model.getMessages().size() != 0) {
             for (ServerMessage message : model.getMessages()) {
                 // check if message contains a server invite link
-                Pair<String, String> ids = getInviteIds(message.getMessage());
-                chatView.appendMessage(message, ids, this::joinServer);
+                Pair<String, String> ids = MessageUtil.getInviteIds(message.getMessage());
+                if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                    chatView.appendMessageWithButton(message, ids, this::joinServer);
+                } else{
+                    chatView.appendMessage(message, this::joinServer);
+                }
             }
         }
         if(model.getMessages().size() < 20){
@@ -117,17 +122,24 @@ public class ServerChatController implements ControllerInterface {
         Channel source = (Channel) propertyChangeEvent.getSource();
 
         //check if message contains a server invite link
-        Pair<String, String> ids = getInviteIds(msg.getMessage());
+        Pair<String, String> ids = MessageUtil.getInviteIds(msg.getMessage());
 
         if(source.getMessages().last().equals(msg)) {
             // append message
-            chatView.appendMessage(msg, ids, this::joinServer);
-
+            if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                chatView.appendMessageWithButton(msg, ids, this::joinServer);
+            } else{
+                chatView.appendMessage(msg, this::joinServer);
+            }
         }
         else {
             // prepend message
             int insertPos = source.getMessages().headSet(msg).size();
-            chatView.insertMessage(insertPos, msg, ids, this::joinServer);
+            if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                chatView.insertMessageWithButton(insertPos, msg, ids, this::joinServer);
+            } else{
+                chatView.insertMessage(insertPos, msg, this::joinServer);
+            }
         }
     }
 
@@ -217,27 +229,5 @@ public class ServerChatController implements ControllerInterface {
         } else {
             log.error("receiving old messages failed!");
         }
-    }
-
-    private Pair<String, String> getInviteIds(String msg){
-        // possible problems: multiple links in one message, or '-' in server/invite id
-        String invitePrefix = Constants.REST_SERVER_BASE_URL + Constants.REST_SERVER_PATH + "/";
-        if(msg.contains(invitePrefix)){
-            try{
-                int startIndex = msg.indexOf(invitePrefix);
-                int serverIdIndex = startIndex+invitePrefix.length();
-                String msgWithoutPrefix = msg.substring(serverIdIndex);
-                String serverId = msgWithoutPrefix.split(Constants.REST_INVITES_PATH+"/")[0];
-
-                String inviteIdPart = msgWithoutPrefix.split(Constants.REST_INVITES_PATH+"/")[1];
-                String inviteId = inviteIdPart.split("[ "+ System.getProperty("line.separator") + "]")[0];
-                if(! editor.serverAdded(serverId)){
-                    return new Pair<String, String>(serverId, inviteId);
-                }
-            } catch(Exception e){
-                //happens when the String is not a link or is incorrect
-            }
-        }
-        return null;
     }
 }
