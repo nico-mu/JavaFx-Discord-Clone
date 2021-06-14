@@ -29,6 +29,7 @@ public class GenModel implements ClassModelDecorator {
     class User {
         String id;
         String name;
+        String password;
         boolean status;
 
         @Link("currentUser")

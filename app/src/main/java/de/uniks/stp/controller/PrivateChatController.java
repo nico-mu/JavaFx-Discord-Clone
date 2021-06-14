@@ -1,5 +1,6 @@
 package de.uniks.stp.controller;
 
+import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
@@ -9,12 +10,22 @@ import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
+import de.uniks.stp.router.Router;
+import de.uniks.stp.util.MessageUtil;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -25,6 +36,7 @@ import java.util.UUID;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT)
 public class PrivateChatController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(ServerChatController.class);
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
 
@@ -110,7 +122,14 @@ public class PrivateChatController implements ControllerInterface {
 
             if (directMessageDTO.getSenderName().equals(currentUser.getName())) {
                 message.setSender(currentUser);
-                chatView.appendMessage(message);
+
+                // check if message contains a server invite link
+                Pair<String, String> ids = MessageUtil.getInviteIds(message.getMessage());
+                if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                    chatView.appendMessageWithButton(message, ids, this::joinServer);
+                } else{
+                    chatView.appendMessage(message);
+                }
             } else {
                 String senderId = directMessageDTO.getSender();
                 String senderName = directMessageDTO.getSenderName();
@@ -153,7 +172,13 @@ public class PrivateChatController implements ControllerInterface {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
 
         if (Objects.nonNull(directMessage)) {
-            chatView.appendMessage(directMessage);
+            // check if message contains a server invite link
+            Pair<String, String> ids = MessageUtil.getInviteIds(directMessage.getMessage());
+            if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                chatView.appendMessageWithButton(directMessage, ids, this::joinServer);
+            } else{
+                chatView.appendMessage(directMessage);
+            }
         }
     }
 
@@ -166,6 +191,48 @@ public class PrivateChatController implements ControllerInterface {
         } else {
             chatView.enable();
             setOnlineHeaderLabel();
+        }
+    }
+
+    private void joinServer(ActionEvent actionEvent) {
+        JFXButton button = (JFXButton) actionEvent.getSource();
+        String ids = button.getId();
+        String serverId = ids.split("-")[0];
+        String inviteId = ids.split("-")[1];
+
+        User currentUser = editor.getOrCreateAccord().getCurrentUser();
+        NetworkClientInjector.getRestClient().joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
+            (response) -> onJoinServerResponse(serverId, response));
+    }
+
+    private void onJoinServerResponse(String serverId, HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toPrettyString());
+
+        if(response.isSuccess()){
+            NetworkClientInjector.getRestClient().getServerInformation(serverId, this::onServerInformationResponse);
+        } else{
+            log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
+        }
+    }
+
+    private void onServerInformationResponse(HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toString());
+        if(response.isSuccess()){
+            JSONObject resJson = response.getBody().getObject().getJSONObject("data");
+            final String serverId = resJson.getString("id");
+            final String serverName = resJson.getString("name");
+
+            // add server to model -> to NavBar List
+            editor.getOrCreateServer(serverId, serverName);
+
+            // reload chatView -> some button might not be needed anymore
+            Platform.runLater(()->{
+                onlineUsersContainer.getChildren().remove(chatView);
+                chatView.stop();
+                showChatView();
+            });
+        } else{
+            log.error("Error trying to load information of new server");
         }
     }
 }

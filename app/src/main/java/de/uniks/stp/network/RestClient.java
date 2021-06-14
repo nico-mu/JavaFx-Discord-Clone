@@ -176,6 +176,14 @@ public class RestClient {
         sendRequest(req, callback);
     }
 
+    public void joinServer(String serverId, String invId, String username, String password, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH + "/" + invId)
+            .body(Json.createObjectBuilder()
+                .add("name", username)
+                .add("password", password).build().toString());
+        sendRequest(req, callback);
+    }
+
     public void editTextChannel(String serverId, String categoryId, String channelId, String channelName, Boolean privileged, ArrayList<String> members, Callback<JsonNode> callback) {
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
         for(String userId : members){

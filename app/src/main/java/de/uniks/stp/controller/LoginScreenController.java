@@ -7,6 +7,7 @@ import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.language.LanguageService;
+import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.UserKeyProvider;
@@ -219,7 +220,8 @@ public class LoginScreenController implements ControllerInterface {
             StageManager.setLanguageService(new LanguageService(editor));
             StageManager.getLanguageService().startLanguageAwareness();
             StageManager.setAudioService(new AudioService(editor));
-            editor.setCurrentUser(editor.getOrCreateUser(name, true));
+            User currentUser = editor.getOrCreateUser(name, true).setPassword(password);
+            editor.setCurrentUser(currentUser);
             editor.setUserKey(userKey);
             NotificationService.reset();
 
