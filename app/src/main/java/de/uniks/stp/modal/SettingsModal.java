@@ -69,11 +69,9 @@ public class SettingsModal extends AbstractModal {
 
     public HashMap<String, String> getNotificationSounds() {
         HashMap<String, String> notificationSoundMap = new HashMap<>();
-        File[] files = AudioService.getNotificationSoundFiles();
-        for (File file : files) {
-            if (file.isFile()) {
-                notificationSoundMap.put(file.getName(), file.getName().substring(0, file.getName().lastIndexOf('.')));
-            }
+        for (String path : AudioService.getNotificationSoundPaths()) {
+            String fileName = AudioService.pathToFileName(path);
+            notificationSoundMap.put(fileName, fileName.substring(0, fileName.lastIndexOf('.')));
         }
         return notificationSoundMap;
     }

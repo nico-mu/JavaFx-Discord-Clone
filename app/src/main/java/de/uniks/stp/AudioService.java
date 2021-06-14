@@ -4,6 +4,7 @@ import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.model.Accord;
+import de.uniks.stp.notification.NotificationSound;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
@@ -11,9 +12,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class AudioService {
@@ -44,10 +48,14 @@ public class AudioService {
         if (Objects.isNull(name)) {
             name = DEFAULT_SOUND_FILE;
         }
-        File file = Objects.requireNonNull(getNotificationSoundResource(name));
-        notificationSoundFileName = file.getName();
-        notificationSoundFile = new Media(file.toURI().toString());
+        String path = getNotificationSoundPath(name);
+        notificationSoundFileName = pathToFileName(path);
+        notificationSoundFile = new Media(path);
         editor.getOrCreateAccord().setNotificationSound(notificationSoundFileName);
+    }
+
+    public static String pathToFileName(String path) {
+        return Objects.requireNonNull(path).substring(path.lastIndexOf('/') + 1);
     }
 
     public static void playNotificationSound() {
@@ -58,26 +66,25 @@ public class AudioService {
         mediaPlayer.play();
     }
 
-    public static File getNotificationSoundResource(String name) {
-        URL resPath;
-        if (name.equals(".")) {
-            resPath = AudioService.class.getResource("audio/notification");
-        } else {
-            resPath = AudioService.class.getResource("audio/notification/" + name);
-        }
+    public static String getNotificationSoundPath(String name) {
+        URL resPath = AudioService.class.getResource("audio/notification/" + name);
         if (Objects.isNull(resPath)) {
             return null;
         }
         try {
-            return new File(URLDecoder.decode(resPath.getPath(), StandardCharsets.UTF_8.name()));
-        } catch (UnsupportedEncodingException e) {
-            // not going to happen - value came from JDK's own StandardCharsets
+            return resPath.toURI().toString();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
-    public static File[] getNotificationSoundFiles() {
-        return Objects.requireNonNull(getNotificationSoundResource(".")).listFiles();
+    public static List<String> getNotificationSoundPaths() {
+        List<String> paths = new ArrayList<>();
+        for (NotificationSound sound : NotificationSound.values()) {
+            paths.add(getNotificationSoundPath(sound.key));
+        }
+        return paths;
     }
 
     public static String getNotificationSoundFileName() {
