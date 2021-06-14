@@ -71,6 +71,10 @@ public class StageManager extends Application {
         return editor;
     }
 
+    public static Stage getStage() {
+        return stage;
+    }
+
     public static void setBackupMode(boolean mode) {
         backup = mode;
     }

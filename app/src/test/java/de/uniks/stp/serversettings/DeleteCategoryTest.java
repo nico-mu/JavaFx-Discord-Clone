@@ -12,6 +12,8 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -116,8 +118,8 @@ public class DeleteCategoryTest {
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
         Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
 
-        Label label = robot.lookup("#" + cat.getId() + "-ServerCategoryElementLabel").query();
-        Assertions.assertEquals(catName, label.getText());
+        TextFlow label = robot.lookup("#" + cat.getId() + "-ServerCategoryElementLabel").query();
+        Assertions.assertEquals(catName, ((Text) label.getChildren().get(0)).getText());
 
         robot.clickOn("#" + cat.getId() + "-ServerCategoryElementLabel");
         robot.point("#edit-category-gear");
@@ -206,8 +208,8 @@ public class DeleteCategoryTest {
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
         Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
 
-        Label label = robot.lookup("#" + cat.getId() + "-ServerCategoryElementLabel").query();
-        Assertions.assertEquals(catName, label.getText());
+        TextFlow label = robot.lookup("#" + cat.getId() + "-ServerCategoryElementLabel").query();
+        Assertions.assertEquals(catName, ((Text) label.getChildren().get(0)).getText());
 
         robot.clickOn("#" + cat.getId() + "-ServerCategoryElementLabel");
         robot.point("#edit-category-gear");
@@ -285,8 +287,8 @@ public class DeleteCategoryTest {
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
 
-        Label catLabel = robot.lookup("#" + catId + "-ServerCategoryElementLabel").query();
-        Assertions.assertEquals(catName, catLabel.getText());
+        TextFlow catLabel = robot.lookup("#" + catId + "-ServerCategoryElementLabel").query();
+        Assertions.assertEquals(catName, ((Text) catLabel.getChildren().get(0)).getText());
 
         // prepare receiving websocket message
         verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());

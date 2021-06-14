@@ -1,6 +1,7 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.modal.AddChannelModal;
 import de.uniks.stp.modal.EditCategoryModal;
 import de.uniks.stp.model.Category;
@@ -9,11 +10,11 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
 
@@ -23,7 +24,7 @@ public class ServerCategoryElement extends VBox {
     ImageView categoryHeadArrow;
 
     @FXML
-    Label categoryHeadLabel;
+    TextWithEmoteSupport categoryHeadLabel;
 
     @FXML
     HBox categoryHeadPane;
@@ -50,11 +51,11 @@ public class ServerCategoryElement extends VBox {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-
+        categoryHeadLabel.getRenderer().setScalingFactor(2).setSize(18);
         categoryHeadLabel.setText(model.getName());
-        categoryHeadArrow.setOnMouseClicked(this::onCategoryArrowClicked);
         categoryHeadLabel.setOnMouseClicked(this::onCategoryArrowClicked);
         categoryHeadLabel.setId(model.getId() + "-ServerCategoryElementLabel");
+        categoryHeadArrow.setOnMouseClicked(this::onCategoryArrowClicked);
 
         categoryHeadPane.setOnMouseEntered(this::onCategoryMouseEntered);
         categoryHeadPane.setOnMouseExited(this::onCategoryMouseExited);
@@ -109,7 +110,9 @@ public class ServerCategoryElement extends VBox {
     }
 
     public void updateText(String text) {
-        Platform.runLater(() -> categoryHeadLabel.setText(text));
+        Platform.runLater(() -> {
+            categoryHeadLabel.setText(text);
+        });
     }
 }
 

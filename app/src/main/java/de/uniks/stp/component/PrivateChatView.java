@@ -1,10 +1,11 @@
 package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.emote.EmoteParser;
+import de.uniks.stp.emote.EmoteRenderer;
+import de.uniks.stp.emote.EmoteTextArea;
 import de.uniks.stp.model.Message;
-import de.uniks.stp.view.Languages;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -14,24 +15,33 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public class PrivateChatView extends VBox {
+    private static final Logger log = LoggerFactory.getLogger(PrivateChatView.class);
 
     @FXML
     private VBox chatViewContainer;
     @FXML
     private JFXButton chatViewSubmitButton;
     @FXML
-    private JFXTextArea chatViewMessageInput;
+    private VBox chatViewMessageInput;
     @FXML
     private ScrollPane chatViewMessageScrollPane;
     @FXML
     private VBox messageList;
+    @FXML
+    private HBox chatViewControlsContainer;
+    private final EmoteTextArea emoteTextArea;
+    private final EmotePickerButton emotePickerButton;
 
     private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
@@ -53,7 +63,24 @@ public class PrivateChatView extends VBox {
 
         messageList.heightProperty().addListener(heightChangedListener);
 
-        chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
+        emoteTextArea = new EmoteTextArea();
+        emoteTextArea.setOnKeyPressed(this::checkForEnter);
+        VirtualizedScrollPane<EmoteTextArea> scroll = new VirtualizedScrollPane<>(emoteTextArea);
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        // The scrolling works but it's not a good solution
+        emoteTextArea.caretPositionProperty().addListener((k) -> {
+            emoteTextArea.layout();
+            scroll.layout();
+            emoteTextArea.layout();
+            scroll.layout();
+        });
+
+        chatViewMessageInput.getChildren().add(scroll);
+        chatViewMessageScrollPane.setFitToWidth(true);
+        emotePickerButton = new EmotePickerButton();
+        chatViewControlsContainer.getChildren().add(1, emotePickerButton);
+        emotePickerButton.setOnEmoteClicked(emoteTextArea::insertEmote);
     }
 
     /**
@@ -68,14 +95,15 @@ public class PrivateChatView extends VBox {
 
     /**
      * Appends a message at the end of the messages list.
+     *
      * @param message
      */
     public void appendMessage(Message message) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        PrivateChatMessage privateChatMessage = new PrivateChatMessage(message, language);
-        privateChatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+        PrivateChatMessage privateChatMessage = new PrivateChatMessage(language);
+        privateChatMessage.loadMessage(message);
 
         Platform.runLater(() -> {
             messageList.getChildren().add(privateChatMessage);
@@ -84,15 +112,15 @@ public class PrivateChatView extends VBox {
 
     /**
      * Enter typed -> press send Button | Shift-Enter typed -> add new line
+     *
      * @param keyEvent
      */
     private void checkForEnter(KeyEvent keyEvent) {
-        if (keyEvent.getCode() == KeyCode.ENTER)  {
+        if (keyEvent.getCode() == KeyCode.ENTER) {
             if (keyEvent.isShiftDown()) {
-                chatViewMessageInput.appendText(System.getProperty("line.separator"));
+                emoteTextArea.appendText(System.getProperty("line.separator"));
+                emoteTextArea.layout();
             } else {
-                String text = chatViewMessageInput.getText();
-                chatViewMessageInput.setText(text.substring(0, text.length() - 1));
                 onSubmitClicked(null);
             }
         }
@@ -100,21 +128,23 @@ public class PrivateChatView extends VBox {
 
     /**
      * If MessageInput is not empty, text is given to method in ServerChatController and MessageInput is cleared.
+     *
      * @param mouseEvent
      */
     private void onSubmitClicked(MouseEvent mouseEvent) {
-        String message = chatViewMessageInput.getText();
+        String message = EmoteParser.toUnicodeString(emoteTextArea.getStringContent());
 
         if (message.isEmpty()) {
             return;
         }
-        chatViewMessageInput.clear();
+        emoteTextArea.clear();
 
         submitListener.accept(message);
     }
 
     /**
      * Registers a callback that is called whenever the send button is clicked.
+     *
      * @param callback should send message via websocket
      */
     public void setOnMessageSubmit(Consumer<String> callback) {
@@ -129,13 +159,17 @@ public class PrivateChatView extends VBox {
         Platform.runLater(() -> {
             chatViewSubmitButton.setDisable(true);
             chatViewMessageInput.setDisable(true);
+            emotePickerButton.setDisable(true);
+            emoteTextArea.disable();
         });
     }
 
     public void enable() {
         Platform.runLater(() -> {
             chatViewSubmitButton.setDisable(false);
+            emoteTextArea.enable();
             chatViewMessageInput.setDisable(false);
+            emotePickerButton.setDisable(false);
         });
     }
 }

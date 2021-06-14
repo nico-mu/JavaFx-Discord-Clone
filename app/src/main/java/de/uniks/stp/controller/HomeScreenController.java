@@ -7,12 +7,8 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.DirectMessageList;
 import de.uniks.stp.component.UserList;
-import de.uniks.stp.component.DirectMessageEntry;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.User;
-import de.uniks.stp.notification.NotificationEvent;
-import de.uniks.stp.notification.NotificationService;
-import de.uniks.stp.notification.SubscriberInterface;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
@@ -20,7 +16,6 @@ import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
@@ -28,12 +23,8 @@ import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
 public class HomeScreenController implements ControllerInterface {

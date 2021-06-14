@@ -11,6 +11,8 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -241,8 +243,8 @@ public class CreateCategoryTest {
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
         Assertions.assertEquals(CATEGORY_NAME, editor.getServer(serverId).getCategories().get(0).getName());
 
-        Label categoryNameLabel = robot.lookup("#1111-ServerCategoryElementLabel").query();
-        Assertions.assertEquals(CATEGORY_NAME, categoryNameLabel.getText());
+        TextFlow categoryNameLabel = robot.lookup("#1111-ServerCategoryElementLabel").query();
+        Assertions.assertEquals(CATEGORY_NAME, ((Text) categoryNameLabel.getChildren().get(0)).getText());
     }
 
     @AfterEach

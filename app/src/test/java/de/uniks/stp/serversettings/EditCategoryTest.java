@@ -12,6 +12,8 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -116,8 +118,8 @@ public class EditCategoryTest {
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
         Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
 
-        Label label = robot.lookup("#" + cat.getId() + "-ServerCategoryElementLabel").query();
-        Assertions.assertEquals(catName, label.getText());
+        TextFlow label = robot.lookup("#" + cat.getId() + "-ServerCategoryElementLabel").query();
+        Assertions.assertEquals(catName, ((Text) label.getChildren().get(0)).getText());
 
         robot.clickOn("#" + cat.getId() + "-ServerCategoryElementLabel");
         robot.point("#edit-category-gear");
@@ -129,7 +131,7 @@ public class EditCategoryTest {
 
         // create category
         String categoryName = "useful category";
-        robot.clickOn("#category-name-text-field");
+        robot.doubleClickOn("#category-name-text-field");
         robot.write(categoryName);
         robot.clickOn("#save-button");
 
@@ -166,7 +168,7 @@ public class EditCategoryTest {
         Assertions.assertFalse(modalShown);
 
         label = robot.lookup("#" + cat.getId() + "-ServerCategoryElementLabel").query();
-        Assertions.assertEquals(categoryName, label.getText());
+        Assertions.assertEquals(categoryName, ((Text) label.getChildren().get(0)).getText());
     }
 
     /**
@@ -204,7 +206,7 @@ public class EditCategoryTest {
 
         // insert name
         String categoryName = "useful category";
-        robot.clickOn("#category-name-text-field");
+        robot.doubleClickOn("#category-name-text-field");
         robot.write(categoryName);
         robot.clickOn("#save-button");
 

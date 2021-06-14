@@ -3,6 +3,9 @@ package de.uniks.stp.component;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.emote.EmoteParser;
+import de.uniks.stp.emote.EmoteRenderer;
+import de.uniks.stp.emote.EmoteTextArea;
 import de.uniks.stp.model.ServerMessage;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -15,8 +18,10 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -28,7 +33,7 @@ public class ServerChatView extends VBox {
     @FXML
     private JFXButton chatViewSubmitButton;
     @FXML
-    private JFXTextArea chatViewMessageInput;
+    private VBox chatViewMessageInput;
     @FXML
     private ScrollPane chatViewMessageScrollPane;
     @FXML
@@ -37,9 +42,12 @@ public class ServerChatView extends VBox {
     private VBox messageList;
     @FXML
     private VBox chatVBox;
+    @FXML
+    private HBox chatViewControlsContainer;
 
     private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
+    private final EmoteTextArea emoteTextArea;
     private final String language;
 
     public ServerChatView(EventHandler<ActionEvent> loadMessagesHandler, String language) {
@@ -57,9 +65,29 @@ public class ServerChatView extends VBox {
 
         messageList.heightProperty().addListener(heightChangedListener);
 
+        emoteTextArea = new EmoteTextArea();
+        emoteTextArea.setOnKeyPressed(this::checkForEnter);
+        VirtualizedScrollPane<EmoteTextArea> scroll = new VirtualizedScrollPane<>(emoteTextArea);
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        // The scrolling works but it's not a good solution
+        emoteTextArea.caretPositionProperty().addListener((k) -> {
+            emoteTextArea.layout();
+            scroll.layout();
+            emoteTextArea.layout();
+            scroll.layout();
+        });
+
         chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
 
         loadMessagesButton.setOnAction(loadMessagesHandler);
+        chatViewMessageInput.getChildren().add(scroll);
+        EmotePickerButton emotePickerButton = new EmotePickerButton();
+        chatViewControlsContainer.getChildren().add(1, emotePickerButton);
+        emotePickerButton.setOnEmoteClicked(emoteTextArea::insertEmote);
+
+        chatViewMessageScrollPane.setFitToWidth(true);
+
     }
 
     /**
@@ -83,8 +111,9 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ServerChatMessage chatMessage = new ServerChatMessage(message, language);
-        chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+
+        ServerChatMessage chatMessage = new ServerChatMessage(language);
+        chatMessage.loadMessage(message);
         if(iniviteIds != null){
             chatMessage.addButton(iniviteIds, onButtonPressed);
         }
@@ -98,8 +127,8 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ServerChatMessage chatMessage = new ServerChatMessage(message, language);
-        chatMessage.setWidthForWrapping(chatViewMessageScrollPane.getWidth());
+        ServerChatMessage chatMessage = new ServerChatMessage(language);
+        chatMessage.loadMessage(message);
         if(inviteIds != null){
             chatMessage.addButton(inviteIds, onButtonPressed);
         }
@@ -115,12 +144,11 @@ public class ServerChatView extends VBox {
      * @param keyEvent
      */
     private void checkForEnter(KeyEvent keyEvent) {
-        if (keyEvent.getCode() == KeyCode.ENTER)  {
+        if (keyEvent.getCode() == KeyCode.ENTER) {
             if (keyEvent.isShiftDown()) {
-                chatViewMessageInput.appendText(System.getProperty("line.separator"));
+                emoteTextArea.appendText(System.getProperty("line.separator"));
+                emoteTextArea.layout();
             } else {
-                String text = chatViewMessageInput.getText();
-                chatViewMessageInput.setText(text.substring(0, text.length() - 1));
                 onSubmitClicked(null);
             }
         }
@@ -131,12 +159,12 @@ public class ServerChatView extends VBox {
      * @param mouseEvent
      */
     private void onSubmitClicked(MouseEvent mouseEvent) {
-        String message = chatViewMessageInput.getText();
+        String message = EmoteParser.toUnicodeString(emoteTextArea.getStringContent());
 
         if (message.isEmpty()) {
             return;
         }
-        chatViewMessageInput.clear();
+        emoteTextArea.clear();
 
         submitListener.accept(message);
     }

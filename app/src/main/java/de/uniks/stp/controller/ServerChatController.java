@@ -3,6 +3,8 @@ package de.uniks.stp.controller;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerChatView;
+import de.uniks.stp.component.TextWithEmoteSupport;
+import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
@@ -15,6 +17,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 import javafx.util.Pair;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
@@ -37,12 +40,12 @@ public class ServerChatController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;
     private final Channel model;
-    private Label channelNameLabel;
+    private TextWithEmoteSupport channelNameLabel;
     private VBox serverChatVBox;
 
     private ServerChatView chatView;
-    private PropertyChangeListener messagesChangeListener = this::handleNewMessage;
-    private PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
+    private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
+    private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
 
     public ServerChatController(Parent view, Editor editor, Channel model) {
         this.view = view;
@@ -52,10 +55,11 @@ public class ServerChatController implements ControllerInterface {
 
     @Override
     public void init() {
-        channelNameLabel = (Label)view.lookup(CHANNEL_NAME_LABEL_ID);
+        channelNameLabel = (TextWithEmoteSupport) view.lookup(CHANNEL_NAME_LABEL_ID);
         serverChatVBox = (VBox)view.lookup(SERVER_CHAT_VBOX);
-
+        channelNameLabel.getRenderer().setSize(16).setScalingFactor(2);
         channelNameLabel.setText(model.getName());
+
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
 
         showChatView();
@@ -152,7 +156,9 @@ public class ServerChatController implements ControllerInterface {
     }
 
     private void onChannelNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        Platform.runLater(()-> channelNameLabel.setText(model.getName()));
+        Platform.runLater(()-> {
+            channelNameLabel.setText(model.getName());
+        });
     }
 
     /**

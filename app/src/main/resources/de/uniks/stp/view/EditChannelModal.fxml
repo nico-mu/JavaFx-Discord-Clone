@@ -1,41 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXCheckBox?>
-<?import com.jfoenix.controls.JFXTextField?>
-<?import javafx.geometry.Insets?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="480.0" spacing="24.0" styleClass="edit-channel-modal" stylesheets="@../style/css/view/edit-server-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.layout.*?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="480.0" styleClass="edit-channel-modal" stylesheets="@../style/css/view/edit-channel-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <JFXTextField id="edit-channel-name-textfield" maxWidth="240.0" promptText="%LBL_CHANNEL_NAME" styleClass="edit-channel-name-textfield" />
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="160.0">
+      <VBox>
          <children>
-            <JFXCheckBox id="privileged-checkbox" styleClass="privileged-checkbox" text="%LBL_PRIVILEGED" />
-            <JFXTextField id="filter-user-textfield" promptText="%LBL_SEARCH" styleClass="filter-user-textfield" />
+            <JFXTextField id="edit-channel-name-textfield" maxWidth="240.0" promptText="%LBL_CHANNEL_NAME" styleClass="edit-channel-name-textfield" />
+            <VBox>
+               <children>
+                  <HBox alignment="CENTER" prefHeight="0.0" prefWidth="200.0" spacing="160.0">
+                     <children>
+                        <JFXCheckBox id="privileged-checkbox" styleClass="privileged-checkbox" text="%LBL_PRIVILEGED" />
+                        <JFXTextField id="filter-user-textfield" promptText="%LBL_SEARCH" styleClass="filter-user-textfield" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="3.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <HBox id="user-check-list-container" maxHeight="180.0" prefHeight="180.0" prefWidth="200.0" styleClass="user-check-list-container" />
+               </children>
+               <padding>
+                  <Insets bottom="24.0" top="24.0" />
+               </padding>
+            </VBox>
+            <HBox alignment="CENTER" prefHeight="0.0" prefWidth="200.0" spacing="144.0">
+               <children>
+                  <JFXButton id="edit-channel-create-button" prefWidth="120.0" styleClass="edit-channel-create-button" text="%LBL_SAVE" />
+                  <JFXButton id="edit-channel-cancel-button" prefWidth="120.0" styleClass="edit-channel-cancel-button" text="%LBL_CANCEL" />
+               </children>
+               <padding>
+                  <Insets bottom="12.0" />
+               </padding>
+            </HBox>
          </children>
-      </HBox>
-      <HBox id="user-check-list-container" maxHeight="240.0" prefHeight="240.0" prefWidth="200.0" styleClass="user-check-list-container" />
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="120.0">
+         <padding>
+            <Insets left="48.0" right="48.0" />
+         </padding>
+      </VBox>
+      <Pane id="seperator" minHeight="4.0" prefHeight="20.0" prefWidth="480.0" styleClass="separator" />
+      <HBox alignment="CENTER_LEFT">
          <children>
-            <JFXButton id="edit-channel-create-button" styleClass="edit-channel-create-button" text="%LBL_EDIT" />
-            <JFXButton id="edit-channel-cancel-button" styleClass="edit-channel-cancel-button" text="%LBL_CANCEL" />
+            <JFXButton id="delete-channel" prefWidth="120.0" styleClass="edit-channel-create-button" text="%LBL_DELETE" />
          </children>
+         <padding>
+            <Insets left="48.0" top="12.0" />
+         </padding>
       </HBox>
-      <HBox alignment="CENTER">
-         <children>
-            <JFXButton id="delete-channel" styleClass="edit-channel-create-button" text="%LBL_DELETE" />
-         </children>
-      </HBox>
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+      <HBox alignment="CENTER" prefHeight="0.0" prefWidth="200.0">
          <children>
             <Label id="edit-channel-error" styleClass="edit-channel-error" />
          </children>
+         <padding>
+            <Insets top="12.0" />
+         </padding>
       </HBox>
    </children>
    <padding>
-      <Insets bottom="12.0" left="48.0" right="48.0" top="24.0" />
+      <Insets bottom="12.0" top="24.0" />
    </padding>
 </VBox>

@@ -1,5 +1,6 @@
 package de.uniks.stp.serversettings;
 
+import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
@@ -14,6 +15,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -116,7 +118,10 @@ public class EditChannelTest {
         robot.point("#channel-container");
         robot.point("#edit-channel");
         robot.clickOn("#edit-channel");
-
+        JFXTextField nameTextfield = robot.lookup("#edit-channel-name-textfield").query();
+        Platform.runLater(() -> nameTextfield.clear());
+        WaitForAsyncUtils.waitForFxEvents();
+    
         robot.clickOn("#edit-channel-create-button");
 
         JSONObject j = new JSONObject().put("status", "failure").put("message", "Missing name")
@@ -196,7 +201,7 @@ public class EditChannelTest {
         robot.clickOn("#edit-channel");
 
         String newChannelName = "edited";
-        robot.clickOn("#edit-channel-name-textfield");
+        robot.doubleClickOn("#edit-channel-name-textfield");
         robot.write(newChannelName);
         robot.clickOn("#privileged-checkbox");
 
@@ -270,8 +275,8 @@ public class EditChannelTest {
         Assertions.assertEquals(true, channel.isPrivileged());
         Assertions.assertEquals(2, channel.getChannelMembers().size());
         String channelNameId = "#" + channelId + "-ChannelElementText";
-        Text channelNameText = robot.lookup(channelNameId).query();
-        Assertions.assertEquals(newChannelName, channelNameText.getText());
+        TextFlow channelNameText = robot.lookup(channelNameId).query();
+        Assertions.assertEquals(newChannelName, ((Text) channelNameText.getChildren().get(0)).getText());
     }
 
     @Test
