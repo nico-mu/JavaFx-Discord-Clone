@@ -93,6 +93,6 @@ public class AudioService {
 
     private void onNotificationSoundPropertyChange(PropertyChangeEvent propertyChangeEvent) {
         final String newNotificationSound = (String) propertyChangeEvent.getNewValue();
-        DatabaseService.saveAccordSetting(AccordSettingKey.NOTIFICATION_SOUND, newNotificationSound);
+        DatabaseService.saveAccordSetting(AccordSettingKey.NOTIFICATION_SOUND, NotificationSound.fromKeyOrDefault(newNotificationSound).key);
     }
 }
