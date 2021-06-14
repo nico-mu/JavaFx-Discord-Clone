@@ -86,8 +86,8 @@ public class ServerChatController implements ControllerInterface {
 
         if(model.getMessages().size() != 0) {
             for (ServerMessage message : model.getMessages()) {
-                //check if message contains a server invite link
-                Pair<String, String> ids = getInviteIds(message);
+                // check if message contains a server invite link
+                Pair<String, String> ids = getInviteIds(message.getMessage());
                 chatView.appendMessage(message, ids, this::joinServer);
             }
         }
@@ -116,7 +116,7 @@ public class ServerChatController implements ControllerInterface {
         Channel source = (Channel) propertyChangeEvent.getSource();
 
         //check if message contains a server invite link
-        Pair<String, String> ids = getInviteIds(msg);
+        Pair<String, String> ids = getInviteIds(msg.getMessage());
 
         if(source.getMessages().last().equals(msg)) {
             // append message
@@ -220,20 +220,18 @@ public class ServerChatController implements ControllerInterface {
         }
     }
 
-    private Pair<String, String> getInviteIds(ServerMessage msg){
-        //ToDo: mögliche Probleme: mehrere Links (erkennt nur ersten), ein halber und ein ganzer Link (bricht ab), ...
-        String msgText = msg.getMessage();
+    private Pair<String, String> getInviteIds(String msg){
+        // mögliche Probleme: mehrere Links (erkennt nur ersten), ein halber und ein ganzer Link
         String invitePrefix = Constants.REST_SERVER_BASE_URL + Constants.REST_SERVER_PATH + "/";
-        if(msgText.contains(invitePrefix)){
+        if(msg.contains(invitePrefix)){
             try{
-                int startIndex = msgText.indexOf(invitePrefix);
+                int startIndex = msg.indexOf(invitePrefix);
                 int serverIdIndex = startIndex+invitePrefix.length();
-                String msgWithoutPrefix = msgText.substring(serverIdIndex);
-                String partWithIds = msgWithoutPrefix.split(" ")[0];
+                String msgWithoutPrefix = msg.substring(serverIdIndex);
+                String serverId = msgWithoutPrefix.split(Constants.REST_INVITES_PATH+"/")[0];
 
-
-                String serverId = partWithIds.split(Constants.REST_INVITES_PATH+"/")[0];
-                String inviteId = partWithIds.split(Constants.REST_INVITES_PATH+"/")[1];
+                String inviteIdPart = msgWithoutPrefix.split(Constants.REST_INVITES_PATH+"/")[1];
+                String inviteId = inviteIdPart.split("[ "+ System.getProperty("line.separator") + "]")[0];
                 if(! editor.serverAdded(serverId)){
                     return new Pair<String, String>(serverId, inviteId);
                 }

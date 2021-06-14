@@ -1,10 +1,8 @@
 package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTextArea;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
-import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.emote.EmoteTextArea;
 import de.uniks.stp.model.ServerMessage;
 import javafx.application.Platform;
@@ -111,7 +109,6 @@ public class ServerChatView extends VBox {
     public void appendMessage(ServerMessage message, Pair<String, String> iniviteIds, EventHandler<ActionEvent> onButtonPressed) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
-
 
         ChatMessage chatMessage = new ChatMessage(language);
         chatMessage.loadMessage(message);

@@ -9,12 +9,20 @@ import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
+import de.uniks.stp.router.Router;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -25,6 +33,7 @@ import java.util.UUID;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT)
 public class PrivateChatController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(ServerChatController.class);
     private static final String ONLINE_USERS_CONTAINER_ID = "#online-users-container";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
 
@@ -110,7 +119,10 @@ public class PrivateChatController implements ControllerInterface {
 
             if (directMessageDTO.getSenderName().equals(currentUser.getName())) {
                 message.setSender(currentUser);
-                chatView.appendMessage(message);
+
+                // check if message contains a server invite link
+                Pair<String, String> ids = getInviteIds(message.getMessage());
+                chatView.appendMessage(message, ids, this::joinServer);
             } else {
                 String senderId = directMessageDTO.getSender();
                 String senderName = directMessageDTO.getSenderName();
@@ -153,7 +165,9 @@ public class PrivateChatController implements ControllerInterface {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
 
         if (Objects.nonNull(directMessage)) {
-            chatView.appendMessage(directMessage);
+            // check if message contains a server invite link
+            Pair<String, String> ids = getInviteIds(directMessage.getMessage());
+            chatView.appendMessage(directMessage, ids, this::joinServer);
         }
     }
 
@@ -167,5 +181,47 @@ public class PrivateChatController implements ControllerInterface {
             chatView.enable();
             setOnlineHeaderLabel();
         }
+    }
+
+    private void joinServer(ActionEvent actionEvent) {
+        Pair<String, String> inviteIds = (Pair<String, String>) actionEvent.getSource();
+        String serverId = inviteIds.getKey();
+        String inviteId = inviteIds.getValue();
+
+        User currentUser = editor.getOrCreateAccord().getCurrentUser();
+        NetworkClientInjector.getRestClient().joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
+            (response)-> onJoinServerResponse(serverId, response));
+    }
+
+    private void onJoinServerResponse(String serverId, HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toPrettyString());
+
+        if(response.isSuccess()){
+            Platform.runLater(Router::forceReload);  //server will be added and button no longer be shown at invite message
+        } else{
+            log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
+        }
+    }
+
+    private Pair<String, String> getInviteIds(String msg){
+        // mögliche Probleme: mehrere Links (erkennt nur ersten), ein halber und ein ganzer Link
+        String invitePrefix = Constants.REST_SERVER_BASE_URL + Constants.REST_SERVER_PATH + "/";
+        if(msg.contains(invitePrefix)){
+            try{
+                int startIndex = msg.indexOf(invitePrefix);
+                int serverIdIndex = startIndex+invitePrefix.length();
+                String msgWithoutPrefix = msg.substring(serverIdIndex);
+                String serverId = msgWithoutPrefix.split(Constants.REST_INVITES_PATH+"/")[0];
+
+                String inviteIdPart = msgWithoutPrefix.split(Constants.REST_INVITES_PATH+"/")[1];
+                String inviteId = inviteIdPart.split("[ "+ System.getProperty("line.separator") + "]")[0];
+                if(! editor.serverAdded(serverId)){
+                    return new Pair<String, String>(serverId, inviteId);
+                }
+            } catch(Exception e){
+                //happens when the String is not a link or is incorrect
+            }
+        }
+        return null;
     }
 }
