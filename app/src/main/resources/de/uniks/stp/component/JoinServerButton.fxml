@@ -5,6 +5,6 @@
 
 <fx:root stylesheets="@../style/css/component/join-server-button.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <JFXButton fx:id="joinServerButton" styleClass="join-server-button" prefHeight="30.0" text="%LBL_ACCEPT_INVITATION" />
+      <JFXButton fx:id="joinServerButton" styleClass="join-server-button" prefHeight="30.0" text="%LBL_JOIN_SERVER" />
    </children>
 </fx:root>
