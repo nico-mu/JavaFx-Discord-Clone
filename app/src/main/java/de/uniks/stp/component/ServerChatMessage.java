@@ -34,8 +34,7 @@ public class ServerChatMessage extends HBox {
     private Message message;
     private String language;
 
-    public ServerChatMessage(Message message, String language) {
-        this.message = message;
+    public ServerChatMessage(String language) {
         this.language = language;
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
