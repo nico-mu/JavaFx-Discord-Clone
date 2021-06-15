@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class EmoteParser {
-    private static final Logger log = LoggerFactory.getLogger(EmoteParser.class);
     private static final Map<String, String> emoteMapping = new HashMap<>();;
 
     static {
@@ -136,7 +135,6 @@ public class EmoteParser {
             String emoteName = ((JSONObject) emoteInfo).getString("description");
             String[] split = emoteName.split("\\|");
             if (split.length > 1) {
-                log.debug("{}", split[1]);
                 emoteName = split[1].trim().replaceAll(" ", "_").toLowerCase();
             } else {
                 emoteName = emoteName.replaceAll(" ", "_").toLowerCase();
