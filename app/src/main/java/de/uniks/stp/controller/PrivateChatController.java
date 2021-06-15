@@ -13,7 +13,6 @@ import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
-import de.uniks.stp.router.Router;
 import de.uniks.stp.util.MessageUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -47,6 +46,8 @@ public class PrivateChatController implements ControllerInterface {
     private PrivateChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
+
+    private Pair<Boolean, Long> lastInvitation;  //boolean is whether invitation was from yourself, long is timestamp
 
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
     private final PropertyChangeListener statusChangeListener = this::onStatusChange;
@@ -145,13 +146,14 @@ public class PrivateChatController implements ControllerInterface {
      * @param message
      */
     private void handleMessageSubmit(String message) {
-        // create & save message
-        DirectMessage msg = (DirectMessage) new DirectMessage().setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser())
-            .setTimestamp(new Date().getTime()).setId(UUID.randomUUID().toString());
-        // This fires handleNewPrivateMessage()
-        msg.setReceiver(user);
-        DatabaseService.saveDirectMessage(msg);
-
+        if(!handleOutgoingCommandMessage(message)){
+            // create & save message
+            DirectMessage msg = (DirectMessage) new DirectMessage().setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser())
+                .setTimestamp(new Date().getTime()).setId(UUID.randomUUID().toString());
+            // This fires handleNewPrivateMessage()
+            msg.setReceiver(user);
+            DatabaseService.saveDirectMessage(msg);
+        }
         // send message to the server
         WebSocketService.sendPrivateMessage(user.getName(), message);
     }
@@ -172,14 +174,81 @@ public class PrivateChatController implements ControllerInterface {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
 
         if (Objects.nonNull(directMessage)) {
-            // check if message contains a server invite link
-            Pair<String, String> ids = MessageUtil.getInviteIds(directMessage.getMessage());
-            if((ids != null) && (!editor.serverAdded(ids.getKey()))){
-                chatView.appendMessageWithButton(directMessage, ids, this::joinServer);
-            } else{
-                chatView.appendMessage(directMessage);
+            if (!handleIncomingCommandMessage(directMessage)){
+                // check if message contains a server invite link
+                Pair<String, String> ids = MessageUtil.getInviteIds(directMessage.getMessage());
+                if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                    chatView.appendMessageWithButton(directMessage, ids, this::joinServer);
+                } else{
+                    chatView.appendMessage(directMessage);
+                }
             }
         }
+    }
+
+    /**
+     *
+     * @param message
+     * @return boolean that represents whether message was a correct command
+     */
+    private boolean handleIncomingCommandMessage(DirectMessage message){
+        switch(message.getMessage()){
+            case Constants.COMMAND_PLAY:
+                if(lastInvitation != null && lastInvitation.getKey() && lastInvitation.getValue() >= new Date().getTime() - 30*1000){
+                    lastInvitation = null;
+                    // load modal
+                } else{
+                    lastInvitation = new Pair<Boolean, Long>(false, message.getTimestamp());
+                }
+                break;
+            case Constants.COMMAND_CHOOSE_ROCK:
+                // modal reaction
+                break;
+            case Constants.COMMAND_CHOOSE_PAPER:
+                // modal reaction
+                break;
+            case Constants.COMMAND_CHOOSE_SCISSOR:
+                // modal reaction
+                break;
+            default:
+                return false;
+        }
+
+        message.setReceiver(null).setSender(null);  //delete message fom model
+        return true;
+    }
+
+
+    /**
+     *
+     * @param message
+     * @return boolean that represents whether message was a correct command
+     */
+    private boolean handleOutgoingCommandMessage(String message) {
+        switch(message){
+            case Constants.COMMAND_PLAY:
+                if(lastInvitation != null && (! lastInvitation.getKey()) && (lastInvitation.getValue() >= new Date().getTime() - 30*1000)){
+                    lastInvitation = null;
+                    // load modal
+                } else{
+                    lastInvitation = new Pair<Boolean, Long>(true, new Date().getTime());
+                }
+
+                break;
+            case Constants.COMMAND_CHOOSE_ROCK:
+                // modal reaction
+                break;
+            case Constants.COMMAND_CHOOSE_PAPER:
+                // modal reaction
+                break;
+            case Constants.COMMAND_CHOOSE_SCISSOR:
+                // modal reaction
+                break;
+            default:
+                return false;
+        }
+
+        return true;
     }
 
     private void onStatusChange(PropertyChangeEvent propertyChangeEvent) {

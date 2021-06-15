@@ -14,10 +14,7 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonStructure;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class WebSocketService {
     private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
@@ -126,10 +123,16 @@ public class WebSocketService {
         DirectMessage msg = new DirectMessage();
         msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setId(UUID.randomUUID().toString());
         msg.setSender(chatPartner);
-        DatabaseService.saveDirectMessage(msg);
 
-        NotificationService.register(chatPartner);
-        NotificationService.onPrivateMessage(chatPartner);
+        // store in database and activate notification only when message is not a command
+        String[] possibleCommands = {Constants.COMMAND_PLAY, Constants.COMMAND_CHOOSE_ROCK,
+            Constants.COMMAND_CHOOSE_SCISSOR, Constants.COMMAND_CHOOSE_SCISSOR};
+        if(! Arrays.asList(possibleCommands).contains(msgText)){
+            DatabaseService.saveDirectMessage(msg);
+
+            NotificationService.register(chatPartner);
+            NotificationService.onPrivateMessage(chatPartner);
+        }
     }
 
     /**
