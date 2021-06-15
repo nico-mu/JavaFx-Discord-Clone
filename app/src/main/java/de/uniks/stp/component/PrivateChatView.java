@@ -3,12 +3,13 @@ package de.uniks.stp.component;
 import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
-import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.emote.EmoteTextArea;
 import de.uniks.stp.model.Message;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ScrollPane;
@@ -17,6 +18,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +76,7 @@ public class PrivateChatView extends VBox {
             scroll.layout();
             emoteTextArea.layout();
             scroll.layout();
+            emoteTextArea.requestFollowCaret();
         });
 
         chatViewMessageInput.getChildren().add(scroll);
@@ -95,18 +98,36 @@ public class PrivateChatView extends VBox {
 
     /**
      * Appends a message at the end of the messages list.
-     *
      * @param message
      */
     public void appendMessage(Message message) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        PrivateChatMessage privateChatMessage = new PrivateChatMessage(language);
-        privateChatMessage.loadMessage(message);
+        ChatMessage chatMessage = new ChatMessage(language);
+        chatMessage.loadMessage(message);
 
         Platform.runLater(() -> {
-            messageList.getChildren().add(privateChatMessage);
+            messageList.getChildren().add(chatMessage);
+        });
+    }
+
+    /**
+     * Appends a message with button at the end of the messages list.
+     * @param message
+     * @param iniviteIds
+     * @param onButtonPressed
+     */
+    public void appendMessageWithButton(Message message, Pair<String, String> iniviteIds, EventHandler<ActionEvent> onButtonPressed) {
+        Objects.requireNonNull(messageList);
+        Objects.requireNonNull(message);
+
+        ChatMessage chatMessage = new ChatMessage(language);
+        chatMessage.loadMessage(message);
+        chatMessage.addButton(iniviteIds, onButtonPressed);
+
+        Platform.runLater(() -> {
+            messageList.getChildren().add(chatMessage);
         });
     }
 

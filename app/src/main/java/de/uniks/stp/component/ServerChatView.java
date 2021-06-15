@@ -3,7 +3,6 @@ package de.uniks.stp.component;
 import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
-import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.emote.EmoteTextArea;
 import de.uniks.stp.model.ServerMessage;
 import javafx.application.Platform;
@@ -19,6 +18,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.io.IOException;
@@ -74,6 +74,7 @@ public class ServerChatView extends VBox {
             scroll.layout();
             emoteTextArea.layout();
             scroll.layout();
+            emoteTextArea.requestFollowCaret();
         });
 
         chatViewMessageInput.setOnKeyPressed(this::checkForEnter);
@@ -108,8 +109,7 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-
-        ServerChatMessage chatMessage = new ServerChatMessage(language);
+        ChatMessage chatMessage = new ChatMessage(language);
         chatMessage.loadMessage(message);
 
         Platform.runLater(() -> {
@@ -117,12 +117,56 @@ public class ServerChatView extends VBox {
         });
     }
 
+    /**
+     * Appends a message at the end of the messages list and creates a button
+     * @param message
+     * @param inviteIds
+     * @param onButtonPressed
+     */
+    public void appendMessageWithButton(ServerMessage message, Pair<String, String> inviteIds, EventHandler<ActionEvent> onButtonPressed) {
+        Objects.requireNonNull(messageList);
+        Objects.requireNonNull(message);
+
+        ChatMessage chatMessage = new ChatMessage(language);
+        chatMessage.loadMessage(message);
+        chatMessage.addButton(inviteIds, onButtonPressed);
+
+        Platform.runLater(() -> {
+            messageList.getChildren().add(chatMessage);
+        });
+    }
+
+    /**
+     * Inserts a message at given position
+     * @param pos
+     * @param message
+     */
     public void insertMessage(int pos, ServerMessage message) {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ServerChatMessage chatMessage = new ServerChatMessage(language);
+        ChatMessage chatMessage = new ChatMessage(language);
         chatMessage.loadMessage(message);
+
+        Platform.runLater(() -> {
+            messageList.getChildren().add(pos, chatMessage);
+        });
+    }
+
+    /**
+     * Inserts a message with button at given position
+     * @param pos
+     * @param message
+     * @param inviteIds
+     * @param onButtonPressed
+     */
+    public void insertMessageWithButton(int pos, ServerMessage message, Pair<String, String> inviteIds, EventHandler<ActionEvent> onButtonPressed) {
+        Objects.requireNonNull(messageList);
+        Objects.requireNonNull(message);
+
+        ChatMessage chatMessage = new ChatMessage(language);
+        chatMessage.loadMessage(message);
+        chatMessage.addButton(inviteIds, onButtonPressed);
 
         Platform.runLater(() -> {
             messageList.getChildren().add(pos, chatMessage);

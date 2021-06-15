@@ -64,6 +64,16 @@ public class Editor {
         }
     }
 
+    public boolean serverAdded(String serverId) {
+        List<Server> availableServers = accord.getCurrentUser().getAvailableServers();
+        for(Server server: availableServers){
+            if(server.getId().equals(serverId)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public User getOrCreateOtherUser(final String userId, final String name) {
         User other = null;
         final User currentUser = getOrCreateAccord().getCurrentUser();

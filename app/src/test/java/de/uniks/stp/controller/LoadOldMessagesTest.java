@@ -3,7 +3,7 @@ package de.uniks.stp.controller;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
-import de.uniks.stp.component.ServerChatMessage;
+import de.uniks.stp.component.ChatMessage;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -12,7 +12,6 @@ import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketClient;
 import de.uniks.stp.network.WebSocketService;
-import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
@@ -138,17 +137,17 @@ public class LoadOldMessagesTest {
 
         // check for correct order of messages
         VBox messageList = robot.lookup("#messageList").query();
-        ServerChatMessage firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
+        ChatMessage firstShownChatMessage = (ChatMessage) messageList.getChildren().get(0);
         VBox messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
         TextFlow messageText = (TextFlow) messageContainer.getChildren().get(1);
         Assertions.assertEquals(firstOldMessage, ((Text) messageText.getChildren().get(0)).getText());
 
-        ServerChatMessage secondShownChatMessage = (ServerChatMessage) messageList.getChildren().get(1);
+        ChatMessage secondShownChatMessage = (ChatMessage) messageList.getChildren().get(1);
         messageContainer = (VBox) secondShownChatMessage.getChildren().get(0);
         messageText = (TextFlow) messageContainer.getChildren().get(1);
         Assertions.assertEquals(secondOldMessage, ((Text) messageText.getChildren().get(0)).getText());
 
-        ServerChatMessage thirdShownChatMessage = (ServerChatMessage) messageList.getChildren().get(2);
+        ChatMessage thirdShownChatMessage = (ChatMessage) messageList.getChildren().get(2);
         messageContainer = (VBox) thirdShownChatMessage.getChildren().get(0);
         messageText = (TextFlow) messageContainer.getChildren().get(1);
         Assertions.assertEquals(thirdOldMessage, ((Text) messageText.getChildren().get(0)).getText());
@@ -207,12 +206,12 @@ public class LoadOldMessagesTest {
 
         // check for first and last message correct shown
         VBox messageList = robot.lookup("#messageList").query();
-        ServerChatMessage firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
+        ChatMessage firstShownChatMessage = (ChatMessage) messageList.getChildren().get(0);
         VBox messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
         TextFlow messageText = (TextFlow) messageContainer.getChildren().get(1);
         Assertions.assertEquals("0", ((Text) messageText.getChildren().get(0)).getText());
 
-        ServerChatMessage lastShownChatMessage = (ServerChatMessage) messageList.getChildren().get(49);
+        ChatMessage lastShownChatMessage = (ChatMessage) messageList.getChildren().get(49);
         messageContainer = (VBox) lastShownChatMessage.getChildren().get(0);
         messageText = (TextFlow) messageContainer.getChildren().get(1);
         Assertions.assertEquals("49", ((Text) messageText.getChildren().get(0)).getText());

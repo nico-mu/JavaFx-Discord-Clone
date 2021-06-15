@@ -9,15 +9,15 @@ public enum Components {
     NAV_BAR_LIST("NavBarList.fxml"),
     PRIVATE_CHAT_VIEW("PrivateChatView.fxml"),
     SERVER_CHAT_VIEW("ServerChatView.fxml"),
-    CHAT_MESSAGE("PrivateChatMessage.fxml"),
-    SERVER_CHAT_MESSAGE("ServerChatMessage.fxml"),
+    CHAT_MESSAGE("ChatMessage.fxml"),
     SERVER_CATEGORY_LIST("ServerCategoryList.fxml"),
     SERVER_CATEGORY_ELEMENT("ServerCategoryElement.fxml"),
     SERVER_CHANNEL_ELEMENT("ServerChannelElement.fxml"),
     USER_CHECK_LIST_ENTRY("UserCheckListEntry.fxml"),
     EMOTE_PICKER("EmotePicker.fxml"),
     EMOTER_PICKER_BUTTON("EmotePickerButton.fxml"),
-    INVITE_LIST_ENTRY("InviteListEntry.fxml");
+    INVITE_LIST_ENTRY("InviteListEntry.fxml"),
+    JOIN_SERVER_BUTTON("JoinServerButton.fxml");
 
 
     public final URL path;

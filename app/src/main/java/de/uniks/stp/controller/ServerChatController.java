@@ -1,19 +1,24 @@
 package de.uniks.stp.controller;
 
+import com.jfoenix.controls.JFXButton;
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerChatView;
 import de.uniks.stp.component.TextWithEmoteSupport;
-import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.model.Channel;
+import de.uniks.stp.model.Server;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.router.Router;
+import de.uniks.stp.util.MessageUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.TextFlow;
+import javafx.util.Pair;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
@@ -84,11 +89,47 @@ public class ServerChatController implements ControllerInterface {
 
         if(model.getMessages().size() != 0) {
             for (ServerMessage message : model.getMessages()) {
-                chatView.appendMessage(message);
+                // check if message contains a server invite link
+                Pair<String, String> ids = MessageUtil.getInviteIds(message.getMessage());
+                if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                    chatView.appendMessageWithButton(message, ids, this::joinServer);
+                } else{
+                    chatView.appendMessage(message);
+                }
             }
         }
         if(model.getMessages().size() < 20){
             loadMessages(new ActionEvent());  //load old messages to fill initial view
+        }
+        model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
+    }
+
+    /**
+     * Creates & fills new ChatView
+     */
+    private void reloadChatView() {
+        // remove old ChatView
+        serverChatVBox.getChildren().remove(chatView);
+        chatView.stop();
+
+        // init new ChatView
+        chatView = new ServerChatView(this::loadMessages, editor.getOrCreateAccord().getLanguage());
+        chatView.setOnMessageSubmit(this::handleMessageSubmit);
+        serverChatVBox.getChildren().add(chatView);
+
+        if(model.getMessages().size() != 0) {
+            for (ServerMessage message : model.getMessages()) {
+                // check if message contains a server invite link
+                Pair<String, String> ids = MessageUtil.getInviteIds(message.getMessage());
+                if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                    chatView.appendMessageWithButton(message, ids, this::joinServer);
+                } else{
+                    chatView.appendMessage(message);
+                }
+            }
+        }
+        if(model.getMessages().size() < 20){
+            chatView.removeLoadMessagesButton();
         }
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
     }
@@ -111,17 +152,64 @@ public class ServerChatController implements ControllerInterface {
         ServerMessage msg = (ServerMessage) propertyChangeEvent.getNewValue();
         Channel source = (Channel) propertyChangeEvent.getSource();
 
+        //check if message contains a server invite link
+        Pair<String, String> ids = MessageUtil.getInviteIds(msg.getMessage());
+
         if(source.getMessages().last().equals(msg)) {
             // append message
-            chatView.appendMessage(msg);
-
+            if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                chatView.appendMessageWithButton(msg, ids, this::joinServer);
+            } else{
+                chatView.appendMessage(msg);
+            }
         }
         else {
             // prepend message
             int insertPos = source.getMessages().headSet(msg).size();
-            chatView.insertMessage(insertPos, msg);
+            if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                chatView.insertMessageWithButton(insertPos, msg, ids, this::joinServer);
+            } else{
+                chatView.insertMessage(insertPos, msg);
+            }
         }
+    }
 
+    private void joinServer(ActionEvent actionEvent) {
+        JFXButton button = (JFXButton) actionEvent.getSource();
+        String ids = button.getId();
+        String serverId = ids.split("-")[0];
+        String inviteId = ids.split("-")[1];
+
+        User currentUser = editor.getOrCreateAccord().getCurrentUser();
+        NetworkClientInjector.getRestClient().joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
+            (response) -> onJoinServerResponse(serverId, response));
+    }
+
+    private void onJoinServerResponse(String serverId, HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toPrettyString());
+
+        if(response.isSuccess()){
+            NetworkClientInjector.getRestClient().getServerInformation(serverId, this::onServerInformationResponse);
+        } else{
+            log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
+        }
+    }
+
+    private void onServerInformationResponse(HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toString());
+        if(response.isSuccess()){
+            JSONObject resJson = response.getBody().getObject().getJSONObject("data");
+            final String serverId = resJson.getString("id");
+            final String serverName = resJson.getString("name");
+
+            // add server to model -> to NavBar List
+            editor.getOrCreateServer(serverId, serverName);
+
+            // reload chatView -> some button might not be needed anymore
+            Platform.runLater(this::reloadChatView);
+        } else{
+            log.error("Error trying to load information of new server");
+        }
     }
 
     private void onChannelNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
