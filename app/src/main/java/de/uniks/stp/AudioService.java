@@ -44,6 +44,10 @@ public class AudioService {
         this.editor.getOrCreateAccord().listeners().removePropertyChangeListener(Accord.PROPERTY_NOTIFICATION_SOUND, notificationSoundPropertyChangeListener);
     }
 
+    /**
+     * Sets the notification sound file which the service uses.
+     * @param name file name with extension
+     */
     public void setNotificationSoundFile(String name) {
         if (Objects.isNull(name)) {
             name = DEFAULT_SOUND_FILE;
@@ -54,10 +58,18 @@ public class AudioService {
         editor.getOrCreateAccord().setNotificationSound(notificationSoundFileName);
     }
 
+    /**
+     * Converts the path of a file to the file name.
+     * @param path path to a file
+     * @return file name
+     */
     public static String pathToFileName(String path) {
         return Objects.requireNonNull(path).substring(path.lastIndexOf('/') + 1);
     }
 
+    /**
+     * Plays the set notification sound file
+     */
     public static void playNotificationSound() {
         if (Objects.nonNull(headlessCheck) && headlessCheck.equals("true")) {
             return;
@@ -66,6 +78,11 @@ public class AudioService {
         mediaPlayer.play();
     }
 
+    /**
+     * Converts a file name to the path of a file.
+     * @param name file name
+     * @return path of the file
+     */
     public static String getNotificationSoundPath(String name) {
         URL resPath = AudioService.class.getResource("audio/notification/" + name);
         if (Objects.isNull(resPath)) {
@@ -79,6 +96,10 @@ public class AudioService {
         return null;
     }
 
+    /**
+     * Get the path of all files located in the resources bundles under audio/notification/.
+     * @return list of all file paths
+     */
     public static List<String> getNotificationSoundPaths() {
         List<String> paths = new ArrayList<>();
         for (NotificationSound sound : NotificationSound.values()) {
