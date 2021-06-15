@@ -196,7 +196,7 @@ public class PrivateChatController implements ControllerInterface {
             case Constants.COMMAND_PLAY:
                 if(lastInvitation != null && lastInvitation.getKey() && lastInvitation.getValue() >= new Date().getTime() - 30*1000){
                     lastInvitation = null;
-                    // load modal
+                    showEasterEggModal();  //load modal
                 } else{
                     lastInvitation = new Pair<Boolean, Long>(false, message.getTimestamp());
                 }
@@ -229,7 +229,7 @@ public class PrivateChatController implements ControllerInterface {
             case Constants.COMMAND_PLAY:
                 if(lastInvitation != null && (! lastInvitation.getKey()) && (lastInvitation.getValue() >= new Date().getTime() - 30*1000)){
                     lastInvitation = null;
-                    // load modal
+                    showEasterEggModal();  //load modal
                 } else{
                     lastInvitation = new Pair<Boolean, Long>(true, new Date().getTime());
                 }
@@ -249,6 +249,13 @@ public class PrivateChatController implements ControllerInterface {
         }
 
         return true;
+    }
+
+    /**
+     * Initializes and shows the EasterEggModal, is called when both users sent the play command
+     */
+    private void showEasterEggModal() {
+
     }
 
     private void onStatusChange(PropertyChangeEvent propertyChangeEvent) {
