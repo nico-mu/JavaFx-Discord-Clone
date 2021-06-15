@@ -1,6 +1,7 @@
 package de.uniks.stp;
 
 import de.uniks.stp.model.*;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.view.Languages;
 
 import java.util.List;
@@ -312,6 +313,7 @@ public class Editor {
 
     public void deleteChannel(String channelId) {
         Channel channel = getChannelById(channelId);
+        NotificationService.removePublisher(channel);
         channel.setServer(null);
         channel.getCategory().withoutChannels(channel);
     }
