@@ -10,6 +10,16 @@
   -fx-font-size: 14px;
 }
 
+.notifications-label {
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 18px;
+}
+
+.notifications-activated-label {
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 18px;
+}
+
 .privileged-checkbox {
   -fx-text-fill: $primary-text-fill;
   -jfx-checked-color: $button-color;

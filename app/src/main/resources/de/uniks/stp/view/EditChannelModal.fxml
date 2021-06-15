@@ -1,14 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.*?>
-<?import javafx.geometry.*?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXToggleButton?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.*?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="480.0" styleClass="edit-channel-modal" stylesheets="@../style/css/view/edit-channel-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="462.0" prefWidth="480.0" styleClass="edit-channel-modal" stylesheets="@../style/css/view/edit-channel-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <VBox>
          <children>
             <JFXTextField id="edit-channel-name-textfield" maxWidth="240.0" promptText="%LBL_CHANNEL_NAME" styleClass="edit-channel-name-textfield" />
+            <AnchorPane prefHeight="62.0" prefWidth="386.0">
+               <children>
+                  <Label id="notifications-label" layoutX="28.0" layoutY="-1.0" prefHeight="30.0" prefWidth="235.0" styleClass="notifications-label" text="%LBL_NOTIFICATIONS" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="0.0" />
+                  <JFXToggleButton id="notifications-toggle-button" layoutX="28.0" layoutY="15.0" prefHeight="58.0" prefWidth="78.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="15.0" />
+                  <Label id="notifications-activated-label" layoutX="116.0" layoutY="28.0" styleClass="notifications-activated-label" AnchorPane.leftAnchor="95.0" AnchorPane.topAnchor="30.0" />
+               </children>
+            </AnchorPane>
             <VBox>
                <children>
                   <HBox alignment="CENTER" prefHeight="0.0" prefWidth="200.0" spacing="160.0">
