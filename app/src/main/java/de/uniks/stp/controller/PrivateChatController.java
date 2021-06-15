@@ -8,12 +8,14 @@ import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.PrivateChatView;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
+import de.uniks.stp.modal.EasterEggModal;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.util.MessageUtil;
+import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -28,10 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT)
 public class PrivateChatController implements ControllerInterface {
@@ -41,13 +40,14 @@ public class PrivateChatController implements ControllerInterface {
 
     private final Parent view;
     private final Editor editor;
-    private final String userId;
-    private final User user;
+    private final User chatPartner;
+    private final User currentUser;
     private PrivateChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
 
     private Pair<Boolean, Long> lastInvitation;  //boolean is whether invitation was from yourself, long is timestamp
+    private EasterEggModal easterEggModal;
 
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
     private final PropertyChangeListener statusChangeListener = this::onStatusChange;
@@ -55,8 +55,8 @@ public class PrivateChatController implements ControllerInterface {
     public PrivateChatController(Parent view, Editor editor, String userId, String userName) {
         this.view = view;
         this.editor = editor;
-        this.userId = userId;
-        this.user = editor.getOrCreateChatPartnerOfCurrentUser(userId, userName);
+        this.chatPartner = editor.getOrCreateChatPartnerOfCurrentUser(userId, userName);
+        this.currentUser = editor.getOrCreateAccord().getCurrentUser();
     }
 
     @Override
@@ -72,10 +72,10 @@ public class PrivateChatController implements ControllerInterface {
         if (Objects.nonNull(chatView)) {
             chatView.stop();
         }
-        if (Objects.nonNull(user)) {
-            user.listeners().removePropertyChangeListener(User.PROPERTY_SENT_MESSAGES, messagesChangeListener);
-            user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
-            user.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
+        if (Objects.nonNull(chatPartner)) {
+            chatPartner.listeners().removePropertyChangeListener(User.PROPERTY_SENT_MESSAGES, messagesChangeListener);
+            chatPartner.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
+            chatPartner.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
         }
     }
 
@@ -84,37 +84,34 @@ public class PrivateChatController implements ControllerInterface {
      * Also adds all messages from model in the View and creates PropertyChangeListener that will do so in the future.
      */
     private void showChatView() {
-        if (Objects.isNull(user)) {
+        if (Objects.isNull(chatPartner)) {
             return;
         }
         chatView = new PrivateChatView(editor.getOrCreateAccord().getLanguage());
         onlineUsersContainer.getChildren().add(chatView);
 
-        User otherUser = editor.getUserById(userId);
-
-        NotificationService.consume(user);
-        NotificationService.removePublisher(user);
+        NotificationService.consume(chatPartner);
+        NotificationService.removePublisher(chatPartner);
 
         // User is offline
-        if (Objects.isNull(otherUser)) {
-            user.setStatus(false);
+        if (Objects.isNull(chatPartner)) {
+            chatPartner.setStatus(false);
             setOfflineHeaderLabel();
             chatView.disable();
         }
         // User is online
         else {
-            user.setStatus(true);
+            chatPartner.setStatus(true);
             setOnlineHeaderLabel();
             chatView.enable();
         }
 
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
-        user.listeners().addPropertyChangeListener(User.PROPERTY_SENT_MESSAGES, messagesChangeListener);
-        user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
-        user.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
+        chatPartner.listeners().addPropertyChangeListener(User.PROPERTY_SENT_MESSAGES, messagesChangeListener);
+        chatPartner.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
+        chatPartner.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
 
-        User currentUser = editor.getOrCreateAccord().getCurrentUser();
-        List<DirectMessageDTO> directMessages = DatabaseService.getConversation(currentUser.getName(), user.getName());
+        List<DirectMessageDTO> directMessages = DatabaseService.getConversation(currentUser.getName(), chatPartner.getName());
         for (DirectMessageDTO directMessageDTO : directMessages) {
             DirectMessage message = (DirectMessage) new DirectMessage()
                 .setMessage(directMessageDTO.getMessage())
@@ -126,9 +123,9 @@ public class PrivateChatController implements ControllerInterface {
 
                 // check if message contains a server invite link
                 Pair<String, String> ids = MessageUtil.getInviteIds(message.getMessage());
-                if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                if ((ids != null) && (!editor.serverAdded(ids.getKey()))) {
                     chatView.appendMessageWithButton(message, ids, this::joinServer);
-                } else{
+                } else {
                     chatView.appendMessage(message);
                 }
             } else {
@@ -146,27 +143,27 @@ public class PrivateChatController implements ControllerInterface {
      * @param message
      */
     private void handleMessageSubmit(String message) {
-        if(!handleOutgoingCommandMessage(message)){
+        if (!handleOutgoingCommandMessage(message)) {
             // create & save message
-            DirectMessage msg = (DirectMessage) new DirectMessage().setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser())
+            DirectMessage msg = (DirectMessage) new DirectMessage().setMessage(message).setSender(currentUser)
                 .setTimestamp(new Date().getTime()).setId(UUID.randomUUID().toString());
             // This fires handleNewPrivateMessage()
-            msg.setReceiver(user);
+            msg.setReceiver(chatPartner);
             DatabaseService.saveDirectMessage(msg);
         }
         // send message to the server
-        WebSocketService.sendPrivateMessage(user.getName(), message);
+        WebSocketService.sendPrivateMessage(chatPartner.getName(), message);
     }
 
     private void setOnlineHeaderLabel() {
         Platform.runLater(() -> {
-            homeScreenLabel.setText(user.getName());
+            homeScreenLabel.setText(chatPartner.getName());
         });
     }
 
     private void setOfflineHeaderLabel() {
         Platform.runLater(() -> {
-            homeScreenLabel.setText(user.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
+            homeScreenLabel.setText(chatPartner.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
         });
     }
 
@@ -174,12 +171,12 @@ public class PrivateChatController implements ControllerInterface {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
 
         if (Objects.nonNull(directMessage)) {
-            if (!handleIncomingCommandMessage(directMessage)){
+            if (!handleIncomingCommandMessage(directMessage)) {
                 // check if message contains a server invite link
                 Pair<String, String> ids = MessageUtil.getInviteIds(directMessage.getMessage());
-                if((ids != null) && (!editor.serverAdded(ids.getKey()))){
+                if ((ids != null) && (!editor.serverAdded(ids.getKey()))) {
                     chatView.appendMessageWithButton(directMessage, ids, this::joinServer);
-                } else{
+                } else {
                     chatView.appendMessage(directMessage);
                 }
             }
@@ -187,28 +184,33 @@ public class PrivateChatController implements ControllerInterface {
     }
 
     /**
-     *
      * @param message
      * @return boolean that represents whether message was a correct command
      */
-    private boolean handleIncomingCommandMessage(DirectMessage message){
-        switch(message.getMessage()){
+    private boolean handleIncomingCommandMessage(DirectMessage message) {
+        switch (message.getMessage()) {
             case Constants.COMMAND_PLAY:
-                if(lastInvitation != null && lastInvitation.getKey() && lastInvitation.getValue() >= new Date().getTime() - 30*1000){
+                if (lastInvitation != null && lastInvitation.getKey() && lastInvitation.getValue() >= new Date().getTime() - 30 * 1000) {
                     lastInvitation = null;
                     showEasterEggModal();  //load modal
-                } else{
+                } else {
                     lastInvitation = new Pair<Boolean, Long>(false, message.getTimestamp());
                 }
                 break;
             case Constants.COMMAND_CHOOSE_ROCK:
-                // modal reaction
+                if (Objects.nonNull(easterEggModal)) {
+                    easterEggModal.setOpponentAction("rock");
+                }
                 break;
             case Constants.COMMAND_CHOOSE_PAPER:
-                // modal reaction
+                if (Objects.nonNull(easterEggModal)) {
+                    easterEggModal.setOpponentAction("paper");
+                }
                 break;
             case Constants.COMMAND_CHOOSE_SCISSOR:
-                // modal reaction
+                if (Objects.nonNull(easterEggModal)) {
+                    easterEggModal.setOpponentAction("scissors");
+                }
                 break;
             default:
                 return false;
@@ -220,42 +222,43 @@ public class PrivateChatController implements ControllerInterface {
 
 
     /**
-     *
      * @param message
      * @return boolean that represents whether message was a correct command
      */
     private boolean handleOutgoingCommandMessage(String message) {
-        switch(message){
-            case Constants.COMMAND_PLAY:
-                if(lastInvitation != null && (! lastInvitation.getKey()) && (lastInvitation.getValue() >= new Date().getTime() - 30*1000)){
-                    lastInvitation = null;
-                    showEasterEggModal();  //load modal
-                } else{
-                    lastInvitation = new Pair<Boolean, Long>(true, new Date().getTime());
-                }
-
-                break;
-            case Constants.COMMAND_CHOOSE_ROCK:
-                // modal reaction
-                break;
-            case Constants.COMMAND_CHOOSE_PAPER:
-                // modal reaction
-                break;
-            case Constants.COMMAND_CHOOSE_SCISSOR:
-                // modal reaction
-                break;
-            default:
-                return false;
+        if (message.equals(Constants.COMMAND_PLAY)) {
+            if (lastInvitation != null && (!lastInvitation.getKey()) && (lastInvitation.getValue() >= new Date().getTime() - 30 * 1000)) {
+                lastInvitation = null;
+                showEasterEggModal();  //load modal
+            } else {
+                lastInvitation = new Pair<Boolean, Long>(true, new Date().getTime());
+            }
         }
-
-        return true;
+        String[] possibleCommands = {Constants.COMMAND_PLAY, Constants.COMMAND_CHOOSE_ROCK,
+            Constants.COMMAND_CHOOSE_SCISSOR, Constants.COMMAND_CHOOSE_SCISSOR};
+        return Arrays.asList(possibleCommands).contains(message);
     }
 
     /**
      * Initializes and shows the EasterEggModal, is called when both users sent the play command
      */
     private void showEasterEggModal() {
+        easterEggModal = null;
+        Platform.runLater(() -> {
+            Parent easterEggModalView = ViewLoader.loadView(Views.EASTER_EGG_MODAL);
+            easterEggModal = new EasterEggModal(easterEggModalView,
+                currentUser,
+                chatPartner,
+                this::closeEasterEggModal);
+            easterEggModal.show();
+        });
+    }
 
+    private void closeEasterEggModal(ActionEvent actionEvent) {
+        if (Objects.nonNull(easterEggModal)) {
+            easterEggModal.close();
+            easterEggModal = null;
+        }
     }
 
     private void onStatusChange(PropertyChangeEvent propertyChangeEvent) {
@@ -276,7 +279,6 @@ public class PrivateChatController implements ControllerInterface {
         String serverId = ids.split("-")[0];
         String inviteId = ids.split("-")[1];
 
-        User currentUser = editor.getOrCreateAccord().getCurrentUser();
         NetworkClientInjector.getRestClient().joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
             (response) -> onJoinServerResponse(serverId, response));
     }
@@ -284,16 +286,16 @@ public class PrivateChatController implements ControllerInterface {
     private void onJoinServerResponse(String serverId, HttpResponse<JsonNode> response) {
         log.debug(response.getBody().toPrettyString());
 
-        if(response.isSuccess()){
+        if (response.isSuccess()) {
             NetworkClientInjector.getRestClient().getServerInformation(serverId, this::onServerInformationResponse);
-        } else{
+        } else {
             log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
         }
     }
 
     private void onServerInformationResponse(HttpResponse<JsonNode> response) {
         log.debug(response.getBody().toString());
-        if(response.isSuccess()){
+        if (response.isSuccess()) {
             JSONObject resJson = response.getBody().getObject().getJSONObject("data");
             final String serverId = resJson.getString("id");
             final String serverName = resJson.getString("name");
@@ -302,12 +304,12 @@ public class PrivateChatController implements ControllerInterface {
             editor.getOrCreateServer(serverId, serverName);
 
             // reload chatView -> some button might not be needed anymore
-            Platform.runLater(()->{
+            Platform.runLater(() -> {
                 onlineUsersContainer.getChildren().remove(chatView);
                 chatView.stop();
                 showChatView();
             });
-        } else{
+        } else {
             log.error("Error trying to load information of new server");
         }
     }

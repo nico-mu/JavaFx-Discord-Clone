@@ -17,7 +17,8 @@ public enum Views {
     CREATE_INVITE_MODAL("CreateInviteModal.fxml"),
     EDIT_CATEGORY_MODAL("EditCategoryModal.fxml"),
     EDIT_CHANNEL_MODAL("EditChannelModal.fxml"),
-    CONFIRMATION_MODAL("ConfirmationModal.fxml");
+    CONFIRMATION_MODAL("ConfirmationModal.fxml"),
+    EASTER_EGG_MODAL("EasterEggModal.fxml");
 
     public final URL path;
 

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="480.0" styleClass="easter-egg-modal" stylesheets="@../style/css/view/easter-egg-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <padding>
+      <Insets bottom="12.0" top="24.0" />
+   </padding>
+   <children>
+      <Label id="action-label" styleClass="action-label" text="%LBL_CHOOSE_ACTION" />
+      <HBox alignment="CENTER" prefHeight="177.0" prefWidth="480.0">
+         <children>
+            <Button id="rock-button" mnemonicParsing="false" styleClass="action-button">
+               <graphic>
+                  <ImageView fitHeight="110.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../img/rock.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <HBox.margin>
+                  <Insets right="10.0" />
+               </HBox.margin>
+            </Button>
+            <HBox alignment="CENTER">
+               <children>
+                  <JFXButton id="revanche-button" styleClass="revanche-button" prefHeight="30.0" prefWidth="110.0" text="%LBL_REVANCHE" textFill="WHITE" visible="false" />
+               </children>
+            </HBox>
+            <Button id="paper-button" mnemonicParsing="false" styleClass="action-button">
+               <graphic>
+                  <ImageView fitHeight="140.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../img/paper.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <HBox.margin>
+                  <Insets left="10.0" />
+               </HBox.margin>
+            </Button>
+         </children>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+      </HBox>
+      <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <Button id="scissors-button" mnemonicParsing="false" styleClass="action-button">
+               <graphic>
+                  <ImageView fitHeight="140.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../img/scissors.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Pane prefHeight="148.0" prefWidth="61.0" />
+            <JFXButton id="cancel-button" styleClass="cancel-button" cancelButton="true" prefHeight="30.0" prefWidth="110.0" text="%LBL_CANCEL" />
+            <Pane prefHeight="148.0" prefWidth="20.0" />
+         </children>
+      </HBox>
+   </children>
+</VBox>

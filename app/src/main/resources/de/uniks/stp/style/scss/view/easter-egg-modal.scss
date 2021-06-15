@@ -1,0 +1,26 @@
+@import "../base";
+
+.easter-egg-modal {
+  -fx-background-color: $secondary-background-color;
+}
+
+.action-label {
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 18px;
+}
+
+.action-button {
+  -fx-background-color: $secondary-background-color;
+}
+
+.cancel-button {
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}
+
+.revanche-button {
+  -fx-background-color: $button-color;
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 14px;
+}

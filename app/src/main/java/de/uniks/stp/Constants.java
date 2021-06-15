@@ -70,6 +70,11 @@ public class Constants {
     public static final String LBL_DELETE_CHANNEL = "LBL_DELETE_CHANNEL";
     public static final String LBL_CONFIRM_DELETE_CHANNEL = "LBL_CONFIRM_DELETE_CHANNEL";
     public static final String LBL_TEXT_AREA_PLACEHOLDER = "LBL_TEXT_AREA_PLACEHOLDER";
+    public static final String LBL_EASTER_EGG_TITLE = "LBL_EASTER_EGG_TITLE";
+    public static final String LBL_CHOOSE_ACTION = "LBL_CHOOSE_ACTION";
+    public static final String LBL_RESULT_WIN = "LBL_RESULT_WIN";
+    public static final String LBL_RESULT_LOSS = "LBL_RESULT_LOSS";
+    public static final String LBL_RESULT_DRAW = "LBL_RESULT_DRAW";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";
