@@ -1,8 +1,11 @@
 package de.uniks.stp.emote;
 
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.network.WebSocketService;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -12,6 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class EmoteParser {
+    private static final Logger log = LoggerFactory.getLogger(EmoteParser.class);
     private static final Map<String, String> emoteMapping = new HashMap<>();;
 
     static {
@@ -129,7 +133,15 @@ public class EmoteParser {
     private static void addEmotesFromJSONArray(JSONArray jsonArray) {
         jsonArray.forEach((emoteInfo) -> {
             String emote = ((JSONObject) emoteInfo).getString("emoji");
-            String emoteName = ((JSONObject) emoteInfo).getString("description").replaceAll(" ", "_").toLowerCase();
+            String emoteName = ((JSONObject) emoteInfo).getString("description");
+            String[] split = emoteName.split("\\|");
+            if (split.length > 1) {
+                log.debug("{}", split[1]);
+                emoteName = split[1].trim().replaceAll(" ", "_").toLowerCase();
+            } else {
+                emoteName = emoteName.replaceAll(" ", "_").toLowerCase();
+            }
+
             if (!isParsableEmoteName(emoteName)) {
                 return;
             }
