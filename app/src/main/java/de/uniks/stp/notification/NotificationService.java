@@ -231,6 +231,18 @@ public class NotificationService {
         return 0;
     }
 
+    public static void invokeUserNotifications() {
+        userNotifications.forEach((key, value) -> {
+            notifyUser(key);
+        });
+    }
+
+    public static void invokeChannelNotifications() {
+        channelNotifications.forEach((key, value) -> {
+            notifyChannel(key);
+        });
+    }
+
     /**
      * resets the NotificationService and clears all its data.
      */

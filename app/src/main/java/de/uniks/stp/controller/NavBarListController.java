@@ -79,6 +79,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         if (Objects.nonNull(server) && !navBarServerElementHashMap.containsKey(server)) {
             WebSocketService.addServerWebSocket(server.getId());  // enables sending & receiving messages
             final NavBarServerElement navBarElement = new NavBarServerElement(server);
+            navBarElement.setNotificationCount(NotificationService.getServerNotificationCount(server));
             navBarServerElementHashMap.put(server, navBarElement);
             Platform.runLater(() -> navBarList.addServerElement(navBarElement));
         }
@@ -192,9 +193,10 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         User user = (User) event.getSource();
         if (Objects.nonNull(user)) {
             if (!navBarUserElementHashMap.containsKey(user)) {
-                navBarUserElementHashMap.put(user, new NavBarUserElement(user));
+                NavBarUserElement navBarUserElement = new NavBarUserElement(user);
+                navBarUserElementHashMap.put(user, navBarUserElement);
                 Platform.runLater(() -> {
-                    navBarList.addUserElement(navBarUserElementHashMap.get(user));
+                    navBarList.addUserElement(navBarUserElement);
                 });
             }
             NavBarUserElement userElement = navBarUserElementHashMap.get(user);
