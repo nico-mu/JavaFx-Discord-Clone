@@ -3,6 +3,7 @@ package de.uniks.stp.modal;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.UserCheckList;
@@ -29,6 +30,8 @@ public class EditChannelModal extends AbstractModal {
     private static final Logger log = LoggerFactory.getLogger(AddChannelModal.class);
 
     public static final String EDIT_CHANNEL_NAME_TEXTFIELD = "#edit-channel-name-textfield";
+    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "notifications-toggle-button";
+    public static final String NOTIFICATIONS_ACTIVATED_LABEL = "#notifications-activated-label";
     public static final String PRIVILEGED_CHECKBOX = "#privileged-checkbox";
     public static final String FILTER_USER_TEXTFIELD = "#filter-user-textfield";
     public static final String USER_CHECK_LIST_CONTAINER = "#user-check-list-container";
@@ -37,6 +40,8 @@ public class EditChannelModal extends AbstractModal {
     public static final String EDIT_CHANNEL_ERROR_LABEL = "#edit-channel-error";
     public static final String EDIT_CHANNEL_DELETE_BUTTON = "#delete-channel";
     private JFXTextField channelName;
+    private JFXToggleButton notificationsToggleButton;
+    private Label notificationsLabel;
     private JFXCheckBox privileged;
     private JFXTextField filter;
     private HBox userCheckListContainer;
@@ -58,6 +63,8 @@ public class EditChannelModal extends AbstractModal {
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_CHANNEL));
         channelName = (JFXTextField) view.lookup(EDIT_CHANNEL_NAME_TEXTFIELD);
+        notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);
+        notificationsLabel = (Label) view.lookup(NOTIFICATIONS_ACTIVATED_LABEL);
         privileged = (JFXCheckBox) view.lookup(PRIVILEGED_CHECKBOX);
         filter = (JFXTextField) view.lookup(FILTER_USER_TEXTFIELD);
         userCheckListContainer = (HBox) view.lookup(USER_CHECK_LIST_CONTAINER);
