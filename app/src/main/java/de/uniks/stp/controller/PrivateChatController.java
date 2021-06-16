@@ -6,6 +6,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.PrivateChatView;
+import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.modal.EasterEggModal;
@@ -188,7 +189,7 @@ public class PrivateChatController implements ControllerInterface {
      * @return boolean that represents whether message was a correct command
      */
     private boolean handleIncomingCommandMessage(DirectMessage message) {
-        switch (message.getMessage()) {
+        switch (EmoteParser.convertTextWithUnicodeToNames(message.getMessage())) {
             case Constants.COMMAND_PLAY:
                 if (lastInvitation != null && lastInvitation.getKey() && lastInvitation.getValue() >= new Date().getTime() - 30 * 1000) {
                     lastInvitation = null;
@@ -226,6 +227,7 @@ public class PrivateChatController implements ControllerInterface {
      * @return boolean that represents whether message was a correct command
      */
     private boolean handleOutgoingCommandMessage(String message) {
+        message = EmoteParser.convertTextWithUnicodeToNames(message);
         if (message.equals(Constants.COMMAND_PLAY)) {
             if (lastInvitation != null && (!lastInvitation.getKey()) && (lastInvitation.getValue() >= new Date().getTime() - 30 * 1000)) {
                 lastInvitation = null;
