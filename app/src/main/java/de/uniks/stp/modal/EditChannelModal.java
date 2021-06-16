@@ -13,6 +13,7 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -30,7 +31,7 @@ public class EditChannelModal extends AbstractModal {
     private static final Logger log = LoggerFactory.getLogger(AddChannelModal.class);
 
     public static final String EDIT_CHANNEL_NAME_TEXTFIELD = "#edit-channel-name-textfield";
-    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "notifications-toggle-button";
+    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "#notifications-toggle-button";
     public static final String NOTIFICATIONS_ACTIVATED_LABEL = "#notifications-activated-label";
     public static final String PRIVILEGED_CHECKBOX = "#privileged-checkbox";
     public static final String FILTER_USER_TEXTFIELD = "#filter-user-textfield";
@@ -72,6 +73,9 @@ public class EditChannelModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(EDIT_CHANNEL_CANCEL_BUTTON);
         errorLabel = (Label) view.lookup(EDIT_CHANNEL_ERROR_LABEL);
         deleteButton = (JFXButton) view.lookup(EDIT_CHANNEL_DELETE_BUTTON);
+
+        notificationsToggleButton.setSelected(NotificationService.isChannelMuted(channel));
+        notificationsLabel.setText(ViewLoader.loadLabel(Constants.LBL_ON));
 
         selectUserList = new UserCheckList();
         selectUserList.setMaxHeight(userCheckListContainer.getMaxHeight());
@@ -150,6 +154,13 @@ public class EditChannelModal extends AbstractModal {
         String serverId = category.getServer().getId();
         String categoryId = category.getId();
         String channelId = channel.getId();
+
+        boolean muted = notificationsToggleButton.isSelected();
+        if(muted) {
+            NotificationService.muteChannel(channelId);
+        }else {
+            NotificationService.unmuteChannel(channelId);
+        }
 
         restClient.editTextChannel(serverId, categoryId, channelId, chName, priv, selectUserList.getSelectedUserIds(), this::handleEditChannelResponse);
     }

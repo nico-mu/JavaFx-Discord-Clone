@@ -25,7 +25,7 @@ public class EditCategoryModal extends AbstractModal {
     private static final Logger log = LoggerFactory.getLogger(EditCategoryModal.class);
 
     public static final String NAME_FIELD = "#category-name-text-field";
-    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "notifications-toggle-button";
+    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "#notifications-toggle-button";
     public static final String NOTIFICATIONS_ACTIVATED_LABEL = "#notifications-activated-label";
     public static final String ERROR_LABEL = "#error-message-label";
     public static final String SPINNER = "#spinner";
@@ -52,7 +52,7 @@ public class EditCategoryModal extends AbstractModal {
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_CATEGORY_TITLE));
 
         categoryNameTextField = (JFXTextField) view.lookup(NAME_FIELD);
-        notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);  // FIXME: is Null
+        notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);
         notificationsLabel = (Label) view.lookup(NOTIFICATIONS_ACTIVATED_LABEL);
         errorLabel = (Label) view.lookup(ERROR_LABEL);
         spinner = (JFXSpinner) view.lookup(SPINNER);

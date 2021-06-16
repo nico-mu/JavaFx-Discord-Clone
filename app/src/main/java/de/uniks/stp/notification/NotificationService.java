@@ -7,9 +7,7 @@ import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.Router;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -19,6 +17,8 @@ public class NotificationService {
     private static final ConcurrentHashMap<NotificationEvent, List<SubscriberInterface>> userNotifications = new ConcurrentHashMap<>();
     private static final List<SubscriberInterface> userSubscriber = new CopyOnWriteArrayList<>();
     private static final List<SubscriberInterface> channelSubscriber = new CopyOnWriteArrayList<>();
+    private static final Set<String> mutedChannelIds = new HashSet<>();
+    private static final Set<String> mutedServerIds = new HashSet<>();
 
     /**
      * Add a user that publishes messages.
@@ -136,6 +136,9 @@ public class NotificationService {
      * @param publisher channel that sent a channel message
      */
     public static void onChannelMessage(Channel publisher) {
+        if(mutedChannelIds.contains(publisher.getId()) || mutedServerIds.contains(publisher.getServer().getId())) {
+            return;
+        }
         HashMap<String, String> routeArgs = Router.getCurrentArgs();
         if (routeArgs.containsKey(":channelId") && routeArgs.get(":channelId").equals(publisher.getId())) {
             return;
@@ -282,5 +285,29 @@ public class NotificationService {
             }
         }
         return null;
+    }
+
+    public static void muteChannel(String channelId) {
+        mutedChannelIds.add(channelId);
+    }
+
+    public static void unmuteChannel(String channelId) {
+        mutedChannelIds.remove(channelId);
+    }
+
+    public static void muteServer(String channelId) {
+        mutedServerIds.add(channelId);
+    }
+
+    public static void unmuteServer(String channelId) {
+        mutedServerIds.remove(channelId);
+    }
+
+    public static boolean isChannelMuted(Channel channel) {
+        return mutedChannelIds.contains(channel.getId());
+    }
+
+    public static boolean isServerMuted(Server server) {
+        return mutedServerIds.contains(server.getId());
     }
 }

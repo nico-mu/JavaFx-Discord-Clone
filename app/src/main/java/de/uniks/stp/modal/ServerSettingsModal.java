@@ -9,6 +9,7 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -24,7 +25,7 @@ import java.util.Objects;
 
 public class ServerSettingsModal extends AbstractModal {
     public static final String SERVERNAME_TEXT_FIELD = "#servername-text-field";
-    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "notifications-toggle-button";
+    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "#notifications-toggle-button";
     public static final String NOTIFICATIONS_ACTIVATED_LABEL = "#notifications-activated-label";
     public static final String SPINNER = "#spinner";
     public static final String ERROR_MESSAGE_LABEL = "#error-message-label";
@@ -52,7 +53,7 @@ public class ServerSettingsModal extends AbstractModal {
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_SERVER_TITLE));
 
         servernameTextField = (JFXTextField) view.lookup(SERVERNAME_TEXT_FIELD);
-        notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);  // FIXME: is Null
+        notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);
         notificationsLabel = (Label) view.lookup(NOTIFICATIONS_ACTIVATED_LABEL);
         errorLabel = (Label) view.lookup(ERROR_MESSAGE_LABEL);
         spinner = (JFXSpinner) view.lookup(SPINNER);
@@ -60,7 +61,7 @@ public class ServerSettingsModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
         deleteButton = (JFXButton) view.lookup(DELETE_BUTTON);
 
-        // ToDo: load current Notification setting
+        notificationsToggleButton.setSelected(NotificationService.isServerMuted(model));
         notificationsLabel.setText(ViewLoader.loadLabel(Constants.LBL_ON));
         servernameTextField.setText(model.getName());
 
@@ -87,8 +88,6 @@ public class ServerSettingsModal extends AbstractModal {
     private void onSaveButtonClicked(ActionEvent actionEvent) {
         setErrorMessage(null);
 
-        //ToDo: Notifications
-
         if (! servernameTextField.getText().isEmpty()){
             String name = servernameTextField.getText();
 
@@ -98,6 +97,13 @@ public class ServerSettingsModal extends AbstractModal {
             cancelButton.setDisable(true);
             deleteButton.setDisable(true);
             spinner.setVisible(true);
+
+            boolean muted = notificationsToggleButton.isSelected();
+            if(muted) {
+                NotificationService.muteServer(model.getId());
+            }else  {
+                NotificationService.unmuteServer(model.getId());
+            }
 
             RestClient restClient = NetworkClientInjector.getRestClient();
             restClient.renameServer(model.getId(), name, this::handleRenameServerResponse);
