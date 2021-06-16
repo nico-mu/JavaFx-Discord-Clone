@@ -50,7 +50,6 @@ public class MainScreenController implements ControllerInterface {
         userInfoController.init();
 
         NotificationService.invokeUserNotifications();
-        NotificationService.invokeChannelNotifications();
     }
 
     @Override

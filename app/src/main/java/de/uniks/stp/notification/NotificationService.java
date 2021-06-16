@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NotificationService {
 
-    private static final ConcurrentHashMap<NotificationEvent, List<SubscriberInterface>> channelNotifications = new ConcurrentHashMap<>();
+    private static final HashMap<NotificationEvent, List<SubscriberInterface>> channelNotifications = new HashMap<>();
     private static final ConcurrentHashMap<NotificationEvent, List<SubscriberInterface>> userNotifications = new ConcurrentHashMap<>();
     private static final List<SubscriberInterface> userSubscriber = new CopyOnWriteArrayList<>();
     private static final List<SubscriberInterface> channelSubscriber = new CopyOnWriteArrayList<>();
@@ -231,15 +231,12 @@ public class NotificationService {
         return 0;
     }
 
+    /**
+     * Invokes user notifications of all subscribers
+     */
     public static void invokeUserNotifications() {
         userNotifications.forEach((key, value) -> {
             notifyUser(key);
-        });
-    }
-
-    public static void invokeChannelNotifications() {
-        channelNotifications.forEach((key, value) -> {
-            notifyChannel(key);
         });
     }
 
