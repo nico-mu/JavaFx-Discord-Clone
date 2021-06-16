@@ -102,4 +102,5 @@ public class Constants {
     public static final String COMMAND_CHOOSE_ROCK = "!choose rock";
     public static final String COMMAND_CHOOSE_PAPER = "!choose paper";
     public static final String COMMAND_CHOOSE_SCISSOR = "!choose scissor";
+    public static final String COMMAND_REVANCHE = "!play revanche";
 }

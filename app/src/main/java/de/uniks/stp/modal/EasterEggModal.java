@@ -67,7 +67,7 @@ public class EasterEggModal extends AbstractModal {
     }
 
     private void onRockButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), "!choose rock");
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_CHOOSE_ROCK);
         action = ROCK;
         if (opponentAction != null) {
             fight();
@@ -75,7 +75,7 @@ public class EasterEggModal extends AbstractModal {
     }
 
     private void onScissorsButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), "!choose scissors");
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_CHOOSE_SCISSOR);
         action = SCISSORS;
         if (opponentAction != null) {
             fight();
@@ -83,7 +83,7 @@ public class EasterEggModal extends AbstractModal {
     }
 
     private void onPaperButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), "!choose paper");
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_CHOOSE_PAPER);
         action = PAPER;
         if (opponentAction != null) {
             fight();
@@ -131,7 +131,7 @@ public class EasterEggModal extends AbstractModal {
     }
 
     private void onRevancheButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), "!play revanche");
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_REVANCHE);
     }
 
     @Override
