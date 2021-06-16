@@ -71,15 +71,27 @@ public class ServerUserListController implements ControllerInterface {
 
     private void handleServerInformationRequest(HttpResponse<JsonNode> response) {
         if (response.isSuccess()) {
-            final JSONArray data = response.getBody().getObject().getJSONObject("data").getJSONArray("members");
-            data.forEach(o -> {
+            final JSONObject data = response.getBody().getObject().getJSONObject("data");
+            final JSONArray member = data.getJSONArray("members");
+            final String serverId = data.getString("id");
+            final String serverName = data.getString("name");
+            final String serverOwner = data.getString("owner");
+
+            // add server to model -> to NavBar List
+            if (serverOwner.equals(editor.getOrCreateAccord().getCurrentUser().getId())) {
+                editor.getOrCreateServer(serverId, serverName).setOwner(editor.getOrCreateAccord().getCurrentUser());
+            } else {
+                editor.getOrCreateServer(serverId, serverName);
+            }
+
+            member.forEach(o -> {
                 JSONObject jsonUser = (JSONObject) o;
                 String userId = jsonUser.getString("id");
                 String name = jsonUser.getString("name");
                 boolean status = Boolean.parseBoolean(jsonUser.getString("online"));
-
                 editor.setServerMemberStatus(userId, name, status, model);
             });
+
         }
     }
 

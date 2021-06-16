@@ -201,9 +201,14 @@ public class ServerChatController implements ControllerInterface {
             JSONObject resJson = response.getBody().getObject().getJSONObject("data");
             final String serverId = resJson.getString("id");
             final String serverName = resJson.getString("name");
+            final String serverOwner = resJson.getString("owner");
 
             // add server to model -> to NavBar List
-            editor.getOrCreateServer(serverId, serverName);
+            if (serverOwner.equals(editor.getOrCreateAccord().getCurrentUser().getId())) {
+                editor.getOrCreateServer(serverId, serverName).setOwner(editor.getOrCreateAccord().getCurrentUser());
+            } else {
+                editor.getOrCreateServer(serverId, serverName);
+            }
 
             // reload chatView -> some button might not be needed anymore
             Platform.runLater(this::reloadChatView);

@@ -132,7 +132,11 @@ public class ServerScreenController implements ControllerInterface {
 
     private void onEditServerClicked(ActionEvent actionEvent) {
         Parent serverSettingsModalView = ViewLoader.loadView(Views.SERVER_SETTINGS_MODAL);
-        ServerSettingsModal serverSettingsModal = new ServerSettingsModal(serverSettingsModalView, model);
+        boolean owner = false;
+        if (Objects.nonNull(model.getOwner())) {
+            owner = editor.getOrCreateAccord().getCurrentUser().getId().equals(model.getOwner().getId());
+        }
+        ServerSettingsModal serverSettingsModal = new ServerSettingsModal(serverSettingsModalView, model, owner);
         serverSettingsModal.show();
     }
 

@@ -42,12 +42,14 @@ public class ServerSettingsModal extends AbstractModal {
     private final JFXButton deleteButton;
 
     private final Server model;
-    private ConfirmationModal deleteConfirmationModal;
+    private ConfirmationModal confirmationModal;
     private static final Logger log = LoggerFactory.getLogger(ServerSettingsModal.class);
+    private final boolean owner;
 
-    public ServerSettingsModal(Parent root, Server model) {
+    public ServerSettingsModal(Parent root, Server model, boolean owner) {
         super(root);
         this.model = model;
+        this.owner = owner;
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_SERVER_TITLE));
 
@@ -68,7 +70,13 @@ public class ServerSettingsModal extends AbstractModal {
         saveButton.setDefaultButton(true);  // use Enter in order to press button
         cancelButton.setOnAction(this::onCancelButtonClicked);
         cancelButton.setCancelButton(true);  // use Escape in order to press button
-        deleteButton.setOnAction(this::onDeleteButtonClicked);
+
+        if (!this.owner) {
+            deleteButton.setText(ViewLoader.loadLabel(Constants.LBL_LEAVE_SERVER));
+            deleteButton.setOnAction(this::onLeaveButtonClicked);
+        } else {
+            deleteButton.setOnAction(this::onDeleteButtonClicked);
+        }
     }
 
     @Override
@@ -117,12 +125,12 @@ public class ServerSettingsModal extends AbstractModal {
      */
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
         Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
-        deleteConfirmationModal = new ConfirmationModal(confirmationModalView,
+        confirmationModal = new ConfirmationModal(confirmationModalView,
             Constants.LBL_DELETE_SERVER,
             Constants.LBL_CONFIRM_DELETE_SERVER,
-            this::onYesButtonClicked,
+            this::onYesDeleteButtonClicked,
             this::onNoButtonClicked);
-        deleteConfirmationModal.show();
+        confirmationModal.show();
 
         // disabling buttons improves the view
         saveButton.setDisable(true);
@@ -134,16 +142,8 @@ public class ServerSettingsModal extends AbstractModal {
      * Used as onAction Method of Yes-Button in ConfirmationModal for server deletion
      * @param actionEvent
      */
-    private void onYesButtonClicked(ActionEvent actionEvent) {
-        Platform.runLater(deleteConfirmationModal::close);
-
-        servernameTextField.setDisable(true);
-        //notificationsToggleButton.setDisable(true);  use when fixed
-        saveButton.setDisable(true);
-        cancelButton.setDisable(true);
-        deleteButton.setDisable(true);
-        spinner.setVisible(true);
-
+    private void onYesDeleteButtonClicked(ActionEvent actionEvent) {
+        closeConfirmationModel();
         RestClient restClient = NetworkClientInjector.getRestClient();
         restClient.deleteServer(model.getId(), this::handleDeleteServerResponse);
     }
@@ -153,10 +153,46 @@ public class ServerSettingsModal extends AbstractModal {
      * @param actionEvent
      */
     private void onNoButtonClicked(ActionEvent actionEvent) {
-        Platform.runLater(deleteConfirmationModal::close);
+        Platform.runLater(confirmationModal::close);
         saveButton.setDisable(false);
         cancelButton.setDisable(false);
         deleteButton.setDisable(false);
+    }
+
+    private void onLeaveButtonClicked(ActionEvent actionEvent) {
+        Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
+        confirmationModal = new ConfirmationModal(confirmationModalView,
+            Constants.LBL_LEAVE_SERVER,
+            Constants.LBL_CONFIRM_LEAVE_SERVER,
+            this::onYesLeaveButtonClicked,
+            this::onNoButtonClicked);
+        confirmationModal.show();
+
+        // disabling buttons improves the view
+        saveButton.setDisable(true);
+        cancelButton.setDisable(true);
+        deleteButton.setDisable(true);
+    }
+
+    private void closeConfirmationModel() {
+        Platform.runLater(confirmationModal::close);
+
+        servernameTextField.setDisable(true);
+        //notificationsToggleButton.setDisable(true);  use when fixed
+        saveButton.setDisable(true);
+        cancelButton.setDisable(true);
+        deleteButton.setDisable(true);
+        spinner.setVisible(true);
+    }
+
+    private void onYesLeaveButtonClicked(ActionEvent actionEvent) {
+        closeConfirmationModel();
+        RestClient restClient = NetworkClientInjector.getRestClient();
+        restClient.leaveServer(model.getId(), this::handleLeaveServerResponse);
+    }
+
+    private void handleLeaveServerResponse(HttpResponse<JsonNode> response) {
+
     }
 
     /**
