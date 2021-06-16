@@ -38,6 +38,7 @@ public class EasterEggModal extends AbstractModal {
     private final User opponentUser;
     private String action;
     private String opponentAction;
+    private boolean revanche = false;
 
     public EasterEggModal(Parent root, User currentUser, User opponentUser, EventHandler<ActionEvent> closeHandler) {
         super(root);
@@ -67,7 +68,7 @@ public class EasterEggModal extends AbstractModal {
     }
 
     private void onRockButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), "!choose rock");
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_CHOOSE_ROCK);
         action = ROCK;
         if (opponentAction != null) {
             fight();
@@ -75,7 +76,7 @@ public class EasterEggModal extends AbstractModal {
     }
 
     private void onScissorsButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), "!choose scissors");
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_CHOOSE_SCISSOR);
         action = SCISSORS;
         if (opponentAction != null) {
             fight();
@@ -83,7 +84,7 @@ public class EasterEggModal extends AbstractModal {
     }
 
     private void onPaperButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), "!choose paper");
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_CHOOSE_PAPER);
         action = PAPER;
         if (opponentAction != null) {
             fight();
@@ -131,11 +132,43 @@ public class EasterEggModal extends AbstractModal {
     }
 
     private void onRevancheButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), "!play revanche");
+        if(revanche){
+            WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_REVANCHE);
+            playAgain();
+        } else{
+            revanche = true;
+            WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_REVANCHE);
+            actionLabel.setText("Waiting for oppponent to accept revanche");
+        }
+    }
+
+    public void incomingRevanche(){
+        if(revanche){
+            playAgain();
+        } else{
+            revanche = true;
+            Platform.runLater(() -> actionLabel.setText("Your oppponent asks for a revanche"));
+        }
+    }
+
+    private void playAgain() {
+        revanche = false;
+        Platform.runLater(() -> {
+            revancheButton.setVisible(false);
+            actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION));
+        });
+        action = null;
+        opponentAction = null;
+    }
+
+    public void opponentLeft(){
+        revanche = false;
+        Platform.runLater(() -> actionLabel.setText("Your oppponent left the game"));
     }
 
     @Override
     public void close() {
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_LEAVE);
         revancheButton.setOnAction(null);
         rockButton.setOnAction(null);
         scissorsButton.setOnAction(null);

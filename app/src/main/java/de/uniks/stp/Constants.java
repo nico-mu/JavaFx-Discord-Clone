@@ -99,7 +99,9 @@ public class Constants {
 
     // Message commands
     public static final String COMMAND_PLAY = "!play";
-    public static final String COMMAND_CHOOSE_ROCK = "!choose rock";
-    public static final String COMMAND_CHOOSE_PAPER = "!choose paper";
-    public static final String COMMAND_CHOOSE_SCISSOR = "!choose scissor";
+    public static final String COMMAND_CHOOSE_ROCK = "!play rock";
+    public static final String COMMAND_CHOOSE_PAPER = "!play paper";
+    public static final String COMMAND_CHOOSE_SCISSOR = "!play scissor";
+    public static final String COMMAND_REVANCHE = "!play revanche";
+    public static final String COMMAND_LEAVE = "!play quit";
 }

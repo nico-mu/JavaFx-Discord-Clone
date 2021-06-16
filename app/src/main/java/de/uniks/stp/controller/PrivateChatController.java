@@ -212,6 +212,16 @@ public class PrivateChatController implements ControllerInterface {
                     easterEggModal.setOpponentAction("scissors");
                 }
                 break;
+            case Constants.COMMAND_REVANCHE:
+                if (Objects.nonNull(easterEggModal)) {
+                    easterEggModal.incomingRevanche();
+                }
+                break;
+            case Constants.COMMAND_LEAVE:
+                if (Objects.nonNull(easterEggModal)) {
+                    easterEggModal.opponentLeft();
+                }
+                break;
             default:
                 return false;
         }
