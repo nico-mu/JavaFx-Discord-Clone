@@ -295,24 +295,6 @@ public class NotificationTest {
         Platform.runLater(() -> Router.routeWithArgs(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgs));
         WaitForAsyncUtils.waitForFxEvents();
 
-        // handle rest calls that are made when initializing ServerView
-        when(catRes.getBody()).thenReturn(new JsonNode(jCat.toString()));
-        when(catRes.isSuccess()).thenReturn(true);
-
-        verify(restMock).getCategories(eq(serverId), catCallbackCaptor.capture());
-        Callback<JsonNode> catCallback = catCallbackCaptor.getValue();
-        catCallback.completed(catRes);
-        WaitForAsyncUtils.waitForFxEvents();
-
-        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-        when(res.isSuccess()).thenReturn(true);
-
-        verify(restMock).getChannels(eq(serverId), eq(categoryId), callbackCaptor.capture());
-        Callback<JsonNode> callback = callbackCaptor.getValue();
-        callback.completed(res);
-        WaitForAsyncUtils.waitForFxEvents();
-
-
         Assertions.assertEquals(2, NotificationService.getServerNotificationCount(server));
         for (Channel c : server.getChannels()) {
             if (c.getId().equals(channelOneId)) {
@@ -322,6 +304,9 @@ public class NotificationTest {
                 Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(c));
             }
         }
+
+        Channel channel2 = editor.getOrCreateChannel(channelTwoId, "Channel2", category);
+        server.withChannels(channel2);
 
         RouteArgs routeArgsChannelTwo = new RouteArgs().addArgument(":id", serverId).addArgument(":categoryId", categoryId).addArgument(":channelId", channelTwoId);
         Platform.runLater(() -> Router.routeWithArgs(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgsChannelTwo));

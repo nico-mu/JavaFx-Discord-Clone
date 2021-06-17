@@ -103,6 +103,49 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         }
     }
 
+    private void handleCategories(HttpResponse<JsonNode> response, Server server) {
+        if (response.isSuccess()) {
+            JSONArray categoriesJson = response.getBody().getObject().getJSONArray("data");
+            for (Object category : categoriesJson) {
+                JSONObject categoryJson = (JSONObject) category;
+                final String name = categoryJson.getString("name");
+                final String categoryId = categoryJson.getString("id");
+
+                Category categoryModel = editor.getOrCreateCategory(categoryId, name, server);
+                restClient.getChannels(server.getId(), categoryId, (msg) -> handleChannels(msg, server));
+            }
+        } else {
+            //TODO: show error message
+        }
+    }
+
+
+
+    private void handleChannels(HttpResponse<JsonNode> response, Server server) {
+        if (response.isSuccess()) {
+            JSONArray channelsJson = response.getBody().getObject().getJSONArray("data");
+            for (Object channel : channelsJson) {
+                JSONObject channelJson = (JSONObject) channel;
+                final String name = channelJson.getString("name");
+                final String channelId = channelJson.getString("id");
+                final String categoryId = channelJson.getString("category");
+
+                Category categoryModel = editor.getCategory(categoryId, server);
+                Channel channelModel = editor.getChannel(channelId, server);
+                if (Objects.nonNull(channelModel)) {
+                    // Channel is already in model because it got added by a notification
+                    channelModel.setCategory(categoryModel).setName(name);
+                } else {
+                    channelModel = editor.getOrCreateChannel(channelId, name, categoryModel);
+                    channelModel.setServer(server);
+                }
+                NotificationService.register(channelModel);
+            }
+        } else {
+            //TODO: show error message
+        }
+    }
+
     @Override
     public void route(RouteInfo routeInfo, RouteArgs args) {
         //no subroutes
@@ -110,7 +153,6 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
     protected void callback(HttpResponse<JsonNode> response) {
         if (response.isSuccess()) {
-            //TODO: hide spinner
             JSONArray jsonArray = response.getBody().getObject().getJSONArray("data");
             for (Object element : jsonArray) {
                 JSONObject jsonObject = (JSONObject) element;
@@ -119,6 +161,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
                 final Server server = editor.getOrCreateServer(serverId, name);
                 serverAdded(server);
+                restClient.getCategories(server.getId(), (msg) -> handleCategories(msg, server));
             }
             if (Router.getCurrentArgs().containsKey(":id") && Router.getCurrentArgs().containsKey(":channelId")) {
                 String activeServerId = Router.getCurrentArgs().get(":id");
