@@ -2,6 +2,7 @@ package de.uniks.stp.jpa;
 
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
+import de.uniks.stp.jpa.model.MutedChannelDTO;
 import de.uniks.stp.model.DirectMessage;
 import javafx.util.Pair;
 
@@ -218,5 +219,46 @@ public class DatabaseService {
         }
 
         return chatPartnerList;
+    }
+
+    public static void addMutedChannelId(String channelId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        entityManager.merge(new MutedChannelDTO().setChannelId(channelId));
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public static void removeMutedChannelId(String channelId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        entityManager.remove(entityManager.find(MutedChannelDTO.class, channelId));
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public static boolean isChannelMuted(String channelId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        MutedChannelDTO result = entityManager.find(MutedChannelDTO.class, channelId);
+
+        transaction.commit();
+        entityManager.close();
+
+        if(Objects.nonNull(result)) {
+            return true;
+        }
+        return false;
     }
 }

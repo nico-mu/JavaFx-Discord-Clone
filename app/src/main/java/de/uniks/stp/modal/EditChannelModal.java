@@ -8,6 +8,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.UserCheckList;
 import de.uniks.stp.component.UserCheckListEntry;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
@@ -74,7 +75,7 @@ public class EditChannelModal extends AbstractModal {
         errorLabel = (Label) view.lookup(EDIT_CHANNEL_ERROR_LABEL);
         deleteButton = (JFXButton) view.lookup(EDIT_CHANNEL_DELETE_BUTTON);
 
-        notificationsToggleButton.setSelected(NotificationService.isChannelMuted(channel));
+        notificationsToggleButton.setSelected(DatabaseService.isChannelMuted(channel.getId()));
         notificationsLabel.setText(ViewLoader.loadLabel(Constants.LBL_ON));
 
         selectUserList = new UserCheckList();
@@ -157,9 +158,9 @@ public class EditChannelModal extends AbstractModal {
 
         boolean muted = notificationsToggleButton.isSelected();
         if(muted) {
-            NotificationService.muteChannel(channelId);
+            DatabaseService.addMutedChannelId(channelId);
         }else {
-            NotificationService.unmuteChannel(channelId);
+            DatabaseService.removeMutedChannelId(channelId);
         }
 
         restClient.editTextChannel(serverId, categoryId, channelId, chName, priv, selectUserList.getSelectedUserIds(), this::handleEditChannelResponse);

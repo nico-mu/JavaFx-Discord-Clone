@@ -6,6 +6,8 @@
         <class>de.uniks.stp.jpa.model.AccordSettingDTO</class>
         <class>de.uniks.stp.jpa.model.MessageDTO</class>
         <class>de.uniks.stp.jpa.model.DirectMessageDTO</class>
+        <class>de.uniks.stp.jpa.model.MutedChannelDTO</class>
+        <class>de.uniks.stp.jpa.model.MutedServerDTO</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
