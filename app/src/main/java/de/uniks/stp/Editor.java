@@ -38,9 +38,19 @@ public class Editor {
         final Map<String, Server> serverMap = availableServersAsServerIdMap();
 
         if (serverMap.containsKey(id)) {
-            return serverMap.get(id);
+            return serverMap.get(id).setName(name);
         }
         return new Server().setName(name).setId(id).withUsers(currentUser);
+    }
+
+    public Server getOrCreateServer(final String id) {
+        final User currentUser = getOrCreateAccord().getCurrentUser();
+        final Map<String, Server> serverMap = availableServersAsServerIdMap();
+
+        if (serverMap.containsKey(id)) {
+            return serverMap.get(id);
+        }
+        return new Server().setId(id).withUsers(currentUser);
     }
 
     public List<Server> getAvailableServers() {

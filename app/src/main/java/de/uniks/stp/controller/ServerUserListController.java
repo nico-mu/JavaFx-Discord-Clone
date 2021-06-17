@@ -50,8 +50,13 @@ public class ServerUserListController implements ControllerInterface {
 
         model.listeners().addPropertyChangeListener(Server.PROPERTY_USERS, availableUsersPropertyChangeListener);
 
-        RestClient restClient = NetworkClientInjector.getRestClient();
-        restClient.getServerInformation(model.getId(), this::handleServerInformationRequest);
+        for(User user : model.getUsers()) {
+            addUser(user);
+            addStatusPropertyChangeListener(user);
+        }
+
+        //RestClient restClient = NetworkClientInjector.getRestClient();
+        //restClient.getServerInformation(model.getId(), this::handleServerInformationRequest);
     }
 
     private void addUser(User user) {

@@ -8,9 +8,9 @@ import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.PrivateChatView;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
-import de.uniks.stp.model.DirectMessage;
-import de.uniks.stp.model.User;
+import de.uniks.stp.model.*;
 import de.uniks.stp.network.NetworkClientInjector;
+import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.util.MessageUtil;
@@ -22,16 +22,14 @@ import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT)
 public class PrivateChatController implements ControllerInterface {
@@ -50,11 +48,14 @@ public class PrivateChatController implements ControllerInterface {
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
     private final PropertyChangeListener statusChangeListener = this::onStatusChange;
 
+    private final RestClient restClient;
+
     public PrivateChatController(Parent view, Editor editor, String userId, String userName) {
         this.view = view;
         this.editor = editor;
         this.userId = userId;
         this.user = editor.getOrCreateChatPartnerOfCurrentUser(userId, userName);
+        restClient = NetworkClientInjector.getRestClient();
     }
 
     @Override
@@ -200,7 +201,7 @@ public class PrivateChatController implements ControllerInterface {
         String inviteId = ids.split("-")[1];
 
         User currentUser = editor.getOrCreateAccord().getCurrentUser();
-        NetworkClientInjector.getRestClient().joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
+        restClient.joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
             (response) -> onJoinServerResponse(serverId, response));
     }
 
@@ -208,9 +209,90 @@ public class PrivateChatController implements ControllerInterface {
         log.debug(response.getBody().toPrettyString());
 
         if(response.isSuccess()){
-            NetworkClientInjector.getRestClient().getServerInformation(serverId, this::onServerInformationResponse);
+            editor.getOrCreateServer(serverId);
+            restClient.getServerInformation(serverId, this::handleServerInformationRequest);
+            restClient.getCategories(serverId, (msg) -> handleCategories(msg, editor.getServer(serverId)));
         } else{
             log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
+        }
+    }
+
+    private void handleServerInformationRequest(HttpResponse<JsonNode> response) {
+        if (response.isSuccess()) {
+            final JSONObject data = response.getBody().getObject().getJSONObject("data");
+            final JSONArray member = data.getJSONArray("members");
+            final String serverId = data.getString("id");
+            final String serverName = data.getString("name");
+            final String serverOwner = data.getString("owner");
+
+            // add server to model -> to NavBar List
+            if (serverOwner.equals(editor.getOrCreateAccord().getCurrentUser().getId())) {
+                editor.getOrCreateServer(serverId, serverName).setOwner(editor.getOrCreateAccord().getCurrentUser());
+            } else {
+                editor.getOrCreateServer(serverId, serverName);
+            }
+
+            member.forEach(o -> {
+                JSONObject jsonUser = (JSONObject) o;
+                String userId = jsonUser.getString("id");
+                String name = jsonUser.getString("name");
+                boolean status = Boolean.parseBoolean(jsonUser.getString("online"));
+
+                User serverMember = editor.getOrCreateServerMember(userId, name, editor.getServer(serverId));
+                serverMember.setStatus(status);
+            });
+        }
+    }
+
+    private void handleCategories(HttpResponse<JsonNode> response, Server server) {
+        if (response.isSuccess()) {
+            JSONArray categoriesJson = response.getBody().getObject().getJSONArray("data");
+            for (Object category : categoriesJson) {
+                JSONObject categoryJson = (JSONObject) category;
+                final String name = categoryJson.getString("name");
+                final String categoryId = categoryJson.getString("id");
+
+                Category categoryModel = editor.getOrCreateCategory(categoryId, name, server);
+                restClient.getChannels(server.getId(), categoryId, (msg) -> handleChannels(msg, server));
+            }
+        } else {
+            //TODO: show error message
+        }
+    }
+
+    private void handleChannels(HttpResponse<JsonNode> response, Server server) {
+        if (response.isSuccess()) {
+            JSONArray channelsJson = response.getBody().getObject().getJSONArray("data");
+            for (Object channel : channelsJson) {
+                JSONObject channelJson = (JSONObject) channel;
+                final String name = channelJson.getString("name");
+                final String channelId = channelJson.getString("id");
+                final String categoryId = channelJson.getString("category");
+                String type = channelJson.getString("type");
+                boolean privileged = channelJson.getBoolean("privileged");
+                JSONArray jsonMemberIds = channelJson.getJSONArray("members");
+                ArrayList<String> memberIds = (ArrayList<String>) jsonMemberIds.toList();
+
+                Category categoryModel = editor.getCategory(categoryId, server);
+                Channel channelModel = editor.getChannel(channelId, server);
+                if (Objects.nonNull(channelModel)) {
+                    // Channel is already in model because it got added by a notification
+                    channelModel.setCategory(categoryModel).setName(name);
+                } else {
+                    channelModel = editor.getOrCreateChannel(channelId, name, categoryModel);
+                    channelModel.setServer(server);
+                }
+                channelModel.setType(type);
+                channelModel.setPrivileged(privileged);
+                for(User user : server.getUsers()) {
+                    if(memberIds.contains(user.getId())) {
+                        channelModel.withChannelMembers(user);
+                    }
+                }
+                NotificationService.register(channelModel);
+            }
+        } else {
+            //TODO: show error message
         }
     }
 

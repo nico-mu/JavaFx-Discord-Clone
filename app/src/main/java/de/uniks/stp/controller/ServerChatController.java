@@ -5,12 +5,11 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerChatView;
 import de.uniks.stp.component.TextWithEmoteSupport;
-import de.uniks.stp.model.Channel;
-import de.uniks.stp.model.Server;
-import de.uniks.stp.model.ServerMessage;
-import de.uniks.stp.model.User;
+import de.uniks.stp.model.*;
 import de.uniks.stp.network.NetworkClientInjector;
+import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.util.MessageUtil;
 import javafx.application.Platform;
@@ -28,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
@@ -47,7 +47,10 @@ public class ServerChatController implements ControllerInterface {
     private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
     private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
 
+    private final RestClient restClient;
+
     public ServerChatController(Parent view, Editor editor, Channel model) {
+        restClient = NetworkClientInjector.getRestClient();
         this.view = view;
         this.editor = editor;
         this.model = model;
@@ -189,9 +192,90 @@ public class ServerChatController implements ControllerInterface {
         log.debug(response.getBody().toPrettyString());
 
         if(response.isSuccess()){
-            NetworkClientInjector.getRestClient().getServerInformation(serverId, this::onServerInformationResponse);
+            editor.getOrCreateServer(serverId);
+            restClient.getServerInformation(serverId, this::handleServerInformationRequest);
+            restClient.getCategories(serverId, (msg) -> handleCategories(msg, editor.getServer(serverId)));
         } else{
             log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
+        }
+    }
+
+    private void handleServerInformationRequest(HttpResponse<JsonNode> response) {
+        if (response.isSuccess()) {
+            final JSONObject data = response.getBody().getObject().getJSONObject("data");
+            final JSONArray member = data.getJSONArray("members");
+            final String serverId = data.getString("id");
+            final String serverName = data.getString("name");
+            final String serverOwner = data.getString("owner");
+
+            // add server to model -> to NavBar List
+            if (serverOwner.equals(editor.getOrCreateAccord().getCurrentUser().getId())) {
+                editor.getOrCreateServer(serverId, serverName).setOwner(editor.getOrCreateAccord().getCurrentUser());
+            } else {
+                editor.getOrCreateServer(serverId, serverName);
+            }
+
+            member.forEach(o -> {
+                JSONObject jsonUser = (JSONObject) o;
+                String userId = jsonUser.getString("id");
+                String name = jsonUser.getString("name");
+                boolean status = Boolean.parseBoolean(jsonUser.getString("online"));
+
+                User serverMember = editor.getOrCreateServerMember(userId, name, editor.getServer(serverId));
+                serverMember.setStatus(status);
+            });
+        }
+    }
+
+    private void handleCategories(HttpResponse<JsonNode> response, Server server) {
+        if (response.isSuccess()) {
+            JSONArray categoriesJson = response.getBody().getObject().getJSONArray("data");
+            for (Object category : categoriesJson) {
+                JSONObject categoryJson = (JSONObject) category;
+                final String name = categoryJson.getString("name");
+                final String categoryId = categoryJson.getString("id");
+
+                Category categoryModel = editor.getOrCreateCategory(categoryId, name, server);
+                restClient.getChannels(server.getId(), categoryId, (msg) -> handleChannels(msg, server));
+            }
+        } else {
+            //TODO: show error message
+        }
+    }
+
+    private void handleChannels(HttpResponse<JsonNode> response, Server server) {
+        if (response.isSuccess()) {
+            JSONArray channelsJson = response.getBody().getObject().getJSONArray("data");
+            for (Object channel : channelsJson) {
+                JSONObject channelJson = (JSONObject) channel;
+                final String name = channelJson.getString("name");
+                final String channelId = channelJson.getString("id");
+                final String categoryId = channelJson.getString("category");
+                String type = channelJson.getString("type");
+                boolean privileged = channelJson.getBoolean("privileged");
+                JSONArray jsonMemberIds = channelJson.getJSONArray("members");
+                ArrayList<String> memberIds = (ArrayList<String>) jsonMemberIds.toList();
+
+                Category categoryModel = editor.getCategory(categoryId, server);
+                Channel channelModel = editor.getChannel(channelId, server);
+                if (Objects.nonNull(channelModel)) {
+                    // Channel is already in model because it got added by a notification
+                    channelModel.setCategory(categoryModel).setName(name);
+                } else {
+                    channelModel = editor.getOrCreateChannel(channelId, name, categoryModel);
+                    channelModel.setServer(server);
+                }
+                channelModel.setType(type);
+                channelModel.setPrivileged(privileged);
+                for(User user : server.getUsers()) {
+                    if(memberIds.contains(user.getId())) {
+                        channelModel.withChannelMembers(user);
+                    }
+                }
+                NotificationService.register(channelModel);
+            }
+        } else {
+            //TODO: show error message
         }
     }
 

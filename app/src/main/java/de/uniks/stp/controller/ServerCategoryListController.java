@@ -75,6 +75,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                 channelAdded(category, channel);
             }
         }
+        goToDefaultChannel();
     }
 
     private void onCategoriesPropertyChanged(PropertyChangeEvent propertyChangeEvent) {
