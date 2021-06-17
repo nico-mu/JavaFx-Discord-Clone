@@ -192,7 +192,22 @@ public class ServerSettingsModal extends AbstractModal {
     }
 
     private void handleLeaveServerResponse(HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toPrettyString());
+        if (response.isSuccess()) {
+            Platform.runLater(this::close);
+        } else {
+            log.error("leaving server failed!");
+            setErrorMessage(Constants.LBL_LEAVE_SERVER_FAILED);
 
+            Platform.runLater(() -> {
+                servernameTextField.setDisable(false);
+                //notificationsToggleButton.setDisable(false);  use when fixed
+                saveButton.setDisable(false);
+                cancelButton.setDisable(false);
+                deleteButton.setDisable(false);
+                spinner.setVisible(false);
+            });
+        }
     }
 
     /**

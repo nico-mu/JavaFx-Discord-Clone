@@ -202,7 +202,8 @@ public class RestClient {
         sendRequest(req, callback);
     }
 
-    public void leaveServer(String id,  Callback<JsonNode> callback) {
-
+    public void leaveServer(String serverId,  Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + "/leave");
+        sendRequest(req, callback);
     }
 }

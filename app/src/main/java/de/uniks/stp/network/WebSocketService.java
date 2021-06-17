@@ -364,6 +364,14 @@ public class WebSocketService {
                     serverId = data.getString("server");
                     editor.deleteCategory(serverId, categoryId);
                     return;
+                case "userExited":
+                    userId = data.getString("id");
+                    if (!editor.getOrCreateAccord().getCurrentUser().getId().equals(userId)) {
+                        editor.getServer(serverId).withoutUsers(editor.getUserById(userId));
+                    } else {
+                        editor.getOrCreateAccord().getCurrentUser().withoutAvailableServers(editor.getServer(serverId));
+                    }
+                    return;
                 default:
                     break;
             }

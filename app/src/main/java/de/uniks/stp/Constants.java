@@ -41,6 +41,7 @@ public class Constants {
     public static final String LBL_NO_CHANGES = "LBL_NO_CHANGES";
     public static final String LBL_RENAME_SERVER_FAILED = "LBL_RENAME_SERVER_FAILED";
     public static final String LBL_DELETE_SERVER_FAILED = "LBL_DELETE_SERVER_FAILED";
+    public static final String LBL_LEAVE_SERVER_FAILED = "LBL_LEAVE_SERVER_FAILED";
     public static final String LBL_EDIT_SERVER_TITLE = "LBL_EDIT_SERVER_TITLE";
     public static final String LBL_DELETE_SERVER = "LBL_DELETE_SERVER";
     public static final String LBL_CONFIRM_DELETE_SERVER = "LBL_CONFIRM_DELETE_SERVER";
