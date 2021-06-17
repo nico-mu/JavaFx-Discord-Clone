@@ -240,7 +240,11 @@ public class DatabaseService {
 
         transaction.begin();
 
-        entityManager.remove(entityManager.find(MutedChannelDTO.class, channelId));
+        MutedChannelDTO mutedChannelDTO = entityManager.find(MutedChannelDTO.class, channelId);
+
+        if(Objects.nonNull(mutedChannelDTO)) {
+            entityManager.remove(mutedChannelDTO);
+        }
 
         transaction.commit();
         entityManager.close();
@@ -281,7 +285,11 @@ public class DatabaseService {
 
         transaction.begin();
 
-        entityManager.remove(entityManager.find(MutedServerDTO.class, serverId));
+        MutedServerDTO mutedServerDTO = entityManager.find(MutedServerDTO.class, serverId);
+
+        if(Objects.nonNull(mutedServerDTO)) {
+            entityManager.remove(mutedServerDTO);
+        }
 
         transaction.commit();
         entityManager.close();
