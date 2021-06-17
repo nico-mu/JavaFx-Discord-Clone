@@ -17,6 +17,11 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import kong.unirest.Callback;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.json.JSONArray;
+import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -50,6 +55,12 @@ public class SystemWebsocketTest {
 
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<Callback<JsonNode>> restCallbackArgumentCaptor;
+
+    @Mock
+    private HttpResponse<JsonNode> res;
 
     @Captor
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
@@ -172,6 +183,10 @@ public class SystemWebsocketTest {
     public void testServerUserJoinedLeftMessage(FxRobot robot) {
         final String SERVER_ID = "server";
         final String SERVER_NAME = "server-name";
+        String TEST_USER_1_NAME = "testUser";
+        String TEST_USER_2_NAME = "testUser2";
+        String TEST_USER_1_ID = "1";
+        String TEST_USER_2_ID = "2";
 
         Editor editor = StageManager.getEditor();
 
@@ -186,6 +201,38 @@ public class SystemWebsocketTest {
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", SERVER_ID)));
         WaitForAsyncUtils.waitForFxEvents();
 
+        JSONObject j = new JSONObject()
+            .put("status", "success")
+            .put("message", "")
+            .put("data", new JSONObject()
+                .put("id", SERVER_ID)
+                .put("name", SERVER_NAME)
+                .put("owner", TEST_USER_1_ID)
+                .put("categories", new JSONArray())
+                .put("members", new JSONArray()
+                    .put(
+                        new JSONObject()
+                            .put("id", TEST_USER_1_ID)
+                            .put("name", TEST_USER_1_NAME)
+                            .put("online", true)
+                    )
+                    .put(
+                        new JSONObject()
+                            .put("id", TEST_USER_2_ID)
+                            .put("name", TEST_USER_2_NAME)
+                            .put("online", true)
+                    )
+                )
+            );
+
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(true);
+
+        verify(restMock).getServerInformation(eq(SERVER_ID), restCallbackArgumentCaptor.capture());
+        Callback<JsonNode> callback = restCallbackArgumentCaptor.getValue();
+        callback.completed(res);
+        WaitForAsyncUtils.waitForFxEvents();
+
         verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
@@ -196,31 +243,32 @@ public class SystemWebsocketTest {
         }
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + SERVER_ID);
 
-        String testUserName = "testUser";
+
         JsonObject jsonObject = Json.createObjectBuilder()
             .add("action", "userJoined")
             .add("data",
                 Json.createObjectBuilder()
-                    .add("name", testUserName)
-                    .add("id", "12345678")
+                    .add("name", TEST_USER_1_NAME)
+                    .add("id", TEST_USER_1_ID)
                     .add("serverId", SERVER_ID)
                     .build()
             )
             .build();
         systemCallback.handleMessage(jsonObject);
-        String testUserName2 = "testUser2";
+        WaitForAsyncUtils.waitForFxEvents();
+
+
         jsonObject = Json.createObjectBuilder()
             .add("action", "userLeft")
             .add("data",
                 Json.createObjectBuilder()
-                    .add("name", testUserName2)
-                    .add("id", "123456789")
+                    .add("name", TEST_USER_2_NAME)
+                    .add("id", TEST_USER_2_ID)
                     .add("serverId", SERVER_ID)
                     .build()
             )
             .build();
         systemCallback.handleMessage(jsonObject);
-
         WaitForAsyncUtils.waitForFxEvents();
 
         List<User> users = editor.getOrCreateServer(SERVER_ID, SERVER_NAME).getUsers();
@@ -235,8 +283,8 @@ public class SystemWebsocketTest {
             .add("action", "userLeft")
             .add("data",
                 Json.createObjectBuilder()
-                    .add("name", testUserName)
-                    .add("id", "12345678")
+                    .add("name", TEST_USER_1_NAME)
+                    .add("id", TEST_USER_1_ID)
                     .add("serverId", SERVER_ID)
                     .build()
             )
