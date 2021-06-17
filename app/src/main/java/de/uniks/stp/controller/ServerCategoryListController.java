@@ -194,7 +194,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         if (Objects.nonNull(category) && Objects.nonNull(channel) && Objects.nonNull(channel.getName()) &&
             !channelElementHashMap.containsKey(channel) && categoryElementHashMap.containsKey(category)) {
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
-            final ServerChannelElement serverChannelElement = new ServerChannelElement(channel);
+            final ServerChannelElement serverChannelElement = new ServerChannelElement(channel, editor);
             NotificationService.register(channel);
             channel.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             channelElementHashMap.put(channel, serverChannelElement);

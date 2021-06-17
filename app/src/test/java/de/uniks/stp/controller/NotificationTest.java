@@ -216,8 +216,11 @@ public class NotificationTest {
         Category category = editor.getOrCreateCategory(categoryId, categoryName, server);
         Channel channel = editor.getOrCreateChannel(channelOneId, "ChannelOne", category);
         server.withCategories(category);
+        Channel channel2 = editor.getOrCreateChannel(channelTwoId, "Channel2", category);
+        server.withChannels(channel2);
         server.withChannels(channel);
         NotificationService.register(channel);
+        NotificationService.register(channel2);
 
         currentUser.withAvailableServers(server);
         userOne.withAvailableServers(server);
@@ -304,9 +307,6 @@ public class NotificationTest {
                 Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(c));
             }
         }
-
-        Channel channel2 = editor.getOrCreateChannel(channelTwoId, "Channel2", category);
-        server.withChannels(channel2);
 
         RouteArgs routeArgsChannelTwo = new RouteArgs().addArgument(":id", serverId).addArgument(":categoryId", categoryId).addArgument(":channelId", channelTwoId);
         Platform.runLater(() -> Router.routeWithArgs(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgsChannelTwo));

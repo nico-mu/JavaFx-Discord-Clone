@@ -206,7 +206,7 @@ public class EditChannelTest {
         robot.clickOn("#privileged-checkbox");
 
         VBox userCheckList = robot.lookup("#user-list-vbox").query();
-        Assertions.assertEquals(3, userCheckList.getChildren().size());
+        Assertions.assertEquals(2, userCheckList.getChildren().size());
 
         robot.clickOn("#filter-user-textfield");
         robot.write("2");
@@ -215,7 +215,7 @@ public class EditChannelTest {
         robot.clickOn("#user-check-list-entry-checkbox");
 
         robot.doubleClickOn("#filter-user-textfield");
-        robot.write("1");
+        robot.write("3");
 
         Assertions.assertEquals(1, userCheckList.getChildren().size());
         robot.clickOn("#user-check-list-entry-checkbox");
@@ -223,13 +223,13 @@ public class EditChannelTest {
         robot.doubleClickOn("#filter-user-textfield");
         robot.write("T");
 
-        Assertions.assertEquals(3, userCheckList.getChildren().size());
+        Assertions.assertEquals(2, userCheckList.getChildren().size());
 
         robot.clickOn("#edit-channel-create-button");
 
         ArrayList<String> members = new ArrayList<>();
         members.add("2");
-        members.add("1");
+        members.add("3");
 
         JSONObject j = new JSONObject().put("status", "failure").put("message", "Missing name")
             .put("data", new JSONObject());

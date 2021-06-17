@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -129,6 +130,10 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
                 final String name = channelJson.getString("name");
                 final String channelId = channelJson.getString("id");
                 final String categoryId = channelJson.getString("category");
+                String type = channelJson.getString("type");
+                boolean privileged = channelJson.getBoolean("privileged");
+                JSONArray jsonMemberIds = channelJson.getJSONArray("members");
+                ArrayList<String> memberIds = (ArrayList<String>) jsonMemberIds.toList();
 
                 Category categoryModel = editor.getCategory(categoryId, server);
                 Channel channelModel = editor.getChannel(channelId, server);
@@ -138,6 +143,13 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
                 } else {
                     channelModel = editor.getOrCreateChannel(channelId, name, categoryModel);
                     channelModel.setServer(server);
+                }
+                channelModel.setType(type);
+                channelModel.setPrivileged(privileged);
+                for(User user : server.getUsers()) {
+                    if(memberIds.contains(user.getId())) {
+                        channelModel.withChannelMembers(user);
+                    }
                 }
                 NotificationService.register(channelModel);
             }
@@ -161,6 +173,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
                 final Server server = editor.getOrCreateServer(serverId, name);
                 serverAdded(server);
+                restClient.getServerInformation(serverId, (msg) -> handleServerInformationRequest(msg, server));
                 restClient.getCategories(server.getId(), (msg) -> handleCategories(msg, server));
             }
             if (Router.getCurrentArgs().containsKey(":id") && Router.getCurrentArgs().containsKey(":channelId")) {
@@ -186,6 +199,20 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         } else if (Objects.isNull(newValue)) {
             // server removed
             serverRemoved(oldValue);
+        }
+    }
+
+    private void handleServerInformationRequest(HttpResponse<JsonNode> response, Server server) {
+        if (response.isSuccess()) {
+            final JSONArray data = response.getBody().getObject().getJSONObject("data").getJSONArray("members");
+            data.forEach(o -> {
+                JSONObject jsonUser = (JSONObject) o;
+                String userId = jsonUser.getString("id");
+                String name = jsonUser.getString("name");
+                boolean status = Boolean.parseBoolean(jsonUser.getString("online"));
+
+                editor.setServerMemberStatus(userId, name, status, server);
+            });
         }
     }
 

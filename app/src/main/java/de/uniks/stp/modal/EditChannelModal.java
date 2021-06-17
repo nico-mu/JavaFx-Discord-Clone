@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
+import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.UserCheckList;
 import de.uniks.stp.component.UserCheckListEntry;
@@ -58,9 +59,11 @@ public class EditChannelModal extends AbstractModal {
     private Channel channel;
     private RestClient restClient;
     private ConfirmationModal confirmationModal;
+    private Editor editor;
 
-    public EditChannelModal(Parent root, Channel channel) {
+    public EditChannelModal(Parent root, Channel channel, Editor editor) {
         super(root);
+        this.editor = editor;
         this.category = channel.getCategory();
         this.channel = channel;
         this.restClient = NetworkClientInjector.getRestClient();
@@ -105,6 +108,9 @@ public class EditChannelModal extends AbstractModal {
             memberNames.add(user.getName());
         }
         for (User user : category.getServer().getUsers()) {
+            if(user.getName().equals(editor.getOrCreateAccord().getCurrentUser().getName())) {
+                continue;
+            }
             UserCheckListEntry userCheckListEntry = new UserCheckListEntry(user);
             if(memberNames.contains(user.getName())) {
                 userCheckListEntry.setSelected(true);
