@@ -13,7 +13,6 @@ import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
-import de.uniks.stp.router.Router;
 import de.uniks.stp.util.MessageUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -89,7 +88,7 @@ public class PrivateChatController implements ControllerInterface {
         chatView = new PrivateChatView(editor.getOrCreateAccord().getLanguage());
         onlineUsersContainer.getChildren().add(chatView);
 
-        User otherUser = editor.getUserById(userId);
+        User otherUser = editor.getOtherUserById(userId);
 
         NotificationService.consume(user);
         NotificationService.removePublisher(user);

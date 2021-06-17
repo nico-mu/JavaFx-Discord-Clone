@@ -25,10 +25,8 @@ public class Editor {
         accord.setUserKey(userKey);
     }
 
-    public User getOrCreateUser(String name, boolean status) {
-        User user = new User().setAccord(accord).setName(name).setStatus(status);
-
-        return user;
+    public User createCurrentUser(String name, boolean status) {
+        return new User().setAccord(accord).setName(name).setStatus(status);
     }
 
     public void setCurrentUser(User currentUser) {
@@ -113,13 +111,13 @@ public class Editor {
         return null;
     }
 
-    public User getUserById(String userId) {
+    public User getOtherUserById(String userId) {
         final Map<String, User> userMap = otherUsersAsIdUserMap();
         return userMap.get(userId);
     }
 
     public void removeOtherUserById(String userId) {
-        accord.withoutOtherUsers(getUserById(userId));
+        accord.withoutOtherUsers(getOtherUserById(userId));
     }
 
     private Map<String, User> otherUsersAsIdUserMap() {
@@ -223,42 +221,31 @@ public class Editor {
         return null;
     }
 
-    public User getOrCreateServerMember(String userId, String name, boolean status, Server server) {
+    public User getOrCreateServerMember(String userId, String name, Server server) {
+        for (User user : server.getUsers()) {
+            if (user.getName().equals(name)) {
+                return user.setId(userId);
+            }
+        }
+
+        User user = new User().setId(userId).setName(name);
+        server.withUsers(user);
+        return user;
+    }
+
+    public User getOrCreateServerMember(String name, Server server) {
         for (User user : server.getUsers()) {
             if (user.getName().equals(name)) {
                 return user;
             }
         }
 
-        User user = new User().setId(userId).setName(name).setStatus(status);
+        User user = new User().setName(name);
         server.withUsers(user);
-
         return user;
     }
 
-    public void setServerMemberStatus(String userId, String name, boolean status, Server server) {
-        if (Objects.isNull(server)) {
-            return;
-        }
 
-        for (User user : server.getUsers()) {
-            if (user.getName().equals(name)) {
-                user.setStatus(status);
-                server.firePropertyChange(Server.PROPERTY_USERS, null, user);
-                return;
-            }
-        }
-
-        getOrCreateServerMember(userId, name, status, server);
-    }
-
-    public void setServerMemberOnline(String userId, String userName, Server server) {
-        setServerMemberStatus(userId, userName, true, server);
-    }
-
-    public void setServerMemberOffline(String userId, String userName, Server server) {
-        setServerMemberStatus(userId, userName, false, server);
-    }
 
     public User getOrCreateChatPartnerOfCurrentUser(String id, String name) {
         User currentUser = accord.getCurrentUser();
@@ -309,8 +296,7 @@ public class Editor {
                 return serverInvitation;
             }
         }
-        ServerInvitation newInvite = new ServerInvitation().setId(invId).setLink(link).setType(type).setMax(max).setCurrent(current).setServer(server);
-        return newInvite;
+        return new ServerInvitation().setId(invId).setLink(link).setType(type).setMax(max).setCurrent(current).setServer(server);
     }
 
     public void deleteChannel(String channelId) {

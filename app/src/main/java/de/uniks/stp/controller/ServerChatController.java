@@ -201,9 +201,14 @@ public class ServerChatController implements ControllerInterface {
             JSONObject resJson = response.getBody().getObject().getJSONObject("data");
             final String serverId = resJson.getString("id");
             final String serverName = resJson.getString("name");
+            final String serverOwner = resJson.getString("owner");
 
             // add server to model -> to NavBar List
-            editor.getOrCreateServer(serverId, serverName);
+            if (serverOwner.equals(editor.getOrCreateAccord().getCurrentUser().getId())) {
+                editor.getOrCreateServer(serverId, serverName).setOwner(editor.getOrCreateAccord().getCurrentUser());
+            } else {
+                editor.getOrCreateServer(serverId, serverName);
+            }
 
             // reload chatView -> some button might not be needed anymore
             Platform.runLater(this::reloadChatView);
@@ -261,13 +266,12 @@ public class ServerChatController implements ControllerInterface {
                 final String senderName = msgJson.getString("from");
                 final String msgText = msgJson.getString("text");
 
-                if(! channelId.equals(model.getId())){
+                if(!channelId.equals(model.getId())){
                     log.error("Received old server messages of wrong channel!");
                     return;
                 }
-                User sender = editor.getOrCreateServerMember(null, senderName, false, model.getCategory().getServer());
-                if (Objects.isNull(sender)){
-                    sender = new User().setName(senderName).setStatus(false);
+                User sender = editor.getOrCreateServerMember(senderName, model.getCategory().getServer());
+                if (Objects.isNull(sender.getId())){
                     log.debug("Loaded old server message from former serveruser, created dummy object");
                 }
 

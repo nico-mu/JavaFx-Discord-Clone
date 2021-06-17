@@ -82,7 +82,7 @@ public class HomeScreenController implements ControllerInterface {
         subviewCleanup();
         if (subRoute.equals(Constants.ROUTE_PRIVATE_CHAT)) {
             String userId = args.getArguments().get(Constants.ROUTE_PRIVATE_CHAT_ARGS);
-            User otherUser = editor.getUserById(userId);
+            User otherUser = editor.getOtherUserById(userId);
 
             if (Objects.nonNull(otherUser)) {
                 editor.getOrCreateChatPartnerOfCurrentUser(userId, otherUser.getName());
