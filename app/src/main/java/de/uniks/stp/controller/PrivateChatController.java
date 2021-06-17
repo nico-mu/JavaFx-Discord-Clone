@@ -47,8 +47,7 @@ public class PrivateChatController implements ControllerInterface {
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
 
-    private Pair<Boolean, Long> lastInvitation;  //boolean is whether invitation was from yourself, long is timestamp
-    private EasterEggModal easterEggModal;
+    private final MiniGameController miniGameController;
 
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
     private final PropertyChangeListener statusChangeListener = this::onStatusChange;
@@ -58,6 +57,8 @@ public class PrivateChatController implements ControllerInterface {
         this.editor = editor;
         this.chatPartner = editor.getOrCreateChatPartnerOfCurrentUser(userId, userName);
         this.currentUser = editor.getOrCreateAccord().getCurrentUser();
+        this.miniGameController = new MiniGameController(currentUser, chatPartner);
+        miniGameController.init();
     }
 
     @Override
@@ -144,7 +145,9 @@ public class PrivateChatController implements ControllerInterface {
      * @param message
      */
     private void handleMessageSubmit(String message) {
-        if (!handleOutgoingCommandMessage(message)) {
+        if (miniGameController.isOutgoingCommandMessage(message)) {
+            miniGameController.handleOutgoingMessage(message);
+        } else {
             // create & save message
             DirectMessage msg = (DirectMessage) new DirectMessage().setMessage(message).setSender(currentUser)
                 .setTimestamp(new Date().getTime()).setId(UUID.randomUUID().toString());
@@ -172,7 +175,10 @@ public class PrivateChatController implements ControllerInterface {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
 
         if (Objects.nonNull(directMessage)) {
-            if (!handleIncomingCommandMessage(directMessage)) {
+            if (miniGameController.isIncomingCommandMessage(directMessage.getMessage())) {
+                miniGameController.handleIncomingMessage(directMessage);
+                directMessage.setReceiver(null).setSender(null);  //delete message fom model
+            } else {
                 // check if message contains a server invite link
                 Pair<String, String> ids = MessageUtil.getInviteIds(directMessage.getMessage());
                 if ((ids != null) && (!editor.serverAdded(ids.getKey()))) {
@@ -181,85 +187,6 @@ public class PrivateChatController implements ControllerInterface {
                     chatView.appendMessage(directMessage);
                 }
             }
-        }
-    }
-
-    /**
-     * @param message
-     * @return boolean that represents whether message was a correct command
-     */
-    private boolean handleIncomingCommandMessage(DirectMessage message) {
-        switch (EmoteParser.convertTextWithUnicodeToNames(message.getMessage())) {
-            case Constants.COMMAND_PLAY:
-                if (lastInvitation != null && lastInvitation.getKey() && lastInvitation.getValue() >= new Date().getTime() - 30 * 1000) {
-                    lastInvitation = null;
-                    showEasterEggModal();  //load modal
-                } else {
-                    lastInvitation = new Pair<Boolean, Long>(false, message.getTimestamp());
-                }
-                break;
-            case Constants.COMMAND_CHOOSE_ROCK:
-                if (Objects.nonNull(easterEggModal)) {
-                    easterEggModal.setOpponentAction("rock");
-                }
-                break;
-            case Constants.COMMAND_CHOOSE_PAPER:
-                if (Objects.nonNull(easterEggModal)) {
-                    easterEggModal.setOpponentAction("paper");
-                }
-                break;
-            case Constants.COMMAND_CHOOSE_SCISSOR:
-                if (Objects.nonNull(easterEggModal)) {
-                    easterEggModal.setOpponentAction("scissors");
-                }
-                break;
-            default:
-                return false;
-        }
-
-        message.setReceiver(null).setSender(null);  //delete message fom model
-        return true;
-    }
-
-
-    /**
-     * @param message
-     * @return boolean that represents whether message was a correct command
-     */
-    private boolean handleOutgoingCommandMessage(String message) {
-        message = EmoteParser.convertTextWithUnicodeToNames(message);
-        if (message.equals(Constants.COMMAND_PLAY)) {
-            if (lastInvitation != null && (!lastInvitation.getKey()) && (lastInvitation.getValue() >= new Date().getTime() - 30 * 1000)) {
-                lastInvitation = null;
-                showEasterEggModal();  //load modal
-            } else {
-                lastInvitation = new Pair<Boolean, Long>(true, new Date().getTime());
-            }
-        }
-        String[] possibleCommands = {Constants.COMMAND_PLAY, Constants.COMMAND_CHOOSE_ROCK,
-            Constants.COMMAND_CHOOSE_SCISSOR, Constants.COMMAND_CHOOSE_SCISSOR};
-        return Arrays.asList(possibleCommands).contains(message);
-    }
-
-    /**
-     * Initializes and shows the EasterEggModal, is called when both users sent the play command
-     */
-    private void showEasterEggModal() {
-        easterEggModal = null;
-        Platform.runLater(() -> {
-            Parent easterEggModalView = ViewLoader.loadView(Views.EASTER_EGG_MODAL);
-            easterEggModal = new EasterEggModal(easterEggModalView,
-                currentUser,
-                chatPartner,
-                this::closeEasterEggModal);
-            easterEggModal.show();
-        });
-    }
-
-    private void closeEasterEggModal(ActionEvent actionEvent) {
-        if (Objects.nonNull(easterEggModal)) {
-            easterEggModal.close();
-            easterEggModal = null;
         }
     }
 
