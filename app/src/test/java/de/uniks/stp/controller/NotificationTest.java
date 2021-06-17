@@ -394,7 +394,6 @@ public class NotificationTest {
 
         robot.clickOn("#notifications-toggle-button");
         robot.clickOn("#edit-channel-create-button");
-        robot.clickOn("#edit-channel-cancel-button");
 
         Assertions.assertTrue(DatabaseService.isChannelMuted(channelId));
 

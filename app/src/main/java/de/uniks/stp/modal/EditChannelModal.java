@@ -26,6 +26,8 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Objects;
 
 public class EditChannelModal extends AbstractModal {
@@ -77,6 +79,7 @@ public class EditChannelModal extends AbstractModal {
 
         notificationsToggleButton.setSelected(DatabaseService.isChannelMuted(channel.getId()));
         notificationsLabel.setText(ViewLoader.loadLabel(Constants.LBL_ON));
+        privileged.setSelected(channel.isPrivileged());
 
         selectUserList = new UserCheckList();
         selectUserList.setMaxHeight(userCheckListContainer.getMaxHeight());
@@ -97,8 +100,15 @@ public class EditChannelModal extends AbstractModal {
             selectUserList.setDisable(!newValue);
         }));
 
+        LinkedList<String> memberNames = new LinkedList<>();
+        for(User user : channel.getChannelMembers()) {
+            memberNames.add(user.getName());
+        }
         for (User user : category.getServer().getUsers()) {
             UserCheckListEntry userCheckListEntry = new UserCheckListEntry(user);
+            if(memberNames.contains(user.getName())) {
+                userCheckListEntry.setSelected(true);
+            }
             selectUserList.addUserToChecklist(userCheckListEntry);
         }
     }
@@ -163,7 +173,11 @@ public class EditChannelModal extends AbstractModal {
             DatabaseService.removeMutedChannelId(channelId);
         }
 
-        restClient.editTextChannel(serverId, categoryId, channelId, chName, priv, selectUserList.getSelectedUserIds(), this::handleEditChannelResponse);
+        if(hasRestChanges(chName, priv, selectUserList.getSelectedUserIds())) {
+            restClient.editTextChannel(serverId, categoryId, channelId, chName, priv, selectUserList.getSelectedUserIds(), this::handleEditChannelResponse);
+        }else {
+            this.close();
+        }
     }
 
     private void setErrorMessage(String label) {
@@ -199,6 +213,24 @@ public class EditChannelModal extends AbstractModal {
 
     private void onCancelButtonClicked(ActionEvent actionEvent) {
         this.close();
+    }
+
+    private boolean hasRestChanges(String chName, boolean priv, ArrayList<String> selectedUsers) {
+        if(!chName.equals(channel.getName())) {
+            return true;
+        }
+        if(priv != channel.isPrivileged()) {
+            return true;
+        }
+        if(selectedUsers.size() != channel.getChannelMembers().size()) {
+            return true;
+        }
+        for(User user : channel.getChannelMembers()) {
+            if(!selectedUsers.contains(user.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
