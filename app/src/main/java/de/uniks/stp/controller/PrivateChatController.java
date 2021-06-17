@@ -107,9 +107,7 @@ public class PrivateChatController implements ControllerInterface {
         }
 
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
-        user.listeners().addPropertyChangeListener(User.PROPERTY_SENT_MESSAGES, messagesChangeListener);
-        user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
-        user.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
+        addPropertyChangeListeners();
 
         User currentUser = editor.getOrCreateAccord().getCurrentUser();
         List<DirectMessageDTO> directMessages = DatabaseService.getConversation(currentUser.getName(), user.getName());
@@ -135,6 +133,17 @@ public class PrivateChatController implements ControllerInterface {
                 message.setSender(editor.getOrCreateChatPartnerOfCurrentUser(senderId, senderName));
             }
         }
+    }
+
+    private void addPropertyChangeListeners() {
+        // first remove PCL in case this is a reload and they are already there!
+        user.listeners().removePropertyChangeListener(User.PROPERTY_SENT_MESSAGES, messagesChangeListener);
+        user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
+        user.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
+        // now add them
+        user.listeners().addPropertyChangeListener(User.PROPERTY_SENT_MESSAGES, messagesChangeListener);
+        user.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
+        user.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
     }
 
     /**
