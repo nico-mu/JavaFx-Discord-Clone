@@ -80,8 +80,12 @@ public class EditChannelModal extends AbstractModal {
         errorLabel = (Label) view.lookup(EDIT_CHANNEL_ERROR_LABEL);
         deleteButton = (JFXButton) view.lookup(EDIT_CHANNEL_DELETE_BUTTON);
 
-        notificationsToggleButton.setSelected(DatabaseService.isChannelMuted(channel.getId()));
-        notificationsLabel.setText(ViewLoader.loadLabel(Constants.LBL_ON));
+        boolean muted = DatabaseService.isChannelMuted(channel.getId());
+        notificationsToggleButton.setSelected(!muted);
+        notificationsLabel.setText(ViewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
+        notificationsToggleButton.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+            notificationsLabel.setText(ViewLoader.loadLabel(!notificationsToggleButton.isSelected() ? Constants.LBL_OFF : Constants.LBL_ON));
+        }));
         privileged.setSelected(channel.isPrivileged());
 
         selectUserList = new UserCheckList();
@@ -172,7 +176,7 @@ public class EditChannelModal extends AbstractModal {
         String categoryId = category.getId();
         String channelId = channel.getId();
 
-        boolean muted = notificationsToggleButton.isSelected();
+        boolean muted = !notificationsToggleButton.isSelected();
         if(muted) {
             DatabaseService.addMutedChannelId(channelId);
         }else {

@@ -62,8 +62,13 @@ public class ServerSettingsModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
         deleteButton = (JFXButton) view.lookup(DELETE_BUTTON);
 
-        notificationsToggleButton.setSelected(DatabaseService.isServerMuted(model.getId()));
-        notificationsLabel.setText(ViewLoader.loadLabel(Constants.LBL_ON));
+        boolean muted = DatabaseService.isServerMuted(model.getId());
+        notificationsToggleButton.setSelected(!muted);
+        notificationsLabel.setText(ViewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
+        notificationsToggleButton.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+            notificationsLabel.setText(ViewLoader.loadLabel(!notificationsToggleButton.isSelected() ? Constants.LBL_OFF : Constants.LBL_ON));
+        }));
+
         servernameTextField.setText(model.getName());
 
         saveButton.setOnAction(this::onSaveButtonClicked);
@@ -99,7 +104,7 @@ public class ServerSettingsModal extends AbstractModal {
             deleteButton.setDisable(true);
             spinner.setVisible(true);
 
-            boolean muted = notificationsToggleButton.isSelected();
+            boolean muted = !notificationsToggleButton.isSelected();
             if(muted) {
                 DatabaseService.addMutedServerId(model.getId());
             }else  {
