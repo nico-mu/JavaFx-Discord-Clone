@@ -152,7 +152,7 @@ public class DeleteServerTest {
     public void testDeleteServerFailed(FxRobot robot) {
         // prepare start situation
         Editor editor = StageManager.getEditor();
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test").setId("1")).setUserKey("123-45");
 
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
         WaitForAsyncUtils.waitForFxEvents();
