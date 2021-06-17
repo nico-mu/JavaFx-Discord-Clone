@@ -3,6 +3,7 @@ package de.uniks.stp.jpa;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.jpa.model.MutedChannelDTO;
+import de.uniks.stp.jpa.model.MutedServerDTO;
 import de.uniks.stp.model.DirectMessage;
 import javafx.util.Pair;
 
@@ -252,6 +253,47 @@ public class DatabaseService {
         transaction.begin();
 
         MutedChannelDTO result = entityManager.find(MutedChannelDTO.class, channelId);
+
+        transaction.commit();
+        entityManager.close();
+
+        if(Objects.nonNull(result)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void addMutedServerId(String serverId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        entityManager.merge(new MutedServerDTO().setServerId(serverId));
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public static void removeMutedServerId(String serverId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        entityManager.remove(entityManager.find(MutedServerDTO.class, serverId));
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public static boolean isServerMuted(String serverId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        MutedServerDTO result = entityManager.find(MutedServerDTO.class, serverId);
 
         transaction.commit();
         entityManager.close();

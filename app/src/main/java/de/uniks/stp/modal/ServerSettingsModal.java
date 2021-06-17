@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
@@ -61,7 +62,7 @@ public class ServerSettingsModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
         deleteButton = (JFXButton) view.lookup(DELETE_BUTTON);
 
-        notificationsToggleButton.setSelected(NotificationService.isServerMuted(model));
+        notificationsToggleButton.setSelected(DatabaseService.isServerMuted(model.getId()));
         notificationsLabel.setText(ViewLoader.loadLabel(Constants.LBL_ON));
         servernameTextField.setText(model.getName());
 
@@ -92,7 +93,7 @@ public class ServerSettingsModal extends AbstractModal {
             String name = servernameTextField.getText();
 
             servernameTextField.setDisable(true);
-            //notificationsToggleButton.setDisable(true);  use when fixed
+            notificationsToggleButton.setDisable(true);
             saveButton.setDisable(true);
             cancelButton.setDisable(true);
             deleteButton.setDisable(true);
@@ -100,11 +101,15 @@ public class ServerSettingsModal extends AbstractModal {
 
             boolean muted = notificationsToggleButton.isSelected();
             if(muted) {
-                NotificationService.muteServer(model.getId());
+                DatabaseService.addMutedServerId(model.getId());
             }else  {
-                NotificationService.unmuteServer(model.getId());
+                DatabaseService.removeMutedServerId(model.getId());
             }
 
+            if(servernameTextField.getText().equals(model.getName())) {
+                this.close();
+                return;
+            }
             RestClient restClient = NetworkClientInjector.getRestClient();
             restClient.renameServer(model.getId(), name, this::handleRenameServerResponse);
         }

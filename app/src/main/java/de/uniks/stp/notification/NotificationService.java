@@ -135,7 +135,7 @@ public class NotificationService {
      * @param publisher channel that sent a channel message
      */
     public static void onChannelMessage(Channel publisher) {
-        if(DatabaseService.isChannelMuted(publisher.getId())) {
+        if(DatabaseService.isChannelMuted(publisher.getId()) || DatabaseService.isServerMuted(publisher.getServer().getId())) {
             return;
         }
         HashMap<String, String> routeArgs = Router.getCurrentArgs();
