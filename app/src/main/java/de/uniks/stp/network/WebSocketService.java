@@ -367,7 +367,12 @@ public class WebSocketService {
                 case "userExited":
                     userId = data.getString("id");
                     server = editor.getServer(serverId);
-                    User user = editor.getUserById(userId);
+                    User user;
+                    if (editor.getOrCreateAccord().getCurrentUser().getId().equals(userId)) {
+                        user = editor.getOrCreateAccord().getCurrentUser();
+                    } else {
+                        user = editor.getUserById(userId);
+                    }
                     server.withoutUsers(user);
                     return;
                 case "userArrived":
