@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
@@ -60,7 +61,7 @@ public class EditCategoryModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
         deleteButton = (JFXButton) view.lookup(DELETE_BUTTON);
 
-        // ToDo: load current Notification setting
+        notificationsToggleButton.setSelected(DatabaseService.isCategoryMuted(model.getId()));
         notificationsLabel.setText(ViewLoader.loadLabel(Constants.LBL_ON));
         categoryNameTextField.setText(model.getName());
 
@@ -74,17 +75,27 @@ public class EditCategoryModal extends AbstractModal {
     private void onSaveButtonClicked(ActionEvent actionEvent) {
         setErrorMessage(null);
 
-        //ToDo: Notifications
-
         if (!categoryNameTextField.getText().isEmpty()) {
             String name = categoryNameTextField.getText();
 
             categoryNameTextField.setDisable(true);
-            //notificationsToggleButton.setDisable(true);  use when fixed
+            notificationsToggleButton.setDisable(true);
             saveButton.setDisable(true);
             cancelButton.setDisable(true);
             deleteButton.setDisable(true);
             spinner.setVisible(true);
+
+            boolean muted = notificationsToggleButton.isSelected();
+            if(muted) {
+                DatabaseService.addMutedCategoryId(model.getId());
+            }else {
+                DatabaseService.removeMutedCategoryId(model.getId());
+            }
+
+            if(categoryNameTextField.getText().equals(model.getName())) {
+                this.close();
+                return;
+            }
 
             RestClient restClient = NetworkClientInjector.getRestClient();
             restClient.updateCategory(model.getServer().getId(), model.getId(), name, this::handleRenameCategoryResponse);

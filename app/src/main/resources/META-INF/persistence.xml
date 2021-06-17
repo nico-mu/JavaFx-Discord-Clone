@@ -7,6 +7,7 @@
         <class>de.uniks.stp.jpa.model.MessageDTO</class>
         <class>de.uniks.stp.jpa.model.DirectMessageDTO</class>
         <class>de.uniks.stp.jpa.model.MutedChannelDTO</class>
+        <class>de.uniks.stp.jpa.model.MutedCategoryDTO</class>
         <class>de.uniks.stp.jpa.model.MutedServerDTO</class>
 
         <properties>

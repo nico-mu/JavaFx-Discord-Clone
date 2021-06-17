@@ -161,7 +161,7 @@ public class EditChannelModal extends AbstractModal {
     private void onEditButtonClicked(ActionEvent actionEvent) {
         setErrorMessage(null);
         String chName = channelName.getText();
-        Boolean priv = privileged.isSelected();
+        boolean priv = privileged.isSelected();
         String serverId = category.getServer().getId();
         String categoryId = category.getId();
         String channelId = channel.getId();
