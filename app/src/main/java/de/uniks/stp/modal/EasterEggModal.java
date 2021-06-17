@@ -15,8 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EasterEggModal extends AbstractModal {
-    private static final Logger log = LoggerFactory.getLogger(EasterEggModal.class);
-
     public final String ROCK = "rock";
     public final String PAPER = "paper";
     public final String SCISSORS = "scissors";
@@ -34,14 +32,13 @@ public class EasterEggModal extends AbstractModal {
     private final Button paperButton;
     private final JFXButton cancelButton;
 
-    private final User currentUser;
     private final User opponentUser;
-    private String action;
-    private String opponentAction;
+    private String action;  //saves current selected action of currentUser
+    private String opponentAction;  //saves current selected action of opponent
+    private boolean revanche = false;  //used to save whether one player already invited the other for a revanche
 
-    public EasterEggModal(Parent root, User currentUser, User opponentUser, EventHandler<ActionEvent> closeHandler) {
+    public EasterEggModal(Parent root, User opponentUser, EventHandler<ActionEvent> closeHandler) {
         super(root);
-        this.currentUser = currentUser;
         this.opponentUser = opponentUser;
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_EASTER_EGG_TITLE));
@@ -62,36 +59,65 @@ public class EasterEggModal extends AbstractModal {
     public void setOpponentAction(String action) {
         opponentAction = action;
         if (action != null) {
-            fight();
+            battle();  //battle as soon as both have selected an action
         }
     }
 
     private void onRockButtonClicked(ActionEvent actionEvent) {
         WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_CHOOSE_ROCK);
         action = ROCK;
-        if (opponentAction != null) {
-            fight();
-        }
+        reactToActionSelected();
     }
 
     private void onScissorsButtonClicked(ActionEvent actionEvent) {
         WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_CHOOSE_SCISSOR);
         action = SCISSORS;
-        if (opponentAction != null) {
-            fight();
-        }
+        reactToActionSelected();
     }
 
     private void onPaperButtonClicked(ActionEvent actionEvent) {
         WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_CHOOSE_PAPER);
         action = PAPER;
+        reactToActionSelected();
+    }
+
+    /**
+     * Called everytime the currentPlayer selected an action
+     */
+    private void reactToActionSelected() {
+        colorOwnButton();
         if (opponentAction != null) {
-            fight();
+            battle();  //battle as soon as both have selected an action
         }
     }
 
-    private void fight() {
+    /**
+     * Used to show your current choice
+     */
+    private void colorOwnButton() {
+        if(action.equals(ROCK)){
+            rockButton.setStyle("-fx-background-color: green;");
+        } else{
+            rockButton.setStyle("-fx-background-color: transparent;");
+        }
+        if(action.equals(PAPER)){
+            paperButton.setStyle("-fx-background-color: green;");
+        } else{
+            paperButton.setStyle("-fx-background-color: transparent;");
+        }
+        if(action.equals(SCISSORS)){
+            scissorsButton.setStyle("-fx-background-color: green;");
+        } else{
+            scissorsButton.setStyle("-fx-background-color: transparent;");
+        }
+    }
+
+    /**
+     * Called when both players choiced. Shows result of battle.
+     */
+    private void battle() {
         int result = determineWinner();
+        colorOpponentButton();
         if (result == 0) {
             Platform.runLater(() -> actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_RESULT_DRAW)));
         } else if (result == 1) {
@@ -99,8 +125,13 @@ public class EasterEggModal extends AbstractModal {
         } else {
             Platform.runLater(() -> actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_RESULT_LOSS)));
         }
-        revancheButton.setVisible(true);
 
+        Platform.runLater(() -> {
+            revancheButton.setVisible(true);
+            rockButton.setDisable(true);
+            paperButton.setDisable(true);
+            scissorsButton.setDisable(true);
+        });
     }
 
     /**
@@ -130,12 +161,83 @@ public class EasterEggModal extends AbstractModal {
         }
     }
 
+    /**
+     * Called to show the opponents choice. At this moment the own choice is also already shown
+     */
+    private void colorOpponentButton() {
+        if(action.equals(opponentAction)){
+            if(action.equals(ROCK)){
+                Platform.runLater(() -> rockButton.setStyle("-fx-background-color: yellow;"));
+            } else{
+                Platform.runLater(() -> rockButton.setStyle("-fx-background-color: transparent;"));
+            }
+            if(action.equals(PAPER)){
+                Platform.runLater(() -> paperButton.setStyle("-fx-background-color: yellow;"));
+            } else{
+                Platform.runLater(() -> paperButton.setStyle("-fx-background-color: transparent;"));
+            }
+            if(action.equals(SCISSORS)){
+                Platform.runLater(() -> scissorsButton.setStyle("-fx-background-color: yellow;"));
+            } else{
+                Platform.runLater(() -> scissorsButton.setStyle("-fx-background-color: transparent;"));
+            }
+        } else if(opponentAction.equals(ROCK)){
+            Platform.runLater(() -> rockButton.setStyle("-fx-background-color: red;"));
+        } else if(opponentAction.equals(PAPER)){
+            Platform.runLater(() -> paperButton.setStyle("-fx-background-color: red;"));
+        } else{
+            Platform.runLater(() -> scissorsButton.setStyle("-fx-background-color: red;"));
+        }
+    }
+
     private void onRevancheButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_REVANCHE);
+        if(revanche){
+            WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_REVANCHE);
+            playAgain();
+        } else{
+            revanche = true;
+            revancheButton.setVisible(false);
+            WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_REVANCHE);
+            actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_REVANCHE_WAIT));
+        }
+    }
+
+    public void incomingRevanche(){
+        if(revanche){
+            playAgain();
+        } else{
+            revanche = true;
+            Platform.runLater(() -> actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_REVANCHE_RESPOND)));
+        }
+    }
+
+    /**
+     * prepares everything for a new battle
+     */
+    private void playAgain() {
+        revanche = false;
+        Platform.runLater(() -> {
+            revancheButton.setVisible(false);
+            actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION));
+            rockButton.setStyle("-fx-background-color: transparent;");
+            paperButton.setStyle("-fx-background-color: transparent;");
+            scissorsButton.setStyle("-fx-background-color: transparent;");
+            rockButton.setDisable(false);
+            paperButton.setDisable(false);
+            scissorsButton.setDisable(false);
+        });
+        action = null;
+        opponentAction = null;
+    }
+
+    public void opponentLeft(){
+        revanche = false;
+        Platform.runLater(() -> actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_GAME_LEFT)));
     }
 
     @Override
     public void close() {
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), Constants.COMMAND_LEAVE);
         revancheButton.setOnAction(null);
         rockButton.setOnAction(null);
         scissorsButton.setOnAction(null);

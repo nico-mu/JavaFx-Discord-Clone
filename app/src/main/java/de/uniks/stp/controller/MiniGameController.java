@@ -1,5 +1,6 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.modal.EasterEggModal;
@@ -23,7 +24,9 @@ public class MiniGameController implements ControllerInterface {
         PLAY("!play :handshake:"),
         CHOOSE_ROCK("!choose rock"),
         CHOOSE_PAPER("!choose paper"),
-        CHOOSE_SCISSOR("!choose scissor");
+        CHOOSE_SCISSOR("!choose scissor"),
+        REVANCHE("!play revanche"),
+        LEAVE("!play quit");
 
         public final String command;
 
@@ -50,6 +53,8 @@ public class MiniGameController implements ControllerInterface {
         incomingCommandHandler.put(GameCommand.CHOOSE_ROCK.command, this::handleIncomingChooseActionCommand);
         incomingCommandHandler.put(GameCommand.CHOOSE_SCISSOR.command, this::handleIncomingChooseActionCommand);
         incomingCommandHandler.put(GameCommand.CHOOSE_PAPER.command, this::handleIncomingChooseActionCommand);
+        incomingCommandHandler.put(GameCommand.REVANCHE.command, this::handleIncomingRevancheCommand);
+        incomingCommandHandler.put(GameCommand.LEAVE.command,this::handleIncomingLeaveCommand);
         outgoingCommandHandler.put(GameCommand.PLAY.command, this::handleOutgoingPlayCommand);
     }
 
@@ -68,7 +73,6 @@ public class MiniGameController implements ControllerInterface {
         Platform.runLater(() -> {
             Parent easterEggModalView = ViewLoader.loadView(Views.EASTER_EGG_MODAL);
             easterEggModal = new EasterEggModal(easterEggModalView,
-                currentUser,
                 chatPartner,
                 this::closeEasterEggModal);
             easterEggModal.show();
@@ -115,12 +119,15 @@ public class MiniGameController implements ControllerInterface {
         }
     }
 
-    private void handleOutgoingPlayCommand(String message) {
-        if (invitation.isReceived()) {
-            invitation.recycle();
-            showEasterEgg();
-        } else {
-            invitation.setState(GameInvitationState.SENT).setCreationTime(new Date().getTime());
+    private void handleIncomingRevancheCommand(String messageText, long timestamp) {
+        if (Objects.nonNull(easterEggModal)) {
+            easterEggModal.incomingRevanche();
+        }
+    }
+
+    private void handleIncomingLeaveCommand(String messageText, long timestamp) {
+        if (Objects.nonNull(easterEggModal)) {
+            easterEggModal.opponentLeft();
         }
     }
 
@@ -130,6 +137,15 @@ public class MiniGameController implements ControllerInterface {
         String action = scanner.next();
         if (Objects.nonNull(easterEggModal)) {
             easterEggModal.setOpponentAction(action);
+        }
+    }
+
+    private void handleOutgoingPlayCommand(String message) {
+        if (invitation.isReceived()) {
+            invitation.recycle();
+            showEasterEgg();
+        } else {
+            invitation.setState(GameInvitationState.SENT).setCreationTime(new Date().getTime());
         }
     }
 

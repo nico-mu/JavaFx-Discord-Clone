@@ -75,6 +75,9 @@ public class Constants {
     public static final String LBL_RESULT_WIN = "LBL_RESULT_WIN";
     public static final String LBL_RESULT_LOSS = "LBL_RESULT_LOSS";
     public static final String LBL_RESULT_DRAW = "LBL_RESULT_DRAW";
+    public static final String LBL_REVANCHE_WAIT = "LBL_REVANCHE_WAIT";
+    public static final String LBL_REVANCHE_RESPOND = "LBL_REVANCHE_RESPOND";
+    public static final String LBL_GAME_LEFT = "LBL_GAME_LEFT";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";
@@ -103,4 +106,5 @@ public class Constants {
     public static final String COMMAND_CHOOSE_PAPER = "!choose paper";
     public static final String COMMAND_CHOOSE_SCISSOR = "!choose scissor";
     public static final String COMMAND_REVANCHE = "!play revanche";
+    public static final String COMMAND_LEAVE = "!play quit";
 }
