@@ -375,7 +375,7 @@ public class NotificationTest {
         robot.clickOn("#edit-channel");
 
         JFXToggleButton notificationToggleButton =  robot.lookup("#notifications-toggle-button").query();
-        Assertions.assertFalse(notificationToggleButton.isSelected());
+        Assertions.assertTrue(notificationToggleButton.isSelected());
 
         robot.clickOn("#notifications-toggle-button");
         robot.clickOn("#edit-channel-create-button");
@@ -391,6 +391,55 @@ public class NotificationTest {
         robot.clickOn("#edit-channel-create-button");
 
         Assertions.assertFalse(DatabaseService.isChannelMuted(channelId));
+    }
+
+    @Test
+    public void muteCategoryTest(FxRobot robot) {
+        Editor editor = StageManager.getEditor();
+
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
+
+        String serverName = "TestServer";
+        String serverId = "12345678";
+        Server testServer = new Server().setName(serverName).setId(serverId);
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .withAvailableServers(testServer);
+
+        String categoryName = "TestCategory";
+        String categoryId = "catId123";
+
+        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        WaitForAsyncUtils.waitForFxEvents();
+        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        DatabaseService.removeMutedCategoryId(categoryId);
+        Assertions.assertFalse(DatabaseService.isCategoryMuted(categoryId));
+
+        robot.clickOn("#" + categoryId + "-ServerCategoryElementLabel");
+        robot.point("#edit-category-gear");
+        robot.clickOn("#edit-category-gear");
+
+        JFXToggleButton notificationToggleButton =  robot.lookup("#notifications-toggle-button").query();
+        Assertions.assertTrue(notificationToggleButton.isSelected());
+
+        robot.clickOn("#notifications-toggle-button");
+        robot.clickOn("#save-button");
+
+        Assertions.assertTrue(DatabaseService.isCategoryMuted(categoryId));
+
+        robot.clickOn("#" + categoryId + "-ServerCategoryElementLabel");
+        robot.point("#edit-category-gear");
+        robot.clickOn("#edit-category-gear");
+
+        Assertions.assertFalse(notificationToggleButton.isSelected());
+
+        robot.clickOn("#notifications-toggle-button");
+        robot.clickOn("#save-button");
+
+        Assertions.assertFalse(DatabaseService.isCategoryMuted(categoryId));
     }
 
     @Test
@@ -414,13 +463,13 @@ public class NotificationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         DatabaseService.removeMutedServerId(serverId);
-        Assertions.assertFalse(DatabaseService.isChannelMuted(serverId));
+        Assertions.assertFalse(DatabaseService.isServerMuted(serverId));
 
         robot.clickOn("#settings-label");
         robot.clickOn("#edit-menu-item");
 
         JFXToggleButton notificationToggleButton =  robot.lookup("#notifications-toggle-button").query();
-        Assertions.assertFalse(notificationToggleButton.isSelected());
+        Assertions.assertTrue(notificationToggleButton.isSelected());
 
         robot.clickOn("#notifications-toggle-button");
         robot.clickOn("#save-button");
@@ -430,7 +479,7 @@ public class NotificationTest {
         robot.clickOn("#settings-label");
         robot.clickOn("#edit-menu-item");
 
-        Assertions.assertTrue(notificationToggleButton.isSelected());
+        Assertions.assertFalse(notificationToggleButton.isSelected());
 
         robot.clickOn("#notifications-toggle-button");
         robot.clickOn("#save-button");
