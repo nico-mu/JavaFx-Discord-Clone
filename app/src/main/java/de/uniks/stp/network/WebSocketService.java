@@ -366,12 +366,17 @@ public class WebSocketService {
                     return;
                 case "userExited":
                     userId = data.getString("id");
-                    if (!editor.getOrCreateAccord().getCurrentUser().getId().equals(userId)) {
-                        editor.getServer(serverId).withoutUsers(editor.getUserById(userId));
-                    } else {
-                        editor.getOrCreateAccord().getCurrentUser().withoutAvailableServers(editor.getServer(serverId));
-                    }
+                    server = editor.getServer(serverId);
+                    User user = editor.getUserById(userId);
+                    server.withoutUsers(user);
                     return;
+                case "userArrived":
+                    userId = data.getString("id");
+                    boolean status = data.getBoolean("online");
+                    server = editor.getServer(serverId);
+                    server.withUsers(editor.getOrCreateUser(userId, status));
+                    return;
+
                 default:
                     break;
             }
