@@ -1,5 +1,6 @@
 package de.uniks.stp;
 
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.*;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.view.Languages;
@@ -63,6 +64,7 @@ public class Editor {
         if(serverMap.containsKey(id)) {
             accord.getCurrentUser().withoutAvailableServers(serverMap.get(id));
         }
+        DatabaseService.removeMutedServerId(id);
     }
 
     public boolean serverAdded(String serverId) {
@@ -316,5 +318,6 @@ public class Editor {
         NotificationService.removePublisher(channel);
         channel.setServer(null);
         channel.getCategory().withoutChannels(channel);
+        DatabaseService.removeMutedChannelId(channelId);
     }
 }
