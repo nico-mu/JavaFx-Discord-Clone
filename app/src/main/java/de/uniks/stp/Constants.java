@@ -99,12 +99,4 @@ public class Constants {
 
     //Languages
     public static final String LANG_LABEL_PREFIX = "LBL_LANG_";
-
-    // Message commands
-    public static final String COMMAND_PLAY = "!play :handshake:";
-    public static final String COMMAND_CHOOSE_ROCK = "!choose rock";
-    public static final String COMMAND_CHOOSE_PAPER = "!choose paper";
-    public static final String COMMAND_CHOOSE_SCISSOR = "!choose scissor";
-    public static final String COMMAND_REVANCHE = "!play revanche";
-    public static final String COMMAND_LEAVE = "!play quit";
 }

@@ -57,7 +57,7 @@ public class PrivateChatController implements ControllerInterface {
         this.editor = editor;
         this.chatPartner = editor.getOrCreateChatPartnerOfCurrentUser(userId, userName);
         this.currentUser = editor.getOrCreateAccord().getCurrentUser();
-        this.miniGameController = new MiniGameController(currentUser, chatPartner);
+        this.miniGameController = new MiniGameController(chatPartner);
         miniGameController.init();
     }
 

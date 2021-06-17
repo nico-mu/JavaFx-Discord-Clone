@@ -1,6 +1,5 @@
 package de.uniks.stp.controller;
 
-import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.modal.EasterEggModal;
@@ -39,11 +38,9 @@ public class MiniGameController implements ControllerInterface {
     private final HashMap<String, BiConsumer<String, Long>> incomingCommandHandler = new HashMap<>();
     private final HashMap<String, Consumer<String>> outgoingCommandHandler = new HashMap<>();
     private EasterEggModal easterEggModal;
-    private final User currentUser;
     private final User chatPartner;
 
-    public MiniGameController(User currentUser, User chatPartner) {
-        this.currentUser = currentUser;
+    public MiniGameController(User chatPartner) {
         this.chatPartner = chatPartner;
     }
 
@@ -54,7 +51,7 @@ public class MiniGameController implements ControllerInterface {
         incomingCommandHandler.put(GameCommand.CHOOSE_SCISSOR.command, this::handleIncomingChooseActionCommand);
         incomingCommandHandler.put(GameCommand.CHOOSE_PAPER.command, this::handleIncomingChooseActionCommand);
         incomingCommandHandler.put(GameCommand.REVANCHE.command, this::handleIncomingRevancheCommand);
-        incomingCommandHandler.put(GameCommand.LEAVE.command,this::handleIncomingLeaveCommand);
+        incomingCommandHandler.put(GameCommand.LEAVE.command, this::handleIncomingLeaveCommand);
         outgoingCommandHandler.put(GameCommand.PLAY.command, this::handleOutgoingPlayCommand);
     }
 

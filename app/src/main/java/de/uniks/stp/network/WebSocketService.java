@@ -2,6 +2,7 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.controller.MiniGameController;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.*;
 import de.uniks.stp.notification.NotificationService;
@@ -125,8 +126,14 @@ public class WebSocketService {
         msg.setSender(chatPartner);
 
         // store in database and activate notification only when message is not a command
-        String[] possibleCommands = {Constants.COMMAND_PLAY, Constants.COMMAND_CHOOSE_ROCK,
-            Constants.COMMAND_CHOOSE_SCISSOR, Constants.COMMAND_CHOOSE_SCISSOR};
+        String[] possibleCommands = {
+            MiniGameController.GameCommand.PLAY.command,
+            MiniGameController.GameCommand.CHOOSE_ROCK.command,
+            MiniGameController.GameCommand.CHOOSE_PAPER.command,
+            MiniGameController.GameCommand.CHOOSE_SCISSOR.command,
+            MiniGameController.GameCommand.LEAVE.command,
+            MiniGameController.GameCommand.REVANCHE.command,
+        };
         if(! Arrays.asList(possibleCommands).contains(msgText)){
             DatabaseService.saveDirectMessage(msg);
 
