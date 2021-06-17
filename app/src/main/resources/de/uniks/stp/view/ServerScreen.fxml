@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.uniks.stp.component.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<?import de.uniks.stp.component.TextWithEmoteSupport?>
+<?import javafx.scene.text.*?>
+
 <FlowPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="472.0" prefWidth="696.0" styleClass="container" stylesheets="@../style/css/view/server.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <HBox prefHeight="472.0" prefWidth="698.0">
         <FlowPane id="server-overview-container" alignment="TOP_CENTER" prefHeight="472.0" prefWidth="221.0" styleClass="server-overview">
@@ -50,7 +50,7 @@
                <Insets />
             </FlowPane.margin>
             <children>
-                  <TextWithEmoteSupport id="channel-name-label" prefHeight="40.0" prefWidth="190.0" maxHeight="40" styleClass="channel-name-label">
+                  <TextWithEmoteSupport id="channel-name-label" maxHeight="40" prefHeight="40.0" prefWidth="190.0" styleClass="channel-name-label">
                   <VBox.margin>
                      <Insets left="10.0" />
                   </VBox.margin>
@@ -62,7 +62,7 @@
       <Pane prefHeight="472.0" prefWidth="70.0" styleClass="mid-pane" />
       <FlowPane id="server-user-list-container" prefWidth="187.0" styleClass="server-user-list" HBox.hgrow="ALWAYS">
          <children>
-            <ScrollPane id="server-user-list-scroll" fitToHeight="true" fitToWidth="true" prefWidth="110.0" styleClass="server-user-list-container">
+            <ScrollPane id="server-user-list-scroll" fitToHeight="true" fitToWidth="true" prefHeight="459.0" prefWidth="110.0" styleClass="server-user-list-container">
                <content>
                   <VBox prefHeight="200.0" styleClass="server-user-list-container">
                      <children>

@@ -2,7 +2,6 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerUserListEntry;
-import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
@@ -15,8 +14,6 @@ import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -24,14 +21,14 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class ServerUserListController implements ControllerInterface {
-    private static final Logger log = LoggerFactory.getLogger(ServerUserListController.class);
-
     private final static String ONLINE_USER_LIST_ID = "#online-user-list";
     private final static String OFFLINE_USER_LIST_ID = "#offline-user-list";
     private final static String SERVER_USER_LIST_SCROLL_ID = "#server-user-list-scroll";
 
     private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
-    private final HashMap<String, ServerUserListEntry> serverUserListEntryHashMap = new HashMap<>();
+    private final PropertyChangeListener userStatusPropertyChangeListener = this::onUserStatusPropertyChange;
+
+    private final HashMap<User, ServerUserListEntry> serverUserListEntryHashMap = new HashMap<>();
     private final Parent view;
     private final Editor editor;
     private final Server model;
@@ -48,6 +45,8 @@ public class ServerUserListController implements ControllerInterface {
         ScrollPane scrollPane = (ScrollPane) view.lookup(SERVER_USER_LIST_SCROLL_ID);
         onlineUserList = (VBox) scrollPane.getContent().lookup(ONLINE_USER_LIST_ID);
         offlineUserList = (VBox) scrollPane.getContent().lookup(OFFLINE_USER_LIST_ID);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         model.listeners().addPropertyChangeListener(Server.PROPERTY_USERS, availableUsersPropertyChangeListener);
 
@@ -55,18 +54,32 @@ public class ServerUserListController implements ControllerInterface {
         restClient.getServerInformation(model.getId(), this::handleServerInformationRequest);
     }
 
-    private void onAvailableUsersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        User user = (User) propertyChangeEvent.getNewValue();
-
-        if(Objects.isNull(user)){
-            // in case the server was deleted
-            return;
-        }
+    private void addUser(User user) {
         if (user.isStatus()) {
             onlineUser(user);
+        } else {
+            offlineUser(user);
+        }
+    }
+
+    private void addStatusPropertyChangeListener(User user) {
+        if (user.listeners().getPropertyChangeListeners(User.PROPERTY_STATUS).length == 0) {
+            user.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, userStatusPropertyChangeListener);
+        }
+    }
+
+    private void onAvailableUsersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        User user = (User) propertyChangeEvent.getNewValue();
+        User oldUser = (User) propertyChangeEvent.getOldValue();
+
+        if (Objects.isNull(user)) {
+            // in case the server was deleted
+            removeUser(oldUser);
+            oldUser.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, userStatusPropertyChangeListener);
             return;
         }
-        offlineUser(user);
+        addUser(user);
+        addStatusPropertyChangeListener(user);
     }
 
     private void handleServerInformationRequest(HttpResponse<JsonNode> response) {
@@ -89,41 +102,49 @@ public class ServerUserListController implements ControllerInterface {
                 String userId = jsonUser.getString("id");
                 String name = jsonUser.getString("name");
                 boolean status = Boolean.parseBoolean(jsonUser.getString("online"));
-                editor.setServerMemberStatus(userId, name, status, model);
-            });
 
+                User serverMember = editor.getOrCreateServerMember(userId, name, model);
+                serverMember.setStatus(status);
+                addUser(serverMember);
+                addStatusPropertyChangeListener(serverMember);
+            });
         }
     }
 
+    private void onUserStatusPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        User user = (User) propertyChangeEvent.getSource();
+        addUser(user);
+    }
+
     private void removeUser(User user) {
-        Platform.runLater(() -> {
-            ServerUserListEntry serverUserListEntry = serverUserListEntryHashMap.get(user.getId());
-            offlineUserList.getChildren().remove(serverUserListEntry);
-            onlineUserList.getChildren().remove(serverUserListEntry);
-        });
+        if (serverUserListEntryHashMap.containsKey(user)) {
+            ServerUserListEntry serverUserListEntry = serverUserListEntryHashMap.get(user);
+            Platform.runLater(() -> {
+                offlineUserList.getChildren().remove(serverUserListEntry);
+                onlineUserList.getChildren().remove(serverUserListEntry);
+            });
+        }
     }
 
     private void offlineUser(User user) {
         removeUser(user);
-        Platform.runLater(() -> {
-            ServerUserListEntry serverUserListEntry = new ServerUserListEntry(user);
-            serverUserListEntryHashMap.put(user.getId(), serverUserListEntry);
-            offlineUserList.getChildren().add(serverUserListEntry);
-        });
+        ServerUserListEntry serverUserListEntry = new ServerUserListEntry(user);
+        serverUserListEntryHashMap.put(user, serverUserListEntry);
+        Platform.runLater(() -> offlineUserList.getChildren().add(serverUserListEntry));
     }
 
     private void onlineUser(User user) {
         removeUser(user);
-        Platform.runLater(() -> {
-            ServerUserListEntry serverUserListEntry = new ServerUserListEntry(user);
-            serverUserListEntryHashMap.put(user.getId(), serverUserListEntry);
-            onlineUserList.getChildren().add(serverUserListEntry);
-        });
+        ServerUserListEntry serverUserListEntry = new ServerUserListEntry(user);
+        serverUserListEntryHashMap.put(user, serverUserListEntry);
+        Platform.runLater(() -> onlineUserList.getChildren().add(serverUserListEntry));
     }
 
     public void stop() {
-        Accord accord = editor.getOrCreateAccord();
-        accord.listeners().removePropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
+        model.listeners().removePropertyChangeListener(Server.PROPERTY_USERS, availableUsersPropertyChangeListener);
+        for (User user : model.getUsers()) {
+            user.listeners().removePropertyChangeListener(userStatusPropertyChangeListener);
+        }
         serverUserListEntryHashMap.clear();
         onlineUserList.getChildren().clear();
         offlineUserList.getChildren().clear();
