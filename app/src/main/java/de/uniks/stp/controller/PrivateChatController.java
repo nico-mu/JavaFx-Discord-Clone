@@ -257,7 +257,6 @@ public class PrivateChatController implements ControllerInterface {
         Platform.runLater(() -> {
             Parent easterEggModalView = ViewLoader.loadView(Views.EASTER_EGG_MODAL);
             easterEggModal = new EasterEggModal(easterEggModalView,
-                currentUser,
                 chatPartner,
                 this::closeEasterEggModal);
             easterEggModal.show();
