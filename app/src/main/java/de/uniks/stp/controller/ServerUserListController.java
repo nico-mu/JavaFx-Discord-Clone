@@ -55,28 +55,49 @@ public class ServerUserListController implements ControllerInterface {
     }
 
     private void addUser(User user) {
-        if(user.isStatus()) {
+        if (user.isStatus()) {
             onlineUser(user);
-        }
-        else {
+        } else {
             offlineUser(user);
+        }
+    }
+
+    private void addStatusPropertyChangeListener(User user) {
+        if (user.listeners().getPropertyChangeListeners(User.PROPERTY_STATUS).length == 0) {
+            user.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, userStatusPropertyChangeListener);
         }
     }
 
     private void onAvailableUsersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
         User user = (User) propertyChangeEvent.getNewValue();
+        User oldUser = (User) propertyChangeEvent.getOldValue();
 
-        if(Objects.isNull(user)){
+        if (Objects.isNull(user)) {
             // in case the server was deleted
+            removeUser(oldUser);
+            oldUser.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, userStatusPropertyChangeListener);
             return;
         }
-       addUser(user);
+        addUser(user);
+        addStatusPropertyChangeListener(user);
     }
 
     private void handleServerInformationRequest(HttpResponse<JsonNode> response) {
         if (response.isSuccess()) {
-            final JSONArray data = response.getBody().getObject().getJSONObject("data").getJSONArray("members");
-            data.forEach(o -> {
+            final JSONObject data = response.getBody().getObject().getJSONObject("data");
+            final JSONArray member = data.getJSONArray("members");
+            final String serverId = data.getString("id");
+            final String serverName = data.getString("name");
+            final String serverOwner = data.getString("owner");
+
+            // add server to model -> to NavBar List
+            if (serverOwner.equals(editor.getOrCreateAccord().getCurrentUser().getId())) {
+                editor.getOrCreateServer(serverId, serverName).setOwner(editor.getOrCreateAccord().getCurrentUser());
+            } else {
+                editor.getOrCreateServer(serverId, serverName);
+            }
+
+            member.forEach(o -> {
                 JSONObject jsonUser = (JSONObject) o;
                 String userId = jsonUser.getString("id");
                 String name = jsonUser.getString("name");
@@ -85,18 +106,18 @@ public class ServerUserListController implements ControllerInterface {
                 User serverMember = editor.getOrCreateServerMember(userId, name, model);
                 serverMember.setStatus(status);
                 addUser(serverMember);
-                serverMember.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, userStatusPropertyChangeListener);
+                addStatusPropertyChangeListener(serverMember);
             });
         }
     }
 
     private void onUserStatusPropertyChange(PropertyChangeEvent propertyChangeEvent) {
         User user = (User) propertyChangeEvent.getSource();
-       addUser(user);
+        addUser(user);
     }
 
     private void removeUser(User user) {
-        if(serverUserListEntryHashMap.containsKey(user)) {
+        if (serverUserListEntryHashMap.containsKey(user)) {
             ServerUserListEntry serverUserListEntry = serverUserListEntryHashMap.get(user);
             Platform.runLater(() -> {
                 offlineUserList.getChildren().remove(serverUserListEntry);

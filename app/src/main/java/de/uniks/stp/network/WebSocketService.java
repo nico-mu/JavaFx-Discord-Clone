@@ -366,6 +366,26 @@ public class WebSocketService {
                     serverId = data.getString("server");
                     editor.deleteCategory(serverId, categoryId);
                     break;
+                case "userExited":
+                    userId = data.getString("id");
+                    userName = data.getString("name");
+                    server = editor.getServer(serverId);
+                    User user;
+                    if (editor.getOrCreateAccord().getCurrentUser().getId().equals(userId)) {
+                        user = editor.getOrCreateAccord().getCurrentUser();
+                    } else {
+                        user = editor.getOrCreateServerMember(userId, userName, server);
+                    }
+                    server.withoutUsers(user);
+                    break;
+                case "userArrived":
+                    userId = data.getString("id");
+                    userName = data.getString("name");
+                    boolean status = data.getBoolean("online");
+                    server = editor.getServer(serverId);
+                    editor.getOrCreateServerMember(userId, userName, server).setStatus(status);
+                    break;
+
                 default:
                     log.error("WebSocketService: can't process server system message with content: {}", jsonObject);
                     break;
