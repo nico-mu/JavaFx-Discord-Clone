@@ -315,5 +315,6 @@ public class Editor {
         channel.setServer(null);
         channel.getCategory().withoutChannels(channel);
         DatabaseService.removeMutedChannelId(channelId);
+        channel.removeYou();
     }
 }

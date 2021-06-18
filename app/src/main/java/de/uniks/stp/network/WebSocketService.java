@@ -333,9 +333,20 @@ public class WebSocketService {
                     String chName = data.getString("name");
                     String chType = data.getString("type");
                     boolean priv = data.getBoolean("privileged");
+                    String categId = data.getString("category");
                     JsonArray jsonMembers = data.getJsonArray("members");
 
                     Channel ch = editor.getChannelById(chId);
+                    if(Objects.isNull(ch)) {
+                        ch = new Channel().setId(chId);
+                        NotificationService.register(ch);
+                        for (Category category : editor.getServer(serverId).getCategories()) {
+                            if (category.getId().equals(categId)) {
+                                category.withChannels(ch);
+                                ch.setServer(editor.getServer(serverId));
+                            }
+                        }
+                    }
                     ch.setName(chName);
                     ch.setType(chType);
                     ch.setPrivileged(priv);

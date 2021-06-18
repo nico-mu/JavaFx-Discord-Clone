@@ -183,8 +183,13 @@ public class EditChannelModal extends AbstractModal {
             DatabaseService.removeMutedChannelId(channelId);
         }
 
-        if(hasRestChanges(chName, priv, selectUserList.getSelectedUserIds())) {
-            restClient.editTextChannel(serverId, categoryId, channelId, chName, priv, selectUserList.getSelectedUserIds(), this::handleEditChannelResponse);
+        ArrayList<String> privilegedUserIds = selectUserList.getSelectedUserIds();
+        if(!privilegedUserIds.contains(editor.getOrCreateAccord().getCurrentUser().getId())) {
+            privilegedUserIds.add(editor.getOrCreateAccord().getCurrentUser().getId());
+        }
+
+        if(hasRestChanges(chName, priv, privilegedUserIds)) {
+            restClient.editTextChannel(serverId, categoryId, channelId, chName, priv, privilegedUserIds, this::handleEditChannelResponse);
         }else {
             this.close();
         }
