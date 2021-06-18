@@ -161,17 +161,6 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         navBarUserElementHashMap.clear();
         navBarServerElementHashMap.clear();
 
-        /* for (Server server : editor.getOrCreateAccord().getCurrentUser().getAvailableServers()) {
-            for (Category category : server.getCategories()) {
-                for (Channel channel : category.getChannels()) {
-                    NotificationService.removePublisher(channel);
-                }
-            }
-            for (Channel channel : server.getChannels()) {
-                NotificationService.removePublisher(channel);
-            }
-        }*/
-
         NotificationService.removeChannelSubscriber(this);
         NotificationService.removeUserSubscriber(this);
     }
