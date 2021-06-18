@@ -1,5 +1,6 @@
 package de.uniks.stp.controller;
 
+import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
@@ -215,8 +216,11 @@ public class NotificationTest {
         Category category = editor.getOrCreateCategory(categoryId, categoryName, server);
         Channel channel = editor.getOrCreateChannel(channelOneId, "ChannelOne", category);
         server.withCategories(category);
+        Channel channel2 = editor.getOrCreateChannel(channelTwoId, "Channel2", category);
+        server.withChannels(channel2);
         server.withChannels(channel);
         NotificationService.register(channel);
+        NotificationService.register(channel2);
 
         currentUser.withAvailableServers(server);
         userOne.withAvailableServers(server);
@@ -294,24 +298,6 @@ public class NotificationTest {
         Platform.runLater(() -> Router.routeWithArgs(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgs));
         WaitForAsyncUtils.waitForFxEvents();
 
-        // handle rest calls that are made when initializing ServerView
-        when(catRes.getBody()).thenReturn(new JsonNode(jCat.toString()));
-        when(catRes.isSuccess()).thenReturn(true);
-
-        verify(restMock).getCategories(eq(serverId), catCallbackCaptor.capture());
-        Callback<JsonNode> catCallback = catCallbackCaptor.getValue();
-        catCallback.completed(catRes);
-        WaitForAsyncUtils.waitForFxEvents();
-
-        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-        when(res.isSuccess()).thenReturn(true);
-
-        verify(restMock).getChannels(eq(serverId), eq(categoryId), callbackCaptor.capture());
-        Callback<JsonNode> callback = callbackCaptor.getValue();
-        callback.completed(res);
-        WaitForAsyncUtils.waitForFxEvents();
-
-
         Assertions.assertEquals(2, NotificationService.getServerNotificationCount(server));
         for (Channel c : server.getChannels()) {
             if (c.getId().equals(channelOneId)) {
@@ -349,6 +335,156 @@ public class NotificationTest {
                 Assertions.assertEquals(0, NotificationService.getPublisherNotificationCount(c));
             }
         }
+    }
+
+    @Test
+    public void muteChannelTest(FxRobot robot) {
+        Editor editor = StageManager.getEditor();
+
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
+
+        String serverName = "TestServer";
+        String serverId = "12345678";
+        Server testServer = new Server().setName(serverName).setId(serverId);
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .withAvailableServers(testServer);
+
+        String categoryName = "TestCategory";
+        String categoryId = "catId123";
+
+        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        WaitForAsyncUtils.waitForFxEvents();
+        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
+
+        String channelId = "chId1234";
+        String channelName = "testChannel";
+        Channel channel = new Channel().setName(channelName).setId(channelId).setPrivileged(false).setType("text");
+        category.withChannels(channel);
+        testServer.withChannels(channel);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+        DatabaseService.removeMutedChannelId(channelId);
+        Assertions.assertFalse(DatabaseService.isChannelMuted(channelId));
+
+        robot.clickOn("#channel-container");
+        robot.point("#channel-container");
+        robot.point("#edit-channel");
+        robot.clickOn("#edit-channel");
+
+        JFXToggleButton notificationToggleButton =  robot.lookup("#notifications-toggle-button").query();
+        Assertions.assertTrue(notificationToggleButton.isSelected());
+
+        robot.clickOn("#notifications-toggle-button");
+        robot.clickOn("#edit-channel-create-button");
+
+        Assertions.assertTrue(DatabaseService.isChannelMuted(channelId));
+
+        robot.clickOn("#channel-container");
+        robot.point("#channel-container");
+        robot.point("#edit-channel");
+        robot.clickOn("#edit-channel");
+
+        robot.clickOn("#notifications-toggle-button");
+        robot.clickOn("#edit-channel-create-button");
+
+        Assertions.assertFalse(DatabaseService.isChannelMuted(channelId));
+    }
+
+    @Test
+    public void muteCategoryTest(FxRobot robot) {
+        Editor editor = StageManager.getEditor();
+
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
+
+        String serverName = "TestServer";
+        String serverId = "12345678";
+        Server testServer = new Server().setName(serverName).setId(serverId);
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .withAvailableServers(testServer);
+
+        String categoryName = "TestCategory";
+        String categoryId = "catId123";
+
+        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        WaitForAsyncUtils.waitForFxEvents();
+        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        DatabaseService.removeMutedCategoryId(categoryId);
+        Assertions.assertFalse(DatabaseService.isCategoryMuted(categoryId));
+
+        robot.clickOn("#" + categoryId + "-ServerCategoryElementLabel");
+        robot.point("#edit-category-gear");
+        robot.clickOn("#edit-category-gear");
+
+        JFXToggleButton notificationToggleButton =  robot.lookup("#notifications-toggle-button").query();
+        Assertions.assertTrue(notificationToggleButton.isSelected());
+
+        robot.clickOn("#notifications-toggle-button");
+        robot.clickOn("#save-button");
+
+        Assertions.assertTrue(DatabaseService.isCategoryMuted(categoryId));
+
+        robot.clickOn("#" + categoryId + "-ServerCategoryElementLabel");
+        robot.point("#edit-category-gear");
+        robot.clickOn("#edit-category-gear");
+
+        Assertions.assertFalse(notificationToggleButton.isSelected());
+
+        robot.clickOn("#notifications-toggle-button");
+        robot.clickOn("#save-button");
+
+        Assertions.assertFalse(DatabaseService.isCategoryMuted(categoryId));
+    }
+
+    @Test
+    public void muteServerTest(FxRobot robot) {
+        Editor editor = StageManager.getEditor();
+
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
+
+        String serverName = "TestServer";
+        String serverId = "12345678";
+        Server testServer = new Server().setName(serverName).setId(serverId);
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .withAvailableServers(testServer);
+
+        String categoryName = "TestCategory";
+        String categoryId = "catId123";
+
+        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        DatabaseService.removeMutedServerId(serverId);
+        Assertions.assertFalse(DatabaseService.isServerMuted(serverId));
+
+        robot.clickOn("#settings-label");
+        robot.clickOn("#edit-menu-item");
+
+        JFXToggleButton notificationToggleButton =  robot.lookup("#notifications-toggle-button").query();
+        Assertions.assertTrue(notificationToggleButton.isSelected());
+
+        robot.clickOn("#notifications-toggle-button");
+        robot.clickOn("#save-button");
+
+        Assertions.assertTrue(DatabaseService.isServerMuted(serverId));
+
+        robot.clickOn("#settings-label");
+        robot.clickOn("#edit-menu-item");
+
+        Assertions.assertFalse(notificationToggleButton.isSelected());
+
+        robot.clickOn("#notifications-toggle-button");
+        robot.clickOn("#save-button");
+
+        Assertions.assertFalse(DatabaseService.isServerMuted(serverId));
     }
 
     @AfterEach

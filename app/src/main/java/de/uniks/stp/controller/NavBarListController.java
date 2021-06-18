@@ -12,6 +12,7 @@ import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.ServerInformationHandler;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationEvent;
 import de.uniks.stp.notification.NotificationService;
@@ -45,6 +46,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
     private AnchorPane anchorPane;
     private RestClient restClient;
+    private ServerInformationHandler serverInformationHandler;
 
     // needed for property change listener clean up
     private final ConcurrentHashMap<Server, NavBarServerElement> navBarServerElementHashMap = new ConcurrentHashMap<>();
@@ -56,6 +58,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         this.editor = editor;
         this.navBarList = new NavBarList(editor);
         this.restClient = NetworkClientInjector.getRestClient();
+        this.serverInformationHandler = new ServerInformationHandler(editor);
     }
 
     @Override
@@ -111,7 +114,6 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
     protected void callback(HttpResponse<JsonNode> response) {
         if (response.isSuccess()) {
-            //TODO: hide spinner
             JSONArray jsonArray = response.getBody().getObject().getJSONArray("data");
             for (Object element : jsonArray) {
                 JSONObject jsonObject = (JSONObject) element;
@@ -120,6 +122,8 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
                 final Server server = editor.getOrCreateServer(serverId, name);
                 serverAdded(server);
+                restClient.getServerInformation(serverId, serverInformationHandler::handleServerInformationRequest);
+                restClient.getCategories(server.getId(), (msg) -> serverInformationHandler.handleCategories(msg, server));
             }
             if (Router.getCurrentArgs().containsKey(":id") && Router.getCurrentArgs().containsKey(":channelId")) {
                 String activeServerId = Router.getCurrentArgs().get(":id");

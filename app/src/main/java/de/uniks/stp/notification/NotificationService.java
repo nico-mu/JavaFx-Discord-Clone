@@ -1,15 +1,14 @@
 package de.uniks.stp.notification;
 
 import de.uniks.stp.AudioService;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.Router;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -136,6 +135,9 @@ public class NotificationService {
      * @param publisher channel that sent a channel message
      */
     public static void onChannelMessage(Channel publisher) {
+        if(DatabaseService.isChannelMuted(publisher.getId()) || DatabaseService.isServerMuted(publisher.getServer().getId()) || DatabaseService.isCategoryMuted(publisher.getCategory().getId())) {
+            return;
+        }
         HashMap<String, String> routeArgs = Router.getCurrentArgs();
         if (routeArgs.containsKey(":channelId") && routeArgs.get(":channelId").equals(publisher.getId())) {
             return;

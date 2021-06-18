@@ -233,7 +233,7 @@
       "no": 18,
       "code": "U+263A",
       "emoji": "☺",
-      "description": "WHITE SMILING FACE≊ smiling face",
+      "description": "WHITE SMILING FACE| smiling face",
       "flagged": false,
       "keywords": [
         "face",
@@ -593,7 +593,7 @@
       "no": 48,
       "code": "U+2639",
       "emoji": "☹",
-      "description": "WHITE FROWNING FACE≊ frowning face",
+      "description": "WHITE FROWNING FACE| frowning face",
       "flagged": false,
       "keywords": [
         "face",
@@ -648,7 +648,7 @@
       "no": 53,
       "code": "U+1F624",
       "emoji": "😤",
-      "description": "FACE WITH LOOK OF TRIUMPH≊ face with steam from nose",
+      "description": "FACE WITH LOOK OF TRIUMPH| face with steam from nose",
       "flagged": false,
       "keywords": [
         "face",
@@ -974,7 +974,7 @@
       "no": 78,
       "code": "U+1F479",
       "emoji": "👹",
-      "description": "JAPANESE OGRE≊ ogre",
+      "description": "JAPANESE OGRE| ogre",
       "flagged": false,
       "keywords": [
         "creature",
@@ -990,7 +990,7 @@
       "no": 79,
       "code": "U+1F47A",
       "emoji": "👺",
-      "description": "JAPANESE GOBLIN≊ goblin",
+      "description": "JAPANESE GOBLIN| goblin",
       "flagged": false,
       "keywords": [
         "creature",
@@ -1051,7 +1051,7 @@
       "no": 83,
       "code": "U+1F47D",
       "emoji": "👽",
-      "description": "EXTRATERRESTRIAL ALIEN≊ alien",
+      "description": "EXTRATERRESTRIAL ALIEN| alien",
       "flagged": false,
       "keywords": [
         "alien",
@@ -1237,7 +1237,7 @@
       "no": 96,
       "code": "U+1F648",
       "emoji": "🙈",
-      "description": "SEE-NO-EVIL MONKEY≊ see-no-evil",
+      "description": "SEE-NO-EVIL MONKEY| see-no-evil",
       "flagged": false,
       "keywords": [
         "evil",
@@ -1255,7 +1255,7 @@
       "no": 97,
       "code": "U+1F649",
       "emoji": "🙉",
-      "description": "HEAR-NO-EVIL MONKEY≊ hear-no-evil",
+      "description": "HEAR-NO-EVIL MONKEY| hear-no-evil",
       "flagged": false,
       "keywords": [
         "evil",
@@ -1273,7 +1273,7 @@
       "no": 98,
       "code": "U+1F64A",
       "emoji": "🙊",
-      "description": "SPEAK-NO-EVIL MONKEY≊ speak-no-evil",
+      "description": "SPEAK-NO-EVIL MONKEY| speak-no-evil",
       "flagged": false,
       "keywords": [
         "evil",
@@ -1363,7 +1363,7 @@
       "no": 123,
       "code": "U+1F474",
       "emoji": "👴",
-      "description": "OLDER MAN≊ old man",
+      "description": "OLDER MAN| old man",
       "flagged": false,
       "keywords": [
         "man",
@@ -1381,7 +1381,7 @@
       "no": 129,
       "code": "U+1F475",
       "emoji": "👵",
-      "description": "OLDER WOMAN≊ old woman",
+      "description": "OLDER WOMAN| old woman",
       "flagged": false,
       "keywords": [
         "old",
@@ -1473,7 +1473,7 @@
       "no": 159,
       "code": "U+1F472",
       "emoji": "👲",
-      "description": "MAN WITH GUA PI MAO≊ man with chinese cap",
+      "description": "MAN WITH GUA PI MAO| man with chinese cap",
       "flagged": false,
       "keywords": [
         "gua pi mao",
@@ -1583,7 +1583,7 @@
       "no": 195,
       "code": "U+1F575",
       "emoji": "🕵",
-      "description": "SLEUTH OR SPY≊ detective",
+      "description": "SLEUTH OR SPY| detective",
       "flagged": false,
       "keywords": [
         "detective",
@@ -1602,7 +1602,7 @@
       "no": 201,
       "code": "U+1F385",
       "emoji": "🎅",
-      "description": "FATHER CHRISTMAS≊ santa claus",
+      "description": "FATHER CHRISTMAS| santa claus",
       "flagged": false,
       "keywords": [
         "activity",
@@ -1738,7 +1738,7 @@
       "no": 243,
       "code": "U+1F64E",
       "emoji": "🙎",
-      "description": "PERSON WITH POUTING FACE≊ person pouting",
+      "description": "PERSON WITH POUTING FACE| person pouting",
       "flagged": false,
       "keywords": [
         "gesture",
@@ -1756,7 +1756,7 @@
       "no": 249,
       "code": "U+1F645",
       "emoji": "🙅",
-      "description": "FACE WITH NO GOOD GESTURE≊ gesturing no",
+      "description": "FACE WITH NO GOOD GESTURE| gesturing no",
       "flagged": false,
       "keywords": [
         "forbidden",
@@ -1778,7 +1778,7 @@
       "no": 255,
       "code": "U+1F646",
       "emoji": "🙆",
-      "description": "FACE WITH OK GESTURE≊ gesturing ok",
+      "description": "FACE WITH OK GESTURE| gesturing ok",
       "flagged": false,
       "keywords": [
         "gesture",
@@ -1837,7 +1837,7 @@
       "no": 273,
       "code": "U+1F64B",
       "emoji": "🙋",
-      "description": "HAPPY PERSON RAISING ONE HAND≊ happy person raising hand",
+      "description": "HAPPY PERSON RAISING ONE HAND| happy person raising hand",
       "flagged": false,
       "keywords": [
         "gesture",
@@ -1877,7 +1877,7 @@
       "no": 285,
       "code": "U+1F647",
       "emoji": "🙇",
-      "description": "PERSON BOWING DEEPLY≊ person bowing",
+      "description": "PERSON BOWING DEEPLY| person bowing",
       "flagged": false,
       "keywords": [
         "apology",
@@ -1989,7 +1989,7 @@
       "no": 321,
       "code": "U+1F46F",
       "emoji": "👯",
-      "description": "WOMAN WITH BUNNY EARS≊ women partying",
+      "description": "WOMAN WITH BUNNY EARS| women partying",
       "flagged": false,
       "keywords": [
         "bunny",
@@ -2015,7 +2015,7 @@
       "no": 323,
       "code": "U+1F5E3",
       "emoji": "🗣",
-      "description": "SPEAKING HEAD IN SILHOUETTE≊ speaking head",
+      "description": "SPEAKING HEAD IN SILHOUETTE| speaking head",
       "flagged": false,
       "keywords": [
         "face",
@@ -2388,7 +2388,7 @@
       "no": 353,
       "code": "U+1F3FB",
       "emoji": "🏻",
-      "description": "EMOJI MODIFIER FITZPATRICK TYPE-1-2≊ skin type-1-2",
+      "description": "EMOJI MODIFIER FITZPATRICK TYPE-1-2| skin type-1-2",
       "flagged": true,
       "keywords": [
         "emoji modifier",
@@ -2401,7 +2401,7 @@
       "no": 354,
       "code": "U+1F3FC",
       "emoji": "🏼",
-      "description": "EMOJI MODIFIER FITZPATRICK TYPE-3≊ skin type-3",
+      "description": "EMOJI MODIFIER FITZPATRICK TYPE-3| skin type-3",
       "flagged": true,
       "keywords": [
         "emoji modifier",
@@ -2414,7 +2414,7 @@
       "no": 355,
       "code": "U+1F3FD",
       "emoji": "🏽",
-      "description": "EMOJI MODIFIER FITZPATRICK TYPE-4≊ skin type-4",
+      "description": "EMOJI MODIFIER FITZPATRICK TYPE-4| skin type-4",
       "flagged": true,
       "keywords": [
         "emoji modifier",
@@ -2427,7 +2427,7 @@
       "no": 356,
       "code": "U+1F3FE",
       "emoji": "🏾",
-      "description": "EMOJI MODIFIER FITZPATRICK TYPE-5≊ skin type-5",
+      "description": "EMOJI MODIFIER FITZPATRICK TYPE-5| skin type-5",
       "flagged": true,
       "keywords": [
         "emoji modifier",
@@ -2440,7 +2440,7 @@
       "no": 357,
       "code": "U+1F3FF",
       "emoji": "🏿",
-      "description": "EMOJI MODIFIER FITZPATRICK TYPE-6≊ skin type-6",
+      "description": "EMOJI MODIFIER FITZPATRICK TYPE-6| skin type-6",
       "flagged": true,
       "keywords": [
         "emoji modifier",
@@ -2493,7 +2493,7 @@
       "no": 370,
       "code": "U+1F448",
       "emoji": "👈",
-      "description": "WHITE LEFT POINTING BACKHAND INDEX≊ backhand index pointing left",
+      "description": "WHITE LEFT POINTING BACKHAND INDEX| backhand index pointing left",
       "flagged": false,
       "keywords": [
         "backhand",
@@ -2515,7 +2515,7 @@
       "no": 376,
       "code": "U+1F449",
       "emoji": "👉",
-      "description": "WHITE RIGHT POINTING BACKHAND INDEX≊ backhand index pointing right",
+      "description": "WHITE RIGHT POINTING BACKHAND INDEX| backhand index pointing right",
       "flagged": false,
       "keywords": [
         "backhand",
@@ -2537,7 +2537,7 @@
       "no": 382,
       "code": "U+261D",
       "emoji": "☝",
-      "description": "WHITE UP POINTING INDEX≊ index pointing up",
+      "description": "WHITE UP POINTING INDEX| index pointing up",
       "flagged": false,
       "keywords": [
         "body",
@@ -2559,7 +2559,7 @@
       "no": 388,
       "code": "U+1F446",
       "emoji": "👆",
-      "description": "WHITE UP POINTING BACKHAND INDEX≊ backhand index pointing up",
+      "description": "WHITE UP POINTING BACKHAND INDEX| backhand index pointing up",
       "flagged": false,
       "keywords": [
         "backhand",
@@ -2582,7 +2582,7 @@
       "no": 394,
       "code": "U+1F595",
       "emoji": "🖕",
-      "description": "REVERSED HAND WITH MIDDLE FINGER EXTENDED≊ middle finger",
+      "description": "REVERSED HAND WITH MIDDLE FINGER EXTENDED| middle finger",
       "flagged": false,
       "keywords": [
         "body",
@@ -2602,7 +2602,7 @@
       "no": 400,
       "code": "U+1F447",
       "emoji": "👇",
-      "description": "WHITE DOWN POINTING BACKHAND INDEX≊ backhand index pointing down",
+      "description": "WHITE DOWN POINTING BACKHAND INDEX| backhand index pointing down",
       "flagged": false,
       "keywords": [
         "backhand",
@@ -2665,7 +2665,7 @@
       "no": 418,
       "code": "U+1F596",
       "emoji": "🖖",
-      "description": "RAISED HAND WITH PART BETWEEN MIDDLE AND RING FINGERS≊ vulcan salute",
+      "description": "RAISED HAND WITH PART BETWEEN MIDDLE AND RING FINGERS| vulcan salute",
       "flagged": false,
       "keywords": [
         "body",
@@ -2763,7 +2763,7 @@
       "no": 448,
       "code": "U+1F44C",
       "emoji": "👌",
-      "description": "OK HAND SIGN≊ ok hand",
+      "description": "OK HAND SIGN| ok hand",
       "flagged": false,
       "keywords": [
         "body",
@@ -2782,7 +2782,7 @@
       "no": 454,
       "code": "U+1F44D",
       "emoji": "👍",
-      "description": "THUMBS UP SIGN≊ thumbs up",
+      "description": "THUMBS UP SIGN| thumbs up",
       "flagged": false,
       "keywords": [
         "+1",
@@ -2804,7 +2804,7 @@
       "no": 460,
       "code": "U+1F44E",
       "emoji": "👎",
-      "description": "THUMBS DOWN SIGN≊ thumbs down",
+      "description": "THUMBS DOWN SIGN| thumbs down",
       "flagged": false,
       "keywords": [
         "-1",
@@ -2847,7 +2847,7 @@
       "no": 472,
       "code": "U+1F44A",
       "emoji": "👊",
-      "description": "FISTED HAND SIGN≊ oncoming fist",
+      "description": "FISTED HAND SIGN| oncoming fist",
       "flagged": false,
       "keywords": [
         "body",
@@ -2922,7 +2922,7 @@
       "no": 496,
       "code": "U+1F44B",
       "emoji": "👋",
-      "description": "WAVING HAND SIGN≊ waving hand",
+      "description": "WAVING HAND SIGN| waving hand",
       "flagged": false,
       "keywords": [
         "body",
@@ -2942,7 +2942,7 @@
       "no": 502,
       "code": "U+1F44F",
       "emoji": "👏",
-      "description": "CLAPPING HANDS SIGN≊ clapping hands",
+      "description": "CLAPPING HANDS SIGN| clapping hands",
       "flagged": false,
       "keywords": [
         "body",
@@ -2980,7 +2980,7 @@
       "no": 514,
       "code": "U+1F450",
       "emoji": "👐",
-      "description": "OPEN HANDS SIGN≊ open hands",
+      "description": "OPEN HANDS SIGN| open hands",
       "flagged": false,
       "keywords": [
         "body",
@@ -2999,7 +2999,7 @@
       "no": 520,
       "code": "U+1F64C",
       "emoji": "🙌",
-      "description": "PERSON RAISING BOTH HANDS IN CELEBRATION≊ person raising hands",
+      "description": "PERSON RAISING BOTH HANDS IN CELEBRATION| person raising hands",
       "flagged": false,
       "keywords": [
         "body",
@@ -3021,7 +3021,7 @@
       "no": 526,
       "code": "U+1F64F",
       "emoji": "🙏",
-      "description": "PERSON WITH FOLDED HANDS≊ folded hands",
+      "description": "PERSON WITH FOLDED HANDS| folded hands",
       "flagged": false,
       "keywords": [
         "ask",
@@ -3161,7 +3161,7 @@
       "no": 559,
       "code": "U+1F441 U+200D U+1F5E8",
       "emoji": "👁‍🗨",
-      "description": "EYE, LEFT SPEECH BUBBLE≊ eye in speech bubble",
+      "description": "EYE, LEFT SPEECH BUBBLE| eye in speech bubble",
       "flagged": false,
       "keywords": [
         "bubble",
@@ -3224,7 +3224,7 @@
       "no": 564,
       "code": "U+2764",
       "emoji": "❤",
-      "description": "HEAVY BLACK HEART≊ red heart",
+      "description": "HEAVY BLACK HEART| red heart",
       "flagged": false,
       "keywords": [
         "heart"
@@ -3413,7 +3413,7 @@
       "no": 580,
       "code": "U+1F4A4",
       "emoji": "💤",
-      "description": "SLEEPING SYMBOL≊ zzz",
+      "description": "SLEEPING SYMBOL| zzz",
       "flagged": false,
       "keywords": [
         "comic",
@@ -3448,7 +3448,7 @@
       "no": 583,
       "code": "U+1F4A5",
       "emoji": "💥",
-      "description": "COLLISION SYMBOL≊ collision",
+      "description": "COLLISION SYMBOL| collision",
       "flagged": false,
       "keywords": [
         "boom",
@@ -3460,7 +3460,7 @@
       "no": 584,
       "code": "U+1F4A6",
       "emoji": "💦",
-      "description": "SPLASHING SWEAT SYMBOL≊ sweat droplets",
+      "description": "SPLASHING SWEAT SYMBOL| sweat droplets",
       "flagged": false,
       "keywords": [
         "comic",
@@ -3472,7 +3472,7 @@
       "no": 585,
       "code": "U+1F4A8",
       "emoji": "💨",
-      "description": "DASH SYMBOL≊ dashing",
+      "description": "DASH SYMBOL| dashing",
       "flagged": false,
       "keywords": [
         "comic",
@@ -3484,7 +3484,7 @@
       "no": 586,
       "code": "U+1F4AB",
       "emoji": "💫",
-      "description": "DIZZY SYMBOL≊ dizzy",
+      "description": "DIZZY SYMBOL| dizzy",
       "flagged": false,
       "keywords": [
         "comic",
@@ -3557,7 +3557,7 @@
       "no": 592,
       "code": "U+1F453",
       "emoji": "👓",
-      "description": "EYEGLASSES≊ glasses",
+      "description": "EYEGLASSES| glasses",
       "flagged": false,
       "keywords": [
         "clothing",
@@ -3571,7 +3571,7 @@
       "no": 593,
       "code": "U+1F576",
       "emoji": "🕶",
-      "description": "DARK SUNGLASSES≊ sunglasses",
+      "description": "DARK SUNGLASSES| sunglasses",
       "flagged": false,
       "keywords": [
         "dark",
@@ -3655,7 +3655,7 @@
       "no": 600,
       "code": "U+1F45A",
       "emoji": "👚",
-      "description": "WOMANS CLOTHES≊ woman’s clothes",
+      "description": "WOMANS CLOTHES| woman’s clothes",
       "flagged": false,
       "keywords": [
         "clothing",
@@ -3714,7 +3714,7 @@
       "no": 605,
       "code": "U+1F392",
       "emoji": "🎒",
-      "description": "SCHOOL SATCHEL≊ school backpack",
+      "description": "SCHOOL SATCHEL| school backpack",
       "flagged": false,
       "keywords": [
         "activity",
@@ -3727,7 +3727,7 @@
       "no": 606,
       "code": "U+1F45E",
       "emoji": "👞",
-      "description": "MANS SHOE≊ man’s shoe",
+      "description": "MANS SHOE| man’s shoe",
       "flagged": false,
       "keywords": [
         "clothing",
@@ -3739,7 +3739,7 @@
       "no": 607,
       "code": "U+1F45F",
       "emoji": "👟",
-      "description": "ATHLETIC SHOE≊ running shoe",
+      "description": "ATHLETIC SHOE| running shoe",
       "flagged": false,
       "keywords": [
         "athletic",
@@ -3765,7 +3765,7 @@
       "no": 609,
       "code": "U+1F461",
       "emoji": "👡",
-      "description": "WOMANS SANDAL≊ woman’s sandal",
+      "description": "WOMANS SANDAL| woman’s sandal",
       "flagged": false,
       "keywords": [
         "clothing",
@@ -3778,7 +3778,7 @@
       "no": 610,
       "code": "U+1F462",
       "emoji": "👢",
-      "description": "WOMANS BOOTS≊ woman’s boot",
+      "description": "WOMANS BOOTS| woman’s boot",
       "flagged": false,
       "keywords": [
         "boot",
@@ -3804,7 +3804,7 @@
       "no": 612,
       "code": "U+1F452",
       "emoji": "👒",
-      "description": "WOMANS HAT≊ woman’s hat",
+      "description": "WOMANS HAT| woman’s hat",
       "flagged": false,
       "keywords": [
         "clothing",
@@ -4237,7 +4237,7 @@
       "no": 649,
       "code": "U+1F42A",
       "emoji": "🐪",
-      "description": "DROMEDARY CAMEL≊ camel",
+      "description": "DROMEDARY CAMEL| camel",
       "flagged": false,
       "keywords": [
         "camel",
@@ -4249,7 +4249,7 @@
       "no": 650,
       "code": "U+1F42B",
       "emoji": "🐫",
-      "description": "BACTRIAN CAMEL≊ two-hump camel",
+      "description": "BACTRIAN CAMEL| two-hump camel",
       "flagged": false,
       "keywords": [
         "bactrian",
@@ -4499,7 +4499,7 @@
       "no": 673,
       "code": "U+1F54A",
       "emoji": "🕊",
-      "description": "DOVE OF PEACE≊ dove",
+      "description": "DOVE OF PEACE| dove",
       "flagged": false,
       "keywords": [
         "bird",
@@ -4995,7 +4995,7 @@
       "no": 716,
       "code": "U+1F332",
       "emoji": "🌲",
-      "description": "EVERGREEN TREE≊ evergreen",
+      "description": "EVERGREEN TREE| evergreen",
       "flagged": false,
       "keywords": [
         "evergreen",
@@ -5043,7 +5043,7 @@
       "no": 720,
       "code": "U+1F33E",
       "emoji": "🌾",
-      "description": "EAR OF RICE≊ sheaf of rice",
+      "description": "EAR OF RICE| sheaf of rice",
       "flagged": false,
       "keywords": [
         "ear",
@@ -5326,7 +5326,7 @@
       "no": 743,
       "code": "U+1F346",
       "emoji": "🍆",
-      "description": "AUBERGINE≊ eggplant",
+      "description": "AUBERGINE| eggplant",
       "flagged": false,
       "keywords": [
         "aubergine",
@@ -5361,7 +5361,7 @@
       "no": 746,
       "code": "U+1F33D",
       "emoji": "🌽",
-      "description": "EAR OF MAIZE≊ ear of corn",
+      "description": "EAR OF MAIZE| ear of corn",
       "flagged": false,
       "keywords": [
         "corn",
@@ -5548,7 +5548,7 @@
       "no": 762,
       "code": "U+1F355",
       "emoji": "🍕",
-      "description": "SLICE OF PIZZA≊ pizza",
+      "description": "SLICE OF PIZZA| pizza",
       "flagged": false,
       "keywords": [
         "cheese",
@@ -5722,7 +5722,7 @@
       "no": 777,
       "code": "U+1F35B",
       "emoji": "🍛",
-      "description": "CURRY AND RICE≊ curry rice",
+      "description": "CURRY AND RICE| curry rice",
       "flagged": false,
       "keywords": [
         "curry",
@@ -5806,7 +5806,7 @@
       "no": 784,
       "code": "U+1F365",
       "emoji": "🍥",
-      "description": "FISH CAKE WITH SWIRL DESIGN≊ fish cake with swirl",
+      "description": "FISH CAKE WITH SWIRL DESIGN| fish cake with swirl",
       "flagged": false,
       "keywords": [
         "cake",
@@ -6048,7 +6048,7 @@
       "no": 802,
       "code": "U+1F376",
       "emoji": "🍶",
-      "description": "SAKE BOTTLE AND CUP≊ sake",
+      "description": "SAKE BOTTLE AND CUP| sake",
       "flagged": false,
       "keywords": [
         "bar",
@@ -6206,7 +6206,7 @@
       "no": 814,
       "code": "U+1F52A",
       "emoji": "🔪",
-      "description": "HOCHO≊ kitchen knife",
+      "description": "HOCHO| kitchen knife",
       "flagged": false,
       "keywords": [
         "cooking",
@@ -6239,7 +6239,7 @@
       "no": 816,
       "code": "U+1F30D",
       "emoji": "🌍",
-      "description": "EARTH GLOBE EUROPE-AFRICA≊ globe showing europe-africa",
+      "description": "EARTH GLOBE EUROPE-AFRICA| globe showing europe-africa",
       "flagged": false,
       "keywords": [
         "africa",
@@ -6253,7 +6253,7 @@
       "no": 817,
       "code": "U+1F30E",
       "emoji": "🌎",
-      "description": "EARTH GLOBE AMERICAS≊ globe showing americas",
+      "description": "EARTH GLOBE AMERICAS| globe showing americas",
       "flagged": false,
       "keywords": [
         "americas",
@@ -6266,7 +6266,7 @@
       "no": 818,
       "code": "U+1F30F",
       "emoji": "🌏",
-      "description": "EARTH GLOBE ASIA-AUSTRALIA≊ globe showing asia-australia",
+      "description": "EARTH GLOBE ASIA-AUSTRALIA| globe showing asia-australia",
       "flagged": false,
       "keywords": [
         "asia",
@@ -6304,7 +6304,7 @@
       "no": 821,
       "code": "U+1F5FE",
       "emoji": "🗾",
-      "description": "SILHOUETTE OF JAPAN≊ map of japan",
+      "description": "SILHOUETTE OF JAPAN| map of japan",
       "flagged": false,
       "keywords": [
         "japan",
@@ -6315,7 +6315,7 @@
       "no": 822,
       "code": "U+1F3D4",
       "emoji": "🏔",
-      "description": "SNOW CAPPED MOUNTAIN≊ snow-capped mountain",
+      "description": "SNOW CAPPED MOUNTAIN| snow-capped mountain",
       "flagged": false,
       "keywords": [
         "cold",
@@ -6527,7 +6527,7 @@
       "no": 841,
       "code": "U+1F3E4",
       "emoji": "🏤",
-      "description": "EUROPEAN POST OFFICE≊ post office",
+      "description": "EUROPEAN POST OFFICE| post office",
       "flagged": false,
       "keywords": [
         "building",
@@ -6644,7 +6644,7 @@
       "no": 851,
       "code": "U+1F3F0",
       "emoji": "🏰",
-      "description": "EUROPEAN CASTLE≊ castle",
+      "description": "EUROPEAN CASTLE| castle",
       "flagged": false,
       "keywords": [
         "building",
@@ -6845,7 +6845,7 @@
       "no": 867,
       "code": "U+1F307",
       "emoji": "🌇",
-      "description": "SUNSET OVER BUILDINGS≊ sunset",
+      "description": "SUNSET OVER BUILDINGS| sunset",
       "flagged": false,
       "keywords": [
         "building",
@@ -7019,7 +7019,7 @@
       "no": 880,
       "code": "U+1F682",
       "emoji": "🚂",
-      "description": "STEAM LOCOMOTIVE≊ locomotive",
+      "description": "STEAM LOCOMOTIVE| locomotive",
       "flagged": false,
       "keywords": [
         "engine",
@@ -7432,7 +7432,7 @@
       "no": 913,
       "code": "U+1F6A8",
       "emoji": "🚨",
-      "description": "POLICE CARS REVOLVING LIGHT≊ police car’s light",
+      "description": "POLICE CARS REVOLVING LIGHT| police car’s light",
       "flagged": false,
       "keywords": [
         "beacon",
@@ -7471,7 +7471,7 @@
       "no": 916,
       "code": "U+1F6A7",
       "emoji": "🚧",
-      "description": "CONSTRUCTION SIGN≊ construction",
+      "description": "CONSTRUCTION SIGN| construction",
       "flagged": false,
       "keywords": [
         "barrier",
@@ -7666,7 +7666,7 @@
       "no": 937,
       "code": "U+1F6EC",
       "emoji": "🛬",
-      "description": "AIRPLANE ARRIVING≊ airplane arrival",
+      "description": "AIRPLANE ARRIVING| airplane arrival",
       "flagged": false,
       "keywords": [
         "airplane",
@@ -7789,7 +7789,7 @@
       "no": 947,
       "code": "U+1F6CC",
       "emoji": "🛌",
-      "description": "SLEEPING ACCOMMODATION≊ person in bed",
+      "description": "SLEEPING ACCOMMODATION| person in bed",
       "flagged": false,
       "keywords": [
         "hotel",
@@ -7845,7 +7845,7 @@
       "no": 952,
       "code": "U+1F6C0",
       "emoji": "🛀",
-      "description": "BATH≊ person taking bath",
+      "description": "BATH| person taking bath",
       "flagged": false,
       "keywords": [
         "bath",
@@ -7952,7 +7952,7 @@
       "no": 966,
       "code": "U+1F55B",
       "emoji": "🕛",
-      "description": "CLOCK FACE TWELVE OCLOCK≊ twelve o’clock",
+      "description": "CLOCK FACE TWELVE OCLOCK| twelve o’clock",
       "flagged": false,
       "keywords": [
         "00",
@@ -7967,7 +7967,7 @@
       "no": 967,
       "code": "U+1F567",
       "emoji": "🕧",
-      "description": "CLOCK FACE TWELVE-THIRTY≊ twelve-thirty",
+      "description": "CLOCK FACE TWELVE-THIRTY| twelve-thirty",
       "flagged": false,
       "keywords": [
         "12",
@@ -7982,7 +7982,7 @@
       "no": 968,
       "code": "U+1F550",
       "emoji": "🕐",
-      "description": "CLOCK FACE ONE OCLOCK≊ one o’clock",
+      "description": "CLOCK FACE ONE OCLOCK| one o’clock",
       "flagged": false,
       "keywords": [
         "00",
@@ -7997,7 +7997,7 @@
       "no": 969,
       "code": "U+1F55C",
       "emoji": "🕜",
-      "description": "CLOCK FACE ONE-THIRTY≊ one-thirty",
+      "description": "CLOCK FACE ONE-THIRTY| one-thirty",
       "flagged": false,
       "keywords": [
         "1",
@@ -8012,7 +8012,7 @@
       "no": 970,
       "code": "U+1F551",
       "emoji": "🕑",
-      "description": "CLOCK FACE TWO OCLOCK≊ two o’clock",
+      "description": "CLOCK FACE TWO OCLOCK| two o’clock",
       "flagged": false,
       "keywords": [
         "00",
@@ -8027,7 +8027,7 @@
       "no": 971,
       "code": "U+1F55D",
       "emoji": "🕝",
-      "description": "CLOCK FACE TWO-THIRTY≊ two-thirty",
+      "description": "CLOCK FACE TWO-THIRTY| two-thirty",
       "flagged": false,
       "keywords": [
         "2",
@@ -8042,7 +8042,7 @@
       "no": 972,
       "code": "U+1F552",
       "emoji": "🕒",
-      "description": "CLOCK FACE THREE OCLOCK≊ three o’clock",
+      "description": "CLOCK FACE THREE OCLOCK| three o’clock",
       "flagged": false,
       "keywords": [
         "00",
@@ -8057,7 +8057,7 @@
       "no": 973,
       "code": "U+1F55E",
       "emoji": "🕞",
-      "description": "CLOCK FACE THREE-THIRTY≊ three-thirty",
+      "description": "CLOCK FACE THREE-THIRTY| three-thirty",
       "flagged": false,
       "keywords": [
         "3",
@@ -8072,7 +8072,7 @@
       "no": 974,
       "code": "U+1F553",
       "emoji": "🕓",
-      "description": "CLOCK FACE FOUR OCLOCK≊ four o’clock",
+      "description": "CLOCK FACE FOUR OCLOCK| four o’clock",
       "flagged": false,
       "keywords": [
         "00",
@@ -8087,7 +8087,7 @@
       "no": 975,
       "code": "U+1F55F",
       "emoji": "🕟",
-      "description": "CLOCK FACE FOUR-THIRTY≊ four-thirty",
+      "description": "CLOCK FACE FOUR-THIRTY| four-thirty",
       "flagged": false,
       "keywords": [
         "30",
@@ -8102,7 +8102,7 @@
       "no": 976,
       "code": "U+1F554",
       "emoji": "🕔",
-      "description": "CLOCK FACE FIVE OCLOCK≊ five o’clock",
+      "description": "CLOCK FACE FIVE OCLOCK| five o’clock",
       "flagged": false,
       "keywords": [
         "00",
@@ -8117,7 +8117,7 @@
       "no": 977,
       "code": "U+1F560",
       "emoji": "🕠",
-      "description": "CLOCK FACE FIVE-THIRTY≊ five-thirty",
+      "description": "CLOCK FACE FIVE-THIRTY| five-thirty",
       "flagged": false,
       "keywords": [
         "30",
@@ -8132,7 +8132,7 @@
       "no": 978,
       "code": "U+1F555",
       "emoji": "🕕",
-      "description": "CLOCK FACE SIX OCLOCK≊ six o’clock",
+      "description": "CLOCK FACE SIX OCLOCK| six o’clock",
       "flagged": false,
       "keywords": [
         "00",
@@ -8147,7 +8147,7 @@
       "no": 979,
       "code": "U+1F561",
       "emoji": "🕡",
-      "description": "CLOCK FACE SIX-THIRTY≊ six-thirty",
+      "description": "CLOCK FACE SIX-THIRTY| six-thirty",
       "flagged": false,
       "keywords": [
         "30",
@@ -8162,7 +8162,7 @@
       "no": 980,
       "code": "U+1F556",
       "emoji": "🕖",
-      "description": "CLOCK FACE SEVEN OCLOCK≊ seven o’clock",
+      "description": "CLOCK FACE SEVEN OCLOCK| seven o’clock",
       "flagged": false,
       "keywords": [
         "00",
@@ -8177,7 +8177,7 @@
       "no": 981,
       "code": "U+1F562",
       "emoji": "🕢",
-      "description": "CLOCK FACE SEVEN-THIRTY≊ seven-thirty",
+      "description": "CLOCK FACE SEVEN-THIRTY| seven-thirty",
       "flagged": false,
       "keywords": [
         "30",
@@ -8192,7 +8192,7 @@
       "no": 982,
       "code": "U+1F557",
       "emoji": "🕗",
-      "description": "CLOCK FACE EIGHT OCLOCK≊ eight o’clock",
+      "description": "CLOCK FACE EIGHT OCLOCK| eight o’clock",
       "flagged": false,
       "keywords": [
         "00",
@@ -8207,7 +8207,7 @@
       "no": 983,
       "code": "U+1F563",
       "emoji": "🕣",
-      "description": "CLOCK FACE EIGHT-THIRTY≊ eight-thirty",
+      "description": "CLOCK FACE EIGHT-THIRTY| eight-thirty",
       "flagged": false,
       "keywords": [
         "30",
@@ -8222,7 +8222,7 @@
       "no": 984,
       "code": "U+1F558",
       "emoji": "🕘",
-      "description": "CLOCK FACE NINE OCLOCK≊ nine o’clock",
+      "description": "CLOCK FACE NINE OCLOCK| nine o’clock",
       "flagged": false,
       "keywords": [
         "00",
@@ -8237,7 +8237,7 @@
       "no": 985,
       "code": "U+1F564",
       "emoji": "🕤",
-      "description": "CLOCK FACE NINE-THIRTY≊ nine-thirty",
+      "description": "CLOCK FACE NINE-THIRTY| nine-thirty",
       "flagged": false,
       "keywords": [
         "30",
@@ -8252,7 +8252,7 @@
       "no": 986,
       "code": "U+1F559",
       "emoji": "🕙",
-      "description": "CLOCK FACE TEN OCLOCK≊ ten o’clock",
+      "description": "CLOCK FACE TEN OCLOCK| ten o’clock",
       "flagged": false,
       "keywords": [
         "00",
@@ -8267,7 +8267,7 @@
       "no": 987,
       "code": "U+1F565",
       "emoji": "🕥",
-      "description": "CLOCK FACE TEN-THIRTY≊ ten-thirty",
+      "description": "CLOCK FACE TEN-THIRTY| ten-thirty",
       "flagged": false,
       "keywords": [
         "10",
@@ -8282,7 +8282,7 @@
       "no": 988,
       "code": "U+1F55A",
       "emoji": "🕚",
-      "description": "CLOCK FACE ELEVEN OCLOCK≊ eleven o’clock",
+      "description": "CLOCK FACE ELEVEN OCLOCK| eleven o’clock",
       "flagged": false,
       "keywords": [
         "00",
@@ -8297,7 +8297,7 @@
       "no": 989,
       "code": "U+1F566",
       "emoji": "🕦",
-      "description": "CLOCK FACE ELEVEN-THIRTY≊ eleven-thirty",
+      "description": "CLOCK FACE ELEVEN-THIRTY| eleven-thirty",
       "flagged": false,
       "keywords": [
         "11",
@@ -8312,7 +8312,7 @@
       "no": 990,
       "code": "U+1F311",
       "emoji": "🌑",
-      "description": "NEW MOON SYMBOL≊ new moon",
+      "description": "NEW MOON SYMBOL| new moon",
       "flagged": false,
       "keywords": [
         "dark",
@@ -8325,7 +8325,7 @@
       "no": 991,
       "code": "U+1F312",
       "emoji": "🌒",
-      "description": "WAXING CRESCENT MOON SYMBOL≊ waxing crescent moon",
+      "description": "WAXING CRESCENT MOON SYMBOL| waxing crescent moon",
       "flagged": false,
       "keywords": [
         "crescent",
@@ -8339,7 +8339,7 @@
       "no": 992,
       "code": "U+1F313",
       "emoji": "🌓",
-      "description": "FIRST QUARTER MOON SYMBOL≊ first quarter moon",
+      "description": "FIRST QUARTER MOON SYMBOL| first quarter moon",
       "flagged": false,
       "keywords": [
         "moon",
@@ -8352,7 +8352,7 @@
       "no": 993,
       "code": "U+1F314",
       "emoji": "🌔",
-      "description": "WAXING GIBBOUS MOON SYMBOL≊ waxing gibbous moon",
+      "description": "WAXING GIBBOUS MOON SYMBOL| waxing gibbous moon",
       "flagged": false,
       "keywords": [
         "gibbous",
@@ -8366,7 +8366,7 @@
       "no": 994,
       "code": "U+1F315",
       "emoji": "🌕",
-      "description": "FULL MOON SYMBOL≊ full moon",
+      "description": "FULL MOON SYMBOL| full moon",
       "flagged": false,
       "keywords": [
         "full",
@@ -8379,7 +8379,7 @@
       "no": 995,
       "code": "U+1F316",
       "emoji": "🌖",
-      "description": "WANING GIBBOUS MOON SYMBOL≊ waning gibbous moon",
+      "description": "WANING GIBBOUS MOON SYMBOL| waning gibbous moon",
       "flagged": false,
       "keywords": [
         "gibbous",
@@ -8393,7 +8393,7 @@
       "no": 996,
       "code": "U+1F317",
       "emoji": "🌗",
-      "description": "LAST QUARTER MOON SYMBOL≊ last quarter moon",
+      "description": "LAST QUARTER MOON SYMBOL| last quarter moon",
       "flagged": false,
       "keywords": [
         "moon",
@@ -8406,7 +8406,7 @@
       "no": 997,
       "code": "U+1F318",
       "emoji": "🌘",
-      "description": "WANING CRESCENT MOON SYMBOL≊ waning crescent moon",
+      "description": "WANING CRESCENT MOON SYMBOL| waning crescent moon",
       "flagged": false,
       "keywords": [
         "crescent",
@@ -8433,7 +8433,7 @@
       "no": 999,
       "code": "U+1F31A",
       "emoji": "🌚",
-      "description": "NEW MOON WITH FACE≊ new moon face",
+      "description": "NEW MOON WITH FACE| new moon face",
       "flagged": false,
       "keywords": [
         "face",
@@ -8485,7 +8485,7 @@
       "no": 1003,
       "code": "U+2600",
       "emoji": "☀",
-      "description": "BLACK SUN WITH RAYS≊ sun",
+      "description": "BLACK SUN WITH RAYS| sun",
       "flagged": false,
       "keywords": [
         "bright",
@@ -8590,7 +8590,7 @@
       "no": 1011,
       "code": "U+26C8",
       "emoji": "⛈",
-      "description": "THUNDER CLOUD AND RAIN≊ cloud with lightning and rain",
+      "description": "THUNDER CLOUD AND RAIN| cloud with lightning and rain",
       "flagged": false,
       "keywords": [
         "cloud",
@@ -8603,7 +8603,7 @@
       "no": 1012,
       "code": "U+1F324",
       "emoji": "🌤",
-      "description": "WHITE SUN WITH SMALL CLOUD≊ sun behind small cloud",
+      "description": "WHITE SUN WITH SMALL CLOUD| sun behind small cloud",
       "flagged": false,
       "keywords": [
         "cloud",
@@ -8615,7 +8615,7 @@
       "no": 1013,
       "code": "U+1F325",
       "emoji": "🌥",
-      "description": "WHITE SUN BEHIND CLOUD≊ sun behind large cloud",
+      "description": "WHITE SUN BEHIND CLOUD| sun behind large cloud",
       "flagged": false,
       "keywords": [
         "cloud",
@@ -8627,7 +8627,7 @@
       "no": 1014,
       "code": "U+1F326",
       "emoji": "🌦",
-      "description": "WHITE SUN BEHIND CLOUD WITH RAIN≊ sun behind cloud with rain",
+      "description": "WHITE SUN BEHIND CLOUD WITH RAIN| sun behind cloud with rain",
       "flagged": false,
       "keywords": [
         "cloud",
@@ -8677,7 +8677,7 @@
       "no": 1018,
       "code": "U+1F32A",
       "emoji": "🌪",
-      "description": "CLOUD WITH TORNADO≊ tornado",
+      "description": "CLOUD WITH TORNADO| tornado",
       "flagged": false,
       "keywords": [
         "cloud",
@@ -8702,7 +8702,7 @@
       "no": 1020,
       "code": "U+1F32C",
       "emoji": "🌬",
-      "description": "WIND BLOWING FACE≊ wind face",
+      "description": "WIND BLOWING FACE| wind face",
       "flagged": false,
       "keywords": [
         "blow",
@@ -8795,7 +8795,7 @@
       "no": 1027,
       "code": "U+26A1",
       "emoji": "⚡",
-      "description": "HIGH VOLTAGE SIGN≊ high voltage",
+      "description": "HIGH VOLTAGE SIGN| high voltage",
       "flagged": false,
       "keywords": [
         "danger",
@@ -8943,7 +8943,7 @@
       "no": 1038,
       "code": "U+1F387",
       "emoji": "🎇",
-      "description": "FIREWORK SPARKLER≊ sparkler",
+      "description": "FIREWORK SPARKLER| sparkler",
       "flagged": false,
       "keywords": [
         "activity",
@@ -9086,7 +9086,7 @@
       "no": 1048,
       "code": "U+1F391",
       "emoji": "🎑",
-      "description": "MOON VIEWING CEREMONY≊ moon ceremony",
+      "description": "MOON VIEWING CEREMONY| moon ceremony",
       "flagged": false,
       "keywords": [
         "activity",
@@ -9254,7 +9254,7 @@
       "no": 1062,
       "code": "U+1F3C0",
       "emoji": "🏀",
-      "description": "BASKETBALL AND HOOP≊ basketball",
+      "description": "BASKETBALL AND HOOP| basketball",
       "flagged": false,
       "keywords": [
         "ball",
@@ -9302,7 +9302,7 @@
       "no": 1066,
       "code": "U+1F3BE",
       "emoji": "🎾",
-      "description": "TENNIS RACQUET AND BALL≊ tennis",
+      "description": "TENNIS RACQUET AND BALL| tennis",
       "flagged": false,
       "keywords": [
         "ball",
@@ -9341,7 +9341,7 @@
       "no": 1069,
       "code": "U+1F3CF",
       "emoji": "🏏",
-      "description": "CRICKET BAT AND BALL≊ cricket",
+      "description": "CRICKET BAT AND BALL| cricket",
       "flagged": false,
       "keywords": [
         "ball",
@@ -9354,7 +9354,7 @@
       "no": 1070,
       "code": "U+1F3D1",
       "emoji": "🏑",
-      "description": "FIELD HOCKEY STICK AND BALL≊ field hockey",
+      "description": "FIELD HOCKEY STICK AND BALL| field hockey",
       "flagged": false,
       "keywords": [
         "ball",
@@ -9382,7 +9382,7 @@
       "no": 1072,
       "code": "U+1F3D3",
       "emoji": "🏓",
-      "description": "TABLE TENNIS PADDLE AND BALL≊ ping pong",
+      "description": "TABLE TENNIS PADDLE AND BALL| ping pong",
       "flagged": false,
       "keywords": [
         "ball",
@@ -9396,7 +9396,7 @@
       "no": 1073,
       "code": "U+1F3F8",
       "emoji": "🏸",
-      "description": "BADMINTON RACQUET AND SHUTTLECOCK≊ badminton",
+      "description": "BADMINTON RACQUET AND SHUTTLECOCK| badminton",
       "flagged": false,
       "keywords": [
         "badminton",
@@ -9469,7 +9469,7 @@
       "no": 1079,
       "code": "U+1F3A3",
       "emoji": "🎣",
-      "description": "FISHING POLE AND FISH≊ fishing pole",
+      "description": "FISHING POLE AND FISH| fishing pole",
       "flagged": false,
       "keywords": [
         "entertainment",
@@ -9481,7 +9481,7 @@
       "no": 1080,
       "code": "U+1F3BD",
       "emoji": "🎽",
-      "description": "RUNNING SHIRT WITH SASH≊ running shirt",
+      "description": "RUNNING SHIRT WITH SASH| running shirt",
       "flagged": false,
       "keywords": [
         "running",
@@ -9493,7 +9493,7 @@
       "no": 1081,
       "code": "U+1F3BF",
       "emoji": "🎿",
-      "description": "SKI AND SKI BOOT≊ skis",
+      "description": "SKI AND SKI BOOT| skis",
       "flagged": false,
       "keywords": [
         "ski",
@@ -9631,7 +9631,7 @@
       "no": 1115,
       "code": "U+1F6B5",
       "emoji": "🚵",
-      "description": "MOUNTAIN BICYCLIST≊ mountain biker",
+      "description": "MOUNTAIN BICYCLIST| mountain biker",
       "flagged": false,
       "keywords": [
         "bicycle",
@@ -9663,7 +9663,7 @@
       "no": 1122,
       "code": "U+1F3CD",
       "emoji": "🏍",
-      "description": "RACING MOTORCYCLE≊ motorcycle",
+      "description": "RACING MOTORCYCLE| motorcycle",
       "flagged": false,
       "keywords": [
         "motorcycle",
@@ -9846,7 +9846,7 @@
       "no": 1159,
       "code": "U+2660",
       "emoji": "♠",
-      "description": "BLACK SPADE SUIT≊ spade suit",
+      "description": "BLACK SPADE SUIT| spade suit",
       "flagged": false,
       "keywords": [
         "card",
@@ -9859,7 +9859,7 @@
       "no": 1160,
       "code": "U+2665",
       "emoji": "♥",
-      "description": "BLACK HEART SUIT≊ heart suit",
+      "description": "BLACK HEART SUIT| heart suit",
       "flagged": false,
       "keywords": [
         "card",
@@ -9873,7 +9873,7 @@
       "no": 1161,
       "code": "U+2666",
       "emoji": "♦",
-      "description": "BLACK DIAMOND SUIT≊ diamond suit",
+      "description": "BLACK DIAMOND SUIT| diamond suit",
       "flagged": false,
       "keywords": [
         "card",
@@ -9887,7 +9887,7 @@
       "no": 1162,
       "code": "U+2663",
       "emoji": "♣",
-      "description": "BLACK CLUB SUIT≊ club suit",
+      "description": "BLACK CLUB SUIT| club suit",
       "flagged": false,
       "keywords": [
         "card",
@@ -9901,7 +9901,7 @@
       "no": 1163,
       "code": "U+1F0CF",
       "emoji": "🃏",
-      "description": "PLAYING CARD BLACK JOKER≊ joker",
+      "description": "PLAYING CARD BLACK JOKER| joker",
       "flagged": false,
       "keywords": [
         "card",
@@ -9915,7 +9915,7 @@
       "no": 1164,
       "code": "U+1F004",
       "emoji": "🀄",
-      "description": "MAHJONG TILE RED DRAGON≊ mahjong red dragon",
+      "description": "MAHJONG TILE RED DRAGON| mahjong red dragon",
       "flagged": false,
       "keywords": [
         "game",
@@ -9945,7 +9945,7 @@
       "no": 1166,
       "code": "U+1F507",
       "emoji": "🔇",
-      "description": "SPEAKER WITH CANCELLATION STROKE≊ speaker off",
+      "description": "SPEAKER WITH CANCELLATION STROKE| speaker off",
       "flagged": false,
       "keywords": [
         "mute",
@@ -9970,7 +9970,7 @@
       "no": 1168,
       "code": "U+1F509",
       "emoji": "🔉",
-      "description": "SPEAKER WITH ONE SOUND WAVE≊ speaker on",
+      "description": "SPEAKER WITH ONE SOUND WAVE| speaker on",
       "flagged": false,
       "keywords": [
         "low",
@@ -9983,7 +9983,7 @@
       "no": 1169,
       "code": "U+1F50A",
       "emoji": "🔊",
-      "description": "SPEAKER WITH THREE SOUND WAVES≊ speaker loud",
+      "description": "SPEAKER WITH THREE SOUND WAVES| speaker loud",
       "flagged": false,
       "keywords": [
         "3",
@@ -9999,7 +9999,7 @@
       "no": 1170,
       "code": "U+1F4E2",
       "emoji": "📢",
-      "description": "PUBLIC ADDRESS LOUDSPEAKER≊ loudspeaker",
+      "description": "PUBLIC ADDRESS LOUDSPEAKER| loudspeaker",
       "flagged": false,
       "keywords": [
         "communication",
@@ -10012,7 +10012,7 @@
       "no": 1171,
       "code": "U+1F4E3",
       "emoji": "📣",
-      "description": "CHEERING MEGAPHONE≊ megaphone",
+      "description": "CHEERING MEGAPHONE| megaphone",
       "flagged": false,
       "keywords": [
         "cheering",
@@ -10048,7 +10048,7 @@
       "no": 1174,
       "code": "U+1F515",
       "emoji": "🔕",
-      "description": "BELL WITH CANCELLATION STROKE≊ bell with slash",
+      "description": "BELL WITH CANCELLATION STROKE| bell with slash",
       "flagged": false,
       "keywords": [
         "bell",
@@ -10091,7 +10091,7 @@
       "no": 1177,
       "code": "U+1F3B6",
       "emoji": "🎶",
-      "description": "MULTIPLE MUSICAL NOTES≊ musical notes",
+      "description": "MULTIPLE MUSICAL NOTES| musical notes",
       "flagged": false,
       "keywords": [
         "activity",
@@ -10279,7 +10279,7 @@
       "no": 1191,
       "code": "U+1F4F2",
       "emoji": "📲",
-      "description": "MOBILE PHONE WITH RIGHTWARDS ARROW AT LEFT≊ mobile phone with arrow",
+      "description": "MOBILE PHONE WITH RIGHTWARDS ARROW AT LEFT| mobile phone with arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -10296,7 +10296,7 @@
       "no": 1192,
       "code": "U+260E",
       "emoji": "☎",
-      "description": "BLACK TELEPHONE≊ telephone",
+      "description": "BLACK TELEPHONE| telephone",
       "flagged": false,
       "keywords": [
         "phone",
@@ -10364,7 +10364,7 @@
       "no": 1198,
       "code": "U+1F4BB",
       "emoji": "💻",
-      "description": "PERSONAL COMPUTER≊ laptop computer",
+      "description": "PERSONAL COMPUTER| laptop computer",
       "flagged": false,
       "keywords": [
         "computer",
@@ -10409,7 +10409,7 @@
       "no": 1202,
       "code": "U+1F5B1",
       "emoji": "🖱",
-      "description": "THREE BUTTON MOUSE≊ computer mouse",
+      "description": "THREE BUTTON MOUSE| computer mouse",
       "flagged": false,
       "keywords": [
         "3",
@@ -10682,7 +10682,7 @@
       "no": 1223,
       "code": "U+1F4A1",
       "emoji": "💡",
-      "description": "ELECTRIC LIGHT BULB≊ light bulb",
+      "description": "ELECTRIC LIGHT BULB| light bulb",
       "flagged": false,
       "keywords": [
         "bulb",
@@ -10696,7 +10696,7 @@
       "no": 1224,
       "code": "U+1F526",
       "emoji": "🔦",
-      "description": "ELECTRIC TORCH≊ flashlight",
+      "description": "ELECTRIC TORCH| flashlight",
       "flagged": false,
       "keywords": [
         "electric",
@@ -10710,7 +10710,7 @@
       "no": 1225,
       "code": "U+1F3EE",
       "emoji": "🏮",
-      "description": "IZAKAYA LANTERN≊ red paper lantern",
+      "description": "IZAKAYA LANTERN| red paper lantern",
       "flagged": false,
       "keywords": [
         "bar",
@@ -10931,7 +10931,7 @@
       "no": 1244,
       "code": "U+1F4B4",
       "emoji": "💴",
-      "description": "BANKNOTE WITH YEN SIGN≊ yen banknote",
+      "description": "BANKNOTE WITH YEN SIGN| yen banknote",
       "flagged": false,
       "keywords": [
         "bank",
@@ -10947,7 +10947,7 @@
       "no": 1245,
       "code": "U+1F4B5",
       "emoji": "💵",
-      "description": "BANKNOTE WITH DOLLAR SIGN≊ dollar banknote",
+      "description": "BANKNOTE WITH DOLLAR SIGN| dollar banknote",
       "flagged": false,
       "keywords": [
         "bank",
@@ -10963,7 +10963,7 @@
       "no": 1246,
       "code": "U+1F4B6",
       "emoji": "💶",
-      "description": "BANKNOTE WITH EURO SIGN≊ euro banknote",
+      "description": "BANKNOTE WITH EURO SIGN| euro banknote",
       "flagged": false,
       "keywords": [
         "bank",
@@ -10979,7 +10979,7 @@
       "no": 1247,
       "code": "U+1F4B7",
       "emoji": "💷",
-      "description": "BANKNOTE WITH POUND SIGN≊ pound banknote",
+      "description": "BANKNOTE WITH POUND SIGN| pound banknote",
       "flagged": false,
       "keywords": [
         "bank",
@@ -11025,7 +11025,7 @@
       "no": 1250,
       "code": "U+1F4B9",
       "emoji": "💹",
-      "description": "CHART WITH UPWARDS TREND AND YEN SIGN≊ chart increasing with yen",
+      "description": "CHART WITH UPWARDS TREND AND YEN SIGN| chart increasing with yen",
       "flagged": false,
       "keywords": [
         "bank",
@@ -11082,7 +11082,7 @@
       "no": 1254,
       "code": "U+1F4E7",
       "emoji": "📧",
-      "description": "E-MAIL SYMBOL≊ e-mail",
+      "description": "E-MAIL SYMBOL| e-mail",
       "flagged": false,
       "keywords": [
         "communication",
@@ -11113,7 +11113,7 @@
       "no": 1256,
       "code": "U+1F4E9",
       "emoji": "📩",
-      "description": "ENVELOPE WITH DOWNWARDS ARROW ABOVE≊ envelope with arrow",
+      "description": "ENVELOPE WITH DOWNWARDS ARROW ABOVE| envelope with arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -11284,7 +11284,7 @@
       "no": 1268,
       "code": "U+1F58B",
       "emoji": "🖋",
-      "description": "LOWER LEFT FOUNTAIN PEN≊ fountain pen",
+      "description": "LOWER LEFT FOUNTAIN PEN| fountain pen",
       "flagged": false,
       "keywords": [
         "communication",
@@ -11296,7 +11296,7 @@
       "no": 1269,
       "code": "U+1F58A",
       "emoji": "🖊",
-      "description": "LOWER LEFT BALLPOINT PEN≊ pen",
+      "description": "LOWER LEFT BALLPOINT PEN| pen",
       "flagged": false,
       "keywords": [
         "ballpoint",
@@ -11308,7 +11308,7 @@
       "no": 1270,
       "code": "U+1F58C",
       "emoji": "🖌",
-      "description": "LOWER LEFT PAINTBRUSH≊ paintbrush",
+      "description": "LOWER LEFT PAINTBRUSH| paintbrush",
       "flagged": false,
       "keywords": [
         "communication",
@@ -11320,7 +11320,7 @@
       "no": 1271,
       "code": "U+1F58D",
       "emoji": "🖍",
-      "description": "LOWER LEFT CRAYON≊ crayon",
+      "description": "LOWER LEFT CRAYON| crayon",
       "flagged": false,
       "keywords": [
         "communication",
@@ -11409,7 +11409,7 @@
       "no": 1279,
       "code": "U+1F5D2",
       "emoji": "🗒",
-      "description": "SPIRAL NOTE PAD≊ spiral notepad",
+      "description": "SPIRAL NOTE PAD| spiral notepad",
       "flagged": false,
       "keywords": [
         "note",
@@ -11421,7 +11421,7 @@
       "no": 1280,
       "code": "U+1F5D3",
       "emoji": "🗓",
-      "description": "SPIRAL CALENDAR PAD≊ spiral calendar",
+      "description": "SPIRAL CALENDAR PAD| spiral calendar",
       "flagged": false,
       "keywords": [
         "calendar",
@@ -11445,7 +11445,7 @@
       "no": 1282,
       "code": "U+1F4C8",
       "emoji": "📈",
-      "description": "CHART WITH UPWARDS TREND≊ chart increasing",
+      "description": "CHART WITH UPWARDS TREND| chart increasing",
       "flagged": false,
       "keywords": [
         "chart",
@@ -11459,7 +11459,7 @@
       "no": 1283,
       "code": "U+1F4C9",
       "emoji": "📉",
-      "description": "CHART WITH DOWNWARDS TREND≊ chart decreasing",
+      "description": "CHART WITH DOWNWARDS TREND| chart decreasing",
       "flagged": false,
       "keywords": [
         "chart",
@@ -11561,7 +11561,7 @@
       "no": 1292,
       "code": "U+2702",
       "emoji": "✂",
-      "description": "BLACK SCISSORS≊ scissors",
+      "description": "BLACK SCISSORS| scissors",
       "flagged": false,
       "keywords": [
         "scissors",
@@ -11628,7 +11628,7 @@
       "no": 1298,
       "code": "U+1F50F",
       "emoji": "🔏",
-      "description": "LOCK WITH INK PEN≊ lock with pen",
+      "description": "LOCK WITH INK PEN| lock with pen",
       "flagged": false,
       "keywords": [
         "ink",
@@ -11727,7 +11727,7 @@
       "no": 1306,
       "code": "U+1F5E1",
       "emoji": "🗡",
-      "description": "DAGGER KNIFE≊ dagger",
+      "description": "DAGGER KNIFE| dagger",
       "flagged": false,
       "keywords": [
         "dagger",
@@ -11851,7 +11851,7 @@
       "no": 1316,
       "code": "U+2696",
       "emoji": "⚖",
-      "description": "SCALES≊ balance scale",
+      "description": "SCALES| balance scale",
       "flagged": false,
       "keywords": [
         "balance",
@@ -11867,7 +11867,7 @@
       "no": 1317,
       "code": "U+1F517",
       "emoji": "🔗",
-      "description": "LINK SYMBOL≊ link",
+      "description": "LINK SYMBOL| link",
       "flagged": false,
       "keywords": [
         "link"
@@ -11916,7 +11916,7 @@
       "no": 1321,
       "code": "U+1F6AC",
       "emoji": "🚬",
-      "description": "SMOKING SYMBOL≊ smoking",
+      "description": "SMOKING SYMBOL| smoking",
       "flagged": false,
       "keywords": [
         "activity",
@@ -11950,7 +11950,7 @@
       "no": 1324,
       "code": "U+1F5FF",
       "emoji": "🗿",
-      "description": "MOYAI≊ moai",
+      "description": "MOYAI| moai",
       "flagged": false,
       "keywords": [
         "face",
@@ -12002,7 +12002,7 @@
       "no": 1328,
       "code": "U+1F3E7",
       "emoji": "🏧",
-      "description": "AUTOMATED TELLER MACHINE≊ ATM sign",
+      "description": "AUTOMATED TELLER MACHINE| ATM sign",
       "flagged": false,
       "keywords": [
         "atm",
@@ -12015,7 +12015,7 @@
       "no": 1329,
       "code": "U+1F6AE",
       "emoji": "🚮",
-      "description": "PUT LITTER IN ITS PLACE SYMBOL≊ litter in bin sign",
+      "description": "PUT LITTER IN ITS PLACE SYMBOL| litter in bin sign",
       "flagged": false,
       "keywords": [
         "litter",
@@ -12026,7 +12026,7 @@
       "no": 1330,
       "code": "U+1F6B0",
       "emoji": "🚰",
-      "description": "POTABLE WATER SYMBOL≊ potable water",
+      "description": "POTABLE WATER SYMBOL| potable water",
       "flagged": false,
       "keywords": [
         "drink",
@@ -12038,7 +12038,7 @@
       "no": 1331,
       "code": "U+267F",
       "emoji": "♿",
-      "description": "WHEELCHAIR SYMBOL≊ wheelchair",
+      "description": "WHEELCHAIR SYMBOL| wheelchair",
       "flagged": false,
       "keywords": [
         "access",
@@ -12049,7 +12049,7 @@
       "no": 1332,
       "code": "U+1F6B9",
       "emoji": "🚹",
-      "description": "MENS SYMBOL≊ men’s room",
+      "description": "MENS SYMBOL| men’s room",
       "flagged": false,
       "keywords": [
         "lavatory",
@@ -12062,7 +12062,7 @@
       "no": 1333,
       "code": "U+1F6BA",
       "emoji": "🚺",
-      "description": "WOMENS SYMBOL≊ women’s room",
+      "description": "WOMENS SYMBOL| women’s room",
       "flagged": false,
       "keywords": [
         "lavatory",
@@ -12157,7 +12157,7 @@
       "no": 1341,
       "code": "U+26A0",
       "emoji": "⚠",
-      "description": "WARNING SIGN≊ warning",
+      "description": "WARNING SIGN| warning",
       "flagged": false,
       "keywords": [
         "warning"
@@ -12195,7 +12195,7 @@
       "no": 1344,
       "code": "U+1F6AB",
       "emoji": "🚫",
-      "description": "NO ENTRY SIGN≊ prohibited",
+      "description": "NO ENTRY SIGN| prohibited",
       "flagged": false,
       "keywords": [
         "entry",
@@ -12225,7 +12225,7 @@
       "no": 1346,
       "code": "U+1F6AD",
       "emoji": "🚭",
-      "description": "NO SMOKING SYMBOL≊ no smoking",
+      "description": "NO SMOKING SYMBOL| no smoking",
       "flagged": false,
       "keywords": [
         "forbidden",
@@ -12239,7 +12239,7 @@
       "no": 1347,
       "code": "U+1F6AF",
       "emoji": "🚯",
-      "description": "DO NOT LITTER SYMBOL≊ no littering",
+      "description": "DO NOT LITTER SYMBOL| no littering",
       "flagged": false,
       "keywords": [
         "forbidden",
@@ -12253,7 +12253,7 @@
       "no": 1348,
       "code": "U+1F6B1",
       "emoji": "🚱",
-      "description": "NON-POTABLE WATER SYMBOL≊ non-potable water",
+      "description": "NON-POTABLE WATER SYMBOL| non-potable water",
       "flagged": false,
       "keywords": [
         "drink",
@@ -12301,7 +12301,7 @@
       "no": 1351,
       "code": "U+1F51E",
       "emoji": "🔞",
-      "description": "NO ONE UNDER EIGHTEEN SYMBOL≊ no one under eighteen",
+      "description": "NO ONE UNDER EIGHTEEN SYMBOL| no one under eighteen",
       "flagged": false,
       "keywords": [
         "18",
@@ -12318,7 +12318,7 @@
       "no": 1352,
       "code": "U+2622",
       "emoji": "☢",
-      "description": "RADIOACTIVE SIGN≊ radioactive",
+      "description": "RADIOACTIVE SIGN| radioactive",
       "flagged": false,
       "keywords": [
         "radioactive"
@@ -12328,7 +12328,7 @@
       "no": 1353,
       "code": "U+2623",
       "emoji": "☣",
-      "description": "BIOHAZARD SIGN≊ biohazard",
+      "description": "BIOHAZARD SIGN| biohazard",
       "flagged": false,
       "keywords": [
         "biohazard"
@@ -12338,7 +12338,7 @@
       "no": 1354,
       "code": "U+2B06",
       "emoji": "⬆",
-      "description": "UPWARDS BLACK ARROW≊ up arrow",
+      "description": "UPWARDS BLACK ARROW| up arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12351,7 +12351,7 @@
       "no": 1355,
       "code": "U+2197",
       "emoji": "↗",
-      "description": "NORTH EAST ARROW≊ up-right arrow",
+      "description": "NORTH EAST ARROW| up-right arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12364,7 +12364,7 @@
       "no": 1356,
       "code": "U+27A1",
       "emoji": "➡",
-      "description": "BLACK RIGHTWARDS ARROW≊ right arrow",
+      "description": "BLACK RIGHTWARDS ARROW| right arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12377,7 +12377,7 @@
       "no": 1357,
       "code": "U+2198",
       "emoji": "↘",
-      "description": "SOUTH EAST ARROW≊ down-right arrow",
+      "description": "SOUTH EAST ARROW| down-right arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12390,7 +12390,7 @@
       "no": 1358,
       "code": "U+2B07",
       "emoji": "⬇",
-      "description": "DOWNWARDS BLACK ARROW≊ down arrow",
+      "description": "DOWNWARDS BLACK ARROW| down arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12404,7 +12404,7 @@
       "no": 1359,
       "code": "U+2199",
       "emoji": "↙",
-      "description": "SOUTH WEST ARROW≊ down-left arrow",
+      "description": "SOUTH WEST ARROW| down-left arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12417,7 +12417,7 @@
       "no": 1360,
       "code": "U+2B05",
       "emoji": "⬅",
-      "description": "LEFTWARDS BLACK ARROW≊ left arrow",
+      "description": "LEFTWARDS BLACK ARROW| left arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12430,7 +12430,7 @@
       "no": 1361,
       "code": "U+2196",
       "emoji": "↖",
-      "description": "NORTH WEST ARROW≊ up-left arrow",
+      "description": "NORTH WEST ARROW| up-left arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12443,7 +12443,7 @@
       "no": 1362,
       "code": "U+2195",
       "emoji": "↕",
-      "description": "UP DOWN ARROW≊ up-down arrow",
+      "description": "UP DOWN ARROW| up-down arrow",
       "flagged": false,
       "keywords": [
         "arrow"
@@ -12453,7 +12453,7 @@
       "no": 1363,
       "code": "U+2194",
       "emoji": "↔",
-      "description": "LEFT RIGHT ARROW≊ left-right arrow",
+      "description": "LEFT RIGHT ARROW| left-right arrow",
       "flagged": false,
       "keywords": [
         "arrow"
@@ -12463,7 +12463,7 @@
       "no": 1364,
       "code": "U+21A9",
       "emoji": "↩",
-      "description": "LEFTWARDS ARROW WITH HOOK≊ right arrow curving left",
+      "description": "LEFTWARDS ARROW WITH HOOK| right arrow curving left",
       "flagged": false,
       "keywords": [
         "arrow"
@@ -12473,7 +12473,7 @@
       "no": 1365,
       "code": "U+21AA",
       "emoji": "↪",
-      "description": "RIGHTWARDS ARROW WITH HOOK≊ left arrow curving right",
+      "description": "RIGHTWARDS ARROW WITH HOOK| left arrow curving right",
       "flagged": false,
       "keywords": [
         "arrow"
@@ -12483,7 +12483,7 @@
       "no": 1366,
       "code": "U+2934",
       "emoji": "⤴",
-      "description": "ARROW POINTING RIGHTWARDS THEN CURVING UPWARDS≊ right arrow curving up",
+      "description": "ARROW POINTING RIGHTWARDS THEN CURVING UPWARDS| right arrow curving up",
       "flagged": false,
       "keywords": [
         "arrow"
@@ -12493,7 +12493,7 @@
       "no": 1367,
       "code": "U+2935",
       "emoji": "⤵",
-      "description": "ARROW POINTING RIGHTWARDS THEN CURVING DOWNWARDS≊ right arrow curving down",
+      "description": "ARROW POINTING RIGHTWARDS THEN CURVING DOWNWARDS| right arrow curving down",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12504,7 +12504,7 @@
       "no": 1368,
       "code": "U+1F503",
       "emoji": "🔃",
-      "description": "CLOCKWISE DOWNWARDS AND UPWARDS OPEN CIRCLE ARROWS≊ clockwise vertical arrows",
+      "description": "CLOCKWISE DOWNWARDS AND UPWARDS OPEN CIRCLE ARROWS| clockwise vertical arrows",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12516,7 +12516,7 @@
       "no": 1369,
       "code": "U+1F504",
       "emoji": "🔄",
-      "description": "ANTICLOCKWISE DOWNWARDS AND UPWARDS OPEN CIRCLE ARROWS≊ anticlockwise arrows button",
+      "description": "ANTICLOCKWISE DOWNWARDS AND UPWARDS OPEN CIRCLE ARROWS| anticlockwise arrows button",
       "flagged": false,
       "keywords": [
         "anticlockwise",
@@ -12529,7 +12529,7 @@
       "no": 1370,
       "code": "U+1F519",
       "emoji": "🔙",
-      "description": "BACK WITH LEFTWARDS ARROW ABOVE≊ back arrow",
+      "description": "BACK WITH LEFTWARDS ARROW ABOVE| back arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12540,7 +12540,7 @@
       "no": 1371,
       "code": "U+1F51A",
       "emoji": "🔚",
-      "description": "END WITH LEFTWARDS ARROW ABOVE≊ end arrow",
+      "description": "END WITH LEFTWARDS ARROW ABOVE| end arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12551,7 +12551,7 @@
       "no": 1372,
       "code": "U+1F51B",
       "emoji": "🔛",
-      "description": "ON WITH EXCLAMATION MARK WITH LEFT RIGHT ARROW ABOVE≊ on! arrow",
+      "description": "ON WITH EXCLAMATION MARK WITH LEFT RIGHT ARROW ABOVE| on! arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12563,7 +12563,7 @@
       "no": 1373,
       "code": "U+1F51C",
       "emoji": "🔜",
-      "description": "SOON WITH RIGHTWARDS ARROW ABOVE≊ soon arrow",
+      "description": "SOON WITH RIGHTWARDS ARROW ABOVE| soon arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12574,7 +12574,7 @@
       "no": 1374,
       "code": "U+1F51D",
       "emoji": "🔝",
-      "description": "TOP WITH UPWARDS ARROW ABOVE≊ top arrow",
+      "description": "TOP WITH UPWARDS ARROW ABOVE| top arrow",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -12608,7 +12608,7 @@
       "no": 1377,
       "code": "U+1F549",
       "emoji": "🕉",
-      "description": "OM SYMBOL≊ om",
+      "description": "OM SYMBOL| om",
       "flagged": false,
       "keywords": [
         "hindu",
@@ -12707,7 +12707,7 @@
       "no": 1385,
       "code": "U+1F54E",
       "emoji": "🕎",
-      "description": "MENORAH WITH NINE BRANCHES≊ menorah",
+      "description": "MENORAH WITH NINE BRANCHES| menorah",
       "flagged": false,
       "keywords": [
         "candelabrum",
@@ -12720,7 +12720,7 @@
       "no": 1386,
       "code": "U+1F52F",
       "emoji": "🔯",
-      "description": "SIX POINTED STAR WITH MIDDLE DOT≊ dotted six-pointed star",
+      "description": "SIX POINTED STAR WITH MIDDLE DOT| dotted six-pointed star",
       "flagged": false,
       "keywords": [
         "fortune",
@@ -12731,7 +12731,7 @@
       "no": 1387,
       "code": "U+267B",
       "emoji": "♻",
-      "description": "BLACK UNIVERSAL RECYCLING SYMBOL≊ recycling symbol",
+      "description": "BLACK UNIVERSAL RECYCLING SYMBOL| recycling symbol",
       "flagged": false,
       "keywords": [
         "recycle"
@@ -12864,7 +12864,7 @@
       "no": 1398,
       "code": "U+274E",
       "emoji": "❎",
-      "description": "NEGATIVE SQUARED CROSS MARK≊ cross mark button",
+      "description": "NEGATIVE SQUARED CROSS MARK| cross mark button",
       "flagged": false,
       "keywords": [
         "mark",
@@ -12942,7 +12942,7 @@
       "no": 1405,
       "code": "U+2733",
       "emoji": "✳",
-      "description": "EIGHT SPOKED ASTERISK≊ eight-spoked asterisk",
+      "description": "EIGHT SPOKED ASTERISK| eight-spoked asterisk",
       "flagged": false,
       "keywords": [
         "asterisk"
@@ -12952,7 +12952,7 @@
       "no": 1406,
       "code": "U+2734",
       "emoji": "✴",
-      "description": "EIGHT POINTED BLACK STAR≊ eight-pointed star",
+      "description": "EIGHT POINTED BLACK STAR| eight-pointed star",
       "flagged": false,
       "keywords": [
         "star"
@@ -12999,7 +12999,7 @@
       "no": 1410,
       "code": "U+2753",
       "emoji": "❓",
-      "description": "BLACK QUESTION MARK ORNAMENT≊ question mark",
+      "description": "BLACK QUESTION MARK ORNAMENT| question mark",
       "flagged": false,
       "keywords": [
         "mark",
@@ -13011,7 +13011,7 @@
       "no": 1411,
       "code": "U+2754",
       "emoji": "❔",
-      "description": "WHITE QUESTION MARK ORNAMENT≊ white question mark",
+      "description": "WHITE QUESTION MARK ORNAMENT| white question mark",
       "flagged": false,
       "keywords": [
         "mark",
@@ -13024,7 +13024,7 @@
       "no": 1412,
       "code": "U+2755",
       "emoji": "❕",
-      "description": "WHITE EXCLAMATION MARK ORNAMENT≊ white exclamation mark",
+      "description": "WHITE EXCLAMATION MARK ORNAMENT| white exclamation mark",
       "flagged": false,
       "keywords": [
         "exclamation",
@@ -13037,7 +13037,7 @@
       "no": 1413,
       "code": "U+2757",
       "emoji": "❗",
-      "description": "HEAVY EXCLAMATION MARK SYMBOL≊ exclamation mark",
+      "description": "HEAVY EXCLAMATION MARK SYMBOL| exclamation mark",
       "flagged": false,
       "keywords": [
         "exclamation",
@@ -13061,7 +13061,7 @@
       "no": 1415,
       "code": "U+00A9",
       "emoji": "©",
-      "description": "COPYRIGHT SIGN≊ copyright",
+      "description": "COPYRIGHT SIGN| copyright",
       "flagged": false,
       "keywords": [
         "copyright"
@@ -13071,7 +13071,7 @@
       "no": 1416,
       "code": "U+00AE",
       "emoji": "®",
-      "description": "REGISTERED SIGN≊ registered",
+      "description": "REGISTERED SIGN| registered",
       "flagged": false,
       "keywords": [
         "registered"
@@ -13081,7 +13081,7 @@
       "no": 1417,
       "code": "U+2122",
       "emoji": "™",
-      "description": "TRADE MARK SIGN≊ trade mark",
+      "description": "TRADE MARK SIGN| trade mark",
       "flagged": false,
       "keywords": [
         "mark",
@@ -13257,7 +13257,7 @@
       "no": 1431,
       "code": "U+1F500",
       "emoji": "🔀",
-      "description": "TWISTED RIGHTWARDS ARROWS≊ shuffle tracks button",
+      "description": "TWISTED RIGHTWARDS ARROWS| shuffle tracks button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13268,7 +13268,7 @@
       "no": 1432,
       "code": "U+1F501",
       "emoji": "🔁",
-      "description": "CLOCKWISE RIGHTWARDS AND LEFTWARDS OPEN CIRCLE ARROWS≊ repeat button",
+      "description": "CLOCKWISE RIGHTWARDS AND LEFTWARDS OPEN CIRCLE ARROWS| repeat button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13280,7 +13280,7 @@
       "no": 1433,
       "code": "U+1F502",
       "emoji": "🔂",
-      "description": "CLOCKWISE RIGHTWARDS AND LEFTWARDS OPEN CIRCLE ARROWS WITH CIRCLED ONE OVERLAY≊ repeat single button",
+      "description": "CLOCKWISE RIGHTWARDS AND LEFTWARDS OPEN CIRCLE ARROWS WITH CIRCLED ONE OVERLAY| repeat single button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13292,7 +13292,7 @@
       "no": 1434,
       "code": "U+25B6",
       "emoji": "▶",
-      "description": "BLACK RIGHT-POINTING TRIANGLE≊ play button",
+      "description": "BLACK RIGHT-POINTING TRIANGLE| play button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13305,7 +13305,7 @@
       "no": 1435,
       "code": "U+23E9",
       "emoji": "⏩",
-      "description": "BLACK RIGHT-POINTING DOUBLE TRIANGLE≊ fast-forword button",
+      "description": "BLACK RIGHT-POINTING DOUBLE TRIANGLE| fast-forword button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13318,7 +13318,7 @@
       "no": 1436,
       "code": "U+23ED",
       "emoji": "⏭",
-      "description": "BLACK RIGHT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR≊ next track button",
+      "description": "BLACK RIGHT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR| next track button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13331,7 +13331,7 @@
       "no": 1437,
       "code": "U+23EF",
       "emoji": "⏯",
-      "description": "BLACK RIGHT-POINTING TRIANGLE WITH DOUBLE VERTICAL BAR≊ play or pause button",
+      "description": "BLACK RIGHT-POINTING TRIANGLE WITH DOUBLE VERTICAL BAR| play or pause button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13345,7 +13345,7 @@
       "no": 1438,
       "code": "U+25C0",
       "emoji": "◀",
-      "description": "BLACK LEFT-POINTING TRIANGLE≊ reverse button",
+      "description": "BLACK LEFT-POINTING TRIANGLE| reverse button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13358,7 +13358,7 @@
       "no": 1439,
       "code": "U+23EA",
       "emoji": "⏪",
-      "description": "BLACK LEFT-POINTING DOUBLE TRIANGLE≊ fast reverse button",
+      "description": "BLACK LEFT-POINTING DOUBLE TRIANGLE| fast reverse button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13370,7 +13370,7 @@
       "no": 1440,
       "code": "U+23EE",
       "emoji": "⏮",
-      "description": "BLACK LEFT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR≊ last track button",
+      "description": "BLACK LEFT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR| last track button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13383,7 +13383,7 @@
       "no": 1441,
       "code": "U+1F53C",
       "emoji": "🔼",
-      "description": "UP-POINTING SMALL RED TRIANGLE≊ up button",
+      "description": "UP-POINTING SMALL RED TRIANGLE| up button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13395,7 +13395,7 @@
       "no": 1442,
       "code": "U+23EB",
       "emoji": "⏫",
-      "description": "BLACK UP-POINTING DOUBLE TRIANGLE≊ fast up button",
+      "description": "BLACK UP-POINTING DOUBLE TRIANGLE| fast up button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13406,7 +13406,7 @@
       "no": 1443,
       "code": "U+1F53D",
       "emoji": "🔽",
-      "description": "DOWN-POINTING SMALL RED TRIANGLE≊ down button",
+      "description": "DOWN-POINTING SMALL RED TRIANGLE| down button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13419,7 +13419,7 @@
       "no": 1444,
       "code": "U+23EC",
       "emoji": "⏬",
-      "description": "BLACK DOWN-POINTING DOUBLE TRIANGLE≊ fast down button",
+      "description": "BLACK DOWN-POINTING DOUBLE TRIANGLE| fast down button",
       "flagged": false,
       "keywords": [
         "arrow",
@@ -13431,7 +13431,7 @@
       "no": 1445,
       "code": "U+23F8",
       "emoji": "⏸",
-      "description": "DOUBLE VERTICAL BAR≊ pause button",
+      "description": "DOUBLE VERTICAL BAR| pause button",
       "flagged": false,
       "keywords": [
         "bar",
@@ -13444,7 +13444,7 @@
       "no": 1446,
       "code": "U+23F9",
       "emoji": "⏹",
-      "description": "BLACK SQUARE FOR STOP≊ stop button",
+      "description": "BLACK SQUARE FOR STOP| stop button",
       "flagged": false,
       "keywords": [
         "square",
@@ -13455,7 +13455,7 @@
       "no": 1447,
       "code": "U+23FA",
       "emoji": "⏺",
-      "description": "BLACK CIRCLE FOR RECORD≊ record button",
+      "description": "BLACK CIRCLE FOR RECORD| record button",
       "flagged": false,
       "keywords": [
         "circle",
@@ -13466,7 +13466,7 @@
       "no": 1448,
       "code": "U+23CF",
       "emoji": "⏏",
-      "description": "EJECT SYMBOL≊ eject button",
+      "description": "EJECT SYMBOL| eject button",
       "flagged": true,
       "keywords": [
         "eject"
@@ -13491,7 +13491,7 @@
       "no": 1450,
       "code": "U+1F505",
       "emoji": "🔅",
-      "description": "LOW BRIGHTNESS SYMBOL≊ dim button",
+      "description": "LOW BRIGHTNESS SYMBOL| dim button",
       "flagged": false,
       "keywords": [
         "brightness",
@@ -13503,7 +13503,7 @@
       "no": 1451,
       "code": "U+1F506",
       "emoji": "🔆",
-      "description": "HIGH BRIGHTNESS SYMBOL≊ bright button",
+      "description": "HIGH BRIGHTNESS SYMBOL| bright button",
       "flagged": false,
       "keywords": [
         "bright",
@@ -13514,7 +13514,7 @@
       "no": 1452,
       "code": "U+1F4F6",
       "emoji": "📶",
-      "description": "ANTENNA WITH BARS≊ antenna bars",
+      "description": "ANTENNA WITH BARS| antenna bars",
       "flagged": false,
       "keywords": [
         "antenna",
@@ -13718,7 +13718,7 @@
       "no": 1468,
       "code": "U+1F4AF",
       "emoji": "💯",
-      "description": "HUNDRED POINTS SYMBOL≊ hundred points",
+      "description": "HUNDRED POINTS SYMBOL| hundred points",
       "flagged": false,
       "keywords": [
         "100",
@@ -13731,7 +13731,7 @@
       "no": 1469,
       "code": "U+1F520",
       "emoji": "🔠",
-      "description": "INPUT SYMBOL FOR LATIN CAPITAL LETTERS≊ input latin uppercase",
+      "description": "INPUT SYMBOL FOR LATIN CAPITAL LETTERS| input latin uppercase",
       "flagged": false,
       "keywords": [
         "input",
@@ -13744,7 +13744,7 @@
       "no": 1470,
       "code": "U+1F521",
       "emoji": "🔡",
-      "description": "INPUT SYMBOL FOR LATIN SMALL LETTERS≊ input latin lowercase",
+      "description": "INPUT SYMBOL FOR LATIN SMALL LETTERS| input latin lowercase",
       "flagged": false,
       "keywords": [
         "abcd",
@@ -13758,7 +13758,7 @@
       "no": 1471,
       "code": "U+1F522",
       "emoji": "🔢",
-      "description": "INPUT SYMBOL FOR NUMBERS≊ input numbers",
+      "description": "INPUT SYMBOL FOR NUMBERS| input numbers",
       "flagged": false,
       "keywords": [
         "1234",
@@ -13770,7 +13770,7 @@
       "no": 1472,
       "code": "U+1F523",
       "emoji": "🔣",
-      "description": "INPUT SYMBOL FOR SYMBOLS≊ input symbols",
+      "description": "INPUT SYMBOL FOR SYMBOLS| input symbols",
       "flagged": false,
       "keywords": [
         "input"
@@ -13780,7 +13780,7 @@
       "no": 1473,
       "code": "U+1F524",
       "emoji": "🔤",
-      "description": "INPUT SYMBOL FOR LATIN LETTERS≊ input latin letters",
+      "description": "INPUT SYMBOL FOR LATIN LETTERS| input latin letters",
       "flagged": false,
       "keywords": [
         "abc",
@@ -13794,7 +13794,7 @@
       "no": 1474,
       "code": "U+1F170",
       "emoji": "🅰",
-      "description": "NEGATIVE SQUARED LATIN CAPITAL LETTER A≊ a button",
+      "description": "NEGATIVE SQUARED LATIN CAPITAL LETTER A| a button",
       "flagged": false,
       "keywords": [
         "a",
@@ -13805,7 +13805,7 @@
       "no": 1475,
       "code": "U+1F18E",
       "emoji": "🆎",
-      "description": "NEGATIVE SQUARED AB≊ ab button",
+      "description": "NEGATIVE SQUARED AB| ab button",
       "flagged": false,
       "keywords": [
         "ab",
@@ -13816,7 +13816,7 @@
       "no": 1476,
       "code": "U+1F171",
       "emoji": "🅱",
-      "description": "NEGATIVE SQUARED LATIN CAPITAL LETTER B≊ b button",
+      "description": "NEGATIVE SQUARED LATIN CAPITAL LETTER B| b button",
       "flagged": false,
       "keywords": [
         "b",
@@ -13879,7 +13879,7 @@
       "no": 1482,
       "code": "U+24C2",
       "emoji": "Ⓜ",
-      "description": "CIRCLED LATIN CAPITAL LETTER M≊ circled letter m",
+      "description": "CIRCLED LATIN CAPITAL LETTER M| circled letter m",
       "flagged": false,
       "keywords": [
         "circle",
@@ -13910,7 +13910,7 @@
       "no": 1485,
       "code": "U+1F17E",
       "emoji": "🅾",
-      "description": "NEGATIVE SQUARED LATIN CAPITAL LETTER O≊ o button",
+      "description": "NEGATIVE SQUARED LATIN CAPITAL LETTER O| o button",
       "flagged": false,
       "keywords": [
         "blood",
@@ -13931,7 +13931,7 @@
       "no": 1487,
       "code": "U+1F17F",
       "emoji": "🅿",
-      "description": "NEGATIVE SQUARED LATIN CAPITAL LETTER P≊ p button",
+      "description": "NEGATIVE SQUARED LATIN CAPITAL LETTER P| p button",
       "flagged": false,
       "keywords": [
         "parking"
@@ -13952,7 +13952,7 @@
       "no": 1489,
       "code": "U+1F199",
       "emoji": "🆙",
-      "description": "SQUARED UP WITH EXCLAMATION MARK≊ up! button",
+      "description": "SQUARED UP WITH EXCLAMATION MARK| up! button",
       "flagged": false,
       "keywords": [
         "mark",
@@ -13994,7 +13994,7 @@
       "no": 1493,
       "code": "U+1F237",
       "emoji": "🈷",
-      "description": "SQUARED CJK UNIFIED IDEOGRAPH-6708≊ squared moon ideograph",
+      "description": "SQUARED CJK UNIFIED IDEOGRAPH-6708| squared moon ideograph",
       "flagged": false,
       "keywords": [
         "japanese"
@@ -14004,7 +14004,7 @@
       "no": 1494,
       "code": "U+1F236",
       "emoji": "🈶",
-      "description": "SQUARED CJK UNIFIED IDEOGRAPH-6709≊ squared exist ideograph",
+      "description": "SQUARED CJK UNIFIED IDEOGRAPH-6709| squared exist ideograph",
       "flagged": false,
       "keywords": [
         "japanese"
@@ -14014,7 +14014,7 @@
       "no": 1495,
       "code": "U+1F22F",
       "emoji": "🈯",
-      "description": "SQUARED CJK UNIFIED IDEOGRAPH-6307≊ squared finger ideograph",
+      "description": "SQUARED CJK UNIFIED IDEOGRAPH-6307| squared finger ideograph",
       "flagged": false,
       "keywords": [
         "japanese"
@@ -14024,7 +14024,7 @@
       "no": 1496,
       "code": "U+1F250",
       "emoji": "🉐",
-      "description": "CIRCLED IDEOGRAPH ADVANTAGE≊ circled advantage ideograph",
+      "description": "CIRCLED IDEOGRAPH ADVANTAGE| circled advantage ideograph",
       "flagged": false,
       "keywords": [
         "japanese"
@@ -14034,7 +14034,7 @@
       "no": 1497,
       "code": "U+1F239",
       "emoji": "🈹",
-      "description": "SQUARED CJK UNIFIED IDEOGRAPH-5272≊ squared divide ideograph",
+      "description": "SQUARED CJK UNIFIED IDEOGRAPH-5272| squared divide ideograph",
       "flagged": false,
       "keywords": [
         "japanese"
@@ -14044,7 +14044,7 @@
       "no": 1498,
       "code": "U+1F21A",
       "emoji": "🈚",
-      "description": "SQUARED CJK UNIFIED IDEOGRAPH-7121≊ squared negation ideograph",
+      "description": "SQUARED CJK UNIFIED IDEOGRAPH-7121| squared negation ideograph",
       "flagged": false,
       "keywords": [
         "japanese"
@@ -14054,7 +14054,7 @@
       "no": 1499,
       "code": "U+1F232",
       "emoji": "🈲",
-      "description": "SQUARED CJK UNIFIED IDEOGRAPH-7981≊ squared prohibit ideograph",
+      "description": "SQUARED CJK UNIFIED IDEOGRAPH-7981| squared prohibit ideograph",
       "flagged": false,
       "keywords": [
         "japanese"
@@ -14064,7 +14064,7 @@
       "no": 1500,
       "code": "U+1F251",
       "emoji": "🉑",
-      "description": "CIRCLED IDEOGRAPH ACCEPT≊ circled accept ideograph",
+      "description": "CIRCLED IDEOGRAPH ACCEPT| circled accept ideograph",
       "flagged": false,
       "keywords": [
         "chinese"
@@ -14074,7 +14074,7 @@
       "no": 1501,
       "code": "U+1F238",
       "emoji": "🈸",
-      "description": "SQUARED CJK UNIFIED IDEOGRAPH-7533≊ squared apply ideograph",
+      "description": "SQUARED CJK UNIFIED IDEOGRAPH-7533| squared apply ideograph",
       "flagged": false,
       "keywords": [
         "chinese"
@@ -14084,7 +14084,7 @@
       "no": 1502,
       "code": "U+1F234",
       "emoji": "🈴",
-      "description": "SQUARED CJK UNIFIED IDEOGRAPH-5408≊ squared together ideograph",
+      "description": "SQUARED CJK UNIFIED IDEOGRAPH-5408| squared together ideograph",
       "flagged": false,
       "keywords": [
         "chinese"
@@ -14094,7 +14094,7 @@
       "no": 1503,
       "code": "U+1F233",
       "emoji": "🈳",
-      "description": "SQUARED CJK UNIFIED IDEOGRAPH-7A7A≊ squared empty ideograph",
+      "description": "SQUARED CJK UNIFIED IDEOGRAPH-7A7A| squared empty ideograph",
       "flagged": false,
       "keywords": [
         "chinese"
@@ -14104,7 +14104,7 @@
       "no": 1504,
       "code": "U+3297",
       "emoji": "㊗",
-      "description": "CIRCLED IDEOGRAPH CONGRATULATION≊ circled congratulate ideograph",
+      "description": "CIRCLED IDEOGRAPH CONGRATULATION| circled congratulate ideograph",
       "flagged": false,
       "keywords": [
         "chinese",
@@ -14117,7 +14117,7 @@
       "no": 1505,
       "code": "U+3299",
       "emoji": "㊙",
-      "description": "CIRCLED IDEOGRAPH SECRET≊ circled secret ideograph",
+      "description": "CIRCLED IDEOGRAPH SECRET| circled secret ideograph",
       "flagged": false,
       "keywords": [
         "chinese",
@@ -14129,7 +14129,7 @@
       "no": 1506,
       "code": "U+1F23A",
       "emoji": "🈺",
-      "description": "SQUARED CJK UNIFIED IDEOGRAPH-55B6≊ squared operating ideograph",
+      "description": "SQUARED CJK UNIFIED IDEOGRAPH-55B6| squared operating ideograph",
       "flagged": false,
       "keywords": [
         "chinese"
@@ -14139,7 +14139,7 @@
       "no": 1507,
       "code": "U+1F235",
       "emoji": "🈵",
-      "description": "SQUARED CJK UNIFIED IDEOGRAPH-6E80≊ squared fullness ideograph",
+      "description": "SQUARED CJK UNIFIED IDEOGRAPH-6E80| squared fullness ideograph",
       "flagged": false,
       "keywords": [
         "chinese"
@@ -14193,7 +14193,7 @@
       "no": 1512,
       "code": "U+25FD",
       "emoji": "◽",
-      "description": "WHITE MEDIUM SMALL SQUARE≊ white medium-small square",
+      "description": "WHITE MEDIUM SMALL SQUARE| white medium-small square",
       "flagged": false,
       "keywords": [
         "geometric",
@@ -14204,7 +14204,7 @@
       "no": 1513,
       "code": "U+25FE",
       "emoji": "◾",
-      "description": "BLACK MEDIUM SMALL SQUARE≊ black medium-small square",
+      "description": "BLACK MEDIUM SMALL SQUARE| black medium-small square",
       "flagged": false,
       "keywords": [
         "geometric",
@@ -14285,7 +14285,7 @@
       "no": 1520,
       "code": "U+1F53A",
       "emoji": "🔺",
-      "description": "UP-POINTING RED TRIANGLE≊ red triangle pointed up",
+      "description": "UP-POINTING RED TRIANGLE| red triangle pointed up",
       "flagged": false,
       "keywords": [
         "geometric",
@@ -14296,7 +14296,7 @@
       "no": 1521,
       "code": "U+1F53B",
       "emoji": "🔻",
-      "description": "DOWN-POINTING RED TRIANGLE≊ red triangle pointed down",
+      "description": "DOWN-POINTING RED TRIANGLE| red triangle pointed down",
       "flagged": false,
       "keywords": [
         "down",
@@ -14308,7 +14308,7 @@
       "no": 1522,
       "code": "U+1F4A0",
       "emoji": "💠",
-      "description": "DIAMOND SHAPE WITH A DOT INSIDE≊ diamond with a dot",
+      "description": "DIAMOND SHAPE WITH A DOT INSIDE| diamond with a dot",
       "flagged": false,
       "keywords": [
         "comic",
@@ -14358,7 +14358,7 @@
       "no": 1526,
       "code": "U+26AA",
       "emoji": "⚪",
-      "description": "MEDIUM WHITE CIRCLE≊ white circle",
+      "description": "MEDIUM WHITE CIRCLE| white circle",
       "flagged": false,
       "keywords": [
         "circle",
@@ -14369,7 +14369,7 @@
       "no": 1527,
       "code": "U+26AB",
       "emoji": "⚫",
-      "description": "MEDIUM BLACK CIRCLE≊ black circle",
+      "description": "MEDIUM BLACK CIRCLE| black circle",
       "flagged": false,
       "keywords": [
         "circle",
@@ -14380,7 +14380,7 @@
       "no": 1528,
       "code": "U+1F534",
       "emoji": "🔴",
-      "description": "LARGE RED CIRCLE≊ red circle",
+      "description": "LARGE RED CIRCLE| red circle",
       "flagged": false,
       "keywords": [
         "circle",
@@ -14392,7 +14392,7 @@
       "no": 1529,
       "code": "U+1F535",
       "emoji": "🔵",
-      "description": "LARGE BLUE CIRCLE≊ blue circle",
+      "description": "LARGE BLUE CIRCLE| blue circle",
       "flagged": false,
       "keywords": [
         "blue",
@@ -14419,7 +14419,7 @@
       "no": 1531,
       "code": "U+1F6A9",
       "emoji": "🚩",
-      "description": "TRIANGULAR FLAG ON POST≊ triangular flag",
+      "description": "TRIANGULAR FLAG ON POST| triangular flag",
       "flagged": false,
       "keywords": [
         "flag",

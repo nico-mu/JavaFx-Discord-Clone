@@ -3,20 +3,19 @@ package de.uniks.stp.controller;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
-import de.uniks.stp.component.NavBarHomeElement;
-import de.uniks.stp.component.NavBarUserElement;
 import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.*;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
-import javafx.scene.control.Label;
-import javafx.scene.Node;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import kong.unirest.Callback;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,14 +28,15 @@ import org.mockito.MockitoAnnotations;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.service.query.EmptyNodeQueryException;
 import org.testfx.util.WaitForAsyncUtils;
 
-import javax.json.*;
-import java.util.*;
+import javax.json.Json;
+import javax.json.JsonObject;
+import java.util.HashMap;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(ApplicationExtension.class)
@@ -50,6 +50,12 @@ public class SystemWebsocketTest {
 
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<Callback<JsonNode>> restCallbackArgumentCaptor;
+
+    @Mock
+    private HttpResponse<JsonNode> res;
 
     @Captor
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
@@ -172,14 +178,20 @@ public class SystemWebsocketTest {
     public void testServerUserJoinedLeftMessage(FxRobot robot) {
         final String SERVER_ID = "server";
         final String SERVER_NAME = "server-name";
+        String TEST_USER_1_NAME = "testUser";
+        String TEST_USER_2_NAME = "testUser2";
+        String TEST_USER_1_ID = "1";
+        String TEST_USER_2_ID = "2";
 
         Editor editor = StageManager.getEditor();
 
         editor.getOrCreateAccord()
-            .setCurrentUser(new User().setName("Test"))
+            .setCurrentUser(new User().setName("Test").setStatus(true))
             .setUserKey("123-45");
 
-        editor.getOrCreateServer(SERVER_ID, SERVER_NAME);
+        Server server = editor.getOrCreateServer(SERVER_ID, SERVER_NAME);
+        editor.getOrCreateServerMember(TEST_USER_1_ID, TEST_USER_1_NAME, server).setStatus(false);
+        editor.getOrCreateServerMember(TEST_USER_2_ID, TEST_USER_2_NAME, server).setStatus(true);
 
         WebSocketService.addServerWebSocket(SERVER_ID);
 
@@ -196,47 +208,52 @@ public class SystemWebsocketTest {
         }
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + SERVER_ID);
 
-        String testUserName = "testUser";
+        VBox onlineUserContainer = robot.lookup("#online-user-list").query();
+        VBox offlineUserContainer = robot.lookup("#offline-user-list").query();
+        Assertions.assertEquals(2, onlineUserContainer.getChildren().size());
+        Assertions.assertEquals(1, offlineUserContainer.getChildren().size());
+
         JsonObject jsonObject = Json.createObjectBuilder()
             .add("action", "userJoined")
             .add("data",
                 Json.createObjectBuilder()
-                    .add("name", testUserName)
-                    .add("id", "12345678")
+                    .add("name", TEST_USER_1_NAME)
+                    .add("id", TEST_USER_1_ID)
                     .add("serverId", SERVER_ID)
                     .build()
             )
             .build();
         systemCallback.handleMessage(jsonObject);
-        String testUserName2 = "testUser2";
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(3, onlineUserContainer.getChildren().size());
+        Assertions.assertEquals(0, offlineUserContainer.getChildren().size());
+
         jsonObject = Json.createObjectBuilder()
             .add("action", "userLeft")
             .add("data",
                 Json.createObjectBuilder()
-                    .add("name", testUserName2)
-                    .add("id", "123456789")
+                    .add("name", TEST_USER_2_NAME)
+                    .add("id", TEST_USER_2_ID)
                     .add("serverId", SERVER_ID)
                     .build()
             )
             .build();
         systemCallback.handleMessage(jsonObject);
-
         WaitForAsyncUtils.waitForFxEvents();
 
         List<User> users = editor.getOrCreateServer(SERVER_ID, SERVER_NAME).getUsers();
         Assertions.assertEquals(3, users.size());
 
-        VBox onlineUserContainer = robot.lookup("#online-user-list").query();
-        VBox offlineUserContainer = robot.lookup("#offline-user-list").query();
-        Assertions.assertEquals(1, onlineUserContainer.getChildren().size());
+        Assertions.assertEquals(2, onlineUserContainer.getChildren().size());
         Assertions.assertEquals(1, offlineUserContainer.getChildren().size());
 
         jsonObject = Json.createObjectBuilder()
             .add("action", "userLeft")
             .add("data",
                 Json.createObjectBuilder()
-                    .add("name", testUserName)
-                    .add("id", "12345678")
+                    .add("name", TEST_USER_1_NAME)
+                    .add("id", TEST_USER_1_ID)
                     .add("serverId", SERVER_ID)
                     .build()
             )
@@ -247,7 +264,7 @@ public class SystemWebsocketTest {
 
         onlineUserContainer = robot.lookup("#online-user-list").query();
         offlineUserContainer = robot.lookup("#offline-user-list").query();
-        Assertions.assertEquals(0, onlineUserContainer.getChildren().size());
+        Assertions.assertEquals(1, onlineUserContainer.getChildren().size());
         Assertions.assertEquals(2, offlineUserContainer.getChildren().size());
     }
 

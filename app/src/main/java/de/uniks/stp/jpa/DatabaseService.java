@@ -1,7 +1,6 @@
 package de.uniks.stp.jpa;
 
-import de.uniks.stp.jpa.model.AccordSettingDTO;
-import de.uniks.stp.jpa.model.DirectMessageDTO;
+import de.uniks.stp.jpa.model.*;
 import de.uniks.stp.model.DirectMessage;
 import javafx.util.Pair;
 
@@ -218,5 +217,140 @@ public class DatabaseService {
         }
 
         return chatPartnerList;
+    }
+
+    public static void addMutedChannelId(String channelId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        entityManager.merge(new MutedChannelDTO().setChannelId(channelId));
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public static void removeMutedChannelId(String channelId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        MutedChannelDTO mutedChannelDTO = entityManager.find(MutedChannelDTO.class, channelId);
+
+        if(Objects.nonNull(mutedChannelDTO)) {
+            entityManager.remove(mutedChannelDTO);
+        }
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public static boolean isChannelMuted(String channelId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        MutedChannelDTO result = entityManager.find(MutedChannelDTO.class, channelId);
+
+        transaction.commit();
+        entityManager.close();
+
+        if(Objects.nonNull(result)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void addMutedCategoryId(String categoryId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        entityManager.merge(new MutedCategoryDTO().setCategoryId(categoryId));
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public static void removeMutedCategoryId(String categoryId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        MutedCategoryDTO mutedCategoryDTO = entityManager.find(MutedCategoryDTO.class, categoryId);
+
+        if(Objects.nonNull(mutedCategoryDTO)) {
+            entityManager.remove(mutedCategoryDTO);
+        }
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public static boolean isCategoryMuted(String categoryId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        MutedCategoryDTO result = entityManager.find(MutedCategoryDTO.class, categoryId);
+
+        transaction.commit();
+        entityManager.close();
+
+        if(Objects.nonNull(result)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void addMutedServerId(String serverId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        entityManager.merge(new MutedServerDTO().setServerId(serverId));
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public static void removeMutedServerId(String serverId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        MutedServerDTO mutedServerDTO = entityManager.find(MutedServerDTO.class, serverId);
+
+        if(Objects.nonNull(mutedServerDTO)) {
+            entityManager.remove(mutedServerDTO);
+        }
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public static boolean isServerMuted(String serverId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        MutedServerDTO result = entityManager.find(MutedServerDTO.class, serverId);
+
+        transaction.commit();
+        entityManager.close();
+
+        if(Objects.nonNull(result)) {
+            return true;
+        }
+        return false;
     }
 }

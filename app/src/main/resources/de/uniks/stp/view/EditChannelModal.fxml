@@ -1,14 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.*?>
-<?import javafx.geometry.*?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXToggleButton?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.*?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="480.0" styleClass="edit-channel-modal" stylesheets="@../style/css/view/edit-channel-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="480.0" styleClass="edit-channel-modal" stylesheets="@../style/css/view/edit-channel-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <VBox>
          <children>
+            <Label id="enter-category-name-label" prefHeight="30.0" prefWidth="235.0" styleClass="notifications-label" text="%LBL_NAME" />
             <JFXTextField id="edit-channel-name-textfield" maxWidth="240.0" promptText="%LBL_CHANNEL_NAME" styleClass="edit-channel-name-textfield" />
+            <AnchorPane prefHeight="62.0" prefWidth="386.0">
+               <children>
+                  <Label id="notifications-label" layoutX="1.0" prefHeight="30.0" prefWidth="235.0" styleClass="notifications-label" text="%LBL_NOTIFICATIONS" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="79.0" AnchorPane.topAnchor="0.0">
+                     <padding>
+                        <Insets top="12.0" />
+                     </padding></Label>
+                  <JFXToggleButton id="notifications-toggle-button" layoutY="29.0" prefHeight="58.0" prefWidth="78.0" text="ToggleButton" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="29.0" />
+                  <Label id="notifications-activated-label" layoutX="60.0" layoutY="45.0" prefHeight="27.0" prefWidth="36.0" styleClass="notifications-activated-label" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="45.0" />
+               </children>
+            </AnchorPane>
             <VBox>
                <children>
                   <HBox alignment="CENTER" prefHeight="0.0" prefWidth="200.0" spacing="160.0">
@@ -23,7 +41,7 @@
                   <HBox id="user-check-list-container" maxHeight="180.0" prefHeight="180.0" prefWidth="200.0" styleClass="user-check-list-container" />
                </children>
                <padding>
-                  <Insets bottom="24.0" top="24.0" />
+                  <Insets bottom="24.0" />
                </padding>
             </VBox>
             <HBox alignment="CENTER" prefHeight="0.0" prefWidth="200.0" spacing="144.0">
