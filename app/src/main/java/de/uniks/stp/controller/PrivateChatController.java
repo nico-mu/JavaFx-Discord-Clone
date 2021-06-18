@@ -181,7 +181,7 @@ public class PrivateChatController implements ControllerInterface {
 
     private void setOnlineHeaderLabel() {
         Platform.runLater(() -> {
-            homeScreenLabel.setText(user.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
+            homeScreenLabel.setText(user.getName());
         });
     }
 
