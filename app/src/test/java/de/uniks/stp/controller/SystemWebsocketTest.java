@@ -195,12 +195,8 @@ public class SystemWebsocketTest {
 
         WebSocketService.addServerWebSocket(SERVER_ID);
 
-
-
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", SERVER_ID)));
         WaitForAsyncUtils.waitForFxEvents();
-
-
 
         verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
