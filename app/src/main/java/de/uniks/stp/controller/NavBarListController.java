@@ -102,7 +102,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
             final NavBarServerElement navBarElement = navBarServerElementHashMap.remove(server);
             Platform.runLater(() -> navBarList.removeElement(navBarElement));
             for (Channel channel : server.getChannels()) {
-                // NotificationService.removePublisher(channel);
+                NotificationService.removePublisher(channel);
             }
         }
     }
