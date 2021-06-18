@@ -6,10 +6,8 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.PrivateChatView;
-import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
-import de.uniks.stp.modal.EasterEggModal;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
@@ -18,7 +16,6 @@ import de.uniks.stp.network.ServerInformationHandler;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.util.MessageUtil;
-import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -27,13 +24,15 @@ import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
-import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT)
 public class PrivateChatController implements ControllerInterface {
@@ -211,7 +210,6 @@ public class PrivateChatController implements ControllerInterface {
     }
 
     private void onStatusChange(PropertyChangeEvent propertyChangeEvent) {
-        System.out.println("stat change");
         Boolean status = (Boolean) propertyChangeEvent.getNewValue();
 
         if (Objects.isNull(status) || !status) {
