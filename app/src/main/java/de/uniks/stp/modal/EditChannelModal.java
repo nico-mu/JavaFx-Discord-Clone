@@ -184,8 +184,10 @@ public class EditChannelModal extends AbstractModal {
         }
 
         ArrayList<String> privilegedUserIds = selectUserList.getSelectedUserIds();
-        if(!privilegedUserIds.contains(editor.getOrCreateAccord().getCurrentUser().getId())) {
-            privilegedUserIds.add(editor.getOrCreateAccord().getCurrentUser().getId());
+        if(priv) {
+            if(!privilegedUserIds.contains(editor.getOrCreateAccord().getCurrentUser().getId())) {
+                privilegedUserIds.add(editor.getOrCreateAccord().getCurrentUser().getId());
+            }
         }
 
         if(hasRestChanges(chName, priv, privilegedUserIds)) {
