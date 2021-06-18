@@ -286,6 +286,7 @@ public class WebSocketService {
                     JsonArray jsonArray = data.getJsonArray("members");
 
                     Channel channel = new Channel().setId(channelId).setName(channelName).setType(type).setPrivileged(privileged);
+                    NotificationService.register(channel);
                     Server modifiedServer = null;
 
                     for (Server server : editor.getAvailableServers()) {
