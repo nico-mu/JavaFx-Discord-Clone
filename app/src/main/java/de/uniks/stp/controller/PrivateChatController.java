@@ -11,6 +11,8 @@ import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
+import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.ServerInformationHandler;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.util.MessageUtil;
@@ -22,7 +24,6 @@ import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
-import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +51,16 @@ public class PrivateChatController implements ControllerInterface {
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
     private final PropertyChangeListener statusChangeListener = this::onStatusChange;
 
+    private final RestClient restClient;
+    private final ServerInformationHandler serverInformationHandler;
+
     public PrivateChatController(Parent view, Editor editor, String userId, String userName) {
         this.view = view;
         this.editor = editor;
         this.userId = userId;
         this.user = editor.getOrCreateChatPartnerOfCurrentUser(userId, userName);
+        restClient = NetworkClientInjector.getRestClient();
+        serverInformationHandler = new ServerInformationHandler(editor);
     }
 
     @Override
@@ -209,7 +215,7 @@ public class PrivateChatController implements ControllerInterface {
         String inviteId = ids.split("-")[1];
 
         User currentUser = editor.getOrCreateAccord().getCurrentUser();
-        NetworkClientInjector.getRestClient().joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
+        restClient.joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
             (response) -> onJoinServerResponse(serverId, response));
     }
 
@@ -217,30 +223,11 @@ public class PrivateChatController implements ControllerInterface {
         log.debug(response.getBody().toPrettyString());
 
         if(response.isSuccess()){
-            NetworkClientInjector.getRestClient().getServerInformation(serverId, this::onServerInformationResponse);
+            editor.getOrCreateServer(serverId);
+            restClient.getServerInformation(serverId, serverInformationHandler::handleServerInformationRequest);
+            restClient.getCategories(serverId, (msg) -> serverInformationHandler.handleCategories(msg, editor.getServer(serverId)));
         } else{
             log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
-        }
-    }
-
-    private void onServerInformationResponse(HttpResponse<JsonNode> response) {
-        log.debug(response.getBody().toString());
-        if(response.isSuccess()){
-            JSONObject resJson = response.getBody().getObject().getJSONObject("data");
-            final String serverId = resJson.getString("id");
-            final String serverName = resJson.getString("name");
-
-            // add server to model -> to NavBar List
-            editor.getOrCreateServer(serverId, serverName);
-
-            // reload chatView -> some button might not be needed anymore
-            Platform.runLater(()->{
-                onlineUsersContainer.getChildren().remove(chatView);
-                chatView.stop();
-                showChatView();
-            });
-        } else{
-            log.error("Error trying to load information of new server");
         }
     }
 }

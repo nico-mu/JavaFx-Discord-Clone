@@ -6,9 +6,11 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -24,7 +26,7 @@ import java.util.Objects;
 
 public class ServerSettingsModal extends AbstractModal {
     public static final String SERVERNAME_TEXT_FIELD = "#servername-text-field";
-    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "notifications-toggle-button";
+    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "#notifications-toggle-button";
     public static final String NOTIFICATIONS_ACTIVATED_LABEL = "#notifications-activated-label";
     public static final String SPINNER = "#spinner";
     public static final String ERROR_MESSAGE_LABEL = "#error-message-label";
@@ -54,7 +56,7 @@ public class ServerSettingsModal extends AbstractModal {
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_SERVER_TITLE));
 
         servernameTextField = (JFXTextField) view.lookup(SERVERNAME_TEXT_FIELD);
-        notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);  // FIXME: is Null
+        notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);
         notificationsLabel = (Label) view.lookup(NOTIFICATIONS_ACTIVATED_LABEL);
         errorLabel = (Label) view.lookup(ERROR_MESSAGE_LABEL);
         spinner = (JFXSpinner) view.lookup(SPINNER);
@@ -62,8 +64,13 @@ public class ServerSettingsModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
         deleteButton = (JFXButton) view.lookup(DELETE_BUTTON);
 
-        // ToDo: load current Notification setting
-        notificationsLabel.setText(ViewLoader.loadLabel(Constants.LBL_ON));
+        boolean muted = DatabaseService.isServerMuted(model.getId());
+        notificationsToggleButton.setSelected(!muted);
+        notificationsLabel.setText(ViewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
+        notificationsToggleButton.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+            notificationsLabel.setText(ViewLoader.loadLabel(!notificationsToggleButton.isSelected() ? Constants.LBL_OFF : Constants.LBL_ON));
+        }));
+
         servernameTextField.setText(model.getName());
 
         saveButton.setOnAction(this::onSaveButtonClicked);
@@ -95,18 +102,27 @@ public class ServerSettingsModal extends AbstractModal {
     private void onSaveButtonClicked(ActionEvent actionEvent) {
         setErrorMessage(null);
 
-        //ToDo: Notifications
-
         if (! servernameTextField.getText().isEmpty()){
             String name = servernameTextField.getText();
 
             servernameTextField.setDisable(true);
-            //notificationsToggleButton.setDisable(true);  use when fixed
+            notificationsToggleButton.setDisable(true);
             saveButton.setDisable(true);
             cancelButton.setDisable(true);
             deleteButton.setDisable(true);
             spinner.setVisible(true);
 
+            boolean muted = !notificationsToggleButton.isSelected();
+            if(muted) {
+                DatabaseService.addMutedServerId(model.getId());
+            }else  {
+                DatabaseService.removeMutedServerId(model.getId());
+            }
+
+            if(servernameTextField.getText().equals(model.getName())) {
+                this.close();
+                return;
+            }
             RestClient restClient = NetworkClientInjector.getRestClient();
             restClient.renameServer(model.getId(), name, this::handleRenameServerResponse);
         }

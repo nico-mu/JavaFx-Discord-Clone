@@ -1,21 +1,19 @@
 package de.uniks.stp.controller;
 
 import com.jfoenix.controls.JFXButton;
-import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerChatView;
 import de.uniks.stp.component.TextWithEmoteSupport;
 import de.uniks.stp.model.Channel;
-import de.uniks.stp.model.Server;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
+import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.ServerInformationHandler;
 import de.uniks.stp.network.WebSocketService;
-import de.uniks.stp.router.Router;
 import de.uniks.stp.util.MessageUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
@@ -47,7 +45,12 @@ public class ServerChatController implements ControllerInterface {
     private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
     private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
 
+    private final RestClient restClient;
+    private final ServerInformationHandler serverInformationHandler;
+
     public ServerChatController(Parent view, Editor editor, Channel model) {
+        restClient = NetworkClientInjector.getRestClient();
+        serverInformationHandler = new ServerInformationHandler(editor);
         this.view = view;
         this.editor = editor;
         this.model = model;
@@ -189,31 +192,11 @@ public class ServerChatController implements ControllerInterface {
         log.debug(response.getBody().toPrettyString());
 
         if(response.isSuccess()){
-            NetworkClientInjector.getRestClient().getServerInformation(serverId, this::onServerInformationResponse);
+            editor.getOrCreateServer(serverId);
+            restClient.getServerInformation(serverId, serverInformationHandler::handleServerInformationRequest);
+            restClient.getCategories(serverId, (msg) -> serverInformationHandler.handleCategories(msg, editor.getServer(serverId)));
         } else{
             log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
-        }
-    }
-
-    private void onServerInformationResponse(HttpResponse<JsonNode> response) {
-        log.debug(response.getBody().toString());
-        if(response.isSuccess()){
-            JSONObject resJson = response.getBody().getObject().getJSONObject("data");
-            final String serverId = resJson.getString("id");
-            final String serverName = resJson.getString("name");
-            final String serverOwner = resJson.getString("owner");
-
-            // add server to model -> to NavBar List
-            if (serverOwner.equals(editor.getOrCreateAccord().getCurrentUser().getId())) {
-                editor.getOrCreateServer(serverId, serverName).setOwner(editor.getOrCreateAccord().getCurrentUser());
-            } else {
-                editor.getOrCreateServer(serverId, serverName);
-            }
-
-            // reload chatView -> some button might not be needed anymore
-            Platform.runLater(this::reloadChatView);
-        } else{
-            log.error("Error trying to load information of new server");
         }
     }
 

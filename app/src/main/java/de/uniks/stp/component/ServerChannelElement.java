@@ -1,6 +1,7 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.Constants;
+import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.event.ChannelChangeEvent;
@@ -47,8 +48,10 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
     private Font font = null;
     private Font boldFont = null;
+    private Editor editor;
 
-    public ServerChannelElement(Channel model) {
+    public ServerChannelElement(Channel model, Editor editor) {
+        this.editor = editor;
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CHANNEL_ELEMENT);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -82,7 +85,7 @@ public class ServerChannelElement extends HBox implements NotificationComponentI
 
     private void onEditChannelClicked(MouseEvent mouseEvent) {
         Parent editChannelModalView = ViewLoader.loadView(Views.EDIT_CHANNEL_MODAL);
-        EditChannelModal editChannelModal = new EditChannelModal(editChannelModalView, model);
+        EditChannelModal editChannelModal = new EditChannelModal(editChannelModalView, model, editor);
         editChannelModal.show();
     }
 

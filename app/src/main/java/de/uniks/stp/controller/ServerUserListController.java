@@ -4,16 +4,10 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerUserListEntry;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
-import kong.unirest.HttpResponse;
-import kong.unirest.JsonNode;
-import kong.unirest.json.JSONArray;
-import kong.unirest.json.JSONObject;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -50,8 +44,10 @@ public class ServerUserListController implements ControllerInterface {
 
         model.listeners().addPropertyChangeListener(Server.PROPERTY_USERS, availableUsersPropertyChangeListener);
 
-        RestClient restClient = NetworkClientInjector.getRestClient();
-        restClient.getServerInformation(model.getId(), this::handleServerInformationRequest);
+        for(User user : model.getUsers()) {
+            addUser(user);
+            addStatusPropertyChangeListener(user);
+        }
     }
 
     private void addUser(User user) {
@@ -80,35 +76,6 @@ public class ServerUserListController implements ControllerInterface {
         }
         addUser(user);
         addStatusPropertyChangeListener(user);
-    }
-
-    private void handleServerInformationRequest(HttpResponse<JsonNode> response) {
-        if (response.isSuccess()) {
-            final JSONObject data = response.getBody().getObject().getJSONObject("data");
-            final JSONArray member = data.getJSONArray("members");
-            final String serverId = data.getString("id");
-            final String serverName = data.getString("name");
-            final String serverOwner = data.getString("owner");
-
-            // add server to model -> to NavBar List
-            if (serverOwner.equals(editor.getOrCreateAccord().getCurrentUser().getId())) {
-                editor.getOrCreateServer(serverId, serverName).setOwner(editor.getOrCreateAccord().getCurrentUser());
-            } else {
-                editor.getOrCreateServer(serverId, serverName);
-            }
-
-            member.forEach(o -> {
-                JSONObject jsonUser = (JSONObject) o;
-                String userId = jsonUser.getString("id");
-                String name = jsonUser.getString("name");
-                boolean status = Boolean.parseBoolean(jsonUser.getString("online"));
-
-                User serverMember = editor.getOrCreateServerMember(userId, name, model);
-                serverMember.setStatus(status);
-                addUser(serverMember);
-                addStatusPropertyChangeListener(serverMember);
-            });
-        }
     }
 
     private void onUserStatusPropertyChange(PropertyChangeEvent propertyChangeEvent) {
