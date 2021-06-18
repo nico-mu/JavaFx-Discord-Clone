@@ -1,6 +1,8 @@
 package de.uniks.stp;
 
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.*;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.view.Languages;
 
 import java.util.List;
@@ -23,10 +25,8 @@ public class Editor {
         accord.setUserKey(userKey);
     }
 
-    public User getOrCreateUser(String name, boolean status) {
-        User user = new User().setAccord(accord).setName(name).setStatus(status);
-
-        return user;
+    public User createCurrentUser(String name, boolean status) {
+        return new User().setAccord(accord).setName(name).setStatus(status);
     }
 
     public void setCurrentUser(User currentUser) {
@@ -38,9 +38,19 @@ public class Editor {
         final Map<String, Server> serverMap = availableServersAsServerIdMap();
 
         if (serverMap.containsKey(id)) {
-            return serverMap.get(id);
+            return serverMap.get(id).setName(name);
         }
         return new Server().setName(name).setId(id).withUsers(currentUser);
+    }
+
+    public Server getOrCreateServer(final String id) {
+        final User currentUser = getOrCreateAccord().getCurrentUser();
+        final Map<String, Server> serverMap = availableServersAsServerIdMap();
+
+        if (serverMap.containsKey(id)) {
+            return serverMap.get(id);
+        }
+        return new Server().setId(id).withUsers(currentUser);
     }
 
     public List<Server> getAvailableServers() {
@@ -62,6 +72,7 @@ public class Editor {
         if(serverMap.containsKey(id)) {
             accord.getCurrentUser().withoutAvailableServers(serverMap.get(id));
         }
+        DatabaseService.removeMutedServerId(id);
     }
 
     public boolean serverAdded(String serverId) {
@@ -110,13 +121,13 @@ public class Editor {
         return null;
     }
 
-    public User getUserById(String userId) {
+    public User getOtherUserById(String userId) {
         final Map<String, User> userMap = otherUsersAsIdUserMap();
         return userMap.get(userId);
     }
 
     public void removeOtherUserById(String userId) {
-        accord.withoutOtherUsers(getUserById(userId));
+        accord.withoutOtherUsers(getOtherUserById(userId));
     }
 
     private Map<String, User> otherUsersAsIdUserMap() {
@@ -220,42 +231,31 @@ public class Editor {
         return null;
     }
 
-    public User getOrCreateServerMember(String userId, String name, boolean status, Server server) {
+    public User getOrCreateServerMember(String userId, String name, Server server) {
+        for (User user : server.getUsers()) {
+            if (user.getName().equals(name)) {
+                return user.setId(userId);
+            }
+        }
+
+        User user = new User().setId(userId).setName(name);
+        server.withUsers(user);
+        return user;
+    }
+
+    public User getOrCreateServerMember(String name, Server server) {
         for (User user : server.getUsers()) {
             if (user.getName().equals(name)) {
                 return user;
             }
         }
 
-        User user = new User().setId(userId).setName(name).setStatus(status);
+        User user = new User().setName(name);
         server.withUsers(user);
-
         return user;
     }
 
-    public void setServerMemberStatus(String userId, String name, boolean status, Server server) {
-        if (Objects.isNull(server)) {
-            return;
-        }
 
-        for (User user : server.getUsers()) {
-            if (user.getName().equals(name)) {
-                user.setStatus(status);
-                server.firePropertyChange(Server.PROPERTY_USERS, null, user);
-                return;
-            }
-        }
-
-        getOrCreateServerMember(userId, name, status, server);
-    }
-
-    public void setServerMemberOnline(String userId, String userName, Server server) {
-        setServerMemberStatus(userId, userName, true, server);
-    }
-
-    public void setServerMemberOffline(String userId, String userName, Server server) {
-        setServerMemberStatus(userId, userName, false, server);
-    }
 
     public User getOrCreateChatPartnerOfCurrentUser(String id, String name) {
         User currentUser = accord.getCurrentUser();
@@ -306,13 +306,15 @@ public class Editor {
                 return serverInvitation;
             }
         }
-        ServerInvitation newInvite = new ServerInvitation().setId(invId).setLink(link).setType(type).setMax(max).setCurrent(current).setServer(server);
-        return newInvite;
+        return new ServerInvitation().setId(invId).setLink(link).setType(type).setMax(max).setCurrent(current).setServer(server);
     }
 
     public void deleteChannel(String channelId) {
         Channel channel = getChannelById(channelId);
+        NotificationService.removePublisher(channel);
         channel.setServer(null);
         channel.getCategory().withoutChannels(channel);
+        DatabaseService.removeMutedChannelId(channelId);
+        channel.removeYou();
     }
 }

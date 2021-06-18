@@ -6,9 +6,11 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -24,7 +26,7 @@ import java.util.Objects;
 
 public class ServerSettingsModal extends AbstractModal {
     public static final String SERVERNAME_TEXT_FIELD = "#servername-text-field";
-    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "notifications-toggle-button";
+    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "#notifications-toggle-button";
     public static final String NOTIFICATIONS_ACTIVATED_LABEL = "#notifications-activated-label";
     public static final String SPINNER = "#spinner";
     public static final String ERROR_MESSAGE_LABEL = "#error-message-label";
@@ -42,17 +44,19 @@ public class ServerSettingsModal extends AbstractModal {
     private final JFXButton deleteButton;
 
     private final Server model;
-    private ConfirmationModal deleteConfirmationModal;
+    private ConfirmationModal confirmationModal;
     private static final Logger log = LoggerFactory.getLogger(ServerSettingsModal.class);
+    private final boolean owner;
 
-    public ServerSettingsModal(Parent root, Server model) {
+    public ServerSettingsModal(Parent root, Server model, boolean owner) {
         super(root);
         this.model = model;
+        this.owner = owner;
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_SERVER_TITLE));
 
         servernameTextField = (JFXTextField) view.lookup(SERVERNAME_TEXT_FIELD);
-        notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);  // FIXME: is Null
+        notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);
         notificationsLabel = (Label) view.lookup(NOTIFICATIONS_ACTIVATED_LABEL);
         errorLabel = (Label) view.lookup(ERROR_MESSAGE_LABEL);
         spinner = (JFXSpinner) view.lookup(SPINNER);
@@ -60,15 +64,26 @@ public class ServerSettingsModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
         deleteButton = (JFXButton) view.lookup(DELETE_BUTTON);
 
-        // ToDo: load current Notification setting
-        notificationsLabel.setText(ViewLoader.loadLabel(Constants.LBL_ON));
+        boolean muted = DatabaseService.isServerMuted(model.getId());
+        notificationsToggleButton.setSelected(!muted);
+        notificationsLabel.setText(ViewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
+        notificationsToggleButton.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+            notificationsLabel.setText(ViewLoader.loadLabel(!notificationsToggleButton.isSelected() ? Constants.LBL_OFF : Constants.LBL_ON));
+        }));
+
         servernameTextField.setText(model.getName());
 
         saveButton.setOnAction(this::onSaveButtonClicked);
         saveButton.setDefaultButton(true);  // use Enter in order to press button
         cancelButton.setOnAction(this::onCancelButtonClicked);
         cancelButton.setCancelButton(true);  // use Escape in order to press button
-        deleteButton.setOnAction(this::onDeleteButtonClicked);
+
+        if (!this.owner) {
+            deleteButton.setText(ViewLoader.loadLabel(Constants.LBL_LEAVE_SERVER));
+            deleteButton.setOnAction(this::onLeaveButtonClicked);
+        } else {
+            deleteButton.setOnAction(this::onDeleteButtonClicked);
+        }
     }
 
     @Override
@@ -87,18 +102,27 @@ public class ServerSettingsModal extends AbstractModal {
     private void onSaveButtonClicked(ActionEvent actionEvent) {
         setErrorMessage(null);
 
-        //ToDo: Notifications
-
         if (! servernameTextField.getText().isEmpty()){
             String name = servernameTextField.getText();
 
             servernameTextField.setDisable(true);
-            //notificationsToggleButton.setDisable(true);  use when fixed
+            notificationsToggleButton.setDisable(true);
             saveButton.setDisable(true);
             cancelButton.setDisable(true);
             deleteButton.setDisable(true);
             spinner.setVisible(true);
 
+            boolean muted = !notificationsToggleButton.isSelected();
+            if(muted) {
+                DatabaseService.addMutedServerId(model.getId());
+            }else  {
+                DatabaseService.removeMutedServerId(model.getId());
+            }
+
+            if(servernameTextField.getText().equals(model.getName())) {
+                this.close();
+                return;
+            }
             RestClient restClient = NetworkClientInjector.getRestClient();
             restClient.renameServer(model.getId(), name, this::handleRenameServerResponse);
         }
@@ -117,12 +141,12 @@ public class ServerSettingsModal extends AbstractModal {
      */
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
         Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
-        deleteConfirmationModal = new ConfirmationModal(confirmationModalView,
+        confirmationModal = new ConfirmationModal(confirmationModalView,
             Constants.LBL_DELETE_SERVER,
             Constants.LBL_CONFIRM_DELETE_SERVER,
-            this::onYesButtonClicked,
+            this::onYesDeleteButtonClicked,
             this::onNoButtonClicked);
-        deleteConfirmationModal.show();
+        confirmationModal.show();
 
         // disabling buttons improves the view
         saveButton.setDisable(true);
@@ -134,16 +158,8 @@ public class ServerSettingsModal extends AbstractModal {
      * Used as onAction Method of Yes-Button in ConfirmationModal for server deletion
      * @param actionEvent
      */
-    private void onYesButtonClicked(ActionEvent actionEvent) {
-        Platform.runLater(deleteConfirmationModal::close);
-
-        servernameTextField.setDisable(true);
-        //notificationsToggleButton.setDisable(true);  use when fixed
-        saveButton.setDisable(true);
-        cancelButton.setDisable(true);
-        deleteButton.setDisable(true);
-        spinner.setVisible(true);
-
+    private void onYesDeleteButtonClicked(ActionEvent actionEvent) {
+        closeConfirmationModel();
         RestClient restClient = NetworkClientInjector.getRestClient();
         restClient.deleteServer(model.getId(), this::handleDeleteServerResponse);
     }
@@ -153,10 +169,61 @@ public class ServerSettingsModal extends AbstractModal {
      * @param actionEvent
      */
     private void onNoButtonClicked(ActionEvent actionEvent) {
-        Platform.runLater(deleteConfirmationModal::close);
+        Platform.runLater(confirmationModal::close);
         saveButton.setDisable(false);
         cancelButton.setDisable(false);
         deleteButton.setDisable(false);
+    }
+
+    private void onLeaveButtonClicked(ActionEvent actionEvent) {
+        Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
+        confirmationModal = new ConfirmationModal(confirmationModalView,
+            Constants.LBL_LEAVE_SERVER,
+            Constants.LBL_CONFIRM_LEAVE_SERVER,
+            this::onYesLeaveButtonClicked,
+            this::onNoButtonClicked);
+        confirmationModal.show();
+
+        // disabling buttons improves the view
+        saveButton.setDisable(true);
+        cancelButton.setDisable(true);
+        deleteButton.setDisable(true);
+    }
+
+    private void closeConfirmationModel() {
+        Platform.runLater(confirmationModal::close);
+
+        servernameTextField.setDisable(true);
+        //notificationsToggleButton.setDisable(true);  use when fixed
+        saveButton.setDisable(true);
+        cancelButton.setDisable(true);
+        deleteButton.setDisable(true);
+        spinner.setVisible(true);
+    }
+
+    private void onYesLeaveButtonClicked(ActionEvent actionEvent) {
+        closeConfirmationModel();
+        RestClient restClient = NetworkClientInjector.getRestClient();
+        restClient.leaveServer(model.getId(), this::handleLeaveServerResponse);
+    }
+
+    private void handleLeaveServerResponse(HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toPrettyString());
+        if (response.isSuccess()) {
+            Platform.runLater(this::close);
+        } else {
+            log.error("leaving server failed!");
+            setErrorMessage(Constants.LBL_LEAVE_SERVER_FAILED);
+
+            Platform.runLater(() -> {
+                servernameTextField.setDisable(false);
+                //notificationsToggleButton.setDisable(false);  use when fixed
+                saveButton.setDisable(false);
+                cancelButton.setDisable(false);
+                deleteButton.setDisable(false);
+                spinner.setVisible(false);
+            });
+        }
     }
 
     /**

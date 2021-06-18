@@ -13,6 +13,8 @@ import de.uniks.stp.modal.EasterEggModal;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
+import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.ServerInformationHandler;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.util.MessageUtil;
@@ -52,6 +54,9 @@ public class PrivateChatController implements ControllerInterface {
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
     private final PropertyChangeListener statusChangeListener = this::onStatusChange;
 
+    private final RestClient restClient;
+    private final ServerInformationHandler serverInformationHandler;
+
     public PrivateChatController(Parent view, Editor editor, String userId, String userName) {
         this.view = view;
         this.editor = editor;
@@ -59,6 +64,8 @@ public class PrivateChatController implements ControllerInterface {
         this.currentUser = editor.getOrCreateAccord().getCurrentUser();
         this.miniGameController = new MiniGameController(chatPartner);
         miniGameController.init();
+        restClient = NetworkClientInjector.getRestClient();
+        serverInformationHandler = new ServerInformationHandler(editor);
     }
 
     @Override
@@ -109,9 +116,7 @@ public class PrivateChatController implements ControllerInterface {
         }
 
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
-        chatPartner.listeners().addPropertyChangeListener(User.PROPERTY_SENT_MESSAGES, messagesChangeListener);
-        chatPartner.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
-        chatPartner.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
+        addPropertyChangeListeners();
 
         List<DirectMessageDTO> directMessages = DatabaseService.getConversation(currentUser.getName(), chatPartner.getName());
         for (DirectMessageDTO directMessageDTO : directMessages) {
@@ -136,6 +141,17 @@ public class PrivateChatController implements ControllerInterface {
                 message.setSender(editor.getOrCreateChatPartnerOfCurrentUser(senderId, senderName));
             }
         }
+    }
+
+    private void addPropertyChangeListeners() {
+        // first remove PCL in case this is a reload and they are already there!
+        chatPartner.listeners().removePropertyChangeListener(User.PROPERTY_SENT_MESSAGES, messagesChangeListener);
+        chatPartner.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
+        chatPartner.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
+        // now add them
+        chatPartner.listeners().addPropertyChangeListener(User.PROPERTY_SENT_MESSAGES, messagesChangeListener);
+        chatPartner.listeners().addPropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
+        chatPartner.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
     }
 
     /**
@@ -208,38 +224,19 @@ public class PrivateChatController implements ControllerInterface {
         String serverId = ids.split("-")[0];
         String inviteId = ids.split("-")[1];
 
-        NetworkClientInjector.getRestClient().joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
+        restClient.joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
             (response) -> onJoinServerResponse(serverId, response));
     }
 
     private void onJoinServerResponse(String serverId, HttpResponse<JsonNode> response) {
         log.debug(response.getBody().toPrettyString());
 
-        if (response.isSuccess()) {
-            NetworkClientInjector.getRestClient().getServerInformation(serverId, this::onServerInformationResponse);
-        } else {
+        if(response.isSuccess()){
+            editor.getOrCreateServer(serverId);
+            restClient.getServerInformation(serverId, serverInformationHandler::handleServerInformationRequest);
+            restClient.getCategories(serverId, (msg) -> serverInformationHandler.handleCategories(msg, editor.getServer(serverId)));
+        } else{
             log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
-        }
-    }
-
-    private void onServerInformationResponse(HttpResponse<JsonNode> response) {
-        log.debug(response.getBody().toString());
-        if (response.isSuccess()) {
-            JSONObject resJson = response.getBody().getObject().getJSONObject("data");
-            final String serverId = resJson.getString("id");
-            final String serverName = resJson.getString("name");
-
-            // add server to model -> to NavBar List
-            editor.getOrCreateServer(serverId, serverName);
-
-            // reload chatView -> some button might not be needed anymore
-            Platform.runLater(() -> {
-                onlineUsersContainer.getChildren().remove(chatView);
-                chatView.stop();
-                showChatView();
-            });
-        } else {
-            log.error("Error trying to load information of new server");
         }
     }
 }

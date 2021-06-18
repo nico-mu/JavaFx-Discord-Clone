@@ -9,6 +9,7 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.ServerInformationHandler;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -34,12 +35,16 @@ public class AddServerModal extends AbstractModal {
     private final JFXTextField servernameTextField;
     private final Label errorLabel;
     private final JFXSpinner spinner;
+    private final RestClient restClient;
+    private final ServerInformationHandler serverInformationHandler;
 
     private static final Logger log = LoggerFactory.getLogger(AddServerModal.class);
 
     public AddServerModal(Parent root, Editor editor) {
         super(root);
         this.editor = editor;
+        restClient = NetworkClientInjector.getRestClient();
+        serverInformationHandler = new ServerInformationHandler(editor);
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_ADD_SERVER_TITLE));
 
@@ -101,10 +106,13 @@ public class AddServerModal extends AbstractModal {
             String name = jsonObject.getString("name");
             String serverId = jsonObject.getString("id");
 
+            Server server = new Server().setName(name).setId(serverId);
             editor.getOrCreateAccord()
                 .getCurrentUser()
-                .withAvailableServers(new Server().setName(name).setId(serverId));
+                .withAvailableServers(server);
             Platform.runLater(this::close);
+            restClient.getServerInformation(serverId, serverInformationHandler::handleServerInformationRequest);
+            restClient.getCategories(server.getId(), (msg) -> serverInformationHandler.handleCategories(msg, server));
         } else {
             log.error("create server failed!");
             setErrorMessage(Constants.LBL_CREATE_SERVER_FAILED);

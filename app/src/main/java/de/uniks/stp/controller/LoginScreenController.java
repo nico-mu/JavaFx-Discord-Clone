@@ -220,7 +220,7 @@ public class LoginScreenController implements ControllerInterface {
             StageManager.setLanguageService(new LanguageService(editor));
             StageManager.getLanguageService().startLanguageAwareness();
             StageManager.setAudioService(new AudioService(editor));
-            User currentUser = editor.getOrCreateUser(name, true).setPassword(password);
+            User currentUser = editor.createCurrentUser(name, true).setPassword(password);
             editor.setCurrentUser(currentUser);
             editor.setUserKey(userKey);
             NotificationService.reset();

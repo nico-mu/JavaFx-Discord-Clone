@@ -69,24 +69,13 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
         model.listeners().addPropertyChangeListener(PROPERTY_CATEGORIES, categoriesPropertyChangeListener);
 
-        restClient.getCategories(model.getId(), this::handleCategories);
-    }
-
-    private void handleCategories(HttpResponse<JsonNode> response) {
-        if (response.isSuccess()) {
-            JSONArray categoriesJson = response.getBody().getObject().getJSONArray("data");
-            for (Object category : categoriesJson) {
-                JSONObject categoryJson = (JSONObject) category;
-                final String name = categoryJson.getString("name");
-                final String categoryId = categoryJson.getString("id");
-
-                Category categoryModel = editor.getOrCreateCategory(categoryId, name, model);
-                categoryAdded(categoryModel);
-                restClient.getChannels(model.getId(), categoryId, this::handleChannels);
+        for(Category category : model.getCategories()) {
+            categoryAdded(category);
+            for(Channel channel : category.getChannels()) {
+                channelAdded(category, channel);
             }
-        } else {
-            //TODO: show error message
         }
+        goToDefaultChannel();
     }
 
     private void onCategoriesPropertyChanged(PropertyChangeEvent propertyChangeEvent) {
@@ -129,31 +118,6 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             categoryElementHashMap.put(category, serverCategoryElement);
             Platform.runLater(() -> serverCategoryList.addElement(serverCategoryElement));
             category.listeners().addPropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
-        }
-    }
-
-    private void handleChannels(HttpResponse<JsonNode> response) {
-        if (response.isSuccess()) {
-            JSONArray channelsJson = response.getBody().getObject().getJSONArray("data");
-            for (Object channel : channelsJson) {
-                JSONObject channelJson = (JSONObject) channel;
-                final String name = channelJson.getString("name");
-                final String channelId = channelJson.getString("id");
-                final String categoryId = channelJson.getString("category");
-
-                Category categoryModel = editor.getCategory(categoryId, model);
-                Channel channelModel = editor.getChannel(channelId, model);
-                if (Objects.nonNull(channelModel)) {
-                    // Channel is already in model because it got added by a notification
-                    channelModel.setCategory(categoryModel).setName(name);
-                } else {
-                    channelModel = editor.getOrCreateChannel(channelId, name, categoryModel);
-                    channelModel.setServer(model);
-                }
-                channelAdded(categoryModel, channelModel);
-            }
-        } else {
-            //TODO: show error message
         }
     }
 
@@ -231,7 +195,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         if (Objects.nonNull(category) && Objects.nonNull(channel) && Objects.nonNull(channel.getName()) &&
             !channelElementHashMap.containsKey(channel) && categoryElementHashMap.containsKey(category)) {
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
-            final ServerChannelElement serverChannelElement = new ServerChannelElement(channel);
+            final ServerChannelElement serverChannelElement = new ServerChannelElement(channel, editor);
             NotificationService.register(channel);
             channel.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             channelElementHashMap.put(channel, serverChannelElement);
