@@ -339,11 +339,14 @@ public class WebSocketService {
                     Channel ch = editor.getChannelById(chId);
                     if(Objects.isNull(ch)) {
                         ch = new Channel().setId(chId);
+                        ch.setName(chName);
+                        ch.setType(chType);
+                        ch.setPrivileged(priv);
                         NotificationService.register(ch);
                         for (Category category : editor.getServer(serverId).getCategories()) {
                             if (category.getId().equals(categId)) {
                                 category.withChannels(ch);
-                                ch.setServer(editor.getServer(serverId));
+                                ch.setServer(category.getServer());
                             }
                         }
                     }
