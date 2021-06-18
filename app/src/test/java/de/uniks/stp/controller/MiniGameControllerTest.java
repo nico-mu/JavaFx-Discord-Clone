@@ -6,7 +6,6 @@ import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteTextArea;
 import de.uniks.stp.jpa.DatabaseService;
-import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
@@ -15,7 +14,7 @@ import de.uniks.stp.network.WebSocketClient;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
-import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -33,8 +32,6 @@ import org.testfx.api.FxRobot;
 import org.testfx.api.FxRobotException;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.service.query.EmptyNodeQueryException;
-import org.testfx.service.query.NodeQuery;
 import org.testfx.util.WaitForAsyncUtils;
 
 import javax.json.Json;
@@ -130,10 +127,12 @@ public class MiniGameControllerTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         // MiniGame should open
-        Node query = robot.lookup("#paper-button").query();
-        Assertions.assertNotNull(query);
+        Label actionLabel = robot.lookup("#action-label").query();
+        Assertions.assertNotNull(actionLabel);
+        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION), actionLabel.getText());
 
-        robot.clickOn("#paper-button");
+        Button paperButton = robot.lookup("#paper-button").query();
+        robot.clickOn(paperButton);
         // Check for correct outgoing websocket message
         JsonObject sentObject = Json.createObjectBuilder()
             .add("channel", "private")
@@ -145,6 +144,7 @@ public class MiniGameControllerTest {
         } catch (IOException e) {
             Assertions.fail();
         }
+        Assertions.assertEquals("-fx-background-color: green;", paperButton.getStyle());
 
         // get choose message of opponent
         message = Json.createObjectBuilder()
@@ -157,8 +157,9 @@ public class MiniGameControllerTest {
         currentUserCallback.handleMessage(message);
         WaitForAsyncUtils.waitForFxEvents();
 
-        Label actionLabel = robot.lookup("#action-label").query();
-
+        // check for correct result
+        Button scissorsButton = robot.lookup("#scissors-button").query();
+        Assertions.assertEquals("-fx-background-color: red;", scissorsButton.getStyle());
         Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_RESULT_LOSS), actionLabel.getText());
 
         robot.clickOn("#revanche-button");
@@ -174,6 +175,8 @@ public class MiniGameControllerTest {
             Assertions.fail();
         }
 
+        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_REVANCHE_WAIT), actionLabel.getText());
+
         // get revanche message of opponent
         message = Json.createObjectBuilder()
             .add("channel", "private")
@@ -185,9 +188,13 @@ public class MiniGameControllerTest {
         currentUserCallback.handleMessage(message);
         WaitForAsyncUtils.waitForFxEvents();
 
+        // check for view reset
         Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION), actionLabel.getText());
+        Assertions.assertEquals("-fx-background-color: transparent;", paperButton.getStyle());
+        Assertions.assertEquals("-fx-background-color: transparent;", scissorsButton.getStyle());
 
-        robot.clickOn("#rock-button");
+        Button rockButton = robot.lookup("#rock-button").query();
+        robot.clickOn(rockButton);
         // Check for correct outgoing websocket message
         sentObject = Json.createObjectBuilder()
             .add("channel", "private")
@@ -199,6 +206,7 @@ public class MiniGameControllerTest {
         } catch (IOException e) {
             Assertions.fail();
         }
+        Assertions.assertEquals("-fx-background-color: green;", rockButton.getStyle());
 
         // get choose message of opponent
         message = Json.createObjectBuilder()
@@ -211,7 +219,22 @@ public class MiniGameControllerTest {
         currentUserCallback.handleMessage(message);
         WaitForAsyncUtils.waitForFxEvents();
 
+        // check for correct result
         Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_RESULT_WIN), actionLabel.getText());
+        Assertions.assertEquals("-fx-background-color: red;", scissorsButton.getStyle());
+
+        // get leave message of opponent
+        message = Json.createObjectBuilder()
+            .add("channel", "private")
+            .add("timestamp", new Date().getTime())
+            .add("message", MiniGameController.GameCommand.LEAVE.command)
+            .add("from", otherUser.getName())
+            .add("to", currentUser.getName())
+            .build();
+        currentUserCallback.handleMessage(message);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_GAME_LEFT), actionLabel.getText());
 
         // Close mini game
         robot.clickOn("#cancel-button");
