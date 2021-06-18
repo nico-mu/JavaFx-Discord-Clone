@@ -129,7 +129,7 @@ public class WebSocketService {
         String[] possibleIngameCommands = {
             MiniGameController.GameCommand.CHOOSE_ROCK.command,
             MiniGameController.GameCommand.CHOOSE_PAPER.command,
-            MiniGameController.GameCommand.CHOOSE_SCISSOR.command,
+            MiniGameController.GameCommand.CHOOSE_SCISSORS.command,
             MiniGameController.GameCommand.LEAVE.command,
             MiniGameController.GameCommand.REVANCHE.command,
         };

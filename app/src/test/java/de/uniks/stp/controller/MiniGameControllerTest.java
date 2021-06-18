@@ -150,7 +150,7 @@ public class MiniGameControllerTest {
         message = Json.createObjectBuilder()
             .add("channel", "private")
             .add("timestamp", new Date().getTime())
-            .add("message", MiniGameController.GameCommand.CHOOSE_SCISSOR.command)
+            .add("message", MiniGameController.GameCommand.CHOOSE_SCISSORS.command)
             .add("from", otherUser.getName())
             .add("to", currentUser.getName())
             .build();
@@ -212,7 +212,7 @@ public class MiniGameControllerTest {
         message = Json.createObjectBuilder()
             .add("channel", "private")
             .add("timestamp", new Date().getTime())
-            .add("message", MiniGameController.GameCommand.CHOOSE_SCISSOR.command)
+            .add("message", MiniGameController.GameCommand.CHOOSE_SCISSORS.command)
             .add("from", otherUser.getName())
             .add("to", currentUser.getName())
             .build();

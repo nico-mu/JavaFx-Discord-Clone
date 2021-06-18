@@ -12,8 +12,6 @@ import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EasterEggModal extends AbstractModal {
     public final String ROCK = "rock";
@@ -71,7 +69,7 @@ public class EasterEggModal extends AbstractModal {
     }
 
     private void onScissorsButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), MiniGameController.GameCommand.CHOOSE_SCISSOR.command);
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), MiniGameController.GameCommand.CHOOSE_SCISSORS.command);
         action = SCISSORS;
         reactToActionSelected();
     }

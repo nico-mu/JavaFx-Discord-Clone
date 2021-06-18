@@ -16,14 +16,13 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class MiniGameController implements ControllerInterface {
     public enum GameCommand {
         PLAY("!play :handshake:"),
         CHOOSE_ROCK("!choose rock"),
         CHOOSE_PAPER("!choose paper"),
-        CHOOSE_SCISSOR("!choose scissor"),
+        CHOOSE_SCISSORS("!choose scissors"),
         REVANCHE("!play revanche"),
         LEAVE("!play quit");
 
@@ -47,7 +46,7 @@ public class MiniGameController implements ControllerInterface {
     public void init() {
         incomingCommandHandler.put(GameCommand.PLAY.command, this::handleIncomingPlayCommand);
         incomingCommandHandler.put(GameCommand.CHOOSE_ROCK.command, this::handleIncomingChooseActionCommand);
-        incomingCommandHandler.put(GameCommand.CHOOSE_SCISSOR.command, this::handleIncomingChooseActionCommand);
+        incomingCommandHandler.put(GameCommand.CHOOSE_SCISSORS.command, this::handleIncomingChooseActionCommand);
         incomingCommandHandler.put(GameCommand.CHOOSE_PAPER.command, this::handleIncomingChooseActionCommand);
         incomingCommandHandler.put(GameCommand.REVANCHE.command, this::handleIncomingRevancheCommand);
         incomingCommandHandler.put(GameCommand.LEAVE.command, this::handleIncomingLeaveCommand);
