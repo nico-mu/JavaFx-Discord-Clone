@@ -85,7 +85,7 @@ public class MiniGameController implements ControllerInterface {
         return incomingCommandHandler.containsKey(message);
     }
 
-    public boolean isPlayMessage(String message) {
+    public static boolean isPlayMessage(String message) {
         message = EmoteParser.convertTextWithUnicodeToNames(message);
         return message.equals(GameCommand.PLAY.command);
     }

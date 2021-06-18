@@ -97,7 +97,7 @@ public class PrivateChatController implements ControllerInterface {
         if (Objects.isNull(user)) {
             return;
         }
-        chatView = new PrivateChatView(editor.getOrCreateAccord().getLanguage());
+        chatView = new PrivateChatView(editor.getOrCreateAccord().getLanguage(), currentUser);
         onlineUsersContainer.getChildren().add(chatView);
 
         User otherUser = editor.getOtherUserById(userId);

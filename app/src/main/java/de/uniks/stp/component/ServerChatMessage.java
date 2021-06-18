@@ -1,9 +1,6 @@
 package de.uniks.stp.component;
 
-import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.controller.MiniGameController;
-import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.util.DateUtil;
 import javafx.application.Platform;
@@ -19,7 +16,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.util.Locale;
 
-public class ChatMessage extends HBox {
+public class ServerChatMessage extends HBox {
     @FXML
     private TextWithEmoteSupport messageText;
     @FXML
@@ -31,7 +28,7 @@ public class ChatMessage extends HBox {
 
     private String language;
 
-    public ChatMessage(String language) {
+    public ServerChatMessage(String language) {
         this.language = language;
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
@@ -49,12 +46,7 @@ public class ChatMessage extends HBox {
         timestampText.setText(DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)));
         nameText.setText(message.getSender().getName());
 
-        // check for game invitation (easter egg)
-        if(EmoteParser.convertTextWithUnicodeToNames(message.getMessage()).equals(MiniGameController.GameCommand.PLAY.command)){
-            messageText.setText(ViewLoader.loadLabel(Constants.LBL_GAME_CHALLENGE));
-        } else{
-            messageText.setText(message.getMessage());
-        }
+        messageText.setText(message.getMessage());
     }
 
     public void addButton(Pair<String, String> inviteIds, EventHandler<ActionEvent> onButtonPressed){
