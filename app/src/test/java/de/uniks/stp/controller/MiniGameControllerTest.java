@@ -39,6 +39,7 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -132,8 +133,20 @@ public class MiniGameControllerTest {
         Node query = robot.lookup("#paper-button").query();
         Assertions.assertNotNull(query);
 
-        // TODO: Check for correct outgoing websocket messages
         robot.clickOn("#paper-button");
+        // Check for correct outgoing websocket message
+        JsonObject sentObject = Json.createObjectBuilder()
+            .add("channel", "private")
+            .add("to", otherUser.getName())
+            .add("message", MiniGameController.GameCommand.CHOOSE_PAPER.command)
+            .build();
+        try {
+            verify(webSocketMock).sendMessage(sentObject.toString());
+        } catch (IOException e) {
+            Assertions.fail();
+        }
+
+        // get choose message of opponent
         message = Json.createObjectBuilder()
             .add("channel", "private")
             .add("timestamp", new Date().getTime())
@@ -149,7 +162,19 @@ public class MiniGameControllerTest {
         Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_RESULT_LOSS), actionLabel.getText());
 
         robot.clickOn("#revanche-button");
+        // Check for correct outgoing websocket message
+        sentObject = Json.createObjectBuilder()
+            .add("channel", "private")
+            .add("to", otherUser.getName())
+            .add("message", MiniGameController.GameCommand.REVANCHE.command)
+            .build();
+        try {
+            verify(webSocketMock).sendMessage(sentObject.toString());
+        } catch (IOException e) {
+            Assertions.fail();
+        }
 
+        // get revanche message of opponent
         message = Json.createObjectBuilder()
             .add("channel", "private")
             .add("timestamp", new Date().getTime())
@@ -163,6 +188,19 @@ public class MiniGameControllerTest {
         Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION), actionLabel.getText());
 
         robot.clickOn("#rock-button");
+        // Check for correct outgoing websocket message
+        sentObject = Json.createObjectBuilder()
+            .add("channel", "private")
+            .add("to", otherUser.getName())
+            .add("message", MiniGameController.GameCommand.CHOOSE_ROCK.command)
+            .build();
+        try {
+            verify(webSocketMock).sendMessage(sentObject.toString());
+        } catch (IOException e) {
+            Assertions.fail();
+        }
+
+        // get choose message of opponent
         message = Json.createObjectBuilder()
             .add("channel", "private")
             .add("timestamp", new Date().getTime())
@@ -177,6 +215,19 @@ public class MiniGameControllerTest {
 
         // Close mini game
         robot.clickOn("#cancel-button");
+        // Check for correct outgoing websocket message
+        sentObject = Json.createObjectBuilder()
+            .add("channel", "private")
+            .add("to", otherUser.getName())
+            .add("message", MiniGameController.GameCommand.LEAVE.command)
+            .build();
+        try {
+            verify(webSocketMock).sendMessage(sentObject.toString());
+        } catch (IOException e) {
+            Assertions.fail();
+        }
+
+        // Assert modal is closed
         Assertions.assertThrows(FxRobotException.class, () -> {
             robot.clickOn("#cancel-button");
         });
