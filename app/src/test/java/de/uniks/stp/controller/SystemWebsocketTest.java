@@ -3,25 +3,19 @@ package de.uniks.stp.controller;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
-import de.uniks.stp.component.NavBarHomeElement;
-import de.uniks.stp.component.NavBarUserElement;
 import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.*;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
-import javafx.scene.control.Label;
-import javafx.scene.Node;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
-import kong.unirest.json.JSONArray;
-import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,14 +28,15 @@ import org.mockito.MockitoAnnotations;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.service.query.EmptyNodeQueryException;
 import org.testfx.util.WaitForAsyncUtils;
 
-import javax.json.*;
-import java.util.*;
+import javax.json.Json;
+import javax.json.JsonObject;
+import java.util.HashMap;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(ApplicationExtension.class)
@@ -191,47 +186,21 @@ public class SystemWebsocketTest {
         Editor editor = StageManager.getEditor();
 
         editor.getOrCreateAccord()
-            .setCurrentUser(new User().setName("Test"))
+            .setCurrentUser(new User().setName("Test").setStatus(true))
             .setUserKey("123-45");
 
-        editor.getOrCreateServer(SERVER_ID, SERVER_NAME);
+        Server server = editor.getOrCreateServer(SERVER_ID, SERVER_NAME);
+        editor.getOrCreateServerMember(TEST_USER_1_ID, TEST_USER_1_NAME, server).setStatus(false);
+        editor.getOrCreateServerMember(TEST_USER_2_ID, TEST_USER_2_NAME, server).setStatus(true);
 
         WebSocketService.addServerWebSocket(SERVER_ID);
+
+
 
         Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", SERVER_ID)));
         WaitForAsyncUtils.waitForFxEvents();
 
-        JSONObject j = new JSONObject()
-            .put("status", "success")
-            .put("message", "")
-            .put("data", new JSONObject()
-                .put("id", SERVER_ID)
-                .put("name", SERVER_NAME)
-                .put("owner", TEST_USER_1_ID)
-                .put("categories", new JSONArray())
-                .put("members", new JSONArray()
-                    .put(
-                        new JSONObject()
-                            .put("id", TEST_USER_1_ID)
-                            .put("name", TEST_USER_1_NAME)
-                            .put("online", true)
-                    )
-                    .put(
-                        new JSONObject()
-                            .put("id", TEST_USER_2_ID)
-                            .put("name", TEST_USER_2_NAME)
-                            .put("online", true)
-                    )
-                )
-            );
 
-        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-        when(res.isSuccess()).thenReturn(true);
-
-        verify(restMock).getServerInformation(eq(SERVER_ID), restCallbackArgumentCaptor.capture());
-        Callback<JsonNode> callback = restCallbackArgumentCaptor.getValue();
-        callback.completed(res);
-        WaitForAsyncUtils.waitForFxEvents();
 
         verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
@@ -243,6 +212,10 @@ public class SystemWebsocketTest {
         }
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + SERVER_ID);
 
+        VBox onlineUserContainer = robot.lookup("#online-user-list").query();
+        VBox offlineUserContainer = robot.lookup("#offline-user-list").query();
+        Assertions.assertEquals(2, onlineUserContainer.getChildren().size());
+        Assertions.assertEquals(1, offlineUserContainer.getChildren().size());
 
         JsonObject jsonObject = Json.createObjectBuilder()
             .add("action", "userJoined")
@@ -257,6 +230,8 @@ public class SystemWebsocketTest {
         systemCallback.handleMessage(jsonObject);
         WaitForAsyncUtils.waitForFxEvents();
 
+        Assertions.assertEquals(3, onlineUserContainer.getChildren().size());
+        Assertions.assertEquals(0, offlineUserContainer.getChildren().size());
 
         jsonObject = Json.createObjectBuilder()
             .add("action", "userLeft")
@@ -274,9 +249,7 @@ public class SystemWebsocketTest {
         List<User> users = editor.getOrCreateServer(SERVER_ID, SERVER_NAME).getUsers();
         Assertions.assertEquals(3, users.size());
 
-        VBox onlineUserContainer = robot.lookup("#online-user-list").query();
-        VBox offlineUserContainer = robot.lookup("#offline-user-list").query();
-        Assertions.assertEquals(1, onlineUserContainer.getChildren().size());
+        Assertions.assertEquals(2, onlineUserContainer.getChildren().size());
         Assertions.assertEquals(1, offlineUserContainer.getChildren().size());
 
         jsonObject = Json.createObjectBuilder()
@@ -295,7 +268,7 @@ public class SystemWebsocketTest {
 
         onlineUserContainer = robot.lookup("#online-user-list").query();
         offlineUserContainer = robot.lookup("#offline-user-list").query();
-        Assertions.assertEquals(0, onlineUserContainer.getChildren().size());
+        Assertions.assertEquals(1, onlineUserContainer.getChildren().size());
         Assertions.assertEquals(2, offlineUserContainer.getChildren().size());
     }
 
