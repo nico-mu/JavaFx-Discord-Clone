@@ -14,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NotificationService {
 
-    private static final HashMap<NotificationEvent, List<SubscriberInterface>> channelNotifications = new HashMap<>();
+    private static final ConcurrentHashMap<NotificationEvent, List<SubscriberInterface>> channelNotifications = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<NotificationEvent, List<SubscriberInterface>> userNotifications = new ConcurrentHashMap<>();
     private static final List<SubscriberInterface> userSubscriber = new CopyOnWriteArrayList<>();
     private static final List<SubscriberInterface> channelSubscriber = new CopyOnWriteArrayList<>();
