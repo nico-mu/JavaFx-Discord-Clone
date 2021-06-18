@@ -122,7 +122,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     }
 
     private void goToDefaultChannel() {
-        if(channelElementHashMap.containsKey(defaultChannel)) {
+        if(channelElementHashMap.containsKey(defaultChannel) && !Router.getCurrentArgs().containsKey(":channelId")) {
             goToChannel(defaultChannel);
 
             RouteArgs args = new RouteArgs();

@@ -8,6 +8,7 @@ import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
@@ -19,14 +20,14 @@ import java.io.IOException;
 public class DirectMessageEntry extends HBox implements NotificationComponentInterface {
 
     @FXML
-    private Text userNameText;
+    private TextWithEmoteSupport userNameText;
     private final User user;
-    private final Font font;
-    private final Font boldFont;
+    private Font font = null;
+    private Font boldFont = null;
 
     public DirectMessageEntry(final User user) {
         this.user = user;
-        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
+        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.DIRECT_MESSAGE_LIST_ENTRY);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -39,8 +40,14 @@ public class DirectMessageEntry extends HBox implements NotificationComponentInt
         setUserName(user.getName());
 
         // Has to constant, value is located in user-list.scss
-        font = Font.font(userNameText.getFont().getFamily(), FontWeight.NORMAL, 16.0);
-        boldFont = Font.font(userNameText.getFont().getFamily(), FontWeight.BOLD, 16.0);
+        for (Node node : userNameText.getChildren()) {
+            if (node instanceof Text) {
+                Text sampleTextNode = ((Text) node);
+                font = sampleTextNode.getFont();
+                boldFont = Font.font(sampleTextNode.getFont().getFamily(), FontWeight.BOLD, sampleTextNode.getFont().getSize());
+                break;
+            }
+        }
         this.setId(user.getId() + "-DirectMessageEntry");
         userNameText.setId(user.getId() + "-DirectMessageEntryText");
 
