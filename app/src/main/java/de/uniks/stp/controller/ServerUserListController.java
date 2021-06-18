@@ -4,8 +4,6 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerUserListEntry;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;

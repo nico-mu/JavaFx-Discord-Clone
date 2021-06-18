@@ -6,25 +6,20 @@ import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.model.Category;
-import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
-import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
-import de.uniks.stp.notification.NotificationService;
+import de.uniks.stp.network.ServerInformationHandler;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
-import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 public class AddServerModal extends AbstractModal {
@@ -41,6 +36,7 @@ public class AddServerModal extends AbstractModal {
     private final Label errorLabel;
     private final JFXSpinner spinner;
     private final RestClient restClient;
+    private final ServerInformationHandler serverInformationHandler;
 
     private static final Logger log = LoggerFactory.getLogger(AddServerModal.class);
 
@@ -48,6 +44,7 @@ public class AddServerModal extends AbstractModal {
         super(root);
         this.editor = editor;
         restClient = NetworkClientInjector.getRestClient();
+        serverInformationHandler = new ServerInformationHandler(editor);
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_ADD_SERVER_TITLE));
 
@@ -114,8 +111,8 @@ public class AddServerModal extends AbstractModal {
                 .getCurrentUser()
                 .withAvailableServers(server);
             Platform.runLater(this::close);
-            restClient.getServerInformation(serverId, this::handleServerInformationRequest);
-            restClient.getCategories(server.getId(), (msg) -> handleCategories(msg, server));
+            restClient.getServerInformation(serverId, serverInformationHandler::handleServerInformationRequest);
+            restClient.getCategories(server.getId(), (msg) -> serverInformationHandler.handleCategories(msg, server));
         } else {
             log.error("create server failed!");
             setErrorMessage(Constants.LBL_CREATE_SERVER_FAILED);
@@ -126,85 +123,6 @@ public class AddServerModal extends AbstractModal {
                 cancelButton.setDisable(false);
                 spinner.setVisible(false);
             });
-        }
-    }
-
-    private void handleServerInformationRequest(HttpResponse<JsonNode> response) {
-        if (response.isSuccess()) {
-            final JSONObject data = response.getBody().getObject().getJSONObject("data");
-            final JSONArray member = data.getJSONArray("members");
-            final String serverId = data.getString("id");
-            final String serverName = data.getString("name");
-            final String serverOwner = data.getString("owner");
-
-            // add server to model -> to NavBar List
-            if (serverOwner.equals(editor.getOrCreateAccord().getCurrentUser().getId())) {
-                editor.getOrCreateServer(serverId, serverName).setOwner(editor.getOrCreateAccord().getCurrentUser());
-            } else {
-                editor.getOrCreateServer(serverId, serverName);
-            }
-
-            member.forEach(o -> {
-                JSONObject jsonUser = (JSONObject) o;
-                String userId = jsonUser.getString("id");
-                String name = jsonUser.getString("name");
-                boolean status = Boolean.parseBoolean(jsonUser.getString("online"));
-
-                User serverMember = editor.getOrCreateServerMember(userId, name, editor.getServer(serverId));
-                serverMember.setStatus(status);
-            });
-        }
-    }
-
-    private void handleCategories(HttpResponse<JsonNode> response, Server server) {
-        if (response.isSuccess()) {
-            JSONArray categoriesJson = response.getBody().getObject().getJSONArray("data");
-            for (Object category : categoriesJson) {
-                JSONObject categoryJson = (JSONObject) category;
-                final String name = categoryJson.getString("name");
-                final String categoryId = categoryJson.getString("id");
-
-                Category categoryModel = editor.getOrCreateCategory(categoryId, name, server);
-                restClient.getChannels(server.getId(), categoryId, (msg) -> handleChannels(msg, server));
-            }
-        } else {
-            //TODO: show error message
-        }
-    }
-
-    private void handleChannels(HttpResponse<JsonNode> response, Server server) {
-        if (response.isSuccess()) {
-            JSONArray channelsJson = response.getBody().getObject().getJSONArray("data");
-            for (Object channel : channelsJson) {
-                JSONObject channelJson = (JSONObject) channel;
-                final String name = channelJson.getString("name");
-                final String channelId = channelJson.getString("id");
-                final String categoryId = channelJson.getString("category");
-                String type = channelJson.getString("type");
-                boolean privileged = channelJson.getBoolean("privileged");
-                JSONArray jsonMemberIds = channelJson.getJSONArray("members");
-                ArrayList<String> memberIds = (ArrayList<String>) jsonMemberIds.toList();
-
-                Category categoryModel = editor.getCategory(categoryId, server);
-                Channel channelModel = editor.getChannel(channelId, server);
-                if (Objects.nonNull(channelModel)) {
-                    // Channel is already in model because it got added by a notification
-                    channelModel.setCategory(categoryModel).setName(name);
-                } else {
-                    channelModel = editor.getOrCreateChannel(channelId, name, categoryModel);
-                    channelModel.setServer(server);
-                }
-                channelModel.setType(type);
-                channelModel.setPrivileged(privileged);
-                for(User user : server.getUsers()) {
-                    if(memberIds.contains(user.getId())) {
-                        channelModel.withChannelMembers(user);
-                    }
-                }
-                NotificationService.register(channelModel);
-            }
-        } else {
-            //TODO: show error message
         }
     }
 
