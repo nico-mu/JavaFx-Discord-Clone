@@ -1,6 +1,9 @@
 package de.uniks.stp.component;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.controller.MiniGameController;
+import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.util.DateUtil;
 import javafx.application.Platform;
@@ -45,8 +48,13 @@ public class ChatMessage extends HBox {
         timestampText.setText(DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)));
         timestampText.setText(DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)));
         nameText.setText(message.getSender().getName());
-        messageText.setText(message.getMessage());
 
+        // check for game invitation (easter egg)
+        if(EmoteParser.convertTextWithUnicodeToNames(message.getMessage()).equals(MiniGameController.GameCommand.PLAY.command)){
+            messageText.setText(ViewLoader.loadLabel(Constants.LBL_GAME_CHALLENGE));
+        } else{
+            messageText.setText(message.getMessage());
+        }
     }
 
     public void addButton(Pair<String, String> inviteIds, EventHandler<ActionEvent> onButtonPressed){

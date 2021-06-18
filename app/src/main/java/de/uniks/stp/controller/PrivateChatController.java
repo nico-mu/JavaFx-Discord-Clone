@@ -131,12 +131,20 @@ public class PrivateChatController implements ControllerInterface {
             if (directMessageDTO.getSenderName().equals(currentUser.getName())) {
                 message.setSender(currentUser);
 
-                // check if message contains a server invite link
-                Pair<String, String> ids = MessageUtil.getInviteIds(message.getMessage());
-                if ((ids != null) && (!editor.serverAdded(ids.getKey()))) {
-                    chatView.appendMessageWithButton(message, ids, this::joinServer);
-                } else {
-                    chatView.appendMessage(message);
+                if(miniGameController.isPlayMessage(message.getMessage())){
+                    if(message.getTimestamp() > (new Date().getTime() - 30*1000)){
+                        chatView.appendMessage(message);  //show game invitation when still active
+                    }
+                }
+                else{
+
+                    // check if message contains a server invite link
+                    Pair<String, String> ids = MessageUtil.getInviteIds(message.getMessage());
+                    if ((ids != null) && (!editor.serverAdded(ids.getKey()))) {
+                        chatView.appendMessageWithButton(message, ids, this::joinServer);
+                    } else {
+                        chatView.appendMessage(message);
+                    }
                 }
             } else {
                 String senderId = directMessageDTO.getSender();
@@ -164,16 +172,17 @@ public class PrivateChatController implements ControllerInterface {
      * @param message
      */
     private void handleMessageSubmit(String message) {
-        if (miniGameController.isOutgoingCommandMessage(message)) {
-            miniGameController.handleOutgoingMessage(message);
-        } else {
-            // create & save message
-            DirectMessage msg = (DirectMessage) new DirectMessage().setMessage(message).setSender(currentUser)
-                .setTimestamp(new Date().getTime()).setId(UUID.randomUUID().toString());
-            // This fires handleNewPrivateMessage()
-            msg.setReceiver(user);
-            DatabaseService.saveDirectMessage(msg);
+        if (miniGameController.isPlayMessage(message)) {
+            miniGameController.handleOutgoingPlayMessage(message);
         }
+
+        // create & save message
+        DirectMessage msg = (DirectMessage) new DirectMessage().setMessage(message).setSender(currentUser)
+            .setTimestamp(new Date().getTime()).setId(UUID.randomUUID().toString());
+        // This fires handleNewPrivateMessage()
+        msg.setReceiver(user);
+        DatabaseService.saveDirectMessage(msg);
+
         // send message to the server
         WebSocketService.sendPrivateMessage(user.getName(), message);
     }
@@ -195,8 +204,17 @@ public class PrivateChatController implements ControllerInterface {
 
         if (Objects.nonNull(directMessage)) {
             if (miniGameController.isIncomingCommandMessage(directMessage.getMessage())) {
-                miniGameController.handleIncomingMessage(directMessage);
-                directMessage.setReceiver(null).setSender(null);  //delete message fom model
+                if(! directMessage.getSender().getName().equals(currentUser.getName())){
+                    miniGameController.handleIncomingMessage(directMessage);  //when sent by chatPartner
+                }
+
+                if(miniGameController.isPlayMessage(directMessage.getMessage())){
+                    if(directMessage.getTimestamp() > (new Date().getTime() - 30*1000)){
+                        chatView.appendMessage(directMessage);  //show game invitation when still active
+                    }
+                } else{
+                    directMessage.setReceiver(null).setSender(null);  //delete ingame message fom model
+                }
             } else {
                 // check if message contains a server invite link
                 Pair<String, String> ids = MessageUtil.getInviteIds(directMessage.getMessage());

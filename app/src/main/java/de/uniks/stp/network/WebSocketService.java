@@ -125,16 +125,15 @@ public class WebSocketService {
         msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setId(UUID.randomUUID().toString());
         msg.setSender(chatPartner);
 
-        // store in database and activate notification only when message is not a command
-        String[] possibleCommands = {
-            MiniGameController.GameCommand.PLAY.command,
+        // store in database and activate notification only when message is not an ingame command
+        String[] possibleIngameCommands = {
             MiniGameController.GameCommand.CHOOSE_ROCK.command,
             MiniGameController.GameCommand.CHOOSE_PAPER.command,
             MiniGameController.GameCommand.CHOOSE_SCISSOR.command,
             MiniGameController.GameCommand.LEAVE.command,
             MiniGameController.GameCommand.REVANCHE.command,
         };
-        if(! Arrays.asList(possibleCommands).contains(msgText)){
+        if(! Arrays.asList(possibleIngameCommands).contains(msgText)){
             DatabaseService.saveDirectMessage(msg);
 
             NotificationService.register(chatPartner);
