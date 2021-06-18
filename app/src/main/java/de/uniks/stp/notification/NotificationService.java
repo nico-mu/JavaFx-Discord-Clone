@@ -234,6 +234,15 @@ public class NotificationService {
     }
 
     /**
+     * Invokes user notifications of all subscribers
+     */
+    public static void invokeUserNotifications() {
+        userNotifications.forEach((key, value) -> {
+            notifyUser(key);
+        });
+    }
+
+    /**
      * resets the NotificationService and clears all its data.
      */
     public static void reset() {
