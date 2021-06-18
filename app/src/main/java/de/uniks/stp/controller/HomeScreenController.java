@@ -43,6 +43,7 @@ public class HomeScreenController implements ControllerInterface {
     private UserListController userListController;
     private DirectMessageListController directMessageListController;
     private final HashMap<String, String> directMessagePartner = new HashMap<>();
+    private PrivateChatController privateChatController;
 
     HomeScreenController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
@@ -100,7 +101,7 @@ public class HomeScreenController implements ControllerInterface {
                 }
             }
 
-            PrivateChatController privateChatController = new PrivateChatController(view, editor, userId, userName);
+            privateChatController = new PrivateChatController(view, editor, userId, userName);
             privateChatController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
         } else if (subRoute.equals(Constants.ROUTE_LIST_ONLINE_USERS)) {
@@ -122,6 +123,9 @@ public class HomeScreenController implements ControllerInterface {
         }
         if (Objects.nonNull(directMessageListController)) {
             directMessageListController.stop();
+        }
+        if (Objects.nonNull(privateChatController)) {
+            privateChatController.stop();
         }
         directMessagesContainer.getChildren().clear();
         showOnlineUsersButton.setOnMouseClicked(null);
