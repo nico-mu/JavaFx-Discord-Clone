@@ -4,14 +4,14 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Text;
 
 import java.io.IOException;
 
 public class ServerUserListEntry extends HBox {
     @FXML
-    private Text userNameText;
+    private Label userNameLabel;
 
     private User user;
 
@@ -32,7 +32,7 @@ public class ServerUserListEntry extends HBox {
     }
 
     public void setUserName(final String userName) {
-        userNameText.setText(userName);
+        userNameLabel.setText(userName);
     }
 
 }
