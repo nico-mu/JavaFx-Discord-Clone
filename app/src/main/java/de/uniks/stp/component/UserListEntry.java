@@ -7,16 +7,16 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Text;
 
 import java.io.IOException;
 
 public class UserListEntry extends HBox {
 
     @FXML
-    private Text userNameText;
+    private Label userNameLabel;
     private final User user;
 
     public UserListEntry(final User user) {
@@ -35,7 +35,7 @@ public class UserListEntry extends HBox {
 
         setUserName(user.getName());
 
-        userNameText.setOnMouseClicked(this::handleClick);
+        userNameLabel.setOnMouseClicked(this::handleClick);
     }
 
     private void handleClick(MouseEvent mouseEvent) {
@@ -44,6 +44,6 @@ public class UserListEntry extends HBox {
     }
 
     public void setUserName(final String userName) {
-        userNameText.setText(userName);
+        userNameLabel.setText(userName);
     }
 }

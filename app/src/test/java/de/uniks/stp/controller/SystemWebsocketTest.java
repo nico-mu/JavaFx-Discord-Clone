@@ -10,8 +10,8 @@ import de.uniks.stp.network.*;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -115,9 +115,9 @@ public class SystemWebsocketTest {
         Assertions.assertNotNull(editor.getOtherUser(testUserName));
 
         VBox onlineUsersContainer = robot.lookup("#online-users-container").query();
-        Object[] userListEntryLabels = onlineUsersContainer.lookupAll("#user-list-entry-text").toArray();
+        Object[] userListEntryLabels = onlineUsersContainer.lookupAll("#user-list-entry-label").toArray();
         Assertions.assertEquals(1, userListEntryLabels.length);
-        Assertions.assertEquals(testUserName, ((Text) userListEntryLabels[0]).getText());
+        Assertions.assertEquals(testUserName, ((Label) userListEntryLabels[0]).getText());
     }
 
     @Test
