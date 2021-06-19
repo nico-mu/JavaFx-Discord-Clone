@@ -17,6 +17,7 @@ import javax.json.JsonObject;
 import javax.json.JsonStructure;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class WebSocketService {
     private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
@@ -126,16 +127,10 @@ public class WebSocketService {
         msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setId(UUID.randomUUID().toString());
         msg.setSender(chatPartner);
 
-        // store in database and activate notification only when message is not a command
-        String[] possibleCommands = {
-            GameCommand.PLAY.command,
-            GameCommand.CHOOSE_ROCK.command,
-            GameCommand.CHOOSE_PAPER.command,
-            GameCommand.CHOOSE_SCISSOR.command,
-            GameCommand.LEAVE.command,
-            GameCommand.REVANCHE.command,
-        };
-        if(! Arrays.asList(possibleCommands).contains(msgText)){
+        // store in database and activate notification only when message is not an ingame command
+        List<String> ingameCommands = EnumSet.allOf(GameCommand.class).stream().map(e -> e.command).collect(Collectors.toList());
+        ingameCommands.remove(GameCommand.PLAY.command);
+        if(! ingameCommands.contains(msgText)){
             DatabaseService.saveDirectMessage(msg);
 
             NotificationService.register(chatPartner);
@@ -266,18 +261,20 @@ public class WebSocketService {
                 case "userJoined":
                     String userId = data.getString("id");
                     String userName = data.getString("name");
-                    editor.setServerMemberOnline(userId, userName, editor.getServer(serverId));
-                    return;
+                    User serverUser = editor.getOrCreateServerMember(userId, userName, editor.getServer(serverId));
+                    serverUser.setStatus(true);
+                    break;
                 case "userLeft":
                     userId = data.getString("id");
                     userName = data.getString("name");
-                    editor.setServerMemberOffline(userId, userName, editor.getServer(serverId));
-                    return;
+                    serverUser = editor.getOrCreateServerMember(userId, userName, editor.getServer(serverId));
+                    serverUser.setStatus(false);
+                    break;
                 case "serverUpdated":
                     serverId = data.getString("id");
                     String newName = data.getString("name");
                     editor.getServer(serverId).setName(newName);
-                    return;
+                    break;
                 case "categoryCreated":
                     String categoryId = data.getString("id");
                     String name = data.getString("name");
@@ -285,7 +282,7 @@ public class WebSocketService {
                     if (Objects.isNull(editor.getCategory(categoryId, editor.getServer(serverId)))) {
                         editor.getOrCreateCategory(categoryId, name, editor.getServer(serverId));
                     }
-                    return;
+                    break;
                 case "channelCreated":
                     String channelId = data.getString("id");
                     String channelName = data.getString("name");
@@ -295,6 +292,7 @@ public class WebSocketService {
                     JsonArray jsonArray = data.getJsonArray("members");
 
                     Channel channel = new Channel().setId(channelId).setName(channelName).setType(type).setPrivileged(privileged);
+                    NotificationService.register(channel);
                     Server modifiedServer = null;
 
                     for (Server server : editor.getAvailableServers()) {
@@ -318,7 +316,7 @@ public class WebSocketService {
                             }
                         }
                     }
-                    return;
+                    break;
                 case "inviteExpired":
                     String invId = data.getString("id");
                     String servId = data.getString("server");
@@ -329,21 +327,35 @@ public class WebSocketService {
                             break;
                         }
                     }
-                    return;
+                    break;
                 case "categoryUpdated":
                     String catId = data.getString("id");
                     String catName = data.getString("name");
                     Server serv = editor.getServer(data.getString("server"));
                     editor.getOrCreateCategory(catId, catName, serv).setName(catName);
-                    return;
+                    break;
                 case "channelUpdated":
                     String chId = data.getString("id");
                     String chName = data.getString("name");
                     String chType = data.getString("type");
-                    Boolean priv = data.getBoolean("privileged");
+                    boolean priv = data.getBoolean("privileged");
+                    String categId = data.getString("category");
                     JsonArray jsonMembers = data.getJsonArray("members");
 
                     Channel ch = editor.getChannelById(chId);
+                    if(Objects.isNull(ch)) {
+                        ch = new Channel().setId(chId);
+                        ch.setName(chName);
+                        ch.setType(chType);
+                        ch.setPrivileged(priv);
+                        NotificationService.register(ch);
+                        for (Category category : editor.getServer(serverId).getCategories()) {
+                            if (category.getId().equals(categId)) {
+                                category.withChannels(ch);
+                                ch.setServer(category.getServer());
+                            }
+                        }
+                    }
                     ch.setName(chName);
                     ch.setType(chType);
                     ch.setPrivileged(priv);
@@ -360,25 +372,49 @@ public class WebSocketService {
                             }
                         }
                     }
-                    return;
+                    break;
                 case "serverDeleted":
                     serverId = data.getString("id");
                     editor.removeServer(serverId);
-                    return;
+                    break;
                 case "channelDeleted":
                     channelId = data.getString("id");
                     categoryId = data.getString("category");
                     editor.deleteChannel(channelId);
-                    return;
+                    break;
                 case "categoryDeleted":
                     categoryId = data.getString("id");
                     serverId = data.getString("server");
                     editor.deleteCategory(serverId, categoryId);
-                    return;
+                    break;
+                case "userExited":
+                    userId = data.getString("id");
+                    userName = data.getString("name");
+                    server = editor.getServer(serverId);
+                    User user;
+                    if (editor.getOrCreateAccord().getCurrentUser().getId().equals(userId)) {
+                        user = editor.getOrCreateAccord().getCurrentUser();
+                    } else {
+                        user = editor.getOrCreateServerMember(userId, userName, server);
+                    }
+                    server.withoutUsers(user);
+                    break;
+                case "userArrived":
+                    userId = data.getString("id");
+                    userName = data.getString("name");
+                    boolean status = data.getBoolean("online");
+                    server = editor.getServer(serverId);
+                    editor.getOrCreateServerMember(userId, userName, server).setStatus(status);
+                    break;
+
                 default:
+                    log.error("WebSocketService: can't process server system message with content: {}", jsonObject);
                     break;
             }
         }
-        log.error("WebSocketService: can't process server system message with content: {}", jsonObject);
+        else {
+            log.error("WebSocketService: can't process server system message with content: {}", jsonObject);
+        }
+
     }
 }

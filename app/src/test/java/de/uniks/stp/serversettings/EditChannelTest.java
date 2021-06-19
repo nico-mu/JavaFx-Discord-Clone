@@ -81,7 +81,7 @@ public class EditChannelTest {
     }
 
     @Test
-    public void editServerFailedTest(FxRobot robot) {
+    public void editChannelFailedTest(FxRobot robot) {
         Editor editor = StageManager.getEditor();
 
         editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
@@ -139,26 +139,6 @@ public class EditChannelTest {
         Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
         Assertions.assertNotEquals("", errorLabel.getText());
 
-        String newChannelName = "TestChannel";
-
-        robot.clickOn("#edit-channel-name-textfield");
-        robot.write(newChannelName);
-        robot.clickOn("#privileged-checkbox");
-        robot.clickOn("#edit-channel-create-button");
-
-        j = new JSONObject().put("status", "failure").put("message", "Missing members")
-            .put("data", new JSONObject());
-        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
-        when(res.isSuccess()).thenReturn(false);
-
-        verify(restMock).editTextChannel(eq(serverId), eq(categoryId), eq(channelId), eq(newChannelName), eq(true), eq(new ArrayList<String>()), callbackCaptor.capture());
-        callback = callbackCaptor.getValue();
-        callback.completed(res);
-        WaitForAsyncUtils.waitForFxEvents();
-
-        Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
-        errorLabel = robot.lookup("#edit-channel-error").query();
-        Assertions.assertNotEquals("", errorLabel.getText());
         robot.clickOn("#edit-channel-cancel-button");
     }
 
@@ -206,7 +186,7 @@ public class EditChannelTest {
         robot.clickOn("#privileged-checkbox");
 
         VBox userCheckList = robot.lookup("#user-list-vbox").query();
-        Assertions.assertEquals(3, userCheckList.getChildren().size());
+        Assertions.assertEquals(2, userCheckList.getChildren().size());
 
         robot.clickOn("#filter-user-textfield");
         robot.write("2");
@@ -215,7 +195,7 @@ public class EditChannelTest {
         robot.clickOn("#user-check-list-entry-checkbox");
 
         robot.doubleClickOn("#filter-user-textfield");
-        robot.write("1");
+        robot.write("3");
 
         Assertions.assertEquals(1, userCheckList.getChildren().size());
         robot.clickOn("#user-check-list-entry-checkbox");
@@ -223,12 +203,13 @@ public class EditChannelTest {
         robot.doubleClickOn("#filter-user-textfield");
         robot.write("T");
 
-        Assertions.assertEquals(3, userCheckList.getChildren().size());
+        Assertions.assertEquals(2, userCheckList.getChildren().size());
 
         robot.clickOn("#edit-channel-create-button");
 
         ArrayList<String> members = new ArrayList<>();
         members.add("2");
+        members.add("3");
         members.add("1");
 
         JSONObject j = new JSONObject().put("status", "failure").put("message", "Missing name")

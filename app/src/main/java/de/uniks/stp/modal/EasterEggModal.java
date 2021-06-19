@@ -13,8 +13,6 @@ import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EasterEggModal extends AbstractModal {
     public final String ROCK = "rock";
@@ -97,21 +95,20 @@ public class EasterEggModal extends AbstractModal {
      * Used to show your current choice
      */
     private void colorOwnButton() {
-        if(action.equals(ROCK)){
+        resetButtonColor();
+        if(action.equals(ROCK)) {
             rockButton.setStyle("-fx-background-color: green;");
-        } else{
-            rockButton.setStyle("-fx-background-color: transparent;");
-        }
-        if(action.equals(PAPER)){
+        } else if(action.equals(PAPER)){
             paperButton.setStyle("-fx-background-color: green;");
-        } else{
-            paperButton.setStyle("-fx-background-color: transparent;");
-        }
-        if(action.equals(SCISSORS)){
+        } else if(action.equals(SCISSORS)){
             scissorsButton.setStyle("-fx-background-color: green;");
-        } else{
-            scissorsButton.setStyle("-fx-background-color: transparent;");
         }
+    }
+
+    private void resetButtonColor(){
+        rockButton.setStyle("-fx-background-color: transparent;");
+        paperButton.setStyle("-fx-background-color: transparent;");
+        scissorsButton.setStyle("-fx-background-color: transparent;");
     }
 
     /**
@@ -119,7 +116,7 @@ public class EasterEggModal extends AbstractModal {
      */
     private void battle() {
         int result = determineWinner();
-        colorOpponentButton();
+        colorOpponentButton(result);
         if (result == 0) {
             Platform.runLater(() -> actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_RESULT_DRAW)));
         } else if (result == 1) {
@@ -166,22 +163,15 @@ public class EasterEggModal extends AbstractModal {
     /**
      * Called to show the opponents choice. At this moment the own choice is also already shown
      */
-    private void colorOpponentButton() {
-        if(action.equals(opponentAction)){
+    private void colorOpponentButton(int res) {
+        if(res == 0){
+            // draw -> mark common choice yellow
             if(action.equals(ROCK)){
                 Platform.runLater(() -> rockButton.setStyle("-fx-background-color: yellow;"));
-            } else{
-                Platform.runLater(() -> rockButton.setStyle("-fx-background-color: transparent;"));
-            }
-            if(action.equals(PAPER)){
+            } else if(action.equals(PAPER)){
                 Platform.runLater(() -> paperButton.setStyle("-fx-background-color: yellow;"));
-            } else{
-                Platform.runLater(() -> paperButton.setStyle("-fx-background-color: transparent;"));
-            }
-            if(action.equals(SCISSORS)){
+            } else if(action.equals(SCISSORS)){
                 Platform.runLater(() -> scissorsButton.setStyle("-fx-background-color: yellow;"));
-            } else{
-                Platform.runLater(() -> scissorsButton.setStyle("-fx-background-color: transparent;"));
             }
         } else if(opponentAction.equals(ROCK)){
             Platform.runLater(() -> rockButton.setStyle("-fx-background-color: red;"));
@@ -221,9 +211,7 @@ public class EasterEggModal extends AbstractModal {
         Platform.runLater(() -> {
             revancheButton.setVisible(false);
             actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION));
-            rockButton.setStyle("-fx-background-color: transparent;");
-            paperButton.setStyle("-fx-background-color: transparent;");
-            scissorsButton.setStyle("-fx-background-color: transparent;");
+            resetButtonColor();
             rockButton.setDisable(false);
             paperButton.setDisable(false);
             scissorsButton.setDisable(false);

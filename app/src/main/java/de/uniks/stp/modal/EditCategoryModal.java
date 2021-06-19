@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
@@ -25,7 +26,7 @@ public class EditCategoryModal extends AbstractModal {
     private static final Logger log = LoggerFactory.getLogger(EditCategoryModal.class);
 
     public static final String NAME_FIELD = "#category-name-text-field";
-    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "notifications-toggle-button";
+    public static final String NOTIFICATIONS_TOGGLE_BUTTON = "#notifications-toggle-button";
     public static final String NOTIFICATIONS_ACTIVATED_LABEL = "#notifications-activated-label";
     public static final String ERROR_LABEL = "#error-message-label";
     public static final String SPINNER = "#spinner";
@@ -52,7 +53,7 @@ public class EditCategoryModal extends AbstractModal {
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_CATEGORY_TITLE));
 
         categoryNameTextField = (JFXTextField) view.lookup(NAME_FIELD);
-        notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);  // FIXME: is Null
+        notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);
         notificationsLabel = (Label) view.lookup(NOTIFICATIONS_ACTIVATED_LABEL);
         errorLabel = (Label) view.lookup(ERROR_LABEL);
         spinner = (JFXSpinner) view.lookup(SPINNER);
@@ -60,8 +61,13 @@ public class EditCategoryModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
         deleteButton = (JFXButton) view.lookup(DELETE_BUTTON);
 
-        // ToDo: load current Notification setting
-        notificationsLabel.setText(ViewLoader.loadLabel(Constants.LBL_ON));
+        boolean muted = DatabaseService.isCategoryMuted(model.getId());
+        notificationsToggleButton.setSelected(!muted);
+        notificationsLabel.setText(ViewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
+        notificationsToggleButton.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+            notificationsLabel.setText(ViewLoader.loadLabel(!notificationsToggleButton.isSelected() ? Constants.LBL_OFF : Constants.LBL_ON));
+        }));
+
         categoryNameTextField.setText(model.getName());
 
         saveButton.setOnAction(this::onSaveButtonClicked);
@@ -74,17 +80,27 @@ public class EditCategoryModal extends AbstractModal {
     private void onSaveButtonClicked(ActionEvent actionEvent) {
         setErrorMessage(null);
 
-        //ToDo: Notifications
-
         if (!categoryNameTextField.getText().isEmpty()) {
             String name = categoryNameTextField.getText();
 
             categoryNameTextField.setDisable(true);
-            //notificationsToggleButton.setDisable(true);  use when fixed
+            notificationsToggleButton.setDisable(true);
             saveButton.setDisable(true);
             cancelButton.setDisable(true);
             deleteButton.setDisable(true);
             spinner.setVisible(true);
+
+            boolean muted = !notificationsToggleButton.isSelected();
+            if(muted) {
+                DatabaseService.addMutedCategoryId(model.getId());
+            }else {
+                DatabaseService.removeMutedCategoryId(model.getId());
+            }
+
+            if(categoryNameTextField.getText().equals(model.getName())) {
+                this.close();
+                return;
+            }
 
             RestClient restClient = NetworkClientInjector.getRestClient();
             restClient.updateCategory(model.getServer().getId(), model.getId(), name, this::handleRenameCategoryResponse);

@@ -12,6 +12,7 @@ import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.ServerInformationHandler;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationEvent;
 import de.uniks.stp.notification.NotificationService;
@@ -45,6 +46,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
     private AnchorPane anchorPane;
     private RestClient restClient;
+    private ServerInformationHandler serverInformationHandler;
 
     // needed for property change listener clean up
     private final ConcurrentHashMap<Server, NavBarServerElement> navBarServerElementHashMap = new ConcurrentHashMap<>();
@@ -56,6 +58,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         this.editor = editor;
         this.navBarList = new NavBarList(editor);
         this.restClient = NetworkClientInjector.getRestClient();
+        this.serverInformationHandler = new ServerInformationHandler(editor);
     }
 
     @Override
@@ -79,6 +82,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         if (Objects.nonNull(server) && !navBarServerElementHashMap.containsKey(server)) {
             WebSocketService.addServerWebSocket(server.getId());  // enables sending & receiving messages
             final NavBarServerElement navBarElement = new NavBarServerElement(server);
+            navBarElement.setNotificationCount(NotificationService.getServerNotificationCount(server));
             navBarServerElementHashMap.put(server, navBarElement);
             Platform.runLater(() -> navBarList.addServerElement(navBarElement));
         }
@@ -110,7 +114,6 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
     protected void callback(HttpResponse<JsonNode> response) {
         if (response.isSuccess()) {
-            //TODO: hide spinner
             JSONArray jsonArray = response.getBody().getObject().getJSONArray("data");
             for (Object element : jsonArray) {
                 JSONObject jsonObject = (JSONObject) element;
@@ -119,6 +122,8 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
                 final Server server = editor.getOrCreateServer(serverId, name);
                 serverAdded(server);
+                restClient.getServerInformation(serverId, serverInformationHandler::handleServerInformationRequest);
+                restClient.getCategories(server.getId(), (msg) -> serverInformationHandler.handleCategories(msg, server));
             }
             if (Router.getCurrentArgs().containsKey(":id") && Router.getCurrentArgs().containsKey(":channelId")) {
                 String activeServerId = Router.getCurrentArgs().get(":id");
@@ -156,17 +161,6 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         navBarUserElementHashMap.clear();
         navBarServerElementHashMap.clear();
 
-        for (Server server : editor.getOrCreateAccord().getCurrentUser().getAvailableServers()) {
-            for (Category category : server.getCategories()) {
-                for (Channel channel : category.getChannels()) {
-                    NotificationService.removePublisher(channel);
-                }
-            }
-            for (Channel channel : server.getChannels()) {
-                NotificationService.removePublisher(channel);
-            }
-        }
-
         NotificationService.removeChannelSubscriber(this);
         NotificationService.removeUserSubscriber(this);
     }
@@ -192,9 +186,10 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         User user = (User) event.getSource();
         if (Objects.nonNull(user)) {
             if (!navBarUserElementHashMap.containsKey(user)) {
-                navBarUserElementHashMap.put(user, new NavBarUserElement(user));
+                NavBarUserElement navBarUserElement = new NavBarUserElement(user);
+                navBarUserElementHashMap.put(user, navBarUserElement);
                 Platform.runLater(() -> {
-                    navBarList.addUserElement(navBarUserElementHashMap.get(user));
+                    navBarList.addUserElement(navBarUserElement);
                 });
             }
             NavBarUserElement userElement = navBarUserElementHashMap.get(user);

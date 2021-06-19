@@ -88,6 +88,7 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
     }
 
     public void enable() {
+        clear();
         setDisable(false);
     }
 

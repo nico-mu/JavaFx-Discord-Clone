@@ -201,4 +201,9 @@ public class RestClient {
         HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId);
         sendRequest(req, callback);
     }
+
+    public void leaveServer(String serverId,  Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + "/leave");
+        sendRequest(req, callback);
+    }
 }

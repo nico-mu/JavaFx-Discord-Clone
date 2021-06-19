@@ -19,13 +19,11 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class MiniGameController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(ServerChatController.class);
     private final GameInvitation invitation = new GameInvitation();
     private final HashMap<String, BiConsumer<String, Long>> incomingCommandHandler = new HashMap<>();
-    private final HashMap<String, Consumer<String>> outgoingCommandHandler = new HashMap<>();
     private EasterEggModal easterEggModal;
     private final User chatPartner;
 
@@ -41,13 +39,11 @@ public class MiniGameController implements ControllerInterface {
         incomingCommandHandler.put(GameCommand.CHOOSE_PAPER.command, this::handleIncomingChooseActionCommand);
         incomingCommandHandler.put(GameCommand.REVANCHE.command, this::handleIncomingRevancheCommand);
         incomingCommandHandler.put(GameCommand.LEAVE.command, this::handleIncomingLeaveCommand);
-        outgoingCommandHandler.put(GameCommand.PLAY.command, this::handleOutgoingPlayCommand);
     }
 
     @Override
     public void stop() {
         incomingCommandHandler.clear();
-        outgoingCommandHandler.clear();
         easterEggModal = null;
     }
 
@@ -77,9 +73,9 @@ public class MiniGameController implements ControllerInterface {
         return incomingCommandHandler.containsKey(message);
     }
 
-    public boolean isOutgoingCommandMessage(String message) {
+    public static boolean isPlayMessage(String message) {
         message = EmoteParser.convertTextWithUnicodeToNames(message);
-        return outgoingCommandHandler.containsKey(message);
+        return message.equals(GameCommand.PLAY.command);
     }
 
     public void handleIncomingMessage(DirectMessage message) {
@@ -89,10 +85,10 @@ public class MiniGameController implements ControllerInterface {
         }
     }
 
-    public void handleOutgoingMessage(String message) {
+    public void handleOutgoingPlayMessage(String message) {
         message = EmoteParser.convertTextWithUnicodeToNames(message);
-        if (isOutgoingCommandMessage(message)) {
-            outgoingCommandHandler.get(message).accept(message);
+        if (isPlayMessage(message)) {
+            handleOutgoingPlayCommand(message);
         }
     }
 
