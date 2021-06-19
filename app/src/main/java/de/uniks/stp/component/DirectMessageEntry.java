@@ -22,9 +22,6 @@ public class DirectMessageEntry extends HBox implements NotificationComponentInt
     @FXML
     private TextWithEmoteSupport userNameText;
 
-    @FXML
-    private HBox directMessagesContainer;
-
     private final User user;
     private Font font = null;
     private Font boldFont = null;
@@ -55,7 +52,7 @@ public class DirectMessageEntry extends HBox implements NotificationComponentInt
         this.setId(user.getId() + "-DirectMessageEntry");
         userNameText.setId(user.getId() + "-DirectMessageEntryText");
 
-        directMessagesContainer.setOnMouseClicked(this::handleClick);
+        this.setOnMouseClicked(this::handleClick);
     }
 
     private void handleClick(MouseEvent mouseEvent) {
