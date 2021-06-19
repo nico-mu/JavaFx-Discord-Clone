@@ -2,15 +2,12 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ServerCategoryElement;
 import de.uniks.stp.component.ServerCategoryList;
 import de.uniks.stp.component.ServerChannelElement;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
 import de.uniks.stp.notification.NotificationEvent;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.notification.SubscriberInterface;
@@ -19,10 +16,6 @@ import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
-import kong.unirest.HttpResponse;
-import kong.unirest.JsonNode;
-import kong.unirest.json.JSONArray;
-import kong.unirest.json.JSONObject;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,14 +25,13 @@ import java.util.Objects;
 import static de.uniks.stp.model.Category.PROPERTY_CHANNELS;
 import static de.uniks.stp.model.Server.PROPERTY_CATEGORIES;
 
-@Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
+
 public class ServerCategoryListController implements ControllerInterface, SubscriberInterface {
 
     private Channel defaultChannel;
     private final Parent view;
     private final Editor editor;
     private final ServerCategoryList serverCategoryList;
-    private final RestClient restClient;
     private final Server model;
     private VBox vBox;
     private final HashMap<Category, ServerCategoryElement> categoryElementHashMap;
@@ -55,7 +47,6 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         this.editor = editor;
         this.model = model;
         this.serverCategoryList = new ServerCategoryList();
-        this.restClient = NetworkClientInjector.getRestClient();
         categoryElementHashMap = new HashMap<>();
         channelElementHashMap = new HashMap<>();
         NotificationService.registerChannelSubscriber(this);

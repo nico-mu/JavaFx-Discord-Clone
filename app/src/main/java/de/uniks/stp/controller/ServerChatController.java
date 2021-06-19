@@ -1,7 +1,9 @@
 package de.uniks.stp.controller;
 
 import com.jfoenix.controls.JFXButton;
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ServerChatView;
 import de.uniks.stp.component.TextWithEmoteSupport;
 import de.uniks.stp.model.Channel;
@@ -29,6 +31,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Date;
 import java.util.Objects;
 
+@Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
 public class ServerChatController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(ServerChatController.class);
 
