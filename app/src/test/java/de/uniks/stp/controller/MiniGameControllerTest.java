@@ -7,6 +7,7 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteTextArea;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
+import de.uniks.stp.minigame.GameCommand;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
@@ -111,7 +112,7 @@ public class MiniGameControllerTest {
         JsonObject message = Json.createObjectBuilder()
             .add("channel", "private")
             .add("timestamp", new Date().getTime())
-            .add("message", MiniGameController.GameCommand.PLAY.command)
+            .add("message", GameCommand.PLAY.command)
             .add("from", otherUser.getName())
             .add("to", currentUser.getName())
             .build();
@@ -123,7 +124,7 @@ public class MiniGameControllerTest {
 
         Platform.runLater(() -> {
             messageInput.clear();
-            messageInput.appendText(MiniGameController.GameCommand.PLAY.command);
+            messageInput.appendText(GameCommand.PLAY.command);
         });
         robot.clickOn("#chatViewSubmitButton");
         WaitForAsyncUtils.waitForFxEvents();
@@ -137,7 +138,7 @@ public class MiniGameControllerTest {
         message = Json.createObjectBuilder()
             .add("channel", "private")
             .add("timestamp", new Date().getTime())
-            .add("message", MiniGameController.GameCommand.CHOOSE_SCISSOR.command)
+            .add("message", GameCommand.CHOOSE_SCISSOR.command)
             .add("from", otherUser.getName())
             .add("to", currentUser.getName())
             .build();
@@ -153,7 +154,7 @@ public class MiniGameControllerTest {
         message = Json.createObjectBuilder()
             .add("channel", "private")
             .add("timestamp", new Date().getTime())
-            .add("message", MiniGameController.GameCommand.REVANCHE.command)
+            .add("message", GameCommand.REVANCHE.command)
             .add("from", otherUser.getName())
             .add("to", currentUser.getName())
             .build();
@@ -166,7 +167,7 @@ public class MiniGameControllerTest {
         message = Json.createObjectBuilder()
             .add("channel", "private")
             .add("timestamp", new Date().getTime())
-            .add("message", MiniGameController.GameCommand.CHOOSE_SCISSOR.command)
+            .add("message", GameCommand.CHOOSE_SCISSOR.command)
             .add("from", otherUser.getName())
             .add("to", currentUser.getName())
             .build();

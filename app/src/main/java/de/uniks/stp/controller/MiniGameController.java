@@ -2,6 +2,9 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
+import de.uniks.stp.minigame.GameCommand;
+import de.uniks.stp.minigame.GameInvitation;
+import de.uniks.stp.minigame.GameInvitationState;
 import de.uniks.stp.modal.EasterEggModal;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
@@ -19,20 +22,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class MiniGameController implements ControllerInterface {
-    public enum GameCommand {
-        PLAY("!play :handshake:"),
-        CHOOSE_ROCK("!choose rock"),
-        CHOOSE_PAPER("!choose paper"),
-        CHOOSE_SCISSOR("!choose scissor"),
-        REVANCHE("!play revanche"),
-        LEAVE("!play quit");
-
-        public final String command;
-
-        GameCommand(String command) {
-            this.command = command;
-        }
-    }
     private static final Logger log = LoggerFactory.getLogger(ServerChatController.class);
     private final GameInvitation invitation = new GameInvitation();
     private final HashMap<String, BiConsumer<String, Long>> incomingCommandHandler = new HashMap<>();
@@ -143,52 +132,6 @@ public class MiniGameController implements ControllerInterface {
             showEasterEgg();
         } else {
             invitation.setState(GameInvitationState.SENT).setCreationTime(new Date().getTime());
-        }
-    }
-
-    private enum GameInvitationState {
-        PENDING,
-        SENT,
-        RECEIVED
-    }
-    private static class GameInvitation {
-        public final int TIMEOUT = 30 * 1000; // 30 seconds
-        private GameInvitationState state = GameInvitationState.PENDING;
-        private Long creationTime;
-
-        public long getCreationTime() {
-            return creationTime;
-        }
-
-        public GameInvitationState getState() {
-            return state;
-        }
-
-        public boolean hasNotTimeout() {
-            return getCreationTime() >= new Date().getTime() - TIMEOUT;
-        }
-
-        public boolean isSent() {
-            return getState().equals(GameInvitationState.SENT) && hasNotTimeout();
-        }
-
-        public boolean isReceived() {
-            return getState().equals(GameInvitationState.RECEIVED) && hasNotTimeout();
-        }
-
-        public GameInvitation setCreationTime(long creationTime) {
-            this.creationTime = creationTime;
-            return this;
-        }
-
-        public GameInvitation setState(GameInvitationState state) {
-            this.state = state;
-            return this;
-        }
-
-        public void recycle() {
-            setState(GameInvitationState.PENDING);
-            creationTime = null;
         }
     }
 }

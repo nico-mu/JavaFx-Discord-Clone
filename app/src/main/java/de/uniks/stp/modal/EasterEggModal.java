@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.controller.MiniGameController;
+import de.uniks.stp.minigame.GameCommand;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.WebSocketService;
 import javafx.application.Platform;
@@ -65,19 +66,19 @@ public class EasterEggModal extends AbstractModal {
     }
 
     private void onRockButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), MiniGameController.GameCommand.CHOOSE_ROCK.command);
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.CHOOSE_ROCK.command);
         action = ROCK;
         reactToActionSelected();
     }
 
     private void onScissorsButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), MiniGameController.GameCommand.CHOOSE_SCISSOR.command);
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.CHOOSE_SCISSOR.command);
         action = SCISSORS;
         reactToActionSelected();
     }
 
     private void onPaperButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), MiniGameController.GameCommand.CHOOSE_PAPER.command);
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.CHOOSE_PAPER.command);
         action = PAPER;
         reactToActionSelected();
     }
@@ -193,12 +194,12 @@ public class EasterEggModal extends AbstractModal {
 
     private void onRevancheButtonClicked(ActionEvent actionEvent) {
         if(revanche){
-            WebSocketService.sendPrivateMessage(opponentUser.getName(), MiniGameController.GameCommand.REVANCHE.command);
+            WebSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.REVANCHE.command);
             playAgain();
         } else{
             revanche = true;
             revancheButton.setVisible(false);
-            WebSocketService.sendPrivateMessage(opponentUser.getName(), MiniGameController.GameCommand.REVANCHE.command);
+            WebSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.REVANCHE.command);
             actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_REVANCHE_WAIT));
         }
     }
@@ -238,7 +239,7 @@ public class EasterEggModal extends AbstractModal {
 
     @Override
     public void close() {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), MiniGameController.GameCommand.LEAVE.command);
+        WebSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.LEAVE.command);
         revancheButton.setOnAction(null);
         rockButton.setOnAction(null);
         scissorsButton.setOnAction(null);
