@@ -16,7 +16,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.util.Locale;
 
-public class ChatMessage extends HBox {
+public class ServerChatMessage extends HBox {
     @FXML
     private TextWithEmoteSupport messageText;
     @FXML
@@ -28,7 +28,7 @@ public class ChatMessage extends HBox {
 
     private String language;
 
-    public ChatMessage(String language) {
+    public ServerChatMessage(String language) {
         this.language = language;
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
@@ -45,8 +45,8 @@ public class ChatMessage extends HBox {
         timestampText.setText(DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)));
         timestampText.setText(DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)));
         nameText.setText(message.getSender().getName());
-        messageText.setText(message.getMessage());
 
+        messageText.setText(message.getMessage());
     }
 
     public void addButton(Pair<String, String> inviteIds, EventHandler<ActionEvent> onButtonPressed){

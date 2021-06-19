@@ -44,9 +44,12 @@ public class PrivateChatController implements ControllerInterface {
     private final Editor editor;
     private final String userId;
     private final User user;
+    private final User currentUser;
     private PrivateChatView chatView;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
+
+    private final MiniGameController miniGameController;
 
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
     private final PropertyChangeListener statusChangeListener = this::onStatusChange;
@@ -59,6 +62,9 @@ public class PrivateChatController implements ControllerInterface {
         this.editor = editor;
         this.userId = userId;
         this.user = editor.getOrCreateChatPartnerOfCurrentUser(userId, userName);
+        this.currentUser = editor.getOrCreateAccord().getCurrentUser();
+        this.miniGameController = new MiniGameController(user);
+        miniGameController.init();
         restClient = NetworkClientInjector.getRestClient();
         serverInformationHandler = new ServerInformationHandler(editor);
     }
@@ -91,7 +97,7 @@ public class PrivateChatController implements ControllerInterface {
         if (Objects.isNull(user)) {
             return;
         }
-        chatView = new PrivateChatView(editor.getOrCreateAccord().getLanguage());
+        chatView = new PrivateChatView(editor.getOrCreateAccord().getLanguage(), currentUser);
         onlineUsersContainer.getChildren().add(chatView);
 
         User otherUser = editor.getOtherUserById(userId);
@@ -115,7 +121,6 @@ public class PrivateChatController implements ControllerInterface {
         chatView.setOnMessageSubmit(this::handleMessageSubmit);
         addPropertyChangeListeners();
 
-        User currentUser = editor.getOrCreateAccord().getCurrentUser();
         List<DirectMessageDTO> directMessages = DatabaseService.getConversation(currentUser.getName(), user.getName());
         for (DirectMessageDTO directMessageDTO : directMessages) {
             DirectMessage message = (DirectMessage) new DirectMessage()
@@ -126,12 +131,20 @@ public class PrivateChatController implements ControllerInterface {
             if (directMessageDTO.getSenderName().equals(currentUser.getName())) {
                 message.setSender(currentUser);
 
-                // check if message contains a server invite link
-                Pair<String, String> ids = MessageUtil.getInviteIds(message.getMessage());
-                if((ids != null) && (!editor.serverAdded(ids.getKey()))){
-                    chatView.appendMessageWithButton(message, ids, this::joinServer);
-                } else{
-                    chatView.appendMessage(message);
+                if(miniGameController.isPlayMessage(message.getMessage())){
+                    if(message.getTimestamp() > (new Date().getTime() - 30*1000)){
+                        chatView.appendMessage(message);  //show game invitation when still active
+                    }
+                }
+                else{
+
+                    // check if message contains a server invite link
+                    Pair<String, String> ids = MessageUtil.getInviteIds(message.getMessage());
+                    if ((ids != null) && (!editor.serverAdded(ids.getKey()))) {
+                        chatView.appendMessageWithButton(message, ids, this::joinServer);
+                    } else {
+                        chatView.appendMessage(message);
+                    }
                 }
             } else {
                 String senderId = directMessageDTO.getSender();
@@ -159,8 +172,12 @@ public class PrivateChatController implements ControllerInterface {
      * @param message
      */
     private void handleMessageSubmit(String message) {
+        if (miniGameController.isPlayMessage(message)) {
+            miniGameController.handleOutgoingPlayMessage(message);
+        }
+
         // create & save message
-        DirectMessage msg = (DirectMessage) new DirectMessage().setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser())
+        DirectMessage msg = (DirectMessage) new DirectMessage().setMessage(message).setSender(currentUser)
             .setTimestamp(new Date().getTime()).setId(UUID.randomUUID().toString());
         // This fires handleNewPrivateMessage()
         msg.setReceiver(user);
@@ -186,12 +203,26 @@ public class PrivateChatController implements ControllerInterface {
         DirectMessage directMessage = (DirectMessage) propertyChangeEvent.getNewValue();
 
         if (Objects.nonNull(directMessage)) {
-            // check if message contains a server invite link
-            Pair<String, String> ids = MessageUtil.getInviteIds(directMessage.getMessage());
-            if((ids != null) && (!editor.serverAdded(ids.getKey()))){
-                chatView.appendMessageWithButton(directMessage, ids, this::joinServer);
-            } else{
-                chatView.appendMessage(directMessage);
+            if (miniGameController.isIncomingCommandMessage(directMessage.getMessage())) {
+                if(! directMessage.getSender().getName().equals(currentUser.getName())){
+                    miniGameController.handleIncomingMessage(directMessage);  //when sent by chatPartner
+                }
+
+                if(miniGameController.isPlayMessage(directMessage.getMessage())){
+                    if(directMessage.getTimestamp() > (new Date().getTime() - 30*1000)){
+                        chatView.appendMessage(directMessage);  //show game invitation when still active
+                    }
+                } else{
+                    directMessage.setReceiver(null).setSender(null);  //delete ingame message fom model
+                }
+            } else {
+                // check if message contains a server invite link
+                Pair<String, String> ids = MessageUtil.getInviteIds(directMessage.getMessage());
+                if ((ids != null) && (!editor.serverAdded(ids.getKey()))) {
+                    chatView.appendMessageWithButton(directMessage, ids, this::joinServer);
+                } else {
+                    chatView.appendMessage(directMessage);
+                }
             }
         }
     }
@@ -214,7 +245,6 @@ public class PrivateChatController implements ControllerInterface {
         String serverId = ids.split("-")[0];
         String inviteId = ids.split("-")[1];
 
-        User currentUser = editor.getOrCreateAccord().getCurrentUser();
         restClient.joinServer(serverId, inviteId, currentUser.getName(), currentUser.getPassword(),
             (response) -> onJoinServerResponse(serverId, response));
     }

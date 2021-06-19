@@ -109,7 +109,7 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ChatMessage chatMessage = new ChatMessage(language);
+        ServerChatMessage chatMessage = new ServerChatMessage(language);
         chatMessage.loadMessage(message);
 
         Platform.runLater(() -> {
@@ -127,7 +127,7 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ChatMessage chatMessage = new ChatMessage(language);
+        ServerChatMessage chatMessage = new ServerChatMessage(language);
         chatMessage.loadMessage(message);
         chatMessage.addButton(inviteIds, onButtonPressed);
 
@@ -145,7 +145,7 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ChatMessage chatMessage = new ChatMessage(language);
+        ServerChatMessage chatMessage = new ServerChatMessage(language);
         chatMessage.loadMessage(message);
 
         Platform.runLater(() -> {
@@ -164,7 +164,7 @@ public class ServerChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ChatMessage chatMessage = new ChatMessage(language);
+        ServerChatMessage chatMessage = new ServerChatMessage(language);
         chatMessage.loadMessage(message);
         chatMessage.addButton(inviteIds, onButtonPressed);
 

@@ -5,6 +5,7 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.emote.EmoteTextArea;
 import de.uniks.stp.model.Message;
+import de.uniks.stp.model.User;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -48,8 +49,10 @@ public class PrivateChatView extends VBox {
     private Consumer<String> submitListener;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
     private final String language;
+    private User currentUser;
 
-    public PrivateChatView(String language) {
+    public PrivateChatView(String language, User currentUser) {
+        this.currentUser = currentUser;
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.PRIVATE_CHAT_VIEW);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -104,7 +107,7 @@ public class PrivateChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ChatMessage chatMessage = new ChatMessage(language);
+        PrivateChatMessage chatMessage = new PrivateChatMessage(language, currentUser);
         chatMessage.loadMessage(message);
 
         Platform.runLater(() -> {
@@ -122,7 +125,7 @@ public class PrivateChatView extends VBox {
         Objects.requireNonNull(messageList);
         Objects.requireNonNull(message);
 
-        ChatMessage chatMessage = new ChatMessage(language);
+        PrivateChatMessage chatMessage = new PrivateChatMessage(language, currentUser);
         chatMessage.loadMessage(message);
         chatMessage.addButton(iniviteIds, onButtonPressed);
 

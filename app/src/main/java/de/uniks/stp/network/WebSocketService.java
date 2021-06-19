@@ -2,7 +2,9 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.controller.MiniGameController;
 import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.minigame.GameCommand;
 import de.uniks.stp.model.*;
 import de.uniks.stp.notification.NotificationService;
 import kong.unirest.json.JSONObject;
@@ -14,10 +16,8 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonStructure;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class WebSocketService {
     private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
@@ -126,10 +126,16 @@ public class WebSocketService {
         DirectMessage msg = new DirectMessage();
         msg.setReceiver(currentUser).setMessage(msgText).setTimestamp(timestamp).setId(UUID.randomUUID().toString());
         msg.setSender(chatPartner);
-        DatabaseService.saveDirectMessage(msg);
 
-        NotificationService.register(chatPartner);
-        NotificationService.onPrivateMessage(chatPartner);
+        // store in database and activate notification only when message is not an ingame command
+        List<String> ingameCommands = EnumSet.allOf(GameCommand.class).stream().map(e -> e.command).collect(Collectors.toList());
+        ingameCommands.remove(GameCommand.PLAY.command);
+        if(! ingameCommands.contains(msgText)){
+            DatabaseService.saveDirectMessage(msg);
+
+            NotificationService.register(chatPartner);
+            NotificationService.onPrivateMessage(chatPartner);
+        }
     }
 
     /**
