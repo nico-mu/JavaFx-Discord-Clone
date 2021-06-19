@@ -16,6 +16,7 @@ import javax.json.JsonObject;
 import javax.json.JsonStructure;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class WebSocketService {
     private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
@@ -126,14 +127,9 @@ public class WebSocketService {
         msg.setSender(chatPartner);
 
         // store in database and activate notification only when message is not an ingame command
-        String[] possibleIngameCommands = {
-            MiniGameController.GameCommand.CHOOSE_ROCK.command,
-            MiniGameController.GameCommand.CHOOSE_PAPER.command,
-            MiniGameController.GameCommand.CHOOSE_SCISSORS.command,
-            MiniGameController.GameCommand.LEAVE.command,
-            MiniGameController.GameCommand.REVANCHE.command,
-        };
-        if(! Arrays.asList(possibleIngameCommands).contains(msgText)){
+        List<String> ingameCommands = EnumSet.allOf(MiniGameController.GameCommand.class).stream().map(e -> e.command).collect(Collectors.toList());
+        ingameCommands.remove(MiniGameController.GameCommand.PLAY.command);
+        if(! ingameCommands.contains(msgText)){
             DatabaseService.saveDirectMessage(msg);
 
             NotificationService.register(chatPartner);
