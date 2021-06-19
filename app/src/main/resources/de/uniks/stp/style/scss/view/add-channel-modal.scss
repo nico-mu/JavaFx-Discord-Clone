@@ -15,6 +15,11 @@
   -jfx-checked-color: $button-color;
 }
 
+.notifications-label {
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 18px;
+}
+
 .filter-user-textfield {
   -fx-text-fill: $primary-text-fill;
   -fx-prompt-text-fill: $button-color;
