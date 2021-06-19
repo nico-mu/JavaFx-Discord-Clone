@@ -94,21 +94,20 @@ public class EasterEggModal extends AbstractModal {
      * Used to show your current choice
      */
     private void colorOwnButton() {
-        if(action.equals(ROCK)){
+        resetButtonColor();
+        if(action.equals(ROCK)) {
             rockButton.setStyle("-fx-background-color: green;");
-        } else{
-            rockButton.setStyle("-fx-background-color: transparent;");
-        }
-        if(action.equals(PAPER)){
+        } else if(action.equals(PAPER)){
             paperButton.setStyle("-fx-background-color: green;");
-        } else{
-            paperButton.setStyle("-fx-background-color: transparent;");
-        }
-        if(action.equals(SCISSORS)){
+        } else if(action.equals(SCISSORS)){
             scissorsButton.setStyle("-fx-background-color: green;");
-        } else{
-            scissorsButton.setStyle("-fx-background-color: transparent;");
         }
+    }
+
+    private void resetButtonColor(){
+        rockButton.setStyle("-fx-background-color: transparent;");
+        paperButton.setStyle("-fx-background-color: transparent;");
+        scissorsButton.setStyle("-fx-background-color: transparent;");
     }
 
     /**
@@ -211,9 +210,7 @@ public class EasterEggModal extends AbstractModal {
         Platform.runLater(() -> {
             revancheButton.setVisible(false);
             actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION));
-            rockButton.setStyle("-fx-background-color: transparent;");
-            paperButton.setStyle("-fx-background-color: transparent;");
-            scissorsButton.setStyle("-fx-background-color: transparent;");
+            resetButtonColor();
             rockButton.setDisable(false);
             paperButton.setDisable(false);
             scissorsButton.setDisable(false);
