@@ -143,6 +143,8 @@ public class Router {
             shutdownControllers(intersection);
         }
 
+        currentRoute = route;
+        currentArgs = args;
         Stack<RouteInfo> requirements = getRequirements(route);
         int requirementCount = requirements.size();
 
@@ -164,8 +166,6 @@ public class Router {
                 }
             }
         }
-        currentRoute = route;
-        currentArgs = args;
     }
 
     public static boolean checkRequiredArgs(String route, RouteArgs args) {

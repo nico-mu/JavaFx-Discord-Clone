@@ -131,7 +131,7 @@ public class PrivateChatController implements ControllerInterface {
             if (directMessageDTO.getSenderName().equals(currentUser.getName())) {
                 message.setSender(currentUser);
 
-                if(miniGameController.isPlayMessage(message.getMessage())){
+                if(MiniGameController.isPlayMessage(message.getMessage())){
                     if(message.getTimestamp() > (new Date().getTime() - 30*1000)){
                         chatView.appendMessage(message);  //show game invitation when still active
                     }
@@ -172,7 +172,7 @@ public class PrivateChatController implements ControllerInterface {
      * @param message
      */
     private void handleMessageSubmit(String message) {
-        if (miniGameController.isPlayMessage(message)) {
+        if (MiniGameController.isPlayMessage(message)) {
             miniGameController.handleOutgoingPlayMessage(message);
         }
 
@@ -208,7 +208,7 @@ public class PrivateChatController implements ControllerInterface {
                     miniGameController.handleIncomingMessage(directMessage);  //when sent by chatPartner
                 }
 
-                if(miniGameController.isPlayMessage(directMessage.getMessage())){
+                if(MiniGameController.isPlayMessage(directMessage.getMessage())){
                     if(directMessage.getTimestamp() > (new Date().getTime() - 30*1000)){
                         chatView.appendMessage(directMessage);  //show game invitation when still active
                     }
