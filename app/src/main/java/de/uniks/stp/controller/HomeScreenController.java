@@ -5,7 +5,6 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
-import de.uniks.stp.component.UserList;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
@@ -82,12 +81,9 @@ public class HomeScreenController implements ControllerInterface {
             Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
 
         } else if (subRoute.equals(Constants.ROUTE_LIST_ONLINE_USERS)) {
-            UserList userList = new UserList();
-            userListController = new UserListController(userList, editor);
+            userListController = new UserListController(onlineUsersContainer, editor);
             userListController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), userListController);
-
-            onlineUsersContainer.getChildren().add(userList);
             homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_ONLINE_USERS));
         }
     }
