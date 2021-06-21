@@ -5,25 +5,20 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
-import de.uniks.stp.component.DirectMessageList;
 import de.uniks.stp.component.UserList;
-import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
-import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
@@ -42,7 +37,6 @@ public class HomeScreenController implements ControllerInterface {
     private Label homeScreenLabel;
     private UserListController userListController;
     private DirectMessageListController directMessageListController;
-    private final HashMap<String, String> directMessagePartner = new HashMap<>();
     private PrivateChatController privateChatController;
 
     HomeScreenController(Parent view, Editor editor) {
@@ -61,20 +55,8 @@ public class HomeScreenController implements ControllerInterface {
         homeScreenLabel = (Label) homeScreenView.lookup(HOME_SCREEN_LABEL_ID);
 
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
-
-        DirectMessageList directMessageList = new DirectMessageList();
-        directMessageListController = new DirectMessageListController(directMessageList, editor);
+        directMessageListController = new DirectMessageListController(directMessagesContainer, editor);
         directMessageListController.init();
-        Platform.runLater(() -> directMessagesContainer.getChildren().add(directMessageList));
-        User currentUser = editor.getOrCreateAccord().getCurrentUser();
-        for (Pair<String, String> chatPartner : DatabaseService.getAllConversationPartnerOf(currentUser.getName())) {
-            String chatPartnerId = chatPartner.getKey();
-            String chatPartnerName = chatPartner.getValue();
-            User user = editor.getOrCreateChatPartnerOfCurrentUser(chatPartnerId, chatPartnerName);
-
-            directMessageListController.addUserToSidebar(user);
-            directMessagePartner.put(chatPartnerId, chatPartnerName);
-        }
     }
 
     @Override
@@ -83,27 +65,22 @@ public class HomeScreenController implements ControllerInterface {
         subviewCleanup();
         if (subRoute.equals(Constants.ROUTE_PRIVATE_CHAT)) {
             String userId = args.getArguments().get(Constants.ROUTE_PRIVATE_CHAT_ARGS);
-            User otherUser = editor.getOtherUserById(userId);
+            User user = editor.getChatPartnerOfCurrentUserById(userId);
 
-            if (Objects.nonNull(otherUser)) {
-                editor.getOrCreateChatPartnerOfCurrentUser(userId, otherUser.getName());
-                directMessageListController.addUserToSidebar(otherUser);
-            }
-
-            String userName = directMessagePartner.get(userId);
-
-            if (Objects.isNull(userName)) {
-                if (Objects.nonNull(otherUser)) {
-                    userName = otherUser.getName();
-                } else {
+            if(Objects.isNull(user)) {
+                user = editor.getOtherUserById(userId);
+                if(Objects.nonNull(user)) {
+                    editor.getOrCreateChatPartnerOfCurrentUser(user.getId(), user.getName());
+                }
+                else {
                     log.error("No user can be selected.");
                     return;
                 }
             }
-
-            privateChatController = new PrivateChatController(view, editor, userId, userName);
+            privateChatController = new PrivateChatController(view, editor, userId, user.getName());
             privateChatController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
+
         } else if (subRoute.equals(Constants.ROUTE_LIST_ONLINE_USERS)) {
             UserList userList = new UserList();
             userListController = new UserListController(userList, editor);

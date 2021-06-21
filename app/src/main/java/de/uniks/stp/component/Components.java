@@ -18,7 +18,8 @@ public enum Components {
     EMOTER_PICKER_BUTTON("EmotePickerButton.fxml"),
     INVITE_LIST_ENTRY("InviteListEntry.fxml"),
     JOIN_SERVER_BUTTON("JoinServerButton.fxml"),
-    DIRECT_MESSAGE_LIST_ENTRY("DirectMessageListEntry.fxml");
+    DIRECT_MESSAGE_LIST_ENTRY("DirectMessageListEntry.fxml"),
+    LIST_COMPONENT("ListComponent.fxml");
 
 
     public final URL path;
