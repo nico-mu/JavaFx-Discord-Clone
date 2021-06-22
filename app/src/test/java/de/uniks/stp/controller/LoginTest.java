@@ -6,6 +6,7 @@ import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.UserKeyProvider;
 import de.uniks.stp.network.WebSocketClient;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.network.NetworkClientInjector;
@@ -127,6 +128,56 @@ public class LoginTest {
 
         Assertions.assertEquals(Constants.ROUTE_LOGIN, Router.getCurrentRoute());
         Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_LOGIN_WRONG_CREDENTIALS), errorLabel.getText());
+    }
+
+    @Test
+    public void testTempUserLogin(FxRobot robot) {
+        clearNameField(robot);
+
+        robot.clickOn("#temp-login-button");
+        final String username = "Mr";
+        JSONObject response = new JSONObject()
+            .put("status", "success")
+            .put("message", "")
+            .put("data",
+                new JSONObject()
+                    .put("name", username)
+                    .put("password", "Spock")
+            );
+
+        when(res.getBody()).thenReturn(new JsonNode(response.toString()));
+
+        when(res.isSuccess()).thenReturn(true);
+
+        verify(restMock).tempRegister(callbackCaptor.capture());
+
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+
+        final String userKey = "123-45";
+        response.put("data", new JSONObject().put("userKey", userKey));
+
+        WaitForAsyncUtils.waitForFxEvents();
+
+        when(res.getBody()).thenReturn(new JsonNode(response.toString()));
+
+        when(res.isSuccess()).thenReturn(true);
+
+        verify(restMock).login(eq(username), eq("Spock"), callbackCaptor.capture());
+
+        callback = callbackCaptor.getValue();
+        callback.completed(res);
+
+
+        WaitForAsyncUtils.waitForFxEvents();
+        robot.clickOn("#home-button");
+
+        Assertions.assertEquals(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, Router.getCurrentRoute());
+
+        Assertions.assertEquals(userKey, UserKeyProvider.getUserKey());
+
+        Label usernameLabel = robot.lookup("#username-label").query();
+        Assertions.assertEquals(username, usernameLabel.getText());
     }
 
     @AfterEach
