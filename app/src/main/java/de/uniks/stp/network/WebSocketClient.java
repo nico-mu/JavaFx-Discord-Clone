@@ -9,6 +9,8 @@ import javax.json.JsonObject;
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.Timer;
 import java.util.TimerTask;
 

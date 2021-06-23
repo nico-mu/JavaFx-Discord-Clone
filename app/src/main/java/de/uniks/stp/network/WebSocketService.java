@@ -16,6 +16,8 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonStructure;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,7 +49,7 @@ public class WebSocketService {
         pathWebSocketClientHashMap.put(Constants.WS_SYSTEM_PATH, systemWebSocketClient);
 
 
-        String endpoint = Constants.WS_USER_PATH + currentUser.getName();
+        String endpoint = Constants.WS_USER_PATH + encode(currentUser.getName());
         final WebSocketClient privateWebSocketClient = NetworkClientInjector.getWebSocketClient(endpoint, WebSocketService::onPrivateMessage);
         pathWebSocketClientHashMap.put(endpoint, privateWebSocketClient);
     }
@@ -59,17 +61,21 @@ public class WebSocketService {
      * @param serverId
      */
     public static void addServerWebSocket(String serverId) {
-        String endpoint = Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId;
+        String endpoint = Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + encode(serverId);
         if (!pathWebSocketClientHashMap.containsKey(endpoint)) {
             final WebSocketClient systemServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, (msg) -> onServerSystemMessage(msg, serverId));
             pathWebSocketClientHashMap.put(endpoint, systemServerWSC);
         }
 
-        endpoint = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
+        endpoint = Constants.WS_USER_PATH + encode(currentUser.getName()) + Constants.WS_SERVER_CHAT_PATH + encode(serverId);
         if (!pathWebSocketClientHashMap.containsKey(endpoint)) {
             final WebSocketClient chatServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, (msg) -> onServerChatMessage(msg, serverId));
             pathWebSocketClientHashMap.put(endpoint, chatServerWSC);
         }
+    }
+
+    private static String encode(final String e) {
+        return URLEncoder.encode(e, Charset.defaultCharset());
     }
 
     /**
@@ -86,7 +92,7 @@ public class WebSocketService {
             .build();
 
         try {
-            String endpointKey = Constants.WS_USER_PATH + currentUser.getName();
+            String endpointKey = Constants.WS_USER_PATH + encode(currentUser.getName());
             pathWebSocketClientHashMap.get(endpointKey).sendMessage(msgObject.toString());
             log.debug("Message sent: {}", msgObject);
         } catch (IOException e) {
@@ -187,7 +193,7 @@ public class WebSocketService {
             .build();
 
         try {
-            String endpointKey = Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + serverId;
+            String endpointKey = Constants.WS_USER_PATH + encode(currentUser.getName()) + Constants.WS_SERVER_CHAT_PATH + encode(serverId);
             pathWebSocketClientHashMap.get(endpointKey).sendMessage(msgObject.toString());
             log.debug("Message sent: {}", msgObject);
         } catch (IOException e) {
