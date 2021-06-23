@@ -66,17 +66,16 @@ public class HomeScreenController implements ControllerInterface {
             String userId = args.getArguments().get(Constants.ROUTE_PRIVATE_CHAT_ARGS);
             User user = editor.getChatPartnerOfCurrentUserById(userId);
 
-            if(Objects.isNull(user)) {
-                user = editor.getOtherUserById(userId);
-                if(Objects.nonNull(user)) {
-                    editor.getOrCreateChatPartnerOfCurrentUser(user.getId(), user.getName());
-                }
-                else {
+            if (Objects.isNull(user)) {
+                User otherUser = editor.getOtherUserById(userId);
+                if (Objects.nonNull(otherUser)) {
+                    user = editor.getOrCreateChatPartnerOfCurrentUser(otherUser.getId(), otherUser.getName());
+                } else {
                     log.error("No user can be selected.");
                     return;
                 }
             }
-            privateChatController = new PrivateChatController(view, editor, userId, user.getName());
+            privateChatController = new PrivateChatController(view, editor, user);
             privateChatController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
 

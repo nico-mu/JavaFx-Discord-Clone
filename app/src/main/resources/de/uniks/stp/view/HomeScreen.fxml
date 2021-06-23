@@ -30,7 +30,11 @@
          </children></AnchorPane>
         <Pane prefHeight="442.0" prefWidth="20.0" styleClass="mid-pane" />
         <AnchorPane prefHeight="442.0" prefWidth="477.0" styleClass="online-users">
-            <VBox id="online-users-container" layoutX="2.0" layoutY="30.0" prefHeight="411.0" prefWidth="477.0" />
+            <VBox id="online-users-container" layoutX="2.0" layoutY="30.0" prefHeight="411.0" prefWidth="477.0">
+                <padding>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                </padding>
+            </VBox>
             <Label id="home-screen-label" layoutX="186.0" layoutY="5.0" maxWidth="250.0" prefHeight="25.0" styleClass="available-users-label" text="%LBL_ONLINE_USERS" />
         </AnchorPane>
     </HBox>

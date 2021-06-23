@@ -7,8 +7,7 @@ public enum Components {
     USER_LIST_ENTRY("UserListEntry.fxml"),
     NAV_BAR_ELEMENT("NavBarElement.fxml"),
     NAV_BAR_LIST("NavBarList.fxml"),
-    PRIVATE_CHAT_VIEW("PrivateChatView.fxml"),
-    SERVER_CHAT_VIEW("ServerChatView.fxml"),
+    CHAT_MESSAGE_INPUT("ChatMessageInput.fxml"),
     CHAT_MESSAGE("ChatMessage.fxml"),
     SERVER_CATEGORY_LIST("ServerCategoryList.fxml"),
     SERVER_CATEGORY_ELEMENT("ServerCategoryElement.fxml"),
@@ -20,7 +19,6 @@ public enum Components {
     JOIN_SERVER_BUTTON("JoinServerButton.fxml"),
     DIRECT_MESSAGE_LIST_ENTRY("DirectMessageListEntry.fxml"),
     LIST_COMPONENT("ListComponent.fxml");
-
 
     public final URL path;
 

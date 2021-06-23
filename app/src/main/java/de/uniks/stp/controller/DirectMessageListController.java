@@ -8,6 +8,7 @@ import de.uniks.stp.model.User;
 import de.uniks.stp.notification.NotificationEvent;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.notification.SubscriberInterface;
+import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
@@ -84,8 +85,11 @@ public class DirectMessageListController implements ControllerInterface, Subscri
 
         if(!directMessagePartnerList.contains(otherUser)) {
             DirectMessageEntry directMessagePartnerEntry = new DirectMessageEntry(otherUser);
-            directMessagePartnerList.addElement(otherUser, directMessagePartnerEntry);
-            directMessagePartnerEntry.setNotificationCount(NotificationService.getPublisherNotificationCount(otherUser));
+
+            Platform.runLater(() -> {
+                directMessagePartnerList.addElement(otherUser, directMessagePartnerEntry);
+                directMessagePartnerEntry.setNotificationCount(NotificationService.getPublisherNotificationCount(otherUser));
+            });
         }
     }
 

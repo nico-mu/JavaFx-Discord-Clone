@@ -43,3 +43,26 @@
 .server-user-list-container {
     -fx-background-color: $secondary-background-color;
 }
+
+.submit-button {
+    -jfx-button-type: FLAT;
+    -fx-background-color: $button-color;
+    -fx-text-fill: $primary-text-fill;
+}
+
+.message-input {
+    -fx-text-fill: $primary-text-fill;
+    -fx-background-color: $main-background-color;
+}
+.message-list {
+    -fx-text-fill: $primary-text-fill;
+    -fx-background-color: $secondary-background-color;
+}
+
+.load-old-messages-label {
+    -fx-text-fill: $button-color;
+}
+
+.load-old-messages-spinner .arc {
+    -fx-stroke: $button-color;
+}

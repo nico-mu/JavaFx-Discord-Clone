@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.*?>
 <?import de.uniks.stp.component.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -57,7 +58,20 @@
                </TextWithEmoteSupport>
             </children>
          </VBox>
-            <VBox id="server-chat-vbox" alignment="CENTER" layoutX="2.0" layoutY="30.0" prefHeight="420.0" prefWidth="343.0" styleClass="server-chat-vbox" />
+         <HBox id="load-old-messages-hbox" alignment="CENTER" prefHeight="28.0" prefWidth="343.0" styleClass="load-old-messages-hbox" visible="false">
+            <children>
+               <Label id="load-old-messages-label" prefHeight="49.0" prefWidth="200.0" styleClass="load-old-messages-label" text="%LBL_LOAD_MESSAGES" />
+               <JFXSpinner id="load-old-messages-spinner" prefHeight="51.0" prefWidth="30.0" radius="12.0" styleClass="load-old-messages-spinner" />
+            </children>
+            <padding>
+               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+         </HBox>
+            <VBox id="server-chat-vbox" alignment="CENTER" layoutX="2.0" layoutY="30.0" prefHeight="393.0" prefWidth="343.0" styleClass="server-chat-vbox">
+                <padding>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </padding>
+            </VBox>
         </FlowPane>
       <Pane prefHeight="472.0" prefWidth="70.0" styleClass="mid-pane" />
       <FlowPane id="server-user-list-container" prefWidth="187.0" styleClass="server-user-list" HBox.hgrow="ALWAYS">
