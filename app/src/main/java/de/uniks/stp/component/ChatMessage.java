@@ -30,10 +30,7 @@ public class ChatMessage extends HBox {
     @FXML
     private VBox textVBox;
 
-    private String language;
-
     public ChatMessage(Message message, String language) {
-        this.language = language;
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);

@@ -214,16 +214,15 @@ public class WebSocketService {
         final String from = jsonObject.getString("from");
         final String msgText = jsonObject.getString("text");
 
-        // in case it's sent by you
-        if (from.equals(currentUser.getName())) {
-            // could save the messageId (not already in editor), but would have to get the message saved in editor for this
-            return;
-        }
-
         User sender = editor.getOtherUser(from);
         if (Objects.isNull(sender)) {
-            log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
-            return;
+            if(from.equals(currentUser.getName())) {
+                sender = currentUser;
+            }
+            else {
+                log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
+                return;
+            }
         }
 
         ServerMessage msg = new ServerMessage();

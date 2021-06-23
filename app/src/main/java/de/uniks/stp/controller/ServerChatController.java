@@ -79,6 +79,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     @Override
     public void stop() {
+        serverChatVBox.getChildren().clear();
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
@@ -119,11 +120,6 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
      * @param message
      */
     private void handleMessageSubmit(String message) {
-        // create & save message
-        ServerMessage msg = new ServerMessage();
-        msg.setMessage(message).setSender(editor.getOrCreateAccord().getCurrentUser()).setTimestamp(new Date().getTime());
-        msg.setChannel(model);  // triggers PropertyChangeListener that shows Message in Chat
-
         // send message
         WebSocketService.sendServerMessage(model.getCategory().getServer().getId(), model.getId(), message);
     }
@@ -210,7 +206,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
                     log.debug("Loaded old server message from former serveruser, created dummy object");
                 }
 
-                ServerMessage msg = new ServerMessage();
+                ServerMessage msg = editor.getOrCreateServerMessage(msgId, model);
                 msg.setMessage(msgText).setTimestamp(timestamp).setId(msgId).setSender(sender);
                 msg.setChannel(model);  //message will be added to view by PropertyChangeListener
             }

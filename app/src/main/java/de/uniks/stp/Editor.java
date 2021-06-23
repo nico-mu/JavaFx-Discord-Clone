@@ -317,4 +317,13 @@ public class Editor {
         DatabaseService.removeMutedChannelId(channelId);
         channel.removeYou();
     }
+
+    public ServerMessage getOrCreateServerMessage(String msgId, Channel channel) {
+        for (ServerMessage message : channel.getMessages()) {
+            if(message.getId().equals(msgId)) {
+                return message;
+            }
+        }
+        return (ServerMessage) new ServerMessage().setId(msgId);
+    }
 }

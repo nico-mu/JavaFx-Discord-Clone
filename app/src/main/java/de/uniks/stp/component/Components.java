@@ -14,7 +14,7 @@ public enum Components {
     SERVER_CHANNEL_ELEMENT("ServerChannelElement.fxml"),
     USER_CHECK_LIST_ENTRY("UserCheckListEntry.fxml"),
     EMOTE_PICKER("EmotePicker.fxml"),
-    EMOTER_PICKER_BUTTON("EmotePickerButton.fxml"),
+    EMOTE_PICKER_BUTTON("EmotePickerButton.fxml"),
     INVITE_LIST_ENTRY("InviteListEntry.fxml"),
     JOIN_SERVER_BUTTON("JoinServerButton.fxml"),
     DIRECT_MESSAGE_LIST_ENTRY("DirectMessageListEntry.fxml"),
