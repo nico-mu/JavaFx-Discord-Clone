@@ -75,6 +75,7 @@ public class HomeScreenController implements ControllerInterface {
                     return;
                 }
             }
+            directMessageListController.addUserToSidebar(user);
             privateChatController = new PrivateChatController(view, editor, user);
             privateChatController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);

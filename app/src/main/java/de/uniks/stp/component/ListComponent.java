@@ -22,7 +22,6 @@ public class ListComponent<Model, Element extends Node> extends ScrollPane {
     private final ConcurrentHashMap<Model, Element> elementHashMap = new ConcurrentHashMap<>();
     private final ObservableList<Node> elements;
     private final InvalidationListener heightChangedListener = this::onHeightChanged;
-    private boolean isScrollAware;
 
     private void onHeightChanged(Observable observable) {
         this.setVvalue(1.0d);
@@ -48,8 +47,6 @@ public class ListComponent<Model, Element extends Node> extends ScrollPane {
     }
 
     public void setIsScrollAware(boolean mode) {
-        isScrollAware = mode;
-
         if(mode) {
             container.heightProperty().addListener(heightChangedListener);
         }

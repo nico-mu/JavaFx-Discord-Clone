@@ -76,7 +76,6 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
         changeChatViewStatus(status);
 
         chatMessageInput.setOnMessageSubmit(this::handleMessageSubmit);
-        chatMessageList.setFitToWidth(true);
 
         loadMessages();
         addPropertyChangeListeners();

@@ -39,6 +39,7 @@ abstract public class ChatController<T> {
         chatMessageInput = new ChatMessageInput();
         chatMessageList = new ListComponent<>("message-list");
         chatMessageList.setIsScrollAware(true);
+        chatMessageList.setFitToWidth(true);
         chatMessageList.getStyleClass().add("message-list");
         chatMessageList.setPrefHeight(400.0d);
         chatMessageList.setPrefWidth(600.0d);
