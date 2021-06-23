@@ -155,7 +155,13 @@ public class LoginTest {
         callback.completed(res);
 
         final String userKey = "123-45";
-        response.put("data", new JSONObject().put("userKey", userKey));
+        response = new JSONObject()
+            .put("status", "success")
+            .put("message", "")
+            .put("data",
+                new JSONObject()
+                    .put("userKey", userKey)
+            );
 
         WaitForAsyncUtils.waitForFxEvents();
 
@@ -178,6 +184,23 @@ public class LoginTest {
 
         Label usernameLabel = robot.lookup("#username-label").query();
         Assertions.assertEquals(username, usernameLabel.getText());
+
+        response = new JSONObject()
+            .put("status", "success")
+            .put("message", "")
+            .put("message", "Logged out")
+            .put("data", new JSONObject());
+        when(res.getBody()).thenReturn(new JsonNode(response.toString()));
+
+        robot.clickOn("#logout-button");
+        verify(restMock).sendLogoutRequest(callbackCaptor.capture());
+
+        callback = callbackCaptor.getValue();
+        callback.completed(res);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        JFXTextField nameField = robot.lookup("#name-field").query();
+        Assertions.assertNotEquals(username, nameField.getText());
     }
 
     @AfterEach
