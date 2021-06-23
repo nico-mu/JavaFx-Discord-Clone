@@ -114,7 +114,7 @@ public class CreateChannelTest {
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(false);
 
-        verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(""), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
+        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(""), eq("text"), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
@@ -136,7 +136,7 @@ public class CreateChannelTest {
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(false);
 
-        verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(channelName), eq(true), eq(new ArrayList<String>()), callbackCaptor.capture());
+        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("text"), eq(true), eq(new ArrayList<String>()), callbackCaptor.capture());
         callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
@@ -192,7 +192,7 @@ public class CreateChannelTest {
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
 
-        verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(channelName), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
+        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("text"), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
@@ -304,7 +304,7 @@ public class CreateChannelTest {
         ArrayList<String> members = new ArrayList<>();
         members.add("2");
         members.add("1");
-        verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(channelName), eq(true), eq(members), callbackCaptor.capture());
+        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("text"), eq(true), eq(members), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();

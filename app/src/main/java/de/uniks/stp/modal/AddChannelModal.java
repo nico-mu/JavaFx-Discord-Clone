@@ -3,6 +3,7 @@ package de.uniks.stp.modal;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.UserCheckList;
@@ -27,6 +28,7 @@ public class AddChannelModal extends AbstractModal {
     private static final Logger log = LoggerFactory.getLogger(AddChannelModal.class);
 
     public static final String ADD_CHANNEL_NAME_TEXTFIELD = "#add-channel-name-textfield";
+    public static final String TYPE_TOGGLE_BUTTON = "#type-toggle-button";
     public static final String PRIVILEGED_CHECKBOX = "#privileged-checkbox";
     public static final String FILTER_USER_TEXTFIELD = "#filter-user-textfield";
     public static final String USER_CHECK_LIST_CONTAINER = "#user-check-list-container";
@@ -34,6 +36,7 @@ public class AddChannelModal extends AbstractModal {
     public static final String ADD_CHANNEL_CANCEL_BUTTON = "#add-channel-cancel-button";
     public static final String ADD_CHANNEL_ERROR_LABEL = "#add-channel-error";
     private JFXTextField channelName;
+    private JFXToggleButton typeToggleButton;
     private JFXCheckBox privileged;
     private JFXTextField filter;
     private HBox userCheckListContainer;
@@ -51,6 +54,7 @@ public class AddChannelModal extends AbstractModal {
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_CREATE_CHANNEL));
         channelName = (JFXTextField) view.lookup(ADD_CHANNEL_NAME_TEXTFIELD);
+        typeToggleButton = (JFXToggleButton) view.lookup(TYPE_TOGGLE_BUTTON);
         privileged = (JFXCheckBox) view.lookup(PRIVILEGED_CHECKBOX);
         filter = (JFXTextField) view.lookup(FILTER_USER_TEXTFIELD);
         userCheckListContainer = (HBox) view.lookup(USER_CHECK_LIST_CONTAINER);
@@ -89,8 +93,10 @@ public class AddChannelModal extends AbstractModal {
         Boolean priv = privileged.isSelected();
         String serverId = category.getServer().getId();
         String categoryId = category.getId();
+        boolean voiceChannel = typeToggleButton.isSelected();
+        String type = voiceChannel ? "audio" : "text";
 
-        restClient.createTextChannel(serverId, categoryId, chName, priv, selectUserList.getSelectedUserIds(), this::handleCreateChannelResponse);
+        restClient.createChannel(serverId, categoryId, chName, type, priv, selectUserList.getSelectedUserIds(), this::handleCreateChannelResponse);
     }
 
     private void setErrorMessage(String label) {
