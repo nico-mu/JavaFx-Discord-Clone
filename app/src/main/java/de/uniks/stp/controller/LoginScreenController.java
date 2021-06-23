@@ -19,6 +19,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +37,14 @@ public class LoginScreenController implements ControllerInterface {
     private JFXPasswordField passwordField;
     private JFXButton registerButton;
     private JFXButton loginButton;
+    private JFXButton tempLoginButton;
     private JFXSpinner spinner;
     private JFXCheckBox rememberMeCheckBox;
     private Label errorLabel;
 
     private String name;
     private String password;
+    private boolean tempUserLogin;
 
     public LoginScreenController(Parent view, Editor editor) {
         this.view = view;
@@ -58,6 +61,7 @@ public class LoginScreenController implements ControllerInterface {
         passwordField = (JFXPasswordField) view.lookup("#password-field");
         registerButton = (JFXButton) view.lookup("#register-button");
         loginButton = (JFXButton) view.lookup("#login-button");
+        tempLoginButton = (JFXButton) view.lookup("#temp-login-button");
         errorLabel = (Label) view.lookup("#error-message");
         spinner = (JFXSpinner) view.lookup("#spinner");
         rememberMeCheckBox = (JFXCheckBox) view.lookup("#remember-me-checkbox");
@@ -65,6 +69,7 @@ public class LoginScreenController implements ControllerInterface {
         // Register button event handler
         registerButton.setOnAction(this::onRegisterButtonClicked);
         loginButton.setOnAction(this::onLoginButtonClicked);
+        tempLoginButton.setOnAction(this::onTempLoginButtonClicked);
 
         loginButton.setDefaultButton(true);  // Allows to use Enter in order to press login button
 
@@ -80,6 +85,7 @@ public class LoginScreenController implements ControllerInterface {
     public void stop() {
         registerButton.setOnAction(null);
         loginButton.setOnAction(null);
+        tempLoginButton.setOnAction(null);
     }
 
     private void readInputFields() {
@@ -118,6 +124,7 @@ public class LoginScreenController implements ControllerInterface {
             nameField.setDisable(true);
             passwordField.setDisable(true);
             loginButton.setDisable(true);
+            tempLoginButton.setDisable(true);
             registerButton.setDisable(true);
             spinner.setVisible(true);
             rememberMeCheckBox.setDisable(true);
@@ -133,6 +140,7 @@ public class LoginScreenController implements ControllerInterface {
             nameField.setDisable(false);
             passwordField.setDisable(false);
             loginButton.setDisable(false);
+            tempLoginButton.setDisable(false);
             registerButton.setDisable(false);
             spinner.setVisible(false);
             rememberMeCheckBox.setDisable(false);
@@ -174,7 +182,34 @@ public class LoginScreenController implements ControllerInterface {
         // prepare for and send login request
         setErrorMessage(null);
         disableUserInput();
+        tempUserLogin = false;
         restClient.login(name, password, this::handleLoginResponse);
+    }
+
+    /**
+     * Requests a temp user and sends login request.
+     *
+     * @param event (passed automatically)
+     */
+    private void onTempLoginButtonClicked(ActionEvent event) {
+        // prepare for and send login request
+        setErrorMessage(null);
+        disableUserInput();
+        tempUserLogin = true;
+
+        restClient.tempRegister(this::handleTempRegisterResponse);
+    }
+
+    private void handleTempRegisterResponse(HttpResponse<JsonNode> response) {
+        if (response.isSuccess()) {
+            final JSONObject data = response.getBody().getObject().getJSONObject("data");
+            name = data.getString("name");
+            password = data.getString("password");
+
+            restClient.login(name, password, this::handleLoginResponse);
+        } else {
+            setErrorMessage(Constants.LBL_REGISTRATION_FAILED);
+        }
     }
 
     /**
@@ -225,7 +260,7 @@ public class LoginScreenController implements ControllerInterface {
             editor.setUserKey(userKey);
             NotificationService.reset();
 
-            if (rememberMeCheckBox.isSelected()) {
+            if (!tempUserLogin && rememberMeCheckBox.isSelected()) {
                 // Save in db
                 DatabaseService.saveAccordSetting(AccordSettingKey.LAST_USER_LOGIN, name);
             } else {
