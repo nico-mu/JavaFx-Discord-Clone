@@ -44,6 +44,7 @@ public class LoginScreenController implements ControllerInterface {
 
     private String name;
     private String password;
+    private boolean tempUserLogin;
 
     public LoginScreenController(Parent view, Editor editor) {
         this.view = view;
@@ -181,6 +182,7 @@ public class LoginScreenController implements ControllerInterface {
         // prepare for and send login request
         setErrorMessage(null);
         disableUserInput();
+        tempUserLogin = false;
         restClient.login(name, password, this::handleLoginResponse);
     }
 
@@ -190,6 +192,11 @@ public class LoginScreenController implements ControllerInterface {
      * @param event (passed automatically)
      */
     private void onTempLoginButtonClicked(ActionEvent event) {
+        // prepare for and send login request
+        setErrorMessage(null);
+        disableUserInput();
+        tempUserLogin = true;
+
         restClient.tempRegister(this::handleTempRegisterResponse);
     }
 
@@ -198,10 +205,10 @@ public class LoginScreenController implements ControllerInterface {
             final JSONObject data = response.getBody().getObject().getJSONObject("data");
             name = data.getString("name");
             password = data.getString("password");
-            // prepare for and send login request
-            setErrorMessage(null);
-            disableUserInput();
+
             restClient.login(name, password, this::handleLoginResponse);
+        } else {
+            setErrorMessage(Constants.LBL_REGISTRATION_FAILED);
         }
     }
 
@@ -253,7 +260,7 @@ public class LoginScreenController implements ControllerInterface {
             editor.setUserKey(userKey);
             NotificationService.reset();
 
-            if (rememberMeCheckBox.isSelected()) {
+            if (!tempUserLogin && rememberMeCheckBox.isSelected()) {
                 // Save in db
                 DatabaseService.saveAccordSetting(AccordSettingKey.LAST_USER_LOGIN, name);
             } else {
