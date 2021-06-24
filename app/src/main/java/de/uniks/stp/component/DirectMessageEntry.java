@@ -64,10 +64,6 @@ public class DirectMessageEntry extends HBox implements NotificationComponentInt
         userNameText.setText(userName);
     }
 
-    public String getDirectMessageEntryText() {
-        return userNameText.getId();
-    }
-
     @Override
     public void setNotificationCount(int notifications) {
         setNotificationVisibility(0 < notifications);
