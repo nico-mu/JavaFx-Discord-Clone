@@ -2,6 +2,7 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.TextWithEmoteSupport;
@@ -28,6 +29,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Objects;
@@ -126,7 +129,7 @@ public class ServerScreenController implements ControllerInterface {
 
     private void onInviteUserClicked(ActionEvent actionEvent) {
         Parent invitesModalView = ViewLoader.loadView(Views.INVITES_MODAL);
-        InvitesModal invitesModal = new InvitesModal(invitesModalView, model, editor);
+        InvitesModal invitesModal = new InvitesModal(invitesModalView, model, editor, StageManager.getStage());
         invitesModal.show();
     }
 
@@ -136,13 +139,13 @@ public class ServerScreenController implements ControllerInterface {
         if (Objects.nonNull(model.getOwner())) {
             owner = editor.getOrCreateAccord().getCurrentUser().getId().equals(model.getOwner().getId());
         }
-        ServerSettingsModal serverSettingsModal = new ServerSettingsModal(serverSettingsModalView, model, owner);
+        ServerSettingsModal serverSettingsModal = new ServerSettingsModal(serverSettingsModalView, model, owner, StageManager.getStage());
         serverSettingsModal.show();
     }
 
     private void onCreateCategoryClicked(ActionEvent actionEvent) {
         Parent createCategoryModalView = ViewLoader.loadView(Views.CREATE_CATEGORY_MODAL);
-        CreateCategoryModal createCategoryModal = new CreateCategoryModal(createCategoryModalView, model, editor);
+        CreateCategoryModal createCategoryModal = new CreateCategoryModal(createCategoryModalView, model, editor, StageManager.getStage());
         createCategoryModal.show();
     }
 

@@ -2,6 +2,7 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.SettingsModal;
 import de.uniks.stp.network.NetworkClientInjector;
@@ -18,6 +19,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -79,7 +81,7 @@ public class UserInfoController implements ControllerInterface {
 
     private void onSettingsGearClicked(MouseEvent mouseEvent) {
         Parent settingsModalView = ViewLoader.loadView(Views.SETTINGS_MODAL);
-        SettingsModal settingsModal = new SettingsModal(settingsModalView, editor);
+        SettingsModal settingsModal = new SettingsModal(settingsModalView, editor, StageManager.getStage());
         settingsModal.show();
     }
 

@@ -1,6 +1,7 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.Editor;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.EditChannelModal;
 import de.uniks.stp.model.Channel;
@@ -17,6 +18,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -77,7 +79,7 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
 
     private void onEditChannelClicked(MouseEvent mouseEvent) {
         Parent editChannelModalView = ViewLoader.loadView(Views.EDIT_CHANNEL_MODAL);
-        EditChannelModal editChannelModal = new EditChannelModal(editChannelModalView, model, editor);
+        EditChannelModal editChannelModal = new EditChannelModal(editChannelModalView, model, editor, StageManager.getStage());
         editChannelModal.show();
     }
 

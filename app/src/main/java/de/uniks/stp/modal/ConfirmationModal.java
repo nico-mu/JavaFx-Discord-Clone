@@ -7,6 +7,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 public class ConfirmationModal extends AbstractModal {
@@ -26,8 +27,8 @@ public class ConfirmationModal extends AbstractModal {
      * @param yesHandler EventHandler that will be called when Yes-button is pressed
      * @param noHandler EventHandler that will be called when No-button is pressed
      */
-    public ConfirmationModal(Parent root, String titleLBL, String confirmLBL, EventHandler<ActionEvent> yesHandler, EventHandler<ActionEvent> noHandler) {
-        super(root);
+    public ConfirmationModal(Parent root, String titleLBL, String confirmLBL, Stage stage, EventHandler<ActionEvent> yesHandler, EventHandler<ActionEvent> noHandler) {
+        super(root, stage);
 
         initStyle(StageStyle.TRANSPARENT);
         scene.setFill(Color.TRANSPARENT);

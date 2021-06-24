@@ -1,5 +1,6 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.minigame.GameCommand;
@@ -12,6 +13,7 @@ import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Date;
@@ -54,8 +56,11 @@ public class MiniGameController implements ControllerInterface {
         closeEasterEggModal(null);
         Platform.runLater(() -> {
             Parent easterEggModalView = ViewLoader.loadView(Views.EASTER_EGG_MODAL);
+            Stage stage = StageManager.getStage();
+            double x = stage.getX();
+            double y = stage.getY();
             easterEggModal = new EasterEggModal(easterEggModalView,
-                chatPartner,
+                chatPartner, StageManager.getStage(),
                 this::closeEasterEggModal);
             easterEggModal.show();
         });

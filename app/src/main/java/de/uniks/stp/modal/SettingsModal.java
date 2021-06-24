@@ -6,6 +6,7 @@ import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.view.Languages;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +27,8 @@ public class SettingsModal extends AbstractModal {
     private final Editor editor;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
 
-    public SettingsModal(Parent root, Editor editor) {
-        super(root);
+    public SettingsModal(Parent root, Editor editor, Stage stage) {
+        super(root, stage);
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE_TITLE));
 

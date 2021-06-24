@@ -13,6 +13,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 
 public class EasterEggModal extends AbstractModal {
     public final String ROCK = "rock";
@@ -37,8 +38,8 @@ public class EasterEggModal extends AbstractModal {
     private String opponentAction;  //saves current selected action of opponent
     private boolean revanche = false;  //used to save whether one player already invited the other for a revanche
 
-    public EasterEggModal(Parent root, User opponentUser, EventHandler<ActionEvent> closeHandler) {
-        super(root);
+    public EasterEggModal(Parent root, User opponentUser, Stage stage, EventHandler<ActionEvent> closeHandler) {
+        super(root, stage);
         this.opponentUser = opponentUser;
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_EASTER_EGG_TITLE));

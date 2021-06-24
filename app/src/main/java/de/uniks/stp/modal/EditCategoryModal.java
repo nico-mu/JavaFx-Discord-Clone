@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Category;
@@ -15,6 +16,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -46,8 +48,8 @@ public class EditCategoryModal extends AbstractModal {
     final Category model;
     private ConfirmationModal deleteConfirmationModal;
 
-    public EditCategoryModal(Parent root, Category model) {
-        super(root);
+    public EditCategoryModal(Parent root, Category model, Stage stage) {
+        super(root, stage);
         this.model = model;
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_CATEGORY_TITLE));
@@ -137,7 +139,7 @@ public class EditCategoryModal extends AbstractModal {
         Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
         deleteConfirmationModal = new ConfirmationModal(confirmationModalView,
             Constants.LBL_DELETE_CATEGORY,
-            Constants.LBL_CONFIRM_DELETE_CATEGORY,
+            Constants.LBL_CONFIRM_DELETE_CATEGORY, StageManager.getStage(),
             this::onYesButtonClicked,
             this::onNoButtonClicked);
         deleteConfirmationModal.show();

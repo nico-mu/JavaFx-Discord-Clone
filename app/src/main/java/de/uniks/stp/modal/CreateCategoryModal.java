@@ -13,6 +13,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -37,8 +38,8 @@ public class CreateCategoryModal extends AbstractModal {
     private static final Logger log = LoggerFactory.getLogger(CreateCategoryModal.class);
     private Editor editor;
 
-    public CreateCategoryModal(Parent root, Server model, Editor editor) {
-        super(root);
+    public CreateCategoryModal(Parent root, Server model, Editor editor, Stage stage) {
+        super(root, stage);
         this.model = model;
         this.editor = editor;
 
