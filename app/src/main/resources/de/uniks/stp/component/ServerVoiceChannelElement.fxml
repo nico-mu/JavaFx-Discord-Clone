@@ -5,35 +5,33 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<fx:root id="channel-container" fx:id="channelContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="30.0" minWidth="-Infinity" prefWidth="170.0" spacing="5.0" styleClass="channel-container" stylesheets="@../style/css/component/server-category-list.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+
+<fx:root type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Pane id="channel-element-marker" fx:id="channelElementMarker" minWidth="-Infinity" prefWidth="4.0" styleClass="channel-element-marker" visible="false" />
-      <HBox id="channel-name-container" alignment="CENTER">
+      <VBox>
          <children>
-            <VBox fx:id="channelVBox" alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="140.0">
+            <HBox id="channel-container" fx:id="channelContainer" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="30.0" minWidth="-Infinity" prefWidth="170.0" spacing="5.0" styleClass="channel-container" stylesheets="@../style/css/component/server-category-list.css">
                <children>
-                  <HBox spacing="6.0">
-                     <children>
-                        <ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../img/volume.png" />
-                           </image>
-                        </ImageView>
-                        <TextWithEmoteSupport fx:id="channelText" prefHeight="18.0" prefWidth="104.0" styleClass="channel-text" />
-                     </children>
-                  </HBox>
-                  <VBox id="audio-member-container" fx:id="audioMemberContainer" />
+                  <Pane id="channel-element-marker" fx:id="channelElementMarker" minWidth="-Infinity" prefWidth="4.0" styleClass="channel-element-marker" visible="false" />
+                  <ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../img/volume.png" />
+                     </image>
+                  </ImageView>
+                  <TextWithEmoteSupport fx:id="channelText" prefHeight="30.0" prefWidth="148.0" styleClass="channel-text" />
+                  <ImageView id="edit-channel" fx:id="editChannel" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                     <image>
+                        <Image url="@../img/gear.png" />
+                     </image>
+                  </ImageView>
                </children>
-               <padding>
-                  <Insets left="4.0" />
-               </padding>
+            </HBox>
+            <VBox fx:id="audioMemberContainer" prefWidth="100.0">
+               <VBox.margin>
+                  <Insets left="20.0" />
+               </VBox.margin>
             </VBox>
-            <ImageView id="edit-channel" fx:id="editChannel" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" visible="false">
-               <image>
-                  <Image url="@../img/gear.png" />
-               </image>
-            </ImageView>
          </children>
-      </HBox>
+      </VBox>
    </children>
 </fx:root>

@@ -39,9 +39,6 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
     Pane channelElementMarker;
 
     @FXML
-    VBox channelVBox;
-
-    @FXML
     HBox channelContainer;
 
     @FXML
@@ -73,7 +70,7 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
         }
         channelText.setText(model.getName());
         channelText.setFont(Font.font(16));
-        channelVBox.setOnMouseClicked(this::onMouseClicked);
+        channelContainer.setOnMouseClicked(this::onMouseClicked);
 
         channelContainer.setOnMouseEntered(this::onChannelMouseEntered);
         channelContainer.setOnMouseExited(this::onChannelMouseExited);
@@ -89,7 +86,6 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
             }
         }
 
-        model.withAudioMembers(new User().setId("1234").setName("Test").withAvailableChannels(model).withAvailableServers(model.getServer()).setAudioChannel(model));
         channelText.setId(model.getId() + "-ChannelElementText");
         for(User user : model.getAudioMembers()) {
             UserListEntry userListEntry = new UserListEntry(user);
@@ -97,8 +93,6 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
             userListEntryHashMap.put(user.getId(), userListEntry);
             audioMemberContainer.getChildren().add(userListEntry);
         }
-        System.out.println(this.getHeight());
-        System.out.println(audioMemberContainer.getHeight());
     }
 
     private void onEditChannelClicked(MouseEvent mouseEvent) {
