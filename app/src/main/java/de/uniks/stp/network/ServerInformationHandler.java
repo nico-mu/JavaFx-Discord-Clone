@@ -88,7 +88,7 @@ public class ServerInformationHandler {
                     // Channel is already in model because it got added by a notification
                     channelModel.setCategory(categoryModel).setName(name);
                 } else {
-                    channelModel = editor.getOrCreateChannel(channelId, name, categoryModel);
+                    channelModel = editor.getOrCreateChannel(channelId, name, type, categoryModel);
                     channelModel.setServer(server);
                 }
                 channelModel.setType(type);
