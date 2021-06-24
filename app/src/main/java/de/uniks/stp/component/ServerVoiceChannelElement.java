@@ -10,7 +10,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -18,8 +17,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -42,9 +39,6 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
     VBox audioMemberContainer;
 
     Channel model;
-
-    private Font font = null;
-    private Font boldFont = null;
     private Editor editor;
     private HashMap<String, UserListEntry> userListEntryHashMap;
 
@@ -70,15 +64,6 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
         channelContainer.setOnMouseExited(this::onChannelMouseExited);
 
         editChannel.setOnMouseClicked(this::onEditChannelClicked);
-
-        for (Node node : channelText.getChildren()) {
-            if (node instanceof Text) {
-                Text sampleTextNode = ((Text) node);
-                font = sampleTextNode.getFont();
-                boldFont = Font.font(sampleTextNode.getFont().getFamily(), FontWeight.BOLD, sampleTextNode.getFont().getSize());
-                break;
-            }
-        }
 
         channelText.setId(model.getId() + "-ChannelElementText");
         for(User user : model.getAudioMembers()) {
@@ -119,7 +104,7 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
     }
 
     private void onMouseClicked(MouseEvent mouseEvent) {
-
+        //TODO join voice channel
     }
 
     @Override
