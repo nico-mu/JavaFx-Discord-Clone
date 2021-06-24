@@ -89,6 +89,7 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
         channelText.setId(model.getId() + "-ChannelElementText");
         for(User user : model.getAudioMembers()) {
             UserListEntry userListEntry = new UserListEntry(user);
+            userListEntry.setOnMouseClicked(null);
             userListEntry.setPadding(new Insets(0,0,0,12));
             userListEntryHashMap.put(user.getId(), userListEntry);
             audioMemberContainer.getChildren().add(userListEntry);
