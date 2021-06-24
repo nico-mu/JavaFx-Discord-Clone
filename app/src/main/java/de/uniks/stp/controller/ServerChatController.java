@@ -48,6 +48,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
     private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
+    private final PropertyChangeListener messageTextChangeListener = this::onMessageTextChange;
 
     public ServerChatController(Parent view, Editor editor, Channel model) {
         super(view, editor);
@@ -83,6 +84,9 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
+            for (Message message : model.getMessages()) {
+                message.listeners().addPropertyChangeListener(Message.PROPERTY_MESSAGE, messagesChangeListener);
+            }
         }
     }
 
@@ -91,6 +95,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         if(model.getMessages().size() != 0) {
             for (ServerMessage message : model.getMessages()) {
                 chatMessageList.addElement(message, parseMessage(message));
+                message.listeners().addPropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);
             }
         }
         if(model.getMessages().size() < 20){
@@ -155,6 +160,11 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         });
     }
 
+    private void onMessageTextChange(PropertyChangeEvent propertyChangeEvent) {
+        ServerMessage message = (ServerMessage) propertyChangeEvent.getSource();
+        chatMessageList.getElement(message).setMessageText(message.getMessage());
+    }
+
     /**
      * Sends request to load older Messages in this channel.
      */
@@ -213,6 +223,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
                 ServerMessage msg = editor.getOrCreateServerMessage(msgId, model);
                 msg.setMessage(msgText).setTimestamp(timestamp).setId(msgId).setSender(sender);
                 msg.setChannel(model);  //message will be added to view by PropertyChangeListener
+                msg.listeners().addPropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);
             }
         } else {
             log.error("receiving old messages failed!");

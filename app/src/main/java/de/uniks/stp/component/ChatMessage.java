@@ -70,6 +70,10 @@ public class ChatMessage extends HBox {
         Platform.runLater(()-> textVBox.getChildren().add(button));
     }
 
+    public void setMessageText(String newText) {
+        Platform.runLater(() -> messageText.setText(newText));
+    }
+
     private void onMouseExited(MouseEvent mouseEvent) {
         editMessage.setVisible(false);
     }
