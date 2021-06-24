@@ -15,16 +15,13 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
-import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -48,9 +45,9 @@ public class EditChannelModal extends AbstractModal {
     public static final String EDIT_CHANNEL_CANCEL_BUTTON = "#edit-channel-cancel-button";
     public static final String EDIT_CHANNEL_ERROR_LABEL = "#edit-channel-error";
     public static final String EDIT_CHANNEL_DELETE_BUTTON = "#delete-channel";
-    
+
     private JFXTextField channelName;
-    private AnchorPane notification;
+    private AnchorPane notificationAnchorPane;
     private JFXToggleButton notificationsToggleButton;
     private Label notificationsLabel;
     private JFXCheckBox privileged;
