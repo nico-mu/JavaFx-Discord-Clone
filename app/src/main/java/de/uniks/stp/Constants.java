@@ -83,6 +83,8 @@ public class Constants {
     public static final String LBL_GAME_LEFT = "LBL_GAME_LEFT";
     public static final String LBL_GAME_CHALLENGE = "LBL_GAME_CHALLENGE";
     public static final String LBL_GAME_WAIT = "LBL_GAME_WAIT";
+    public static final String LBL_TEXT_CHANNEL = "LBL_TEXT_CHANNEL";
+    public static final String LBL_VOICE_CHANNEL = "LBL_VOICE_CHANNEL";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";

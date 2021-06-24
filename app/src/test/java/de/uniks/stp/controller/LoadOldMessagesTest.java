@@ -95,7 +95,7 @@ public class LoadOldMessagesTest {
         Category cat = new Category().setName("Plattis Category").setId(categoryId);
         cat.setServer(server);
         String channelId = "42";
-        Channel channel = new Channel().setName("Plattis Channel").setId(channelId);
+        Channel channel = new Channel().setName("Plattis Channel").setType("text").setId(channelId);
         channel.setCategory(cat);
         WaitForAsyncUtils.waitForFxEvents();
 
@@ -169,7 +169,7 @@ public class LoadOldMessagesTest {
         Category cat = new Category().setName("Plattis Category").setId(categoryId);
         cat.setServer(server);
         String channelId = "42";
-        Channel channel = new Channel().setName("Plattis Channel").setId(channelId);
+        Channel channel = new Channel().setName("Plattis Channel").setType("text").setId(channelId);
         channel.setCategory(cat);
         WaitForAsyncUtils.waitForFxEvents();
 

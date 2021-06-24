@@ -144,7 +144,7 @@ public class RestClient {
         sendRequest(request, callback);
     }
 
-    public void createTextChannel(String serverId, String categoryId, String channelName, Boolean privileged, ArrayList<String> members, Callback<JsonNode> callback) {
+    public void createChannel(String serverId, String categoryId, String channelName, String type, Boolean privileged, ArrayList<String> members, Callback<JsonNode> callback) {
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
         for(String userId : members){
             arrayBuilder.add(userId);
@@ -152,7 +152,7 @@ public class RestClient {
         HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH)
             .body(Json.createObjectBuilder()
                 .add("name", channelName)
-                .add("type", "text")
+                .add("type", type)
                 .add("privileged", privileged)
                 .add("members", arrayBuilder.build()).build().toString());
         sendRequest(req, callback);

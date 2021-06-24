@@ -174,14 +174,14 @@ public class Editor {
         server.withoutCategories(delCat);
     }
 
-    public Channel getOrCreateChannel(final String channelId, final String name, final Category category) {
+    public Channel getOrCreateChannel(final String channelId, final String name, final String type, final Category category) {
         if (Objects.nonNull(category)) {
             for (Channel channel : category.getChannels()) {
                 if (channel.getId().equals(channelId)) {
                     return channel;
                 }
             }
-            Channel newChannel = new Channel().setId(channelId).setName(name);
+            Channel newChannel = new Channel().setId(channelId).setName(name).setType(type);
             category.withChannels(newChannel);
             return newChannel;
         }

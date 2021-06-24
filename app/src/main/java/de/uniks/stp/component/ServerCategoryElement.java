@@ -1,7 +1,6 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.modal.AddChannelModal;
 import de.uniks.stp.modal.EditCategoryModal;
 import de.uniks.stp.model.Category;
@@ -14,7 +13,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
 

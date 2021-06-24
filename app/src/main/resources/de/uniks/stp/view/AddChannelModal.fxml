@@ -3,15 +3,29 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXCheckBox?>
 <?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXToggleButton?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="480.0" spacing="12.0" styleClass="add-channel-modal" stylesheets="@../style/css/view/add-channel-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="440.0" prefWidth="480.0" spacing="12.0" styleClass="add-channel-modal" stylesheets="@../style/css/view/add-channel-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label id="enter-channel-name-label" prefHeight="30.0" prefWidth="235.0" styleClass="notifications-label" text="%LBL_NAME" />
       <JFXTextField id="add-channel-name-textfield" maxWidth="240.0" promptText="%LBL_CHANNEL_NAME" styleClass="add-channel-name-textfield" />
+      <HBox alignment="CENTER_LEFT" minHeight="40.0" prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <Label styleClass="add-channel-name-textfield" text="%LBL_TEXT_CHANNEL" />
+            <JFXToggleButton id="type-toggle-button" prefHeight="58.0" prefWidth="19.0">
+               <HBox.margin>
+                  <Insets left="12.0" />
+               </HBox.margin>
+            </JFXToggleButton>
+            <Label styleClass="add-channel-name-textfield" text="%LBL_VOICE_CHANNEL" />
+         </children>
+         <VBox.margin>
+            <Insets top="12.0" />
+         </VBox.margin></HBox>
       <VBox spacing="3.0">
          <children>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="160.0">
@@ -26,7 +40,7 @@
             <Insets bottom="12.0" top="12.0" />
          </padding>
          <VBox.margin>
-            <Insets bottom="12.0" top="12.0" />
+            <Insets bottom="12.0" />
          </VBox.margin>
       </VBox>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="120.0">
