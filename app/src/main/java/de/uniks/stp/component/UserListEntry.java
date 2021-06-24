@@ -35,7 +35,7 @@ public class UserListEntry extends HBox {
 
         setUserName(user.getName());
 
-        userNameLabel.setOnMouseClicked(this::handleClick);
+        this.setOnMouseClicked(this::handleClick);
     }
 
     private void handleClick(MouseEvent mouseEvent) {

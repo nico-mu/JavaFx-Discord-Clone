@@ -3,7 +3,7 @@ package de.uniks.stp.minigame;
 import java.util.Date;
 
 public class GameInvitation {
-    public final int TIMEOUT = 30 * 1000; // 30 seconds
+    public static final int TIMEOUT = 30 * 1000; // 30 seconds
     private GameInvitationState state = GameInvitationState.PENDING;
     private Long creationTime;
 

@@ -3,11 +3,9 @@ package de.uniks.stp.controller;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
-import de.uniks.stp.component.ServerChatMessage;
-import de.uniks.stp.model.Category;
-import de.uniks.stp.model.Channel;
-import de.uniks.stp.model.Server;
-import de.uniks.stp.model.User;
+import de.uniks.stp.component.ChatMessage;
+import de.uniks.stp.component.ListComponent;
+import de.uniks.stp.model.*;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.network.WebSocketClient;
@@ -38,7 +36,10 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.SortedSet;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -58,6 +59,8 @@ public class LoadOldMessagesTest {
     @Captor
     private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
     private StageManager app;
+
+    private static int idCounter = 0;
 
     @Start
     public void start(Stage stage) {
@@ -97,27 +100,9 @@ public class LoadOldMessagesTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         // old messages will be loaded automatically
-        String firstOldMessage = "first old message";
-        JSONObject msg1 = new JSONObject().put("id", "78345")
-            .put("channel", channelId)
-            .put("timestamp", timeStart-50)
-            .put("from", "Bob")
-            .put("text", firstOldMessage);
-
-        String secondOldMessage = "first old message";
-        JSONObject msg2 = new JSONObject().put("id", "356743")
-            .put("channel", channelId)
-            .put("timestamp", timeStart-30)
-            .put("from", "Eve")
-            .put("text", secondOldMessage);
-
-        String thirdOldMessage = "third old message";
-        JSONObject msg3 = new JSONObject().put("id", "78345")
-            .put("channel", channelId)
-            .put("timestamp", timeStart-10)
-            .put("from", "Bob")
-            .put("text", thirdOldMessage);
-
+        JSONObject msg1 = getMessageAsJson(channelId, timeStart - 50, "first old message", "Bob");
+        JSONObject msg2 = getMessageAsJson(channelId, timeStart - 30, "first old message", "Eve");
+        JSONObject msg3 = getMessageAsJson(channelId, timeStart - 10, "third old message", "Bob");
         JSONArray data = new JSONArray().put(msg2).put(msg1).put(msg3);
 
         JSONObject j = new JSONObject().put("status", "success").put("message", "").put("data", data);
@@ -130,27 +115,36 @@ public class LoadOldMessagesTest {
 
         WaitForAsyncUtils.waitForFxEvents();
 
+        SortedSet<ServerMessage> channelMessages = editor.getChannel(channelId, server).getMessages();
+        List<ServerMessage> channelMessagesList = new ArrayList<>(channelMessages);
         // check for correct reactions
-        Assertions.assertEquals(3, editor.getChannel(channelId, server).getMessages().size());
-        VBox chatVBox = robot.lookup("#chatVBox").query();
-        Assertions.assertEquals(1, chatVBox.getChildren().size());  //check for loadMessagesButton removed
+        Assertions.assertEquals(3, channelMessages.size());
 
         // check for correct order of messages
-        VBox messageList = robot.lookup("#messageList").query();
-        ServerChatMessage firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
-        VBox messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
-        TextFlow messageText = (TextFlow) messageContainer.getChildren().get(1);
-        Assertions.assertEquals(firstOldMessage, ((Text) messageText.getChildren().get(0)).getText());
+        ListComponent<ServerMessage, ChatMessage> messageList = robot.lookup("#message-list").query();
+        VBox messageContainer = (VBox) messageList.lookup("#container");
 
-        ServerChatMessage secondShownChatMessage = (ServerChatMessage) messageList.getChildren().get(1);
-        messageContainer = (VBox) secondShownChatMessage.getChildren().get(0);
-        messageText = (TextFlow) messageContainer.getChildren().get(1);
-        Assertions.assertEquals(secondOldMessage, ((Text) messageText.getChildren().get(0)).getText());
 
-        ServerChatMessage thirdShownChatMessage = (ServerChatMessage) messageList.getChildren().get(2);
-        messageContainer = (VBox) thirdShownChatMessage.getChildren().get(0);
-        messageText = (TextFlow) messageContainer.getChildren().get(1);
-        Assertions.assertEquals(thirdOldMessage, ((Text) messageText.getChildren().get(0)).getText());
+        ChatMessage firstShownChatMessage = (ChatMessage) messageContainer.getChildren().get(0);
+        ServerMessage serverMessage1 = channelMessagesList.get(0);
+        Assertions.assertEquals(messageList.getElement(serverMessage1), firstShownChatMessage);
+
+        ChatMessage secondShownChatMessage = (ChatMessage) messageContainer.getChildren().get(1);
+        ServerMessage serverMessage2 = channelMessagesList.get(1);
+        Assertions.assertEquals(messageList.getElement(serverMessage2), secondShownChatMessage);
+
+        ChatMessage thirdShownChatMessage = (ChatMessage) messageContainer.getChildren().get(2);
+        ServerMessage serverMessage3 = channelMessagesList.get(2);
+        Assertions.assertEquals(messageList.getElement(serverMessage3), thirdShownChatMessage);
+    }
+
+    private JSONObject getMessageAsJson(String channelId, long timestamp, String text, String from) {
+        return new JSONObject().put("id", Integer.toString(idCounter++))
+            .put("channel", channelId)
+            .put("timestamp", timestamp)
+            .put("from", "Bob")
+            .put("text", text);
+
     }
 
     @Test
@@ -181,14 +175,13 @@ public class LoadOldMessagesTest {
 
         // old messages will be loaded automatically
         JSONArray data = new JSONArray();
-        for(int i=0;i<50;i++){
-            JSONObject msg = new JSONObject().put("id", Integer.toString(6734-i))
-                .put("channel", channelId)
-                .put("timestamp", timeStart-100+i)
-                .put("from", "Eve")
-                .put("text", Integer.toString(i));
+        JSONObject msg;
+
+        for(int i = 0; i < 50; i++){
+            msg = getMessageAsJson(channelId, timeStart-100+i, Integer.toString(i), "Eve");
             data.put(msg);
         }
+
         JSONObject j = new JSONObject().put("status", "success").put("message", "").put("data", data);
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
@@ -199,22 +192,24 @@ public class LoadOldMessagesTest {
 
         WaitForAsyncUtils.waitForFxEvents();
 
+        SortedSet<ServerMessage> channelMessages = editor.getChannel(channelId, server).getMessages();
+        List<ServerMessage> channelMessagesList = new ArrayList<>(channelMessages);
+
         // check for correct reactions
-        Assertions.assertEquals(50, editor.getChannel(channelId, server).getMessages().size());
-        VBox chatVBox = robot.lookup("#chatVBox").query();
-        Assertions.assertEquals(2, chatVBox.getChildren().size());  //check for loadMessagesButton still shown
+        Assertions.assertEquals(50, channelMessages.size());
+
+        // check for correct order of messages
+        ListComponent<ServerMessage, ChatMessage> messageList = robot.lookup("#message-list").query();
+        VBox messageContainer = (VBox) messageList.lookup("#container");
 
         // check for first and last message correct shown
-        VBox messageList = robot.lookup("#messageList").query();
-        ServerChatMessage firstShownChatMessage = (ServerChatMessage) messageList.getChildren().get(0);
-        VBox messageContainer = (VBox) firstShownChatMessage.getChildren().get(0);
-        TextFlow messageText = (TextFlow) messageContainer.getChildren().get(1);
-        Assertions.assertEquals("0", ((Text) messageText.getChildren().get(0)).getText());
+        ChatMessage firstShownChatMessage = (ChatMessage) messageContainer.getChildren().get(0);
+        ServerMessage serverMessage1 = channelMessagesList.get(0);
+        Assertions.assertEquals(messageList.getElement(serverMessage1), firstShownChatMessage);
 
-        ServerChatMessage lastShownChatMessage = (ServerChatMessage) messageList.getChildren().get(49);
-        messageContainer = (VBox) lastShownChatMessage.getChildren().get(0);
-        messageText = (TextFlow) messageContainer.getChildren().get(1);
-        Assertions.assertEquals("49", ((Text) messageText.getChildren().get(0)).getText());
+        ChatMessage lastShownMessage = (ChatMessage) messageContainer.getChildren().get(49);
+        ServerMessage serverMessage49 = channelMessagesList.get(49);
+        Assertions.assertEquals(messageList.getElement(serverMessage49), lastShownMessage);
     }
 
     @AfterEach

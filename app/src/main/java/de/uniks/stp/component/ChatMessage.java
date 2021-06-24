@@ -3,6 +3,7 @@ package de.uniks.stp.component;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.util.DateUtil;
+import de.uniks.stp.util.InviteInfo;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -11,25 +12,25 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.util.Pair;
 
 import java.io.IOException;
 import java.util.Locale;
 
-public class ServerChatMessage extends HBox {
+public class ChatMessage extends HBox {
+
     @FXML
     private TextWithEmoteSupport messageText;
+
     @FXML
     private Text nameText;
+
     @FXML
     private Text timestampText;
+
     @FXML
     private VBox textVBox;
 
-    private String language;
-
-    public ServerChatMessage(String language) {
-        this.language = language;
+    public ChatMessage(Message message, String language) {
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -39,18 +40,15 @@ public class ServerChatMessage extends HBox {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-    }
 
-    public void loadMessage(Message message) {
-        timestampText.setText(DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)));
         timestampText.setText(DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)));
         nameText.setText(message.getSender().getName());
-
         messageText.setText(message.getMessage());
     }
 
-    public void addButton(Pair<String, String> inviteIds, EventHandler<ActionEvent> onButtonPressed){
-        JoinServerButton button = new JoinServerButton(inviteIds, onButtonPressed);
+    public void addJoinButtonButton(InviteInfo inviteInfo, EventHandler<ActionEvent> onButtonPressed){
+        JoinServerButton button = new JoinServerButton(inviteInfo, onButtonPressed);
         Platform.runLater(()-> textVBox.getChildren().add(button));
     }
+
 }
