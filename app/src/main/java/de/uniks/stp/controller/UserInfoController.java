@@ -28,7 +28,6 @@ public class UserInfoController implements ControllerInterface {
 
     private final String USERNAME_LABEL_ID = "#username-label";
     private final String LOGOUT_BUTTON_ID = "#logout-button";
-    private final String IMAGE_VIEW_ID = "#settings-gear";
     private final String SETTINGS_GEAR_CONTAINER_ID = "#settings-gear-container";
 
     private final AnchorPane view;
@@ -37,7 +36,6 @@ public class UserInfoController implements ControllerInterface {
     private Label usernameLabel;
     private Button logoutButton;
     private VBox settingsGearContainer;
-    private ImageView imageView;
 
     public UserInfoController(Parent view, Editor editor) {
         this.view = (AnchorPane) view;
@@ -51,7 +49,6 @@ public class UserInfoController implements ControllerInterface {
         view.getChildren().add(userSubView);
         this.usernameLabel = (Label) view.lookup(USERNAME_LABEL_ID);
         this.logoutButton = (Button) view.lookup(LOGOUT_BUTTON_ID);
-        this.imageView = (ImageView) view.lookup(IMAGE_VIEW_ID);
         this.settingsGearContainer = (VBox) view.lookup(SETTINGS_GEAR_CONTAINER_ID);
 
         AnchorPane.setBottomAnchor(userSubView, 7.5d);
