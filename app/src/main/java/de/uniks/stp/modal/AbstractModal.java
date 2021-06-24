@@ -27,8 +27,8 @@ public abstract class AbstractModal extends Stage {
         final Stage stage = StageManager.getStage();
         this.widthProperty().addListener((observable, oldValue, newValue) -> {
             this.setX(stage.getX() + (stage.getWidth() / 2) - ((double) newValue / 2));
-        })
-        ;this.heightProperty().addListener((observable, oldValue, newValue) -> {
+        });
+        this.heightProperty().addListener((observable, oldValue, newValue) -> {
             this.setY(stage.getY() + (stage.getHeight() / 2) - ((double) newValue / 2));
         });
 
