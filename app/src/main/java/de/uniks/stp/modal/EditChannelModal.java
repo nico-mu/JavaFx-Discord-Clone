@@ -81,6 +81,8 @@ public class EditChannelModal extends AbstractModal {
         deleteButton = (JFXButton) view.lookup(EDIT_CHANNEL_DELETE_BUTTON);
 
         boolean muted = DatabaseService.isChannelMuted(channel.getId());
+        boolean voice = channel.getType().equals("audio");
+        notificationsToggleButton.setDisable(voice);
         notificationsToggleButton.setSelected(!muted);
         notificationsLabel.setText(ViewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
         notificationsToggleButton.selectedProperty().addListener(((observable, oldValue, newValue) -> {
