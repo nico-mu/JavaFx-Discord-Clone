@@ -12,11 +12,13 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -114,7 +116,7 @@ public class CreateChannelTest {
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(false);
 
-        verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(""), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
+        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(""), eq("text"), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
@@ -136,7 +138,7 @@ public class CreateChannelTest {
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(false);
 
-        verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(channelName), eq(true), eq(new ArrayList<String>()), callbackCaptor.capture());
+        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("text"), eq(true), eq(new ArrayList<String>()), callbackCaptor.capture());
         callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
@@ -192,7 +194,7 @@ public class CreateChannelTest {
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
 
-        verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(channelName), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
+        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("text"), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
@@ -304,7 +306,7 @@ public class CreateChannelTest {
         ArrayList<String> members = new ArrayList<>();
         members.add("2");
         members.add("1");
-        verify(restMock).createTextChannel(eq(serverId), eq(categoryId), eq(channelName), eq(true), eq(members), callbackCaptor.capture());
+        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("text"), eq(true), eq(members), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
@@ -341,6 +343,93 @@ public class CreateChannelTest {
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
         Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
         Assertions.assertEquals(2, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getChannelMembers().size());
+        robot.clickOn("#logout-button");
+    }
+
+    @Test
+    public void createAudioChannel(FxRobot robot) {
+        // prepare start situation
+        Editor editor = StageManager.getEditor();
+
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
+
+        String serverName = "TestServer";
+        String serverId = "12345678";
+        Server testServer = new Server().setName(serverName).setId(serverId);
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .withAvailableServers(testServer);
+
+        User testUser1 = new User().setName("TestUser2").setId("2").withAvailableServers(testServer);
+
+        String categoryName = "TestCategory";
+        String categoryId = "catId123";
+
+        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
+
+        // assert correct start situation
+        Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
+        Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+
+        WaitForAsyncUtils.waitForFxEvents();
+
+        robot.clickOn("#" + category.getId() + "-ServerCategoryElementLabel");
+        robot.clickOn("#add-channel-plus");
+
+        String channelName = "TestChannel";
+
+        robot.clickOn("#add-channel-name-textfield");
+        robot.write(channelName);
+        robot.clickOn("#type-toggle-button");
+        robot.clickOn("#add-channel-create-button");
+
+        JSONObject j = new JSONObject().put("status", "success")
+            .put("data", new JSONObject());
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(true);
+
+        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("audio"), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        WebSocketService.addServerWebSocket(serverId);
+
+        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
+
+        for (int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
+
+        String channelId = "channel1234";
+        JsonObject jsonObject = Json.createObjectBuilder()
+            .add("action", "channelCreated")
+            .add("data",
+                Json.createObjectBuilder()
+                    .add("id", channelId)
+                    .add("name", channelName)
+                    .add("type", "audio")
+                    .add("privileged", false)
+                    .add("category", categoryId)
+                    .add("members", Json.createArrayBuilder().add("2").build())
+                    .build()
+            )
+            .build();
+        systemCallback.handleMessage(jsonObject);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+        Assertions.assertTrue(editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getType().equals("audio"));
+        Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
         robot.clickOn("#logout-button");
     }
 

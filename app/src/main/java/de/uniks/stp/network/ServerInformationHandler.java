@@ -6,7 +6,6 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.notification.NotificationService;
-import de.uniks.stp.router.Router;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
@@ -79,6 +78,8 @@ public class ServerInformationHandler {
                 boolean privileged = channelJson.getBoolean("privileged");
                 JSONArray jsonMemberIds = channelJson.getJSONArray("members");
                 ArrayList<String> memberIds = (ArrayList<String>) jsonMemberIds.toList();
+                JSONArray jsonAudioMemberIds = channelJson.getJSONArray("audioMembers");
+                ArrayList<String> audioMemberIds = (ArrayList<String>) jsonAudioMemberIds.toList();
 
                 Category categoryModel = editor.getCategory(categoryId, server);
                 Channel channelModel = editor.getChannel(channelId, server);
@@ -86,7 +87,7 @@ public class ServerInformationHandler {
                     // Channel is already in model because it got added by a notification
                     channelModel.setCategory(categoryModel).setName(name);
                 } else {
-                    channelModel = editor.getOrCreateChannel(channelId, name, categoryModel);
+                    channelModel = editor.getOrCreateChannel(channelId, name, type, categoryModel);
                     channelModel.setServer(server);
                 }
                 channelModel.setType(type);
@@ -94,6 +95,9 @@ public class ServerInformationHandler {
                 for(User user : server.getUsers()) {
                     if(memberIds.contains(user.getId())) {
                         channelModel.withChannelMembers(user);
+                    }
+                    if(audioMemberIds.contains(user.getId())) {
+                        channelModel.withAudioMembers(user);
                     }
                 }
                 NotificationService.register(channelModel);

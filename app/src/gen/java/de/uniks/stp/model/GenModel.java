@@ -55,6 +55,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("channelMembers")
         List<Channel> availableChannels;
+
+        @Link("audioMembers")
+        Channel audioChannel;
     }
 
     class Server {
@@ -102,6 +105,9 @@ public class GenModel implements ClassModelDecorator {
 
         @Link("availableChannels")
         List<User> channelMembers;
+
+        @Link("audioChannel")
+        List<User> audioMembers;
 
         @Link("channels")
         Server server;

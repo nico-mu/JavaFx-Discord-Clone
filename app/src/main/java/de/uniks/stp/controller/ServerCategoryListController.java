@@ -2,9 +2,7 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.component.ServerCategoryElement;
-import de.uniks.stp.component.ServerCategoryList;
-import de.uniks.stp.component.ServerChannelElement;
+import de.uniks.stp.component.*;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -186,7 +184,8 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         if (Objects.nonNull(category) && Objects.nonNull(channel) && Objects.nonNull(channel.getName()) &&
             !channelElementHashMap.containsKey(channel) && categoryElementHashMap.containsKey(category)) {
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
-            final ServerChannelElement serverChannelElement = new ServerChannelElement(channel, editor);
+            boolean voice = channel.getType().equals("audio");
+            final ServerChannelElement serverChannelElement = voice ? new ServerVoiceChannelElement(channel, editor) : new ServerTextChannelElement(channel, editor);
             NotificationService.register(channel);
             channel.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             channelElementHashMap.put(channel, serverChannelElement);

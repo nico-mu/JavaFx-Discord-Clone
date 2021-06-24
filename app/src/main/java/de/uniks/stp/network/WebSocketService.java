@@ -2,7 +2,6 @@ package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.controller.MiniGameController;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.minigame.GameCommand;
 import de.uniks.stp.model.*;
