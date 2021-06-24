@@ -39,6 +39,7 @@ public class ListComponent<Model, Element extends Node> extends ScrollPane {
             throw new RuntimeException(exception);
         }
         setIsScrollAware(false);
+        setFitToWidth(true);
     }
 
     public ListComponent(String id) {
@@ -54,6 +55,11 @@ public class ListComponent<Model, Element extends Node> extends ScrollPane {
             container.heightProperty().removeListener(heightChangedListener);
         }
 
+    }
+
+    public void clear() {
+        elementHashMap.clear();
+        elements.clear();
     }
 
     public boolean contains(Model model) {

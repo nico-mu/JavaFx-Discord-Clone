@@ -5,7 +5,6 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ChatMessage;
-import de.uniks.stp.component.ChatMessageInput;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.minigame.GameInvitation;
@@ -17,8 +16,6 @@ import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.util.InviteInfo;
 import de.uniks.stp.util.MessageUtil;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -97,7 +94,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
         InviteInfo info = null;
 
         if (miniGameController.isIncomingCommandMessage(messageText)) {
-            if(! message.getSender().getName().equals(currentUser.getName())){
+            if(!message.getSender().getName().equals(currentUser.getName())){
                 miniGameController.handleIncomingMessage((DirectMessage) message);  //when sent by chatPartner
             }
 
@@ -113,7 +110,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
                 return null;
             }
         }
-        else{
+        else if(!message.getSender().getName().equals(currentUser.getName())) {
             // check if message contains a server invite link
             info = MessageUtil.getInviteInfo(messageText);
         }

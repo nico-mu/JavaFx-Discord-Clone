@@ -101,10 +101,13 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     @Override
     protected ChatMessage parseMessage(Message message) {
         ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage());
-        InviteInfo info = MessageUtil.getInviteInfo(message.getMessage());
-        // check if message contains a server invite link
-        if(Objects.nonNull(info) && Objects.nonNull(editor.getServer(info.getServerId()))){
-            messageNode.addJoinButtonButton(info, this::joinServer);
+
+        if(!message.getSender().getName().equals(currentUser.getName())) {
+            InviteInfo info = MessageUtil.getInviteInfo(message.getMessage());
+            // check if message contains a server invite link
+            if(Objects.nonNull(info) && Objects.isNull(editor.getServer(info.getServerId()))){
+                messageNode.addJoinButtonButton(info, this::joinServer);
+            }
         }
         return messageNode;
     }
