@@ -6,7 +6,6 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.notification.NotificationService;
-import de.uniks.stp.router.Router;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
@@ -80,7 +79,7 @@ public class ServerInformationHandler {
                 JSONArray jsonMemberIds = channelJson.getJSONArray("members");
                 ArrayList<String> memberIds = (ArrayList<String>) jsonMemberIds.toList();
                 JSONArray jsonAudioMemberIds = channelJson.getJSONArray("audioMembers");
-                ArrayList<String> audioMemberIds = (ArrayList<String>) jsonMemberIds.toList();
+                ArrayList<String> audioMemberIds = (ArrayList<String>) jsonAudioMemberIds.toList();
 
                 Category categoryModel = editor.getCategory(categoryId, server);
                 Channel channelModel = editor.getChannel(channelId, server);

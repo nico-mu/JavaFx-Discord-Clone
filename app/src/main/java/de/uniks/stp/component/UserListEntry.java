@@ -2,8 +2,6 @@ package de.uniks.stp.component;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.event.NavBarElementChangeEvent;
-import de.uniks.stp.event.NavBarHomeElementActiveEvent;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;

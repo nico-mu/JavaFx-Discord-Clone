@@ -1,15 +1,10 @@
 package de.uniks.stp.component;
 
-import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.emote.EmoteRenderer;
-import de.uniks.stp.event.ChannelChangeEvent;
 import de.uniks.stp.modal.EditChannelModal;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
-import de.uniks.stp.router.RouteArgs;
-import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -25,7 +20,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
 import java.util.HashMap;
