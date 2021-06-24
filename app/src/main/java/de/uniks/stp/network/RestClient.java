@@ -103,7 +103,7 @@ public class RestClient {
     }
 
     public void tempRegister(Callback<JsonNode> callback) {
-        HttpRequest<?> postUserRegister = Unirest.post(Constants.REST_SERVER_BASE_URL + Constants.REST_USERS_PATH + Constants.REST_TEMP_REGISTER_PATH);
+        HttpRequest<?> postUserRegister = Unirest.post(Constants.REST_USERS_PATH + Constants.REST_TEMP_REGISTER_PATH);
         sendRequest(postUserRegister, callback);
     }
 
