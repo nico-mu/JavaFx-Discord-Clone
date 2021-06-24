@@ -79,6 +79,8 @@ public class ServerInformationHandler {
                 boolean privileged = channelJson.getBoolean("privileged");
                 JSONArray jsonMemberIds = channelJson.getJSONArray("members");
                 ArrayList<String> memberIds = (ArrayList<String>) jsonMemberIds.toList();
+                JSONArray jsonAudioMemberIds = channelJson.getJSONArray("audioMembers");
+                ArrayList<String> audioMemberIds = (ArrayList<String>) jsonMemberIds.toList();
 
                 Category categoryModel = editor.getCategory(categoryId, server);
                 Channel channelModel = editor.getChannel(channelId, server);
@@ -94,6 +96,9 @@ public class ServerInformationHandler {
                 for(User user : server.getUsers()) {
                     if(memberIds.contains(user.getId())) {
                         channelModel.withChannelMembers(user);
+                    }
+                    if(audioMemberIds.contains(user.getId())) {
+                        channelModel.withAudioMembers(user);
                     }
                 }
                 NotificationService.register(channelModel);
