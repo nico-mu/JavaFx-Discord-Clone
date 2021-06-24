@@ -19,9 +19,12 @@ import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -35,6 +38,7 @@ public class EditChannelModal extends AbstractModal {
     private static final Logger log = LoggerFactory.getLogger(AddChannelModal.class);
 
     public static final String EDIT_CHANNEL_NAME_TEXTFIELD = "#edit-channel-name-textfield";
+    public static final String NOTIFICATION_CONTAINER = "#notification-anchorpane";
     public static final String NOTIFICATIONS_TOGGLE_BUTTON = "#notifications-toggle-button";
     public static final String NOTIFICATIONS_ACTIVATED_LABEL = "#notifications-activated-label";
     public static final String PRIVILEGED_CHECKBOX = "#privileged-checkbox";
@@ -44,7 +48,9 @@ public class EditChannelModal extends AbstractModal {
     public static final String EDIT_CHANNEL_CANCEL_BUTTON = "#edit-channel-cancel-button";
     public static final String EDIT_CHANNEL_ERROR_LABEL = "#edit-channel-error";
     public static final String EDIT_CHANNEL_DELETE_BUTTON = "#delete-channel";
+    
     private JFXTextField channelName;
+    private AnchorPane notification;
     private JFXToggleButton notificationsToggleButton;
     private Label notificationsLabel;
     private JFXCheckBox privileged;
@@ -70,6 +76,7 @@ public class EditChannelModal extends AbstractModal {
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_CHANNEL));
         channelName = (JFXTextField) view.lookup(EDIT_CHANNEL_NAME_TEXTFIELD);
+        notification = (AnchorPane)  view.lookup(NOTIFICATION_CONTAINER);
         notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);
         notificationsLabel = (Label) view.lookup(NOTIFICATIONS_ACTIVATED_LABEL);
         privileged = (JFXCheckBox) view.lookup(PRIVILEGED_CHECKBOX);
@@ -82,7 +89,13 @@ public class EditChannelModal extends AbstractModal {
 
         boolean muted = DatabaseService.isChannelMuted(channel.getId());
         boolean voice = channel.getType().equals("audio");
+        if(voice) {
+            notification.getChildren().clear();
+            notification.setMinHeight(20);
+        }
         notificationsToggleButton.setDisable(voice);
+        notificationsToggleButton.setVisible(!voice);
+        notificationsLabel.setVisible(!voice);
         notificationsToggleButton.setSelected(!muted);
         notificationsLabel.setText(ViewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
         notificationsToggleButton.selectedProperty().addListener(((observable, oldValue, newValue) -> {
