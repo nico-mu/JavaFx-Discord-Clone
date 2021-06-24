@@ -17,8 +17,6 @@ import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -49,8 +47,8 @@ public class AddChannelModal extends AbstractModal {
     private Category category;
     private RestClient restClient;
 
-    public AddChannelModal(Parent root, Category category, Stage stage) {
-        super(root, stage);
+    public AddChannelModal(Parent root, Category category) {
+        super(root);
         this.category = category;
         this.restClient = NetworkClientInjector.getRestClient();
 

@@ -2,7 +2,6 @@ package de.uniks.stp.component;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.event.ChannelChangeEvent;
@@ -25,7 +24,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 
@@ -87,7 +85,7 @@ public class ServerTextChannelElement extends ServerChannelElement implements No
 
     private void onEditChannelClicked(MouseEvent mouseEvent) {
         Parent editChannelModalView = ViewLoader.loadView(Views.EDIT_CHANNEL_MODAL);
-        EditChannelModal editChannelModal = new EditChannelModal(editChannelModalView, model, editor, StageManager.getStage());
+        EditChannelModal editChannelModal = new EditChannelModal(editChannelModalView, model, editor);
         editChannelModal.show();
     }
 

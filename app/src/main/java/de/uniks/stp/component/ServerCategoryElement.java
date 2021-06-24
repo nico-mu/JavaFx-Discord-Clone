@@ -1,6 +1,5 @@
 package de.uniks.stp.component;
 
-import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.AddChannelModal;
 import de.uniks.stp.modal.EditCategoryModal;
@@ -9,14 +8,11 @@ import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 
@@ -80,14 +76,13 @@ public class ServerCategoryElement extends VBox {
 
     private void onAddServerPlusClicked(MouseEvent mouseEvent) {
         Parent addChannelModalView = ViewLoader.loadView(Views.ADD_CHANNEL_MODAL);
-
-        AddChannelModal addChannelModal = new AddChannelModal(addChannelModalView, model, StageManager.getStage());
+        AddChannelModal addChannelModal = new AddChannelModal(addChannelModalView, model);
         addChannelModal.show();
     }
 
     private void onEditCatGearClicked(MouseEvent mouseEvent) {
         Parent editChannelModelView = ViewLoader.loadView(Views.EDIT_CATEGORY_MODAL);
-        EditCategoryModal editChannelModal = new EditCategoryModal(editChannelModelView, model, StageManager.getStage());
+        EditCategoryModal editChannelModal = new EditCategoryModal(editChannelModelView, model);
         editChannelModal.show();
     }
 

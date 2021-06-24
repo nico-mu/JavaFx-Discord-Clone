@@ -14,7 +14,6 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
@@ -45,8 +44,8 @@ public class CreateInviteModal extends AbstractModal {
     private Editor editor;
     private Server server;
 
-    public CreateInviteModal(Parent root, Server server, Editor editor, Stage stage) {
-        super(root, stage);
+    public CreateInviteModal(Parent root, Server server, Editor editor) {
+        super(root);
         this.restClient = NetworkClientInjector.getRestClient();
         this.editor = editor;
         this.server = server;

@@ -14,7 +14,6 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
@@ -41,8 +40,8 @@ public class AddServerModal extends AbstractModal {
 
     private static final Logger log = LoggerFactory.getLogger(AddServerModal.class);
 
-    public AddServerModal(Parent root, Editor editor, Stage stage) {
-        super(root, stage);
+    public AddServerModal(Parent root, Editor editor) {
+        super(root);
         this.editor = editor;
         restClient = NetworkClientInjector.getRestClient();
         serverInformationHandler = new ServerInformationHandler(editor);

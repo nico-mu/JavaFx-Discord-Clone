@@ -6,7 +6,6 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.UserCheckList;
 import de.uniks.stp.component.UserCheckListEntry;
@@ -23,7 +22,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -66,8 +64,8 @@ public class EditChannelModal extends AbstractModal {
     private ConfirmationModal confirmationModal;
     private Editor editor;
 
-    public EditChannelModal(Parent root, Channel channel, Editor editor, Stage stage) {
-        super(root, stage);
+    public EditChannelModal(Parent root, Channel channel, Editor editor) {
+        super(root);
         this.editor = editor;
         this.category = channel.getCategory();
         this.channel = channel;
@@ -141,7 +139,7 @@ public class EditChannelModal extends AbstractModal {
         Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
         confirmationModal = new ConfirmationModal(confirmationModalView,
             Constants.LBL_DELETE_CHANNEL,
-            Constants.LBL_CONFIRM_DELETE_CHANNEL, StageManager.getStage(),
+            Constants.LBL_CONFIRM_DELETE_CHANNEL,
             this::onYesButtonClicked,
             this::onNoButtonClicked);
         confirmationModal.show();

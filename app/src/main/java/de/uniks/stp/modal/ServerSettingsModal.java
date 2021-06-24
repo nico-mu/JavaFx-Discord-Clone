@@ -5,7 +5,6 @@ import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Server;
@@ -17,7 +16,6 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
@@ -50,8 +48,8 @@ public class ServerSettingsModal extends AbstractModal {
     private static final Logger log = LoggerFactory.getLogger(ServerSettingsModal.class);
     private final boolean owner;
 
-    public ServerSettingsModal(Parent root, Server model, boolean owner, Stage stage) {
-        super(root, stage);
+    public ServerSettingsModal(Parent root, Server model, boolean owner) {
+        super(root);
         this.model = model;
         this.owner = owner;
 
@@ -145,7 +143,7 @@ public class ServerSettingsModal extends AbstractModal {
         Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
         confirmationModal = new ConfirmationModal(confirmationModalView,
             Constants.LBL_DELETE_SERVER,
-            Constants.LBL_CONFIRM_DELETE_SERVER, StageManager.getStage(),
+            Constants.LBL_CONFIRM_DELETE_SERVER,
             this::onYesDeleteButtonClicked,
             this::onNoButtonClicked);
         confirmationModal.show();
@@ -181,7 +179,7 @@ public class ServerSettingsModal extends AbstractModal {
         Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
         confirmationModal = new ConfirmationModal(confirmationModalView,
             Constants.LBL_LEAVE_SERVER,
-            Constants.LBL_CONFIRM_LEAVE_SERVER, StageManager.getStage(),
+            Constants.LBL_CONFIRM_LEAVE_SERVER,
             this::onYesLeaveButtonClicked,
             this::onNoButtonClicked);
         confirmationModal.show();

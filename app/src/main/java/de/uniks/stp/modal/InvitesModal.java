@@ -3,7 +3,6 @@ package de.uniks.stp.modal;
 import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.InviteList;
 import de.uniks.stp.component.InviteListEntry;
@@ -17,7 +16,6 @@ import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
@@ -51,8 +49,8 @@ public class InvitesModal extends AbstractModal {
 
     PropertyChangeListener serverInvitationListener = this::onServerInvitationsChanged;
 
-    public InvitesModal(Parent root, Server server, Editor editor, Stage stage) {
-        super(root, stage);
+    public InvitesModal(Parent root, Server server, Editor editor) {
+        super(root);
         this.restClient = NetworkClientInjector.getRestClient();
         this.editor = editor;
         this.server = server;
@@ -127,7 +125,7 @@ public class InvitesModal extends AbstractModal {
     private void onCreatButtonClicked(ActionEvent actionEvent) {
         setErrorMessage(null);
         Parent createInviteModalView = ViewLoader.loadView(Views.CREATE_INVITE_MODAL);
-        CreateInviteModal createInviteModal = new CreateInviteModal(createInviteModalView, server, editor, StageManager.getStage());
+        CreateInviteModal createInviteModal = new CreateInviteModal(createInviteModalView, server, editor);
         createInviteModal.show();
     }
 
