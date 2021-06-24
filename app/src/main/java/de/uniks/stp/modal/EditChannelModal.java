@@ -73,7 +73,7 @@ public class EditChannelModal extends AbstractModal {
 
         setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_CHANNEL));
         channelName = (JFXTextField) view.lookup(EDIT_CHANNEL_NAME_TEXTFIELD);
-        notification = (AnchorPane)  view.lookup(NOTIFICATION_CONTAINER);
+        notificationAnchorPane = (AnchorPane)  view.lookup(NOTIFICATION_CONTAINER);
         notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);
         notificationsLabel = (Label) view.lookup(NOTIFICATIONS_ACTIVATED_LABEL);
         privileged = (JFXCheckBox) view.lookup(PRIVILEGED_CHECKBOX);
@@ -87,8 +87,8 @@ public class EditChannelModal extends AbstractModal {
         boolean muted = DatabaseService.isChannelMuted(channel.getId());
         boolean voice = channel.getType().equals("audio");
         if(voice) {
-            notification.getChildren().clear();
-            notification.setMinHeight(20);
+            notificationAnchorPane.getChildren().clear();
+            notificationAnchorPane.setMinHeight(20);
         }
         notificationsToggleButton.setDisable(voice);
         notificationsToggleButton.setVisible(!voice);
