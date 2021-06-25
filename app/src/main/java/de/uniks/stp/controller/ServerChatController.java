@@ -35,19 +35,16 @@ import java.util.Objects;
 public class ServerChatController extends ChatController<ServerMessage> implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(ServerChatController.class);
 
-    private static final String CHANNEL_NAME_LABEL_ID = "#channel-name-label";
     private static final String SERVER_CHAT_VBOX = "#server-chat-vbox";
     private static final String LOAD_OLD_MESSAGES_BOX = "#load-old-messages-hbox";
 
     private final Channel model;
-    private TextWithEmoteSupport channelNameLabel;
     private VBox serverChatVBox;
     private HBox loadOldMessagesBox;
     private final ChangeListener<Number> scrollValueChangedListener = this::onScrollValueChanged;
     private boolean canLoadOldMessages;
 
     private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
-    private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
 
     public ServerChatController(Parent view, Editor editor, Channel model) {
         super(view, editor);
@@ -58,12 +55,9 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     @Override
     public void init() {
-        channelNameLabel = (TextWithEmoteSupport) view.lookup(CHANNEL_NAME_LABEL_ID);
         serverChatVBox = (VBox)view.lookup(SERVER_CHAT_VBOX);
-        loadOldMessagesBox = (HBox) view.lookup(LOAD_OLD_MESSAGES_BOX);
 
-        channelNameLabel.getRenderer().setSize(16).setScalingFactor(2);
-        channelNameLabel.setText(model.getName());
+        loadOldMessagesBox = (HBox) view.lookup(LOAD_OLD_MESSAGES_BOX);
 
         //add chatMessageList
         serverChatVBox.getChildren().add(chatMessageList);
@@ -71,7 +65,6 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         serverChatVBox.getChildren().add(chatMessageInput);
 
         loadMessages();
-        model.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
 
         chatMessageInput.setOnMessageSubmit(this::handleMessageSubmit);
@@ -82,7 +75,6 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         serverChatVBox.getChildren().clear();
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
-            model.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
         }
     }
 
@@ -146,12 +138,6 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
                 chatMessageList.insertElement(insertPos, msg, newChatMessageNode);
             });
         }
-    }
-
-    private void onChannelNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        Platform.runLater(()-> {
-            channelNameLabel.setText(model.getName());
-        });
     }
 
     /**
