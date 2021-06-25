@@ -131,8 +131,9 @@ public class ServerScreenController implements ControllerInterface {
     }
 
     private void onServerNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final String newName = (String) propertyChangeEvent.getNewValue();
         Platform.runLater(()-> {
-            serverName.setText(model.getName());
+            serverName.setText(newName);
         });
     }
 
