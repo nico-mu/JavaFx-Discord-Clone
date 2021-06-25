@@ -110,6 +110,14 @@ public class ServerScreenController implements ControllerInterface {
             serverChannelController = new ServerChatController(serverChannelContainer, editor, channel);
             serverChannelController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), serverChannelController);
+        } else if (routeInfo.getSubControllerRoute().equals(Constants.ROUTE_VOICE_CHANNEL)) {
+            final String serverId = args.getArguments().get(":id");
+            final String categoryId = args.getArguments().get(":categoryId");
+            final String channelId = args.getArguments().get(":channelId");
+            final Channel channel = selectAndGetChannel(serverId, categoryId, channelId);
+            serverChannelController = new ServerVoiceChatController(serverChannelContainer, editor, channel);
+            serverChannelController.init();
+            Router.addToControllerCache(routeInfo.getFullRoute(), serverChannelController);
         }
     }
 

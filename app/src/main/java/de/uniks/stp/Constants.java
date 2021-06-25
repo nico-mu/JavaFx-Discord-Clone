@@ -100,6 +100,7 @@ public class Constants {
     public static final String ROUTE_LIST_ONLINE_USERS = "/online";
     public static final String ROUTE_SERVER = "/server/:id";
     public static final String ROUTE_CHANNEL = "/category/:categoryId/channel/:channelId";
+    public static final String ROUTE_VOICE_CHANNEL = "/category/:categoryId/voice-channel/:channelId";
     public static final String ROUTE_PRIVATE_CHAT_ARGS = ":userId";
     public static final String ROUTE_PRIVATE_CHAT = "/chat/" + ROUTE_PRIVATE_CHAT_ARGS;
     public static final String ROUTE_ONLINE = "/online";

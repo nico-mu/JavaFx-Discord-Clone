@@ -1,6 +1,7 @@
 package de.uniks.stp.network;
 
 import de.uniks.stp.Constants;
+import de.uniks.stp.model.Channel;
 import kong.unirest.Callback;
 import kong.unirest.HttpRequest;
 import kong.unirest.JsonNode;
@@ -204,6 +205,23 @@ public class RestClient {
 
     public void leaveServer(String serverId,  Callback<JsonNode> callback) {
         HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + "/leave");
+        sendRequest(req, callback);
+    }
+
+    public void joinAudioChannel(Channel model, Callback<JsonNode> callback) {
+        final String serverId = model.getServer().getId();
+        final String catId = model.getCategory().getId();
+        final String chanId = model.getId();
+
+        final HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + catId + Constants.REST_CHANNEL_PATH + "/" + chanId + "/join");
+        sendRequest(req, callback);
+    }
+    public void leaveAudioChannel(Channel model, Callback<JsonNode> callback) {
+        final String serverId = model.getServer().getId();
+        final String catId = model.getCategory().getId();
+        final String chanId = model.getId();
+
+        final HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + catId + Constants.REST_CHANNEL_PATH + "/" + chanId + "/leave");
         sendRequest(req, callback);
     }
 }
