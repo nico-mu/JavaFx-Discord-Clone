@@ -6,7 +6,6 @@ import de.uniks.stp.event.NavBarHomeElementActiveEvent;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
-import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 
 public class NavBarUserElement extends NavBarNotificationElement {
@@ -16,7 +15,7 @@ public class NavBarUserElement extends NavBarNotificationElement {
     public NavBarUserElement(User model) {
         user = model;
         this.setId(user.getId() + "-button");
-        Tooltip.install(navBarElement, new Tooltip(user.getName()));
+        installTooltip(user.getName());
         imageView.setImage(ViewLoader.loadImage("user.png"));
     }
 

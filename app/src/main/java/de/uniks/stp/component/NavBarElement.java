@@ -5,6 +5,7 @@ import de.uniks.stp.event.NavBarElementChangeEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -42,6 +43,10 @@ abstract public class NavBarElement extends HBox {
         }
 
         navBarElement.setOnMouseClicked(this::onMouseClicked);
+    }
+
+    public void installTooltip(String text) {
+        Tooltip.install(navBarElement, new Tooltip(text));
     }
 
     protected void onMouseClicked(MouseEvent mouseEvent) {

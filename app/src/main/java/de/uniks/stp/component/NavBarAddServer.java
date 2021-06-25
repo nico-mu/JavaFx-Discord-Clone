@@ -13,13 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NavBarAddServer extends NavBarElement {
-    private static final Logger log = LoggerFactory.getLogger(NavBarAddServer.class);
 
     private final Editor editor;
 
     public NavBarAddServer(Editor editor) {
         this.editor = editor;
-        Tooltip.install(navBarElement, new Tooltip(ViewLoader.loadLabel(Constants.LBL_CREATE_SERVER)));
+        installTooltip(ViewLoader.loadLabel(Constants.LBL_CREATE_SERVER));
         imageView.setImage(ViewLoader.loadImage("plus.png"));
         notificationLabel.setVisible(false);
         circle.setVisible(false);

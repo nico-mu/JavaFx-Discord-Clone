@@ -5,7 +5,6 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.component.NavBarList;
 import de.uniks.stp.component.NavBarServerElement;
 import de.uniks.stp.component.NavBarUserElement;
-import de.uniks.stp.event.NavBarHomeElementActiveEvent;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -17,8 +16,6 @@ import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationEvent;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.notification.SubscriberInterface;
-import de.uniks.stp.router.RouteArgs;
-import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.Parent;
@@ -34,7 +31,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class NavBarListController implements ControllerInterface, SubscriberInterface {
 
@@ -42,16 +38,13 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     private final Parent view;
     private final Editor editor;
     private final NavBarList navBarList;
-    private final String NAV_BAR_CONTAINER_ID = "#nav-bar";
+    private final static String NAV_BAR_CONTAINER_ID = "#nav-bar";
 
     private AnchorPane anchorPane;
     private RestClient restClient;
     private ServerInformationHandler serverInformationHandler;
-
-    // needed for property change listener clean up
-    private final ConcurrentHashMap<Server, NavBarServerElement> navBarServerElementHashMap = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<User, NavBarUserElement> navBarUserElementHashMap = new ConcurrentHashMap<>();
     PropertyChangeListener availableServersPropertyChangeListener = this::onAvailableServersPropertyChange;
+    PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
 
     public NavBarListController(Parent view, Editor editor) {
         this.view = view;
@@ -79,37 +72,30 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     }
 
     private void serverAdded(final Server server) {
-        if (Objects.nonNull(server) && !navBarServerElementHashMap.containsKey(server)) {
+        if (Objects.nonNull(server) && !navBarList.containsServer(server)) {
             WebSocketService.addServerWebSocket(server.getId());  // enables sending & receiving messages
             final NavBarServerElement navBarElement = new NavBarServerElement(server);
             navBarElement.setNotificationCount(NotificationService.getServerNotificationCount(server));
-            navBarServerElementHashMap.put(server, navBarElement);
-            Platform.runLater(() -> navBarList.addServerElement(navBarElement));
+            Platform.runLater(() -> navBarList.addServerElement(server, navBarElement));
+            server.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
         }
     }
 
     private void serverRemoved(final Server server) {
         // in case the deleted server is currently shown: show home screen
         HashMap<String, String> currentArgs = Router.getCurrentArgs();
-        if(currentArgs.containsKey(":id")){
-            if(currentArgs.get(":id").equals(server.getId())){
-                Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE));
-                navBarList.fireEvent(new NavBarHomeElementActiveEvent());
-            }
+        if(currentArgs.containsKey(":id") && currentArgs.get(":id").equals(server.getId())) {
+            Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE));
+            navBarList.setHomeElementActive();
         }
 
-        if (Objects.nonNull(server) && navBarServerElementHashMap.containsKey(server)) {
-            final NavBarServerElement navBarElement = navBarServerElementHashMap.remove(server);
-            Platform.runLater(() -> navBarList.removeElement(navBarElement));
+        if (Objects.nonNull(server) && navBarList.containsServer(server)) {
+            Platform.runLater(() -> navBarList.removeServerElement(server));
             for (Channel channel : server.getChannels()) {
                 NotificationService.removePublisher(channel);
             }
         }
-    }
-
-    @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
-        //no subroutes
+        server.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
     }
 
     protected void callback(HttpResponse<JsonNode> response) {
@@ -127,10 +113,10 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
             }
             if (Router.getCurrentArgs().containsKey(":id") && Router.getCurrentArgs().containsKey(":channelId")) {
                 String activeServerId = Router.getCurrentArgs().get(":id");
-                for (Server server : editor.getOrCreateAccord().getCurrentUser().getAvailableServers()) {
-                    if (server.getId().equals(activeServerId) && navBarServerElementHashMap.containsKey(server)) {
-                        navBarList.setActiveElement(navBarServerElementHashMap.get(server));
-                    }
+                Server server = editor.getServer(activeServerId);
+
+                if(Objects.nonNull(server) && navBarList.containsServer(server)) {
+                    navBarList.setActiveElement(navBarList.getServerElement(server));
                 }
             }
         } else {
@@ -158,8 +144,10 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
             .listeners()
             .removePropertyChangeListener(availableServersPropertyChangeListener);
 
-        navBarUserElementHashMap.clear();
-        navBarServerElementHashMap.clear();
+        for (Server availableServer : editor.getAvailableServers()) {
+            availableServer.listeners().removePropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
+        }
+        navBarList.clear();
 
         NotificationService.removeChannelSubscriber(this);
         NotificationService.removeUserSubscriber(this);
@@ -169,14 +157,11 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     public void onChannelNotificationEvent(NotificationEvent event) {
         Channel channel = (Channel) event.getSource();
         if (Objects.nonNull(channel)) {
-            Server server;
-            if (Objects.isNull(channel.getCategory())) {
-                server = channel.getServer();
-            } else {
-                server = channel.getCategory().getServer();
-            }
-            if (Objects.nonNull(server) && navBarServerElementHashMap.containsKey(server)) {
-                navBarServerElementHashMap.get(server).setNotificationCount(NotificationService.getServerNotificationCount(server));
+            Category category = channel.getCategory();
+            Server server = Objects.isNull(category) ? channel.getServer(): category.getServer();
+
+            if (Objects.nonNull(server) && navBarList.containsServer(server)) {
+                navBarList.getServerElement(server).setNotificationCount(NotificationService.getServerNotificationCount(server));
             }
         }
     }
@@ -185,21 +170,29 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     public void onUserNotificationEvent(NotificationEvent event) {
         User user = (User) event.getSource();
         if (Objects.nonNull(user)) {
-            if (!navBarUserElementHashMap.containsKey(user)) {
-                NavBarUserElement navBarUserElement = new NavBarUserElement(user);
-                navBarUserElementHashMap.put(user, navBarUserElement);
-                Platform.runLater(() -> {
-                    navBarList.addUserElement(navBarUserElement);
-                });
+            int notificationCounter = event.getNotifications();
+
+            if(notificationCounter == 0) {
+                //removes element if needed
+                Platform.runLater(() -> navBarList.removeUserElement(user));
             }
-            NavBarUserElement userElement = navBarUserElementHashMap.get(user);
-            userElement.setNotificationCount(event.getNotifications());
-            if (event.getNotifications() == 0) {
-                navBarUserElementHashMap.remove(user);
-                Platform.runLater(() -> {
-                    navBarList.removeElement(userElement);
-                });
+            else {
+                if(navBarList.containsUser(user)) {
+                    navBarList.getUserElement(user).setNotificationCount(notificationCounter);
+                }
+                else {
+                    NavBarUserElement userElement = new NavBarUserElement(user);
+                    Platform.runLater(() -> navBarList.addUserElement(user, userElement));
+                    userElement.setNotificationCount(notificationCounter);
+                }
             }
+        }
+    }
+
+    private void onServerNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        Server server = (Server) propertyChangeEvent.getSource();
+        if(Objects.nonNull(server) && navBarList.containsServer(server)) {
+            Platform.runLater(() -> navBarList.getServerElement(server).installTooltip(server.getName()));
         }
     }
 }
