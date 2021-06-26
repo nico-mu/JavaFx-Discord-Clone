@@ -38,28 +38,27 @@ public class ServerScreenController implements ControllerInterface {
 
     private static final String SERVER_NAME_ID = "#server-name";
     private static final String SERVER_CHANNEL_OVERVIEW = "#server-channel-overview";
-    private static final String SERVER_CHAT_CONTAINER = "#server-chat-container";
+    private static final String SERVER_CHANNEL_CONTAINER = "#server-channel-container";
     private static final String SERVER_USER_LIST_CONTAINER = "#server-user-list-container";
     private static final String SETTINGS_LABEL = "#settings-label";
     private static final String CHANNEL_NAME_LABEL = "#channel-name-label";
-    private AnchorPane view;
-    private FlowPane serverScreenView;
-    private Channel selectedChannel;
     private final Editor editor;
     private final Server model;
+    private final AnchorPane view;
+    private FlowPane serverScreenView;
+    private Channel selectedChannel;
     private TextWithEmoteSupport serverName;
+    PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
     private VBox serverChannelOverview;
     private ServerCategoryListController categoryListController;
-    private FlowPane serverChatContainer;
+    private VBox serverChannelContainer;
     private ControllerInterface serverChannelController;
     private ServerUserListController serverUserListController;
     private FlowPane serverUserListContainer;
     private Label settingsGearLabel;
-    private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
-
     private ContextMenu settingsContextMenu;
-    PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
     private TextWithEmoteSupport channelNameLabel;
+    private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
 
     public ServerScreenController(Parent view, Editor editor, Server model) {
         this.view = (AnchorPane) view;
@@ -71,7 +70,7 @@ public class ServerScreenController implements ControllerInterface {
     public void init() {
         serverScreenView = (FlowPane) ViewLoader.loadView(SERVER_SCREEN);
         serverChannelOverview = (VBox) serverScreenView.lookup(SERVER_CHANNEL_OVERVIEW);
-        serverChatContainer = (FlowPane) serverScreenView.lookup(SERVER_CHAT_CONTAINER);
+        serverChannelContainer = (VBox) serverScreenView.lookup(SERVER_CHANNEL_CONTAINER);
         serverUserListContainer = (FlowPane) serverScreenView.lookup(SERVER_USER_LIST_CONTAINER);
         settingsGearLabel = (Label) serverScreenView.lookup(SETTINGS_LABEL);
         settingsContextMenu = settingsGearLabel.getContextMenu();
@@ -101,16 +100,21 @@ public class ServerScreenController implements ControllerInterface {
 
     @Override
     public void route(RouteInfo routeInfo, RouteArgs args) {
+        subviewCleanup();
         if (routeInfo.getSubControllerRoute().equals(Constants.ROUTE_CHANNEL)) {
             final String serverId = args.getArguments().get(":id");
             final String categoryId = args.getArguments().get(":categoryId");
             final String channelId = args.getArguments().get(":channelId");
             final Channel channel = selectAndGetChannel(serverId, categoryId, channelId);
             NotificationService.consume(channel);
-            serverChannelController = new ServerChatController(serverChatContainer, editor, channel);
+            serverChannelController = new ServerChatController(serverChannelContainer, editor, channel);
             serverChannelController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), serverChannelController);
         }
+    }
+
+    private void subviewCleanup() {
+        serverChannelContainer.getChildren().clear();
     }
 
     private Channel selectAndGetChannel(final String serverId, final String categoryId, final String channelId) {
@@ -132,14 +136,14 @@ public class ServerScreenController implements ControllerInterface {
 
     private void onServerNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
         final String newName = (String) propertyChangeEvent.getNewValue();
-        Platform.runLater(()-> {
+        Platform.runLater(() -> {
             serverName.setText(newName);
         });
     }
 
     private void onChannelNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
         final String newName = (String) propertyChangeEvent.getNewValue();
-        Platform.runLater(()-> {
+        Platform.runLater(() -> {
             channelNameLabel.setText(newName);
         });
     }
@@ -184,7 +188,7 @@ public class ServerScreenController implements ControllerInterface {
         settingsGearLabel.setOnMouseClicked(null);
         model.listeners().removePropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
 
-        for(MenuItem item: settingsContextMenu.getItems()){
+        for (MenuItem item : settingsContextMenu.getItems()) {
             item.setOnAction(null);
         }
     }
