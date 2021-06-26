@@ -1,5 +1,6 @@
 package de.uniks.stp.modal;
 
+import de.uniks.stp.StageManager;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -22,6 +23,14 @@ public abstract class AbstractModal extends Stage {
         else {
             throw new RuntimeException("Modal fxml root element must be of type Pane");
         }
+
+        final Stage stage = StageManager.getStage();
+        this.widthProperty().addListener((observable, oldValue, newValue) -> {
+            this.setX(stage.getX() + (stage.getWidth() / 2) - ((double) newValue / 2));
+        });
+        this.heightProperty().addListener((observable, oldValue, newValue) -> {
+            this.setY(stage.getY() + (stage.getHeight() / 2) - ((double) newValue / 2));
+        });
 
         scene = new Scene(root, rootElement.getPrefWidth(), rootElement.getPrefHeight());
         this.initModality(Modality.APPLICATION_MODAL);
