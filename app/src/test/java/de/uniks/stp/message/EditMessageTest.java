@@ -1,11 +1,8 @@
 package de.uniks.stp.message;
 
-import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXToggleButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
-import de.uniks.stp.component.NavBarUserElement;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.*;
 import de.uniks.stp.network.NetworkClientInjector;
@@ -16,7 +13,7 @@ import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
-import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -31,11 +28,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.matchers.Not;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.service.query.EmptyNodeQueryException;
 import org.testfx.util.WaitForAsyncUtils;
 
 import javax.json.Json;
@@ -183,45 +178,41 @@ public class EditMessageTest {
             }
         }
 
-        robot.point("#message-text-" + editableMessages.get(0).getId());
-        robot.point("#edit-message-" + editableMessages.get(0).getId());
-        robot.clickOn("#edit-message-" + editableMessages.get(0).getId());
+        String messageId = editableMessages.get(0).getId();
+
+        robot.point("#message-text-" + messageId);
+        robot.point("#edit-message-" + messageId);
+        ImageView button = robot.lookup("#edit-message-" + messageId).query();
+        button.setVisible(true);
+        robot.clickOn("#edit-message-" + messageId);
         String newMessage = "edited";
         robot.doubleClickOn("#message-text-field");
         robot.write(newMessage);
         robot.clickOn("#save-button");
         WaitForAsyncUtils.waitForFxEvents();
 
-        JSONObject j = new JSONObject().put("status", "failure").put("message", "Missing name")
+        JSONObject j = new JSONObject().put("status", "success").put("message", "")
             .put("data", new JSONObject());
 
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
 
-        verify(restMock).updateMessage(eq(serverId), eq(categoryId), eq(channelOneId), eq(editableMessages.get(0).getId()), eq(newMessage), callbackCaptor.capture());
+        verify(restMock).updateMessage(eq(serverId), eq(categoryId), eq(channelOneId), eq(messageId), eq(newMessage), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
 
-        Assertions.assertEquals(editableMessages.get(0).getMessage(), newMessage);
+        JsonObject jsonObject = Json.createObjectBuilder().add("action", "messageUpdated").add("data", Json.createObjectBuilder().add("id", messageId).add("category", categoryId).add("channel", channelOneId).add("text", newMessage).build()).build();
+
+        systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
+        systemCallback.handleMessage(jsonObject);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(newMessage, editableMessages.get(0).getMessage());
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @AfterEach
-    void tear(){
+    void tear() {
         restMock = null;
         webSocketMock = null;
         res = null;
