@@ -8,6 +8,10 @@
 
 }
 
-.mute-audio-btn {
+.audio-input-btn {
+  -fx-background-image: url('../../../img/microphone.png');
+}
 
+.audio-input-btn .mute {
+  -fx-background-image: url('../../../img/microphone-mute.png');
 }
