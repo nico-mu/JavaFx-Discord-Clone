@@ -2,9 +2,9 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ChatMessage;
-import de.uniks.stp.component.TextWithEmoteSupport;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
@@ -13,10 +13,10 @@ import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.util.InviteInfo;
 import de.uniks.stp.util.MessageUtil;
+import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.Parent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import kong.unirest.HttpResponse;
@@ -35,22 +35,21 @@ import java.util.Objects;
 public class ServerChatController extends ChatController<ServerMessage> implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(ServerChatController.class);
 
-    private static final String CHANNEL_NAME_LABEL_ID = "#channel-name-label";
     private static final String SERVER_CHAT_VBOX = "#server-chat-vbox";
     private static final String LOAD_OLD_MESSAGES_BOX = "#load-old-messages-hbox";
 
     private final Channel model;
-    private TextWithEmoteSupport channelNameLabel;
-    private VBox serverChatVBox;
+    private final VBox view;
+    private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
+    private VBox serverChatView;
+    private boolean canLoadOldMessages;
     private HBox loadOldMessagesBox;
     private final ChangeListener<Number> scrollValueChangedListener = this::onScrollValueChanged;
-    private boolean canLoadOldMessages;
+    private VBox serverChatVBox;
 
-    private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
-    private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
-
-    public ServerChatController(Parent view, Editor editor, Channel model) {
-        super(view, editor);
+    public ServerChatController(VBox view, Editor editor, Channel model) {
+        super(editor);
+        this.view = view;
         this.model = model;
         canLoadOldMessages = true;
         chatMessageList.vvalueProperty().addListener(scrollValueChangedListener);
@@ -58,12 +57,11 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     @Override
     public void init() {
-        channelNameLabel = (TextWithEmoteSupport) view.lookup(CHANNEL_NAME_LABEL_ID);
-        serverChatVBox = (VBox)view.lookup(SERVER_CHAT_VBOX);
-        loadOldMessagesBox = (HBox) view.lookup(LOAD_OLD_MESSAGES_BOX);
+        serverChatView = (VBox) ViewLoader.loadView(Views.SERVER_CHAT_SCREEN);
+        view.getChildren().add(serverChatView);
 
-        channelNameLabel.getRenderer().setSize(16).setScalingFactor(2);
-        channelNameLabel.setText(model.getName());
+        loadOldMessagesBox = (HBox) view.lookup(LOAD_OLD_MESSAGES_BOX);
+        serverChatVBox = (VBox) view.lookup(SERVER_CHAT_VBOX);
 
         //add chatMessageList
         serverChatVBox.getChildren().add(chatMessageList);
@@ -71,7 +69,6 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         serverChatVBox.getChildren().add(chatMessageInput);
 
         loadMessages();
-        model.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
 
         chatMessageInput.setOnMessageSubmit(this::handleMessageSubmit);
@@ -79,21 +76,19 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     @Override
     public void stop() {
-        serverChatVBox.getChildren().clear();
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
-            model.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
         }
     }
 
     @Override
     protected void loadMessages() {
-        if(model.getMessages().size() != 0) {
+        if (model.getMessages().size() != 0) {
             for (ServerMessage message : model.getMessages()) {
                 chatMessageList.addElement(message, parseMessage(message));
             }
         }
-        if(model.getMessages().size() < 20){
+        if (model.getMessages().size() < 20) {
             loadOldMessages();  //load old messages to fill initial view
         }
     }
@@ -102,10 +97,10 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     protected ChatMessage parseMessage(Message message) {
         ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage());
 
-        if(!message.getSender().getName().equals(currentUser.getName())) {
+        if (!message.getSender().getName().equals(currentUser.getName())) {
             InviteInfo info = MessageUtil.getInviteInfo(message.getMessage());
             // check if message contains a server invite link
-            if(Objects.nonNull(info) && Objects.isNull(editor.getServer(info.getServerId()))){
+            if (Objects.nonNull(info) && Objects.isNull(editor.getServer(info.getServerId()))) {
                 messageNode.addJoinButtonButton(info, this::joinServer);
             }
         }
@@ -113,13 +108,14 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     }
 
     private void onScrollValueChanged(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-        if(newValue.doubleValue() == 0.0d) {
+        if (newValue.doubleValue() == 0.0d) {
             loadOldMessages();
         }
     }
 
     /**
      * Creates ServerMessage, saves it in the model and sends it via websocket.
+     *
      * @param message
      */
     private void handleMessageSubmit(String message) {
@@ -132,14 +128,13 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         Channel source = (Channel) propertyChangeEvent.getSource();
         ChatMessage newChatMessageNode = parseMessage(msg);
 
-        if(source.getMessages().last().equals(msg)) {
+        if (source.getMessages().last().equals(msg)) {
             // append message
             Platform.runLater(() -> {
                 chatMessageList.addElement(msg, newChatMessageNode);
             });
 
-        }
-        else {
+        } else {
             // prepend message
             int insertPos = source.getMessages().headSet(msg).size();
             Platform.runLater(() -> {
@@ -148,20 +143,14 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         }
     }
 
-    private void onChannelNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        Platform.runLater(()-> {
-            channelNameLabel.setText(model.getName());
-        });
-    }
-
     /**
      * Sends request to load older Messages in this channel.
      */
     private void loadOldMessages() {
-        if(canLoadOldMessages) {
+        if (canLoadOldMessages) {
             // timestamp = min timestamp of messages in model. If no messages in model, timestamp = now
             long timestamp = new Date().getTime();
-            if(model.getMessages().size() > 0){
+            if (model.getMessages().size() > 0) {
                 timestamp = model.getMessages().first().getTimestamp();
             }
 
@@ -174,6 +163,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     /**
      * Handles response containing older ServerChatMessages.
      * Removes loadMessagesButon if there were no older messages.
+     *
      * @param response
      */
     private void onLoadMessagesResponse(HttpResponse<JsonNode> response) {
@@ -186,7 +176,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
             if (messagesJson.length() < 50) {
                 // when there are no older messages to show
                 canLoadOldMessages = false;
-                if(messagesJson.length() == 0) {
+                if (messagesJson.length() == 0) {
                     return;
                 }
             }
@@ -200,12 +190,12 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
                 final String senderName = msgJson.getString("from");
                 final String msgText = msgJson.getString("text");
 
-                if(!channelId.equals(model.getId())){
+                if (!channelId.equals(model.getId())) {
                     log.error("Received old server messages of wrong channel!");
                     return;
                 }
                 User sender = editor.getOrCreateServerMember(senderName, model.getCategory().getServer());
-                if (Objects.isNull(sender.getId())){
+                if (Objects.isNull(sender.getId())) {
                     log.debug("Loaded old server message from former serveruser, created dummy object");
                 }
 
