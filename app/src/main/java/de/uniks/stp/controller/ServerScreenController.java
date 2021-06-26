@@ -29,6 +29,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 import java.util.Objects;
 
 import static de.uniks.stp.view.Views.SERVER_SCREEN;
@@ -102,19 +103,13 @@ public class ServerScreenController implements ControllerInterface {
     public void route(RouteInfo routeInfo, RouteArgs args) {
         subviewCleanup();
         if (routeInfo.getSubControllerRoute().equals(Constants.ROUTE_CHANNEL)) {
-            final String serverId = args.getArguments().get(":id");
-            final String categoryId = args.getArguments().get(":categoryId");
-            final String channelId = args.getArguments().get(":channelId");
-            final Channel channel = selectAndGetChannel(serverId, categoryId, channelId);
+            final Channel channel = selectAndGetChannel(args.getArguments());
             NotificationService.consume(channel);
             serverChannelController = new ServerChatController(serverChannelContainer, editor, channel);
             serverChannelController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), serverChannelController);
         } else if (routeInfo.getSubControllerRoute().equals(Constants.ROUTE_VOICE_CHANNEL)) {
-            final String serverId = args.getArguments().get(":id");
-            final String categoryId = args.getArguments().get(":categoryId");
-            final String channelId = args.getArguments().get(":channelId");
-            final Channel channel = selectAndGetChannel(serverId, categoryId, channelId);
+            final Channel channel = selectAndGetChannel(args.getArguments());
             serverChannelController = new ServerVoiceChatController(serverChannelContainer, editor, channel);
             serverChannelController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), serverChannelController);
@@ -123,6 +118,14 @@ public class ServerScreenController implements ControllerInterface {
 
     private void subviewCleanup() {
         serverChannelContainer.getChildren().clear();
+    }
+
+
+    private Channel selectAndGetChannel(final HashMap<String, String> args) {
+        final String serverId = args.get(":id");
+        final String categoryId = args.get(":categoryId");
+        final String channelId = args.get(":channelId");
+        return selectAndGetChannel(serverId, categoryId, channelId);
     }
 
     private Channel selectAndGetChannel(final String serverId, final String categoryId, final String channelId) {
