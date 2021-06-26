@@ -19,7 +19,8 @@ public enum Views {
     EDIT_CATEGORY_MODAL("EditCategoryModal.fxml"),
     EDIT_CHANNEL_MODAL("EditChannelModal.fxml"),
     CONFIRMATION_MODAL("ConfirmationModal.fxml"),
-    EASTER_EGG_MODAL("EasterEggModal.fxml");
+    EASTER_EGG_MODAL("EasterEggModal.fxml"),
+    SERVER_VOICE_CHAT_SCREEN("ServerVoiceChatScreen.fxml");
 
     public final URL path;
 
