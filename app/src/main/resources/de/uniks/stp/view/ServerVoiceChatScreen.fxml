@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../style/css/view/server-voice-chat.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <FlowPane prefHeight="320.0" prefWidth="600.0" />
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="120.0">
+         <children>
+            <JFXButton id="audio-output-btn" styleClass="audio-output-btn" />
+            <JFXButton id="hang-up-btn" styleClass="hang-up-btn" />
+            <JFXButton id="audio-input-btn" styleClass="audio-input-btn" />
+         </children>
+      </HBox>
+   </children>
+</VBox>

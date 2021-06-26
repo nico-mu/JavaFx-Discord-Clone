@@ -19,7 +19,8 @@ public enum Components {
     INVITE_LIST_ENTRY("InviteListEntry.fxml"),
     JOIN_SERVER_BUTTON("JoinServerButton.fxml"),
     DIRECT_MESSAGE_LIST_ENTRY("DirectMessageListEntry.fxml"),
-    LIST_COMPONENT("ListComponent.fxml");
+    LIST_COMPONENT("ListComponent.fxml"),
+    VOICE_CHAT_USER("VoiceChatUser.fxml");
 
     public final URL path;
 
