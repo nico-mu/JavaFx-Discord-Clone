@@ -87,16 +87,18 @@ public class LoadOldMessagesTest {
 
         WebSocketService.addServerWebSocket(serverId);
 
-        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
-        WaitForAsyncUtils.waitForFxEvents();
-
         String categoryId = "4321";
         Category cat = new Category().setName("Plattis Category").setId(categoryId);
         cat.setServer(server);
         String channelId = "42";
         Channel channel = new Channel().setName("Plattis Channel").setType("text").setId(channelId);
         channel.setCategory(cat);
+
+        RouteArgs args = new RouteArgs()
+            .addArgument(":id", serverId)
+            .addArgument(":categoryId", categoryId)
+            .addArgument(":channelId", channelId);
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         // old messages will be loaded automatically
@@ -161,16 +163,18 @@ public class LoadOldMessagesTest {
 
         WebSocketService.addServerWebSocket(serverId);
 
-        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
-        WaitForAsyncUtils.waitForFxEvents();
-
         String categoryId = "4321";
         Category cat = new Category().setName("Plattis Category").setId(categoryId);
         cat.setServer(server);
         String channelId = "42";
         Channel channel = new Channel().setName("Plattis Channel").setType("text").setId(channelId);
         channel.setCategory(cat);
+
+        RouteArgs args = new RouteArgs()
+            .addArgument(":id", serverId)
+            .addArgument(":categoryId", categoryId)
+            .addArgument(":channelId", channelId);
+        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         // old messages will be loaded automatically
