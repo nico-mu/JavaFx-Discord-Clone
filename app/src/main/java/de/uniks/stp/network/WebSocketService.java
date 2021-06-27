@@ -410,7 +410,26 @@ public class WebSocketService {
                     server = editor.getServer(serverId);
                     editor.getOrCreateServerMember(userId, userName, server).setStatus(status);
                     break;
-
+                case "audioJoined":
+                    userId = data.getString("id");
+                    categoryId = data.getString("category");
+                    channelId = data.getString("channel");
+                    server = editor.getServer(serverId);
+                    Category category = editor.getCategory(categoryId, server);
+                    channel = editor.getChannel(channelId, category);
+                    user = editor.getServerMemberById(userId, server);
+                    channel.withAudioMembers(user);
+                    break;
+                case "audioLeft":
+                    userId = data.getString("id");
+                    categoryId = data.getString("category");
+                    channelId = data.getString("channel");
+                    server = editor.getServer(serverId);
+                    category = editor.getCategory(categoryId, server);
+                    channel = editor.getChannel(channelId, category);
+                    user = editor.getServerMemberById(userId, server);
+                    channel.withoutAudioMembers(user);
+                    break;
                 default:
                     log.error("WebSocketService: can't process server system message with content: {}", jsonObject);
                     break;

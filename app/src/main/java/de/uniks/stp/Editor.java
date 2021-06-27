@@ -231,6 +231,10 @@ public class Editor {
         return null;
     }
 
+    public User getServerMemberById(String userId, Server server) {
+        return server.getUsers().stream().filter(user -> userId.equals(user.getId())).findFirst().orElse(null);
+    }
+
     public User getOrCreateServerMember(String userId, String name, Server server) {
         for (User user : server.getUsers()) {
             if (user.getName().equals(name)) {

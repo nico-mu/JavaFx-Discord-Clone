@@ -104,14 +104,26 @@ public class ServerVoiceChatController implements ControllerInterface {
     }
 
     private void userLeft(User user) {
-        final VoiceChatUserEntry voiceChatUserEntry = userVoiceChatUserHashMap.remove(user);
-        voiceChannelUserContainer.getChildren().remove(voiceChatUserEntry);
+        if (Objects.nonNull(user) && isNotCurrentUser(user)) {
+            Platform.runLater(() -> {
+                final VoiceChatUserEntry voiceChatUserEntry = userVoiceChatUserHashMap.remove(user);
+                voiceChannelUserContainer.getChildren().remove(voiceChatUserEntry);
+            });
+        }
+    }
+
+    private boolean isNotCurrentUser(User user) {
+        return !user.equals(editor.getOrCreateAccord().getCurrentUser());
     }
 
     private void userJoined(User user) {
-        final VoiceChatUserEntry voiceChatUserEntry = new VoiceChatUserEntry(user);
-        voiceChannelUserContainer.getChildren().add(voiceChatUserEntry);
-        userVoiceChatUserHashMap.put(user, voiceChatUserEntry);
+        if (Objects.nonNull(user) && isNotCurrentUser(user)) {
+            Platform.runLater(() -> {
+                final VoiceChatUserEntry voiceChatUserEntry = new VoiceChatUserEntry(user);
+                voiceChannelUserContainer.getChildren().add(voiceChatUserEntry);
+                userVoiceChatUserHashMap.put(user, voiceChatUserEntry);
+            });
+        }
     }
 
     private void onAudioOutputButtonClick(MouseEvent mouseEvent) {
