@@ -40,12 +40,14 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     private final Channel model;
     private final VBox view;
-    private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
     private VBox serverChatView;
     private boolean canLoadOldMessages;
     private HBox loadOldMessagesBox;
-    private final ChangeListener<Number> scrollValueChangedListener = this::onScrollValueChanged;
     private VBox serverChatVBox;
+
+    private final ChangeListener<Number> scrollValueChangedListener = this::onScrollValueChanged;
+    private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
+    private final PropertyChangeListener messageTextChangeListener = this::onMessageTextChange;
 
     public ServerChatController(VBox view, Editor editor, Channel model) {
         super(editor);
@@ -78,6 +80,9 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     public void stop() {
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
+            for (Message message : model.getMessages()) {
+                message.listeners().removePropertyChangeListener(Message.PROPERTY_MESSAGE, messagesChangeListener);
+            }
         }
     }
 
@@ -86,6 +91,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         if (model.getMessages().size() != 0) {
             for (ServerMessage message : model.getMessages()) {
                 chatMessageList.addElement(message, parseMessage(message));
+                message.listeners().addPropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);
             }
         }
         if (model.getMessages().size() < 20) {
@@ -95,7 +101,8 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     @Override
     protected ChatMessage parseMessage(Message message) {
-        ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage());
+        ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage(),
+            message.getSender().getId().equals(editor.getOrCreateAccord().getCurrentUser().getId()));
 
         if (!message.getSender().getName().equals(currentUser.getName())) {
             InviteInfo info = MessageUtil.getInviteInfo(message.getMessage());
@@ -127,6 +134,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         ServerMessage msg = (ServerMessage) propertyChangeEvent.getNewValue();
         Channel source = (Channel) propertyChangeEvent.getSource();
         ChatMessage newChatMessageNode = parseMessage(msg);
+        msg.listeners().addPropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);
 
         if (source.getMessages().last().equals(msg)) {
             // append message
@@ -141,6 +149,11 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
                 chatMessageList.insertElement(insertPos, msg, newChatMessageNode);
             });
         }
+    }
+
+    private void onMessageTextChange(PropertyChangeEvent propertyChangeEvent) {
+        ServerMessage message = (ServerMessage) propertyChangeEvent.getSource();
+        chatMessageList.getElement(message).setMessageText(message.getMessage());
     }
 
     /**

@@ -83,6 +83,8 @@ public class Constants {
     public static final String LBL_GAME_LEFT = "LBL_GAME_LEFT";
     public static final String LBL_GAME_CHALLENGE = "LBL_GAME_CHALLENGE";
     public static final String LBL_GAME_WAIT = "LBL_GAME_WAIT";
+    public static final String LBL_EDIT_MESSAGE = "LBL_EDIT_MESSAGE";
+    public static final String LBL_EDIT_MESSAGE_FAILED = "LBL_EDIT_MESSAGE_FAILED";
     public static final String LBL_TEXT_CHANNEL = "LBL_TEXT_CHANNEL";
     public static final String LBL_VOICE_CHANNEL = "LBL_VOICE_CHANNEL";
 

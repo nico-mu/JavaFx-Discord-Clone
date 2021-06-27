@@ -168,6 +168,17 @@ public class Editor {
         return null;
     }
 
+    public Category getCategory(final String categoryId) {
+        for (Server server : accord.getCurrentUser().getAvailableServers()) {
+            for (Category category : server.getCategories()) {
+                if (category.getId().equals(categoryId)) {
+                    return category;
+                }
+            }
+        }
+        return null;
+    }
+
     public void deleteCategory(String serverId, String categoryId){
         Server server = getServer(serverId);
         Category delCat = getCategory(categoryId, server);

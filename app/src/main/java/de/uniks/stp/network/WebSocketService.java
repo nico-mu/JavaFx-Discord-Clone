@@ -411,6 +411,16 @@ public class WebSocketService {
                     editor.getOrCreateServerMember(userId, userName, server).setStatus(status);
                     break;
 
+                case "messageUpdated":
+                    String messageId = data.getString("id");
+                    categoryId = data.getString("category");
+                    channelId = data.getString("channel");
+                    String message = data.getString("text");
+                    Category category = editor.getCategory(categoryId);
+                    channel = editor.getChannel(channelId, category);
+                    editor.getOrCreateServerMessage(messageId, channel).setMessage(message);
+                    break;
+
                 default:
                     log.error("WebSocketService: can't process server system message with content: {}", jsonObject);
                     break;
