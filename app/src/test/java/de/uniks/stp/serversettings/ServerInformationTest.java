@@ -59,20 +59,12 @@ public class ServerInformationTest {
     @Captor
     private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
 
-    @Captor
-    private ArgumentCaptor<String> stringArgumentCaptor;
-
-    @Captor
-    private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
-
-    private HashMap<String, WSCallback> endpointCallbackHashmap;
     private StageManager app;
 
     @Start
     public void start(Stage stage) {
         // start application
         MockitoAnnotations.initMocks(this);
-        endpointCallbackHashmap = new HashMap<>();
         NetworkClientInjector.setRestClient(restMock);
         NetworkClientInjector.setWebSocketClient(webSocketMock);
         StageManager.setBackupMode(false);
@@ -265,9 +257,6 @@ public class ServerInformationTest {
         webSocketMock = null;
         res = null;
         callbackCaptor = null;
-        stringArgumentCaptor = null;
-        wsCallbackArgumentCaptor = null;
-        endpointCallbackHashmap = null;
         Platform.runLater(app::stop);
         WaitForAsyncUtils.waitForFxEvents();
         app = null;
