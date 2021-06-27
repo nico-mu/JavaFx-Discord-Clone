@@ -215,9 +215,6 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
                 ServerMessage msg = editor.getOrCreateServerMessage(msgId, model);
                 msg.setMessage(msgText).setTimestamp(timestamp).setId(msgId).setSender(sender);
                 msg.setChannel(model);  //message will be added to view by PropertyChangeListener
-                if (msg.listeners().getPropertyChangeListeners(Message.PROPERTY_MESSAGE).length == 0) {
-                    msg.listeners().addPropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);
-                }
             }
         } else {
             log.error("receiving old messages failed!");
