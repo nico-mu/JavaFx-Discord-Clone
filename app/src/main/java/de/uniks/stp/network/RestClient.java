@@ -212,4 +212,9 @@ public class RestClient {
             .body(Json.createObjectBuilder().add("text", text).build().toString());
         sendRequest(req, callback);
     }
+
+    public void deleteMessage(String serverId, String categoryId, String channelId, String messageId, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId + Constants.REST_MESSAGES_PATH + "/" + messageId);
+        sendRequest(req, callback);
+    }
 }

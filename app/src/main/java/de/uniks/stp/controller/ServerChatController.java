@@ -132,6 +132,13 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     private void handleNewMessage(PropertyChangeEvent propertyChangeEvent) {
         ServerMessage msg = (ServerMessage) propertyChangeEvent.getNewValue();
+        ServerMessage oldMsg = (ServerMessage) propertyChangeEvent.getOldValue();
+
+        if (Objects.isNull(msg) && Objects.nonNull(oldMsg)) {
+            Platform.runLater(() -> chatMessageList.removeElement(oldMsg));
+            return;
+        }
+
         Channel source = (Channel) propertyChangeEvent.getSource();
         ChatMessage newChatMessageNode = parseMessage(msg);
         msg.listeners().addPropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);

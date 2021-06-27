@@ -27,6 +27,11 @@
                      <Image url="@../img/edit.png" />
                   </image>
                </ImageView>
+               <ImageView fx:id="deleteMessage" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                     <Image url="@../img/delete.png" />
+                  </image>
+               </ImageView>
             </children>
          </HBox>
          <TextWithEmoteSupport fx:id="messageText" styleClass="message-text" />

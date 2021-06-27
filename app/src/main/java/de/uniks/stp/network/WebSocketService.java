@@ -421,6 +421,15 @@ public class WebSocketService {
                     editor.getOrCreateServerMessage(messageId, channel).setMessage(message);
                     break;
 
+                case "messageDeleted":
+                    messageId = data.getString("id");
+                    categoryId = data.getString("category");
+                    channelId = data.getString("channel");
+                    category = editor.getCategory(categoryId);
+                    channel = editor.getChannel(channelId, category);
+                    editor.deleteServerMessage(messageId, channel);
+                    break;
+
                 default:
                     log.error("WebSocketService: can't process server system message with content: {}", jsonObject);
                     break;

@@ -87,6 +87,8 @@ public class Constants {
     public static final String LBL_EDIT_MESSAGE_FAILED = "LBL_EDIT_MESSAGE_FAILED";
     public static final String LBL_TEXT_CHANNEL = "LBL_TEXT_CHANNEL";
     public static final String LBL_VOICE_CHANNEL = "LBL_VOICE_CHANNEL";
+    public static final String LBL_DELETE_MESSAGE_TITLE = "LBL_DELETE_MESSAGE_TITLE";
+    public static final String LBL_CONFIRM_DELETE_MESSAGE = "LBL_CONFIRM_DELETE_MESSAGE";
 
     // Websocket
     public static final String WEBSOCKET_BASE_URL = "wss://ac.uniks.de/ws";

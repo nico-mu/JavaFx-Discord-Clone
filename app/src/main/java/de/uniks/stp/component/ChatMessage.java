@@ -1,6 +1,7 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.modal.DeleteMessageModal;
 import de.uniks.stp.modal.EditMessageModal;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
@@ -39,6 +40,9 @@ public class ChatMessage extends HBox {
     @FXML
     private ImageView editMessage;
 
+    @FXML
+    private ImageView deleteMessage;
+
     private Message model;
 
     public ChatMessage(Message message, String language, boolean editable) {
@@ -60,13 +64,16 @@ public class ChatMessage extends HBox {
         this.setId("message-" + model.getId());
         messageText.setId("message-text-" + model.getId());
         editMessage.setId("edit-message-" + model.getId());
+        deleteMessage.setId("delete-message-" + model.getId());
 
         if (editable) {
             textVBox.setOnMouseEntered(this::onMouseEntered);
             textVBox.setOnMouseExited(this::onMouseExited);
             editMessage.setOnMouseClicked(this::onMessageEdited);
+            deleteMessage.setOnMouseClicked(this::onMessageDelete);
         }
         editMessage.setVisible(false);
+        deleteMessage.setVisible(false);
     }
 
     public void addJoinButtonButton(InviteInfo inviteInfo, EventHandler<ActionEvent> onButtonPressed){
@@ -80,15 +87,21 @@ public class ChatMessage extends HBox {
 
     private void onMouseExited(MouseEvent mouseEvent) {
         editMessage.setVisible(false);
+        deleteMessage.setVisible(false);
     }
 
     private void onMouseEntered(MouseEvent mouseEvent) {
         editMessage.setVisible(true);
+        deleteMessage.setVisible(true);
     }
 
     private void onMessageEdited(MouseEvent mouseEvent) {
         Parent editMessageModalView = ViewLoader.loadView(Views.EDIT_MESSAGE_MODAL);
         EditMessageModal editMessageModal = new EditMessageModal(editMessageModalView, (ServerMessage) model);
         editMessageModal.show();
+    }
+
+    private void onMessageDelete(MouseEvent mouseEvent) {
+        DeleteMessageModal deleteMessageModal = new DeleteMessageModal((ServerMessage) model);
     }
 }
