@@ -1,0 +1,13 @@
+@import "../base";
+
+.load-old-messages-label {
+  -fx-text-fill: #4059a9;
+}
+
+.load-old-messages-spinner .arc {
+  -fx-stroke: #4059a9;
+}
+
+.server-chat-vbox {
+  -fx-background-color: #2c2f33;
+}
