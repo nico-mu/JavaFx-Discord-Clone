@@ -81,7 +81,7 @@ public class ServerInformationTest {
     }
 
     @Test
-    public void ServerInformationTest(FxRobot nico) {
+    public void serverInformationTest(FxRobot robot) {
         Editor editor = StageManager.getEditor();
 
         String userId = "1";
@@ -135,7 +135,7 @@ public class ServerInformationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         Assertions.assertEquals(2, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().get(0).getUsers().size());
-        Assertions.assertNotEquals(userId, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().get(0).getOwner());
+        Assertions.assertNotEquals(currentUser, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().get(0).getOwner());
 
         //getCategories Response
         String category1Name = "category1Name";
@@ -251,11 +251,11 @@ public class ServerInformationTest {
         Assertions.assertEquals(userId, privilegedChannel.getChannelMembers().get(0).getId());
 
         //Check view
-        nico.clickOn("#" + server.getId()+"-navBarElement");
+        robot.clickOn("#" + server.getId()+"-navBarElement");
 
-        Set<Node> categoryElements =  nico.lookup("#category-head-pane").queryAll();
+        Set<Node> categoryElements =  robot.lookup("#category-head-pane").queryAll();
         Assertions.assertEquals(2, categoryElements.size());
-        Set<Node> channelElements = nico.lookup("#channel-element-marker").queryAll();
+        Set<Node> channelElements = robot.lookup("#channel-element-marker").queryAll();
         Assertions.assertEquals(3, channelElements.size());
     }
 
