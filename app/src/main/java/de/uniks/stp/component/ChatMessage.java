@@ -46,11 +46,9 @@ public class ChatMessage extends HBox {
     private ImageView deleteMessage;
 
     private Message model;
-    private String userKey;
 
-    public ChatMessage(Message message, String language, boolean editable, String userKey) {
+    public ChatMessage(Message message, String language, boolean editable) {
         this.model = message;
-        this.userKey = userKey;
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -106,6 +104,6 @@ public class ChatMessage extends HBox {
     }
 
     private void onMessageDelete(MouseEvent mouseEvent) {
-        DeleteMessageModal deleteMessageModal = new DeleteMessageModal((ServerMessage) model, userKey);
+        DeleteMessageModal deleteMessageModal = new DeleteMessageModal((ServerMessage) model);
     }
 }

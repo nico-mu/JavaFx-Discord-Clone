@@ -191,7 +191,7 @@ public class DeleteMessageTest {
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
 
-        verify(restMock).deleteMessage(eq(serverId), eq(categoryId), eq(channelOneId), eq(messageId), eq(userKey), callbackCaptor.capture());
+        verify(restMock).deleteMessage(eq(serverId), eq(categoryId), eq(channelOneId), eq(messageId), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();

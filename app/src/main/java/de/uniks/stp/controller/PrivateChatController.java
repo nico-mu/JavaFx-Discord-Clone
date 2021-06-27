@@ -113,7 +113,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
             info = MessageUtil.getInviteInfo(messageText);
         }
 
-        ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage(), false, editor.getOrCreateAccord().getUserKey());
+        ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage(), false);
 
         if (Objects.nonNull(info) && Objects.isNull(editor.getServer(info.getServerId()))) {
             messageNode.addJoinButtonButton(info, this::joinServer);

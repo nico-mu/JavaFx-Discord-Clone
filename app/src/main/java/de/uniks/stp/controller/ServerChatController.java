@@ -102,7 +102,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     @Override
     protected ChatMessage parseMessage(Message message) {
         ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage(),
-            message.getSender().getId().equals(editor.getOrCreateAccord().getCurrentUser().getId()), editor.getOrCreateAccord().getUserKey());
+            message.getSender().getId().equals(editor.getOrCreateAccord().getCurrentUser().getId()));
 
         if (!message.getSender().getName().equals(currentUser.getName())) {
             InviteInfo info = MessageUtil.getInviteInfo(message.getMessage());

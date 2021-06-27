@@ -19,11 +19,9 @@ public class DeleteMessageModal {
     private final Logger log = LoggerFactory.getLogger(EditMessageModal.class);
     private final ConfirmationModal confirmationModal;
     private final ServerMessage message;
-    private final String userKey;
 
-    public DeleteMessageModal(ServerMessage message, String userKey) {
+    public DeleteMessageModal(ServerMessage message) {
         this.message = message;
-        this.userKey = userKey;
         Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
         confirmationModal = new ConfirmationModal(confirmationModalView,
             Constants.LBL_DELETE_MESSAGE_TITLE,
@@ -43,7 +41,7 @@ public class DeleteMessageModal {
         String categoryId = this.message.getChannel().getCategory().getId();
         String channelId = this.message.getChannel().getId();
         String messageId = this.message.getId();
-        restClient.deleteMessage(serverId, categoryId, channelId, messageId, userKey, this::handleDeleteMessageResponse);
+        restClient.deleteMessage(serverId, categoryId, channelId, messageId, this::handleDeleteMessageResponse);
     }
 
     private void handleDeleteMessageResponse(HttpResponse<JsonNode> response) {
