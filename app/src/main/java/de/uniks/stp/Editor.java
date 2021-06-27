@@ -330,19 +330,25 @@ public class Editor {
     }
 
     public ServerMessage getOrCreateServerMessage(String msgId, Channel channel) {
-        for (ServerMessage message : channel.getMessages()) {
-            if(message.getId().equals(msgId)) {
-                return message;
+        synchronized (Channel.class) {
+            for (ServerMessage message : channel.getMessages()) {
+                if(message.getId().equals(msgId)) {
+                    return message;
+                }
             }
         }
         return (ServerMessage) new ServerMessage().setId(msgId);
     }
 
     public void deleteServerMessage(String messageId, Channel channel) {
-        for (ServerMessage message : channel.getMessages()) {
-            if(message.getId().equals(messageId)) {
-                channel.withoutMessages(message);
+        synchronized (Channel.class) {
+            ServerMessage toRemove = null;
+            for (ServerMessage message : channel.getMessages()) {
+                if(message.getId().equals(messageId)) {
+                    toRemove = message;
+                }
             }
+            channel.withoutMessages(toRemove);
         }
     }
 }

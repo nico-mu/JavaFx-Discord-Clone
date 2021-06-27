@@ -68,6 +68,7 @@ public class ChatMessage extends HBox {
         this.setId("message-" + model.getId());
         messageText.setId("message-text-" + model.getId());
         editMessage.setId("edit-message-" + model.getId());
+        deleteMessage.setId("delete-message-" + model.getId());
 
         if (editable) {
             textVBox.setOnMouseEntered(this::onMouseEntered);
