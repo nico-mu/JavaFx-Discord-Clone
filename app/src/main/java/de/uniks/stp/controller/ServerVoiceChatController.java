@@ -27,7 +27,7 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Objects;
 
-@Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_VOICE_CHANNEL)
+@Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
 public class ServerVoiceChatController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(ServerVoiceChatController.class);
 

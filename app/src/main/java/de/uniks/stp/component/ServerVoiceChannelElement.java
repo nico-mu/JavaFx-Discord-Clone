@@ -113,7 +113,7 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
         args.addArgument(":id", model.getCategory().getServer().getId());
         args.addArgument(":categoryId", model.getCategory().getId());
         args.addArgument(":channelId", model.getId());
-        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_VOICE_CHANNEL, args);
+        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args);
     }
 
     @Override

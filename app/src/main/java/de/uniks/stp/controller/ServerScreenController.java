@@ -104,13 +104,18 @@ public class ServerScreenController implements ControllerInterface {
         subviewCleanup();
         if (routeInfo.getSubControllerRoute().equals(Constants.ROUTE_CHANNEL)) {
             final Channel channel = selectAndGetChannel(args.getArguments());
+            final String channelType = channel.getType();
+            switch (channelType) {
+                case "text":
+                    serverChannelController = new ServerChatController(serverChannelContainer, editor, channel);
+                    break;
+                case "audio":
+                    serverChannelController = new ServerVoiceChatController(serverChannelContainer, editor, channel);
+                    break;
+                default:
+                    return;
+            }
             NotificationService.consume(channel);
-            serverChannelController = new ServerChatController(serverChannelContainer, editor, channel);
-            serverChannelController.init();
-            Router.addToControllerCache(routeInfo.getFullRoute(), serverChannelController);
-        } else if (routeInfo.getSubControllerRoute().equals(Constants.ROUTE_VOICE_CHANNEL)) {
-            final Channel channel = selectAndGetChannel(args.getArguments());
-            serverChannelController = new ServerVoiceChatController(serverChannelContainer, editor, channel);
             serverChannelController.init();
             Router.addToControllerCache(routeInfo.getFullRoute(), serverChannelController);
         }
