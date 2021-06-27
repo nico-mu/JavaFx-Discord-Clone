@@ -54,17 +54,11 @@ public class EditMessageTest {
     @Mock
     private HttpResponse<JsonNode> res;
 
-    @Mock
-    private HttpResponse<JsonNode> catRes;
-
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
 
     @Captor
     private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
-
-    @Captor
-    private ArgumentCaptor<Callback<JsonNode>> catCallbackCaptor;
 
     @Captor
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
