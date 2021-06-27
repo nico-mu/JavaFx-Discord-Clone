@@ -137,6 +137,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         ServerMessage msg = (ServerMessage) propertyChangeEvent.getNewValue();
         Channel source = (Channel) propertyChangeEvent.getSource();
         ChatMessage newChatMessageNode = parseMessage(msg);
+        msg.listeners().addPropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);
 
         if(source.getMessages().last().equals(msg)) {
             // append message
