@@ -10,6 +10,8 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.view.Views;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import kong.unirest.HttpResponse;
@@ -26,22 +28,39 @@ public class ServerVoiceChatController implements ControllerInterface {
     private static final String AUDIO_INPUT_BTN_ID = "#audio-input-btn";
     private static final String AUDIO_OUTPUT_BTN_ID = "#audio-output-btn";
     private static final String HANG_UP_BTN_ID = "#hang-up-btn";
+    private static final String AUDIO_INPUT_IMG_ID = "#audio-input-img";
+    private static final String AUDIO_OUTPUT_IMG_ID = "#audio-output-img";
 
     private final Channel model;
     private final RestClient restClient;
     private final VBox view;
     private final Editor editor;
+    private final Image initAudioInputImg;
+    private final Image otherAudioInputImg;
+    private final Image initAudioOutputImg;
+    private final Image otherAudioOutputImg;
     private VBox serverVoiceChatView;
     private JFXMasonryPane voiceChannelUserContainer;
     private JFXButton hangUpButton;
     private JFXButton audioInputButton;
     private JFXButton audioOutputButton;
+    private ImageView audioInputImgView;
+    private ImageView audioOutputImgView;
+    private Image nextAudioInputImg;
+    private boolean audioInMute = false;
+    private boolean audioOutMute = false;
 
     public ServerVoiceChatController(VBox view, Editor editor, Channel model) {
         this.view = view;
         this.editor = editor;
         this.model = model;
-        this.restClient = NetworkClientInjector.getRestClient();
+        restClient = NetworkClientInjector.getRestClient();
+
+        initAudioInputImg = ViewLoader.loadImage("microphone.png");
+        otherAudioInputImg = ViewLoader.loadImage("microphone-mute.png");
+
+        initAudioOutputImg = ViewLoader.loadImage("volume.png");
+        otherAudioOutputImg = ViewLoader.loadImage("volume-mute.png");
     }
 
     @Override
@@ -54,6 +73,12 @@ public class ServerVoiceChatController implements ControllerInterface {
         audioOutputButton = (JFXButton) serverVoiceChatView.lookup(AUDIO_OUTPUT_BTN_ID);
         hangUpButton = (JFXButton) serverVoiceChatView.lookup(HANG_UP_BTN_ID);
 
+        audioInputImgView = (ImageView) audioInputButton.getGraphic();
+        audioInputImgView.setImage(initAudioInputImg);
+
+        audioOutputImgView = (ImageView) audioOutputButton.getGraphic();
+        audioOutputImgView.setImage(initAudioOutputImg);
+
         audioInputButton.setOnMouseClicked(this::onAudioInputButtonClick);
         audioOutputButton.setOnMouseClicked(this::onAudioOutputButtonClick);
         hangUpButton.setOnMouseClicked(this::onHangUpButtonClick);
@@ -63,7 +88,14 @@ public class ServerVoiceChatController implements ControllerInterface {
 
     private void onAudioOutputButtonClick(MouseEvent mouseEvent) {
         log.debug("AudioOutput Button clicked");
-        // TODO implement
+        audioOutMute = !audioOutMute;
+        Image nextImg;
+        if (audioOutMute) {
+            nextImg = otherAudioOutputImg;
+        } else {
+            nextImg = initAudioOutputImg;
+        }
+        audioOutputImgView.setImage(nextImg);
     }
 
     private void onHangUpButtonClick(MouseEvent mouseEvent) {
@@ -73,6 +105,14 @@ public class ServerVoiceChatController implements ControllerInterface {
 
     private void onAudioInputButtonClick(MouseEvent mouseEvent) {
         log.debug("AudioInput Button clicked");
+        audioInMute = !audioInMute;
+        Image nextImg;
+        if (audioInMute) {
+            nextImg = otherAudioInputImg;
+        } else {
+            nextImg = initAudioInputImg;
+        }
+        audioInputImgView.setImage(nextImg);
         // TODO implement
     }
 
