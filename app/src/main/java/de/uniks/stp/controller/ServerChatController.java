@@ -81,7 +81,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
             for (Message message : model.getMessages()) {
-                message.listeners().addPropertyChangeListener(Message.PROPERTY_MESSAGE, messagesChangeListener);
+                message.listeners().removePropertyChangeListener(Message.PROPERTY_MESSAGE, messagesChangeListener);
             }
         }
     }
@@ -153,8 +153,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     private void onMessageTextChange(PropertyChangeEvent propertyChangeEvent) {
         ServerMessage message = (ServerMessage) propertyChangeEvent.getSource();
-        ChatMessage element = chatMessageList.getElement(message);
-        element.setMessageText(message.getMessage());
+        chatMessageList.getElement(message).setMessageText(message.getMessage());
     }
 
     /**
@@ -216,7 +215,9 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
                 ServerMessage msg = editor.getOrCreateServerMessage(msgId, model);
                 msg.setMessage(msgText).setTimestamp(timestamp).setId(msgId).setSender(sender);
                 msg.setChannel(model);  //message will be added to view by PropertyChangeListener
-                msg.listeners().addPropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);
+                if (msg.listeners().getPropertyChangeListeners(Message.PROPERTY_MESSAGE).length == 0) {
+                    msg.listeners().addPropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);
+                }
             }
         } else {
             log.error("receiving old messages failed!");
