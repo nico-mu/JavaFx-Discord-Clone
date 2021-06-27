@@ -1,23 +1,14 @@
 @import "../base";
 
 .audio-output-btn {
-  -fx-background-image: url('../../../img/volume.png');
-}
-
-.audio-output-btn .mute {
-  -fx-background-image: url('../../../img/volume-mute.png');
 }
 
 .hang-up-btn {
-  -fx-background-image: url('../../../img/hang.png');
+
 }
 
 .audio-input-btn {
-  -fx-background-image: url('../../../img/microphone.png');
-}
 
-.audio-input-btn .mute {
-  -fx-background-image: url('../../../img/microphone-mute.png');
 }
 
 .mid-pane {

@@ -20,7 +20,7 @@ public enum Components {
     JOIN_SERVER_BUTTON("JoinServerButton.fxml"),
     DIRECT_MESSAGE_LIST_ENTRY("DirectMessageListEntry.fxml"),
     LIST_COMPONENT("ListComponent.fxml"),
-    VOICE_CHAT_USER("VoiceChatUser.fxml");
+    VOICE_CHAT_USER("VoiceChatUserEntry.fxml");
 
     public final URL path;
 

@@ -6,7 +6,9 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
+import de.uniks.stp.component.VoiceChatUserEntry;
 import de.uniks.stp.model.Channel;
+import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.view.Views;
@@ -20,6 +22,11 @@ import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.HashMap;
+import java.util.Objects;
+
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_VOICE_CHANNEL)
 public class ServerVoiceChatController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(ServerVoiceChatController.class);
@@ -28,25 +35,23 @@ public class ServerVoiceChatController implements ControllerInterface {
     private static final String AUDIO_INPUT_BTN_ID = "#audio-input-btn";
     private static final String AUDIO_OUTPUT_BTN_ID = "#audio-output-btn";
     private static final String HANG_UP_BTN_ID = "#hang-up-btn";
-    private static final String AUDIO_INPUT_IMG_ID = "#audio-input-img";
-    private static final String AUDIO_OUTPUT_IMG_ID = "#audio-output-img";
-
+    private static final Image initAudioInputImg = ViewLoader.loadImage("microphone.png");
+    private static final Image otherAudioInputImg = ViewLoader.loadImage("microphone-mute.png");
+    private static final Image initAudioOutputImg = ViewLoader.loadImage("volume.png");
+    private static final Image otherAudioOutputImg = ViewLoader.loadImage("volume-mute.png");
+    private final HashMap<User, VoiceChatUserEntry> userVoiceChatUserHashMap = new HashMap<>();
     private final Channel model;
     private final RestClient restClient;
     private final VBox view;
     private final Editor editor;
-    private final Image initAudioInputImg;
-    private final Image otherAudioInputImg;
-    private final Image initAudioOutputImg;
-    private final Image otherAudioOutputImg;
     private VBox serverVoiceChatView;
     private JFXMasonryPane voiceChannelUserContainer;
+    private final PropertyChangeListener audioMembersPropertyChangeListener = this::onAudioMembersPropertyChange;
     private JFXButton hangUpButton;
     private JFXButton audioInputButton;
     private JFXButton audioOutputButton;
     private ImageView audioInputImgView;
     private ImageView audioOutputImgView;
-    private Image nextAudioInputImg;
     private boolean audioInMute = false;
     private boolean audioOutMute = false;
 
@@ -55,12 +60,17 @@ public class ServerVoiceChatController implements ControllerInterface {
         this.editor = editor;
         this.model = model;
         restClient = NetworkClientInjector.getRestClient();
+    }
 
-        initAudioInputImg = ViewLoader.loadImage("microphone.png");
-        otherAudioInputImg = ViewLoader.loadImage("microphone-mute.png");
+    private void onAudioMembersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final User oldValue = (User) propertyChangeEvent.getOldValue();
+        final User newValue = (User) propertyChangeEvent.getNewValue();
 
-        initAudioOutputImg = ViewLoader.loadImage("volume.png");
-        otherAudioOutputImg = ViewLoader.loadImage("volume-mute.png");
+        if (Objects.isNull(oldValue)) {
+            userJoined(newValue);
+        } else if (Objects.isNull(newValue)) {
+            userLeft(oldValue);
+        }
     }
 
     @Override
@@ -83,7 +93,21 @@ public class ServerVoiceChatController implements ControllerInterface {
         audioOutputButton.setOnMouseClicked(this::onAudioOutputButtonClick);
         hangUpButton.setOnMouseClicked(this::onHangUpButtonClick);
 
+        model.getAudioMembers().forEach(this::userJoined);
+        model.listeners().addPropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
+
         restClient.joinAudioChannel(this.model, this::joinAudioChannelCallback);
+    }
+
+    private void userLeft(User user) {
+        final VoiceChatUserEntry voiceChatUserEntry = userVoiceChatUserHashMap.remove(user);
+        voiceChannelUserContainer.getChildren().remove(voiceChatUserEntry);
+    }
+
+    private void userJoined(User user) {
+        final VoiceChatUserEntry voiceChatUserEntry = new VoiceChatUserEntry(user);
+        voiceChannelUserContainer.getChildren().add(voiceChatUserEntry);
+        userVoiceChatUserHashMap.put(user, voiceChatUserEntry);
     }
 
     private void onAudioOutputButtonClick(MouseEvent mouseEvent) {
@@ -138,6 +162,7 @@ public class ServerVoiceChatController implements ControllerInterface {
     @Override
     public void stop() {
         restClient.leaveAudioChannel(this.model, this::leaveAudioChannelCallback);
+        model.listeners().removePropertyChangeListener(audioMembersPropertyChangeListener);
 
         audioInputButton.setOnMouseClicked(null);
         hangUpButton.setOnMouseClicked(null);
