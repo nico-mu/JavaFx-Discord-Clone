@@ -1,7 +1,6 @@
 package de.uniks.stp.controller;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXMasonryPane;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
@@ -12,9 +11,12 @@ import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
 import de.uniks.stp.view.Views;
+import javafx.application.Platform;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
@@ -32,6 +34,7 @@ public class ServerVoiceChatController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(ServerVoiceChatController.class);
 
     private static final String VOICE_CHANNEL_USER_CONTAINER_ID = "#voice-channel-user-container";
+    private static final String VOICE_CHANNEL_USER_SCROLL_CONTAINER_ID = "#voice-channel-user-scroll-container";
     private static final String AUDIO_INPUT_BTN_ID = "#audio-input-btn";
     private static final String AUDIO_OUTPUT_BTN_ID = "#audio-output-btn";
     private static final String HANG_UP_BTN_ID = "#hang-up-btn";
@@ -45,7 +48,7 @@ public class ServerVoiceChatController implements ControllerInterface {
     private final VBox view;
     private final Editor editor;
     private VBox serverVoiceChatView;
-    private JFXMasonryPane voiceChannelUserContainer;
+    private FlowPane voiceChannelUserContainer;
     private final PropertyChangeListener audioMembersPropertyChangeListener = this::onAudioMembersPropertyChange;
     private JFXButton hangUpButton;
     private JFXButton audioInputButton;
@@ -78,7 +81,8 @@ public class ServerVoiceChatController implements ControllerInterface {
         serverVoiceChatView = (VBox) ViewLoader.loadView(Views.SERVER_VOICE_CHAT_SCREEN);
         view.getChildren().add(serverVoiceChatView);
 
-        voiceChannelUserContainer = (JFXMasonryPane) serverVoiceChatView.lookup(VOICE_CHANNEL_USER_CONTAINER_ID);
+        final ScrollPane voiceChannelUserScrollContainer = (ScrollPane) serverVoiceChatView.lookup(VOICE_CHANNEL_USER_SCROLL_CONTAINER_ID);
+        voiceChannelUserContainer = (FlowPane) voiceChannelUserScrollContainer.getContent().lookup(VOICE_CHANNEL_USER_CONTAINER_ID);
         audioInputButton = (JFXButton) serverVoiceChatView.lookup(AUDIO_INPUT_BTN_ID);
         audioOutputButton = (JFXButton) serverVoiceChatView.lookup(AUDIO_OUTPUT_BTN_ID);
         hangUpButton = (JFXButton) serverVoiceChatView.lookup(HANG_UP_BTN_ID);
@@ -120,6 +124,7 @@ public class ServerVoiceChatController implements ControllerInterface {
             nextImg = initAudioOutputImg;
         }
         audioOutputImgView.setImage(nextImg);
+        // TODO implement
     }
 
     private void onHangUpButtonClick(MouseEvent mouseEvent) {

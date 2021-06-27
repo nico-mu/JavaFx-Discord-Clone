@@ -1,7 +1,8 @@
 @import "../base";
 
 .audio-user-container {
-
+  -fx-border-color: $box-border;
+  //-fx-background-color: $box-fill;
 }
 
 .user-name-lbl {

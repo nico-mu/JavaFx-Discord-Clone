@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXButton?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.VBox?>
-<fx:root xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" prefHeight="100.0"
-         prefWidth="100.0"
-         stylesheets="@../style/css/component/voice-chat-user-entry.css"
-         type="VBox"
-         xmlns="http://javafx.com/javafx/11.0.1">
-    <Label fx:id="userNameLabel" styleClass="user-name-lbl" text="&lt;Name&gt;"/>
-    <JFXButton fx:id="muteAudioButton">
-        <graphic>
-            <ImageView fitHeight="25.0" fitWidth="25.0">
-                <Image url="@../img/microphone.png"/>
-            </ImageView>
-        </graphic>
-    </JFXButton>
+<?import com.jfoenix.controls.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+
+<fx:root type="Pane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+    </padding>
+    <VBox alignment="TOP_CENTER" prefHeight="92.0" prefWidth="92.0" spacing="20.0" styleClass="audio-user-container"
+          stylesheets="@../style/css/component/voice-chat-user-entry.css">
+        <Label fx:id="userNameLabel" styleClass="user-name-lbl" text="&lt;Name&gt;"/>
+        <JFXButton fx:id="muteAudioButton">
+            <graphic>
+                <ImageView fitHeight="25.0" fitWidth="25.0">
+                    <Image url="@../img/microphone.png"/>
+                </ImageView>
+            </graphic>
+        </JFXButton>
+    </VBox>
 </fx:root>
