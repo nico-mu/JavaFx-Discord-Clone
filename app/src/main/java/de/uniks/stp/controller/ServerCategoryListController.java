@@ -64,7 +64,6 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                 channelAdded(category, channel);
             }
         }
-        goToDefaultChannel();
     }
 
     private void onCategoriesPropertyChanged(PropertyChangeEvent propertyChangeEvent) {
@@ -107,18 +106,6 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             categoryElementHashMap.put(category, serverCategoryElement);
             Platform.runLater(() -> serverCategoryList.addElement(serverCategoryElement));
             category.listeners().addPropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
-        }
-    }
-
-    private void goToDefaultChannel() {
-        if(channelElementHashMap.containsKey(defaultChannel) && !Router.getCurrentArgs().containsKey(":channelId")) {
-            goToChannel(defaultChannel);
-
-            RouteArgs args = new RouteArgs();
-            args.addArgument(":id", defaultChannel.getCategory().getServer().getId());
-            args.addArgument(":categoryId", defaultChannel.getCategory().getId());
-            args.addArgument(":channelId", defaultChannel.getId());
-            Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
         }
     }
 
@@ -199,9 +186,6 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             // show ServerChatView of first loaded channel
             if (Objects.isNull(defaultChannel)) {
                 defaultChannel = channel;
-                if (!currentRouteArgs.containsKey(":channelId")) {
-                    goToDefaultChannel();
-                }
             }
             if(currentRouteArgs.containsKey(":channelId") && currentRouteArgs.get(":channelId").equals(channel.getId())) {
                 goToChannel(channel);
