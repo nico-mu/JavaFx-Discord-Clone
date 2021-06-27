@@ -1,7 +1,6 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.modal.ConfirmationModal;
 import de.uniks.stp.modal.DeleteMessageModal;
 import de.uniks.stp.modal.EditMessageModal;
 import de.uniks.stp.model.Message;
@@ -20,7 +19,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import org.checkerframework.checker.units.qual.C;
 
 import java.io.IOException;
 import java.util.Locale;
