@@ -337,4 +337,12 @@ public class Editor {
         }
         return (ServerMessage) new ServerMessage().setId(msgId);
     }
+
+    public void deleteServerMessage(String messageId, Channel channel) {
+        for (ServerMessage message : channel.getMessages()) {
+            if(message.getId().equals(messageId)) {
+                channel.withoutMessages(message);
+            }
+        }
+    }
 }

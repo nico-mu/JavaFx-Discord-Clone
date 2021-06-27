@@ -1,6 +1,8 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.modal.ConfirmationModal;
+import de.uniks.stp.modal.DeleteMessageModal;
 import de.uniks.stp.modal.EditMessageModal;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
@@ -18,6 +20,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import org.checkerframework.checker.units.qual.C;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -39,10 +42,15 @@ public class ChatMessage extends HBox {
     @FXML
     private ImageView editMessage;
 
-    private Message model;
+    @FXML
+    private ImageView deleteMessage;
 
-    public ChatMessage(Message message, String language, boolean editable) {
+    private Message model;
+    private String userKey;
+
+    public ChatMessage(Message message, String language, boolean editable, String userKey) {
         this.model = message;
+        this.userKey = userKey;
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -65,8 +73,10 @@ public class ChatMessage extends HBox {
             textVBox.setOnMouseEntered(this::onMouseEntered);
             textVBox.setOnMouseExited(this::onMouseExited);
             editMessage.setOnMouseClicked(this::onMessageEdited);
+            deleteMessage.setOnMouseClicked(this::onMessageDelete);
         }
         editMessage.setVisible(false);
+        deleteMessage.setVisible(false);
     }
 
     public void addJoinButtonButton(InviteInfo inviteInfo, EventHandler<ActionEvent> onButtonPressed){
@@ -80,15 +90,21 @@ public class ChatMessage extends HBox {
 
     private void onMouseExited(MouseEvent mouseEvent) {
         editMessage.setVisible(false);
+        deleteMessage.setVisible(false);
     }
 
     private void onMouseEntered(MouseEvent mouseEvent) {
         editMessage.setVisible(true);
+        deleteMessage.setVisible(true);
     }
 
     private void onMessageEdited(MouseEvent mouseEvent) {
         Parent editMessageModalView = ViewLoader.loadView(Views.EDIT_MESSAGE_MODAL);
         EditMessageModal editMessageModal = new EditMessageModal(editMessageModalView, (ServerMessage) model);
         editMessageModal.show();
+    }
+
+    private void onMessageDelete(MouseEvent mouseEvent) {
+        DeleteMessageModal deleteMessageModal = new DeleteMessageModal((ServerMessage) model, userKey);
     }
 }

@@ -102,7 +102,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     @Override
     protected ChatMessage parseMessage(Message message) {
         ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage(),
-            message.getSender().getId().equals(editor.getOrCreateAccord().getCurrentUser().getId()));
+            message.getSender().getId().equals(editor.getOrCreateAccord().getCurrentUser().getId()), editor.getOrCreateAccord().getUserKey());
 
         if (!message.getSender().getName().equals(currentUser.getName())) {
             InviteInfo info = MessageUtil.getInviteInfo(message.getMessage());
@@ -132,6 +132,13 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     private void handleNewMessage(PropertyChangeEvent propertyChangeEvent) {
         ServerMessage msg = (ServerMessage) propertyChangeEvent.getNewValue();
+        ServerMessage oldMsg = (ServerMessage) propertyChangeEvent.getOldValue();
+
+        if (Objects.isNull(msg) && Objects.nonNull(oldMsg)) {
+            Platform.runLater(() -> chatMessageList.removeElement(oldMsg));
+            return;
+        }
+
         Channel source = (Channel) propertyChangeEvent.getSource();
         ChatMessage newChatMessageNode = parseMessage(msg);
         msg.listeners().addPropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);
