@@ -179,7 +179,7 @@ public class ServerVoiceChatController implements ControllerInterface {
     @Override
     public void stop() {
         restClient.leaveAudioChannel(this.model, this::leaveAudioChannelCallback);
-        model.listeners().removePropertyChangeListener(audioMembersPropertyChangeListener);
+        model.listeners().removePropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
 
         audioInputButton.setOnMouseClicked(null);
         hangUpButton.setOnMouseClicked(null);

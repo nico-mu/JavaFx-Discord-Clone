@@ -13,7 +13,6 @@ import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -23,7 +22,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Objects;
 
 public class ServerVoiceChannelElement extends ServerChannelElement {
 
@@ -44,12 +43,11 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
 
     Channel model;
     private Editor editor;
-    private HashMap<String, UserListEntry> userListEntryHashMap;
+    private final ListComponent<User, VoiceUserListEntry> voiceUserListComponent;
 
     public ServerVoiceChannelElement(Channel model, Editor editor) {
         this.editor = editor;
         this.model = model;
-        userListEntryHashMap = new HashMap<>();
 
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_VOICE_CHANNEL_ELEMENT);
         fxmlLoader.setRoot(this);
@@ -60,6 +58,9 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+        voiceUserListComponent = new ListComponent<>();
+        audioMemberContainer.getChildren().add(voiceUserListComponent);
+
         channelText.setText(model.getName());
         channelText.setFont(Font.font(16));
         channelContainer.setOnMouseClicked(this::onMouseClicked);
@@ -69,13 +70,20 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
 
         editChannel.setOnMouseClicked(this::onEditChannelClicked);
 
-        channelText.setId(model.getId() + "-ChannelElementText");
-        for(User user : model.getAudioMembers()) {
-            UserListEntry userListEntry = new UserListEntry(user);
-            userListEntry.setOnMouseClicked(null);
-            userListEntry.setPadding(new Insets(0,0,0,12));
-            userListEntryHashMap.put(user.getId(), userListEntry);
-            audioMemberContainer.getChildren().add(userListEntry);
+        channelText.setId(model.getId() + "-ChannelElementVoice");
+
+        model.getAudioMembers().forEach(this::addAudioUser);
+    }
+
+    public void removeAudioUser(final User user) {
+        if (Objects.nonNull(user)) {
+            Platform.runLater(() -> voiceUserListComponent.removeElement(user));
+        }
+    }
+
+    public void addAudioUser(final User user) {
+        if (Objects.nonNull(user)) {
+            Platform.runLater(() -> voiceUserListComponent.addElement(user, new VoiceUserListEntry(user)));
         }
     }
 

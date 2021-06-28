@@ -1,39 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.uniks.stp.component.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.image.*?>
+<?import de.uniks.stp.component.TextWithEmoteSupport?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-
-<fx:root type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <VBox>
-         <children>
-            <HBox id="channel-container" fx:id="channelContainer" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="30.0" minWidth="-Infinity" prefWidth="170.0" spacing="5.0" styleClass="channel-container" stylesheets="@../style/css/component/server-category-list.css">
-               <children>
-                  <Pane id="channel-element-marker" fx:id="channelElementMarker" minWidth="-Infinity" prefWidth="4.0" styleClass="channel-element-marker" visible="false" />
-                  <ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../img/volume.png" />
-                     </image>
-                  </ImageView>
-                  <TextWithEmoteSupport fx:id="channelText" prefHeight="30.0" prefWidth="148.0" styleClass="channel-text">
-                     <padding>
-                        <Insets top="2.0" />
-                     </padding></TextWithEmoteSupport>
-                  <ImageView id="edit-channel" fx:id="editChannel" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" visible="false">
-                     <image>
-                        <Image url="@../img/gear.png" />
-                     </image>
-                  </ImageView>
-               </children>
-            </HBox>
-            <VBox fx:id="audioMemberContainer" prefWidth="100.0">
-               <VBox.margin>
-                  <Insets left="20.0" />
-               </VBox.margin>
-            </VBox>
-         </children>
-      </VBox>
-   </children>
+<fx:root xmlns:fx="http://javafx.com/fxml/1" type="HBox" xmlns="http://javafx.com/javafx/11.0.1">
+    <VBox>
+        <HBox id="channel-container" fx:id="channelContainer" alignment="CENTER_LEFT" maxHeight="-Infinity"
+              maxWidth="-Infinity" minHeight="30.0" minWidth="-Infinity" prefWidth="170.0" spacing="5.0"
+              styleClass="channel-container" stylesheets="@../style/css/component/server-category-list.css">
+            <Pane id="channel-element-marker" fx:id="channelElementMarker" minWidth="-Infinity" prefWidth="4.0"
+                  styleClass="channel-element-marker" visible="false"/>
+            <ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
+                <Image url="@../img/volume.png"/>
+            </ImageView>
+            <TextWithEmoteSupport fx:id="channelText" prefHeight="30.0" prefWidth="148.0"
+                                  styleClass="channel-text">
+                <padding>
+                    <Insets top="2.0"/>
+                </padding>
+            </TextWithEmoteSupport>
+            <ImageView id="edit-channel" fx:id="editChannel" fitHeight="20.0" fitWidth="20.0"
+                       pickOnBounds="true" preserveRatio="true" visible="false">
+                <Image url="@../img/gear.png"/>
+            </ImageView>
+        </HBox>
+        <VBox fx:id="audioMemberContainer" prefWidth="100.0">
+            <VBox.margin>
+                <Insets left="20.0"/>
+            </VBox.margin>
+        </VBox>
+    </VBox>
 </fx:root>

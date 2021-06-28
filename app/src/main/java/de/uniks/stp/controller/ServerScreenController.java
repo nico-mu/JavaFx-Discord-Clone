@@ -27,6 +27,9 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -36,6 +39,7 @@ import static de.uniks.stp.view.Views.SERVER_SCREEN;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER)
 public class ServerScreenController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(ServerScreenController.class);
 
     private static final String SERVER_NAME_ID = "#server-name";
     private static final String SERVER_CHANNEL_OVERVIEW = "#server-channel-overview";
@@ -113,6 +117,7 @@ public class ServerScreenController implements ControllerInterface {
                     serverChannelController = new ServerVoiceChatController(serverChannelContainer, editor, channel);
                     break;
                 default:
+                    log.error("Could not create a Controller for channelType: {}", channelType);
                     return;
             }
             NotificationService.consume(channel);

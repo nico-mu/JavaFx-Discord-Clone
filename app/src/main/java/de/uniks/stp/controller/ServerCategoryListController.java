@@ -6,6 +6,7 @@ import de.uniks.stp.component.*;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
+import de.uniks.stp.model.User;
 import de.uniks.stp.notification.NotificationEvent;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.notification.SubscriberInterface;
@@ -14,9 +15,12 @@ import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -25,6 +29,7 @@ import static de.uniks.stp.model.Server.PROPERTY_CATEGORIES;
 
 
 public class ServerCategoryListController implements ControllerInterface, SubscriberInterface {
+    private static final Logger log = LoggerFactory.getLogger(ServerCategoryListController.class);
 
     private Channel defaultChannel;
     private final Parent view;
@@ -39,6 +44,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     PropertyChangeListener channelPropertyChangeListener = this::onChannelPropertyChanged;
     PropertyChangeListener categoryNamePropertyChangeListener = this::onCatNamePropertyChanged;
     PropertyChangeListener channelNamePropertyChangeListener = this::onChannelNamePropertyChanged;
+    private final PropertyChangeListener audioMembersPropertyChangeListener = this::onAudioMembersPropertyChange;
 
     public ServerCategoryListController(Parent view, Editor editor, Server model) {
         this.view = view;
@@ -163,22 +169,42 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                 final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
                 Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
                 channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
+                removePropertyChangeListenerIfAudio(channel);
             }
+        }
+    }
+
+    private void removePropertyChangeListenerIfAudio(Channel channel) {
+        if ("audio".equals(channel.getType())) {
+            channel.listeners().removePropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
         }
     }
 
     private void channelAdded(final Category category, final Channel channel) {
         if (Objects.nonNull(category) && Objects.nonNull(channel) && Objects.nonNull(channel.getName()) &&
             !channelElementHashMap.containsKey(channel) && categoryElementHashMap.containsKey(category)) {
-            final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
-            boolean voice = channel.getType().equals("audio");
-            final ServerChannelElement serverChannelElement = voice ? new ServerVoiceChannelElement(channel, editor) : new ServerTextChannelElement(channel, editor);
+            PropertyChangeSupport channelPropertyChangeListeners = channel.listeners();
+            final String channelType = channel.getType();
+            ServerChannelElement serverChannelElement;
+            switch (channelType) {
+                case "text":
+                    serverChannelElement = new ServerTextChannelElement(channel, editor);
+                    break;
+                case "audio":
+                    serverChannelElement = new ServerVoiceChannelElement(channel, editor);
+                    channelPropertyChangeListeners.addPropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
+                    break;
+                default:
+                    log.error("Could not create a channel of the type: {}", channelType);
+                    return;
+            }
             NotificationService.register(channel);
-            channel.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
+            channelPropertyChangeListeners.addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             channelElementHashMap.put(channel, serverChannelElement);
+            final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             Platform.runLater(() -> {
                 serverCategoryElement.addChannelElement(serverChannelElement);
-                if (serverChannelElement.getChannelTextId().equals(channel.getId() + "-ChannelElementText")) {
+                if ("text".equals(channelType)) {
                     serverChannelElement.setNotificationCount(NotificationService.getPublisherNotificationCount(channel));
                 }
             });
@@ -193,6 +219,19 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         }
     }
 
+    private void onAudioMembersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final User oldValue = (User) propertyChangeEvent.getOldValue();
+        final User newValue = (User) propertyChangeEvent.getNewValue();
+        final Channel source = (Channel) propertyChangeEvent.getSource();
+        final ServerVoiceChannelElement serverChannelElement = (ServerVoiceChannelElement) channelElementHashMap.get(source);
+
+        if (Objects.isNull(oldValue)) {
+            serverChannelElement.addAudioUser(newValue);
+        } else if (Objects.isNull(newValue)) {
+            serverChannelElement.removeAudioUser(oldValue);
+        }
+    }
+
     @Override
     public void stop() {
         model.listeners().removePropertyChangeListener(PROPERTY_CATEGORIES, categoriesPropertyChangeListener);
@@ -203,6 +242,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         }
         for (Channel channel : model.getChannels()) {
             channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
+            removePropertyChangeListenerIfAudio(channel);
         }
         channelElementHashMap.clear();
         categoryElementHashMap.clear();
