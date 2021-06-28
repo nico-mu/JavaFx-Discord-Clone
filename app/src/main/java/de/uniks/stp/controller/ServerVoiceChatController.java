@@ -104,7 +104,7 @@ public class ServerVoiceChatController implements ControllerInterface {
     }
 
     private void userLeft(User user) {
-        if (Objects.nonNull(user) && isNotCurrentUser(user)) {
+        if (Objects.nonNull(user)) {
             Platform.runLater(() -> {
                 final VoiceChatUserEntry voiceChatUserEntry = userVoiceChatUserHashMap.remove(user);
                 voiceChannelUserContainer.getChildren().remove(voiceChatUserEntry);
@@ -117,7 +117,7 @@ public class ServerVoiceChatController implements ControllerInterface {
     }
 
     private void userJoined(User user) {
-        if (Objects.nonNull(user) && isNotCurrentUser(user)) {
+        if (Objects.nonNull(user)) {
             Platform.runLater(() -> {
                 final VoiceChatUserEntry voiceChatUserEntry = new VoiceChatUserEntry(user);
                 voiceChannelUserContainer.getChildren().add(voiceChatUserEntry);
