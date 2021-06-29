@@ -112,10 +112,6 @@ public class ServerVoiceChatController implements ControllerInterface {
         }
     }
 
-    private boolean isNotCurrentUser(User user) {
-        return !user.equals(editor.getOrCreateAccord().getCurrentUser());
-    }
-
     private void userJoined(User user) {
         if (Objects.nonNull(user)) {
             Platform.runLater(() -> {
