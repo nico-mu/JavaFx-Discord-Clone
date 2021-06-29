@@ -41,8 +41,11 @@ public class ServerMessage extends Message implements Comparable<ServerMessage>
 
     @Override
     public int compareTo(ServerMessage other) {
-        if(this.getTimestamp() <= other.getTimestamp()){
+        if(this.getTimestamp() < other.getTimestamp()){
             return -1;
+        }
+        else if (this.getTimestamp() == other.getTimestamp() && this.getId().equals(other.getId())) {
+            return 0;
         }
         return 1;
     }

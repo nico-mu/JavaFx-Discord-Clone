@@ -224,4 +224,15 @@ public class RestClient {
         final HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + catId + Constants.REST_CHANNEL_PATH + "/" + chanId + "/leave");
         sendRequest(req, callback);
     }
+
+    public void updateMessage(String serverId, String categoryId, String channelId, String messageId, String text, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.put(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId + Constants.REST_MESSAGES_PATH + "/" + messageId)
+            .body(Json.createObjectBuilder().add("text", text).build().toString());
+        sendRequest(req, callback);
+    }
+
+    public void deleteMessage(String serverId, String categoryId, String channelId, String messageId, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId + Constants.REST_MESSAGES_PATH + "/" + messageId);
+        sendRequest(req, callback);
+    }
 }
