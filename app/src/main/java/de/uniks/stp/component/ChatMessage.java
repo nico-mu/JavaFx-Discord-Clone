@@ -14,6 +14,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -83,6 +84,13 @@ public class ChatMessage extends HBox {
 
     public void setMessageText(String newText) {
         Platform.runLater(() -> messageText.setText(newText));
+    }
+
+    public void addImage(String url) {
+        ImageView imageView = new ImageView(new Image(url));
+        imageView.setFitHeight(100);
+        imageView.setFitWidth(100);
+        Platform.runLater(() -> textVBox.getChildren().add(imageView));
     }
 
     private void onMouseExited(MouseEvent mouseEvent) {

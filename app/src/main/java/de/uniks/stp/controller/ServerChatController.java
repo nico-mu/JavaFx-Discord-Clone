@@ -13,6 +13,7 @@ import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.util.InviteInfo;
 import de.uniks.stp.util.MessageUtil;
+import de.uniks.stp.util.UrlUtil;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -103,6 +104,9 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     protected ChatMessage parseMessage(Message message) {
         ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage(),
             message.getSender().getId().equals(editor.getOrCreateAccord().getCurrentUser().getId()));
+        if (UrlUtil.isImageURL(message.getMessage())) {
+            messageNode.addImage(message.getMessage());
+        }
 
         if (!message.getSender().getName().equals(currentUser.getName())) {
             InviteInfo info = MessageUtil.getInviteInfo(message.getMessage());

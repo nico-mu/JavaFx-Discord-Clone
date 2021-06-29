@@ -15,6 +15,7 @@ import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.util.InviteInfo;
 import de.uniks.stp.util.MessageUtil;
+import de.uniks.stp.util.UrlUtil;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
@@ -117,6 +118,10 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
 
         if (Objects.nonNull(info) && Objects.isNull(editor.getServer(info.getServerId()))) {
             messageNode.addJoinButtonButton(info, this::joinServer);
+        }
+
+        if (UrlUtil.isImageURL(message.getMessage())) {
+            messageNode.addImage(message.getMessage());
         }
 
         return messageNode;
