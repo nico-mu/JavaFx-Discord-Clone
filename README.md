@@ -12,12 +12,12 @@ Accord is the client you'll need to communicate with your peers and friends via 
 Grab the latest application state from our GitHub repository, create a new branch from the master following our naming
 conventions and start coding!
 
-It is advised that you use the buildRouteMap Gradle-Task on every pull of the master branch. You'll create the latest
+You should use the buildRouteMap Gradle-Task on every pull of the master branch. You'll create the latest
 RouteMapping and allow the routing system to work properly.
 
 ### Prerequisites
 
-The things you need before installing the software.
+Things you need before installing the software.
 
 * Java 11+ AdoptOpenJDK (HotSpot) 11.0.1 is recommended
 * JavaFX Scene Builder 11.0.0
@@ -35,6 +35,7 @@ There are a few things you need to know when using Accord.
 
 * [Release 1 documentation](https://seblog.cs.uni-kassel.de/wp-content/uploads/2021/04/ServerdokuR1.pdf)
 * [Release 2 documentation](https://seblog.cs.uni-kassel.de/wp-content/uploads/2021/05/ServerdokuR2.pdf)
+* [Release 3 documentation](https://seblog.cs.uni-kassel.de/wp-content/uploads/2021/06/ServerdokuR3.pdf)
 
 ### Branches
 
@@ -43,8 +44,8 @@ There are a few things you need to know when using Accord.
 * Bugfix: Any bugfix
 * Other: Can contain basically anything else.
 
-Please let your branches have a speaking name, so everyone knows what to expect. If the branch you created is a
-temporary one, it is your responsibility to delete it at the end of each sprint or provide an explanation why it must be
+Please let your branches have a speaking name, so everyone knows what to expect. If the branch you created is
+temporary, it is your responsibility to delete it at the end of each sprint or provide an explanation why it must be
 present on the remote!
 
 ## Additional Documentation and Acknowledgments
