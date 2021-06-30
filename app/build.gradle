@@ -47,6 +47,10 @@ test {
     useJUnitPlatform()
     jvmArgs "-Dtestfx.headless=true"
     maxHeapSize = "1024m"
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
 }
 
 jar {
