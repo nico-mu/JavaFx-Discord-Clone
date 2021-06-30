@@ -46,8 +46,7 @@ dependencies {
 test {
     useJUnitPlatform()
     jvmArgs "-Dtestfx.headless=true"
-    minHeapSize = "256m"
-    maxHeapSize = "512m"
+    maxHeapSize = "1024m"
 }
 
 jar {
