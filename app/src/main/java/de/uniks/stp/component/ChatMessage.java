@@ -152,11 +152,10 @@ public class ChatMessage extends HBox {
     }
 
     public void stop() {
-        this.getChildren().clear();
         for (WebView webView : medias) {
             webView.getEngine().load(null);
             webView = null;
         }
-        medias = null;
+        medias.clear();
     }
 }
