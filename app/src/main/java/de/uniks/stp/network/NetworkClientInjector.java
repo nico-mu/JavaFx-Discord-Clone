@@ -6,6 +6,7 @@ public class NetworkClientInjector {
 
     private static RestClient restClient = null;
     private static WebSocketClient webSocketClient = null;
+    private static MediaRequestClient mediaRequestClient = null;
 
     public static void setRestClient(RestClient newClient) {
         restClient = newClient;
@@ -24,6 +25,17 @@ public class NetworkClientInjector {
         }
         webSocketClient.inject(endpoint, callback);
         return webSocketClient;
+    }
+
+    public static void setMediaRequestClient(MediaRequestClient newMediaRequestClient) {
+        mediaRequestClient = newMediaRequestClient;
+    }
+
+    public static MediaRequestClient getMediaRequestClient() {
+        if(Objects.isNull(mediaRequestClient)) {
+            mediaRequestClient = new MediaRequestClient();
+        }
+        return mediaRequestClient;
     }
 
     public static void setWebSocketClient(WebSocketClient newWebSocketClient) {

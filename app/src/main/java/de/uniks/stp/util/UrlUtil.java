@@ -19,16 +19,15 @@ public class UrlUtil {
                 e.printStackTrace();
                 return false;
             }
-            if (connection.getHeaderField("Content-Type").startsWith("image/")) {
-                return true;
-            }
+            System.out.println(connection.getHeaderField("Content-Type"));
+            return connection.getHeaderField("Content-Type").startsWith("image/");
         }
         return false;
     }
 
     public static URL createURL(String URL) {
         try {
-            java.net.URL u = new URL(URL); // this would check for the protocol
+            URL u = new URL(URL); // this would check for the protocol
             u.toURI(); // does the extra checking required for validation of URI
             return u;
         } catch (MalformedURLException | URISyntaxException e) {

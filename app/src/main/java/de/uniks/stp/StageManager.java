@@ -130,6 +130,7 @@ public class StageManager extends Application {
                 RestClient.stop();
             });
 
+            NetworkClientInjector.getMediaRequestClient().stop();
             WebSocketService.stop();
             DatabaseService.stop();
         } catch (Exception e) {

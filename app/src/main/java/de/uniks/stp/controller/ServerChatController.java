@@ -9,6 +9,7 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.MediaRequestClient;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.util.InviteInfo;
@@ -46,6 +47,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     private HBox loadOldMessagesBox;
     private VBox serverChatVBox;
 
+    private final MediaRequestClient mediaRequestClient = NetworkClientInjector.getMediaRequestClient();
     private final ChangeListener<Number> scrollValueChangedListener = this::onScrollValueChanged;
     private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
     private final PropertyChangeListener messageTextChangeListener = this::onMessageTextChange;
@@ -105,7 +107,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage(),
             message.getSender().getId().equals(editor.getOrCreateAccord().getCurrentUser().getId()));
         if (UrlUtil.isImageURL(message.getMessage())) {
-            messageNode.addImage(message.getMessage());
+            mediaRequestClient.addImage(message.getMessage(), messageNode);
         }
 
         if (!message.getSender().getName().equals(currentUser.getName())) {

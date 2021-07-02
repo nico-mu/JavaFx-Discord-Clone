@@ -1,5 +1,6 @@
 package de.uniks.stp.component;
 
+import com.sun.javafx.webkit.Accessor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.DeleteMessageModal;
 import de.uniks.stp.modal.EditMessageModal;
@@ -14,12 +15,12 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.web.WebView;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -87,10 +88,14 @@ public class ChatMessage extends HBox {
     }
 
     public void addImage(String url) {
-        ImageView imageView = new ImageView(new Image(url));
-        imageView.setFitHeight(100);
-        imageView.setFitWidth(100);
-        Platform.runLater(() -> textVBox.getChildren().add(imageView));
+        Platform.runLater(() -> {
+            WebView webView = new WebView();
+            webView.getEngine().loadContent("<img src=\"" + url + "\" width=\"80\" height=\"80\">", "text/html");
+            webView.setMaxHeight(100);
+            webView.setMaxWidth(100);
+            Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
+            textVBox.getChildren().add(webView);
+        });
     }
 
     private void onMouseExited(MouseEvent mouseEvent) {

@@ -11,6 +11,8 @@ import de.uniks.stp.minigame.GameInvitation;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.MediaRequestClient;
+import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.util.InviteInfo;
@@ -40,6 +42,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
     private final User user;
     private final Parent view;
     private final MiniGameController miniGameController;
+    private final MediaRequestClient mediaRequestClient = NetworkClientInjector.getMediaRequestClient();
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
@@ -121,7 +124,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
         }
 
         if (UrlUtil.isImageURL(message.getMessage())) {
-            messageNode.addImage(message.getMessage());
+            mediaRequestClient.addImage(message.getMessage(), messageNode);
         }
 
         return messageNode;

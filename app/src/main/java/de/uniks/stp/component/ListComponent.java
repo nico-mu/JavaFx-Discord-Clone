@@ -1,7 +1,6 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.model.DirectMessage;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.collections.ObservableList;

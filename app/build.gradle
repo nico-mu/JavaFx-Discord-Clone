@@ -12,7 +12,7 @@ version '1.0.0'
 
 javafx {
     version = "12"
-    modules = ['javafx.graphics', 'javafx.fxml', 'javafx.base', 'javafx.controls', 'javafx.media']
+    modules = ['javafx.graphics', 'javafx.fxml', 'javafx.base', 'javafx.controls', 'javafx.media', 'javafx.web']
 }
 
 dependencies {
@@ -20,6 +20,7 @@ dependencies {
 
     compile 'com.jfoenix:jfoenix:9.0.10'
     compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.10.6'
+    compile group: 'org.openjfx', name: 'javafx-web', version: '13.0.1'
 
     implementation group: 'com.konghq', name: 'unirest-java', version: '3.11.09'
     implementation group: 'javax.websocket', name: 'javax.websocket-api', version: '1.1'
