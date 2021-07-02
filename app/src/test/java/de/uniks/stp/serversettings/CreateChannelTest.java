@@ -7,18 +7,19 @@ import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.*;
+import de.uniks.stp.network.rest.AppRestClient;
+import de.uniks.stp.network.websocket.WSCallback;
+import de.uniks.stp.network.websocket.WebSocketClient;
+import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
-import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +45,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(ApplicationExtension.class)
 public class CreateChannelTest {
     @Mock
-    private RestClient restMock;
+    private AppRestClient restMock;
 
     @Mock
     private WebSocketClient webSocketMock;

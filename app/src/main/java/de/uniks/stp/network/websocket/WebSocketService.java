@@ -1,8 +1,8 @@
-package de.uniks.stp.network;
+package de.uniks.stp.network.websocket;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.minigame.GameCommand;
 import de.uniks.stp.model.*;
 import de.uniks.stp.notification.NotificationService;
@@ -10,6 +10,7 @@ import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -23,34 +24,40 @@ import java.util.stream.Collectors;
 public class WebSocketService {
     private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
 
-    private static final HashMap<String, WebSocketClient> pathWebSocketClientHashMap = new HashMap<>();
-    private static Editor editor;
-    private static User currentUser;
+    private final HashMap<String, WebSocketClient> pathWebSocketClientHashMap = new HashMap<>();
+    private final User currentUser;
+    private final Editor editor;
+    private final NotificationService notificationService;
+    private final SessionDatabaseService databaseService;
 
-    public static void setEditor(Editor editor) {
-        WebSocketService.editor = editor;
-    }
+    @Inject
+    private WebSocketClient.WebSocketClientFactory webSocketClientFactory;
 
-    public static void stop() {
-        if (!pathWebSocketClientHashMap.isEmpty()) {
-            pathWebSocketClientHashMap.values().forEach(WebSocketClient::stop);
-        }
-        pathWebSocketClientHashMap.clear();
-    }
-
-    /**
-     * Creates and saves WebSocketClients for private chat and system messages
-     */
-    public static void init() {
+    @Inject
+    public WebSocketService(Editor editor,
+                            NotificationService notificationService,
+                            SessionDatabaseService databaseService) {
+        this.editor = editor;
         currentUser = editor.getOrCreateAccord().getCurrentUser();
+        this.notificationService = notificationService;
+        this.databaseService = databaseService;
+    }
 
-        final WebSocketClient systemWebSocketClient = NetworkClientInjector.getWebSocketClient(Constants.WS_SYSTEM_PATH, WebSocketService::onSystemMessage);
+    public void init() {
+        final WebSocketClient systemWebSocketClient = webSocketClientFactory.create(Constants.WS_SYSTEM_PATH, this::onSystemMessage);
         pathWebSocketClientHashMap.put(Constants.WS_SYSTEM_PATH, systemWebSocketClient);
 
 
         String endpoint = Constants.WS_USER_PATH + encode(currentUser.getName());
-        final WebSocketClient privateWebSocketClient = NetworkClientInjector.getWebSocketClient(endpoint, WebSocketService::onPrivateMessage);
+        final WebSocketClient privateWebSocketClient = webSocketClientFactory.create(endpoint, this::onPrivateMessage);
         pathWebSocketClientHashMap.put(endpoint, privateWebSocketClient);
+    }
+
+    public void stop() {
+        if (!pathWebSocketClientHashMap.isEmpty()) {
+            pathWebSocketClientHashMap.values().forEach(WebSocketClient::stop);
+        }
+        pathWebSocketClientHashMap.clear();
     }
 
     /**
@@ -59,21 +66,21 @@ public class WebSocketService {
      *
      * @param serverId
      */
-    public static void addServerWebSocket(String serverId) {
+    public void addServerWebSocket(String serverId) {
         String endpoint = Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + encode(serverId);
         if (!pathWebSocketClientHashMap.containsKey(endpoint)) {
-            final WebSocketClient systemServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, (msg) -> onServerSystemMessage(msg, serverId));
+            final WebSocketClient systemServerWSC = webSocketClientFactory.create(endpoint, (msg) -> onServerSystemMessage(msg, serverId));
             pathWebSocketClientHashMap.put(endpoint, systemServerWSC);
         }
 
         endpoint = Constants.WS_USER_PATH + encode(currentUser.getName()) + Constants.WS_SERVER_CHAT_PATH + encode(serverId);
         if (!pathWebSocketClientHashMap.containsKey(endpoint)) {
-            final WebSocketClient chatServerWSC = NetworkClientInjector.getWebSocketClient(endpoint, (msg) -> onServerChatMessage(msg, serverId));
+            final WebSocketClient chatServerWSC = webSocketClientFactory.create(endpoint, (msg) -> onServerChatMessage(msg, serverId));
             pathWebSocketClientHashMap.put(endpoint, chatServerWSC);
         }
     }
 
-    private static String encode(final String e) {
+    private String encode(final String e) {
         return URLEncoder.encode(e, Charset.defaultCharset());
     }
 
@@ -83,7 +90,7 @@ public class WebSocketService {
      * @param receiverName
      * @param message
      */
-    public static void sendPrivateMessage(String receiverName, String message) {
+    public void sendPrivateMessage(String receiverName, String message) {
         JsonObject msgObject = Json.createObjectBuilder()
             .add("channel", "private")
             .add("to", receiverName)
@@ -107,7 +114,7 @@ public class WebSocketService {
      *
      * @param jsonStructure
      */
-    private static void onPrivateMessage(JsonStructure jsonStructure) {
+    private void onPrivateMessage(JsonStructure jsonStructure) {
         log.debug("Received private message with content: {}", jsonStructure.toString());
 
         final JSONObject jsonObject = new JSONObject(jsonStructure.asJsonObject().toString());
@@ -136,10 +143,9 @@ public class WebSocketService {
         List<String> ingameCommands = EnumSet.allOf(GameCommand.class).stream().map(e -> e.command).collect(Collectors.toList());
         ingameCommands.remove(GameCommand.PLAY.command);
         if(! ingameCommands.contains(msgText)){
-            DatabaseService.saveDirectMessage(msg);
-
-            NotificationService.register(chatPartner);
-            NotificationService.onPrivateMessage(chatPartner);
+            databaseService.saveDirectMessage(msg);
+            notificationService.register(chatPartner);
+            notificationService.onPrivateMessage(chatPartner);
         }
     }
 
@@ -148,7 +154,7 @@ public class WebSocketService {
      *
      * @param jsonStructure
      */
-    private static void onSystemMessage(final JsonStructure jsonStructure) {
+    private void onSystemMessage(final JsonStructure jsonStructure) {
         log.debug("Received system message with content: {}", jsonStructure.toString());
 
         final JsonObject jsonObject = jsonStructure.asJsonObject();
@@ -185,7 +191,7 @@ public class WebSocketService {
      * @param channelId
      * @param message
      */
-    public static void sendServerMessage(String serverId, String channelId, String message) {
+    public void sendServerMessage(String serverId, String channelId, String message) {
         JsonObject msgObject = Json.createObjectBuilder()
             .add("channel", channelId)
             .add("message", message)
@@ -208,7 +214,7 @@ public class WebSocketService {
      * @param jsonStructure
      * @param serverId
      */
-    private static void onServerChatMessage(JsonStructure jsonStructure, String serverId) {
+    private void onServerChatMessage(JsonStructure jsonStructure, String serverId) {
         log.debug("received server chat message: {}", jsonStructure.toString());
 
         final JSONObject jsonObject = new JSONObject(jsonStructure.asJsonObject().toString());
@@ -238,10 +244,10 @@ public class WebSocketService {
         Channel channel = editor.getChannel(channelId, server);
         if (Objects.isNull(channel)) {
             channel = new Channel().setServer(server).setId(channelId);
-            NotificationService.register(channel);
+            notificationService.register(channel);
         }
         msg.setChannel(channel);
-        NotificationService.onChannelMessage(channel);
+        notificationService.onChannelMessage(channel);
     }
 
     /**
@@ -251,7 +257,7 @@ public class WebSocketService {
      *
      * @param jsonStructure
      */
-    private static void onServerSystemMessage(JsonStructure jsonStructure, String serverId) {
+    private void onServerSystemMessage(JsonStructure jsonStructure, String serverId) {
         log.debug("received server system message: {}", jsonStructure.toString());
 
         JsonObject jsonObject = jsonStructure.asJsonObject();
@@ -296,7 +302,7 @@ public class WebSocketService {
                     JsonArray jsonArray = data.getJsonArray("members");
 
                     Channel channel = new Channel().setId(channelId).setName(channelName).setType(type).setPrivileged(privileged);
-                    NotificationService.register(channel);
+                    notificationService.register(channel);
                     Server modifiedServer = null;
 
                     for (Server server : editor.getAvailableServers()) {
@@ -352,7 +358,7 @@ public class WebSocketService {
                         ch.setName(chName);
                         ch.setType(chType);
                         ch.setPrivileged(priv);
-                        NotificationService.register(ch);
+                        notificationService.register(ch);
                         for (Category category : editor.getServer(serverId).getCategories()) {
                             if (category.getId().equals(categId)) {
                                 category.withChannels(ch);
@@ -380,11 +386,14 @@ public class WebSocketService {
                 case "serverDeleted":
                     serverId = data.getString("id");
                     editor.removeServer(serverId);
+                    databaseService.removeMutedServerId(serverId);
                     break;
                 case "channelDeleted":
                     channelId = data.getString("id");
                     categoryId = data.getString("category");
+                    notificationService.removePublisher(editor.getChannelById(channelId));
                     editor.deleteChannel(channelId);
+                    databaseService.removeMutedChannelId(channelId);
                     break;
                 case "categoryDeleted":
                     categoryId = data.getString("id");

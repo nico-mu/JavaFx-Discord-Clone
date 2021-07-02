@@ -1,11 +1,8 @@
 package de.uniks.stp.emote;
 
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.network.WebSocketService;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -15,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class EmoteParser {
-    private static final Map<String, String> emoteMapping = new HashMap<>();;
+    private static final Map<String, String> emoteMapping = new HashMap<>();
 
     static {
         InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/emote-list.json"));

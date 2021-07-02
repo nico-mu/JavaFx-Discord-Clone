@@ -2,14 +2,15 @@ package de.uniks.stp.controller;
 
 import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Editor;
+import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.ChatMessage;
 import de.uniks.stp.component.ChatMessageInput;
 import de.uniks.stp.component.ListComponent;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.ServerInformationHandler;
+import de.uniks.stp.network.rest.AppRestClient;
+import de.uniks.stp.network.rest.ServerInformationHandler;
+import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.util.InviteInfo;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -18,24 +19,30 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 abstract public class ChatController<T> {
 
     private static final Logger log = LoggerFactory.getLogger(ChatController.class);
     protected final Parent view;
     protected final Editor editor;
-    protected final RestClient restClient;
     protected final User currentUser;
-    protected final ServerInformationHandler serverInformationHandler;
     protected final ChatMessageInput chatMessageInput;
-
     protected final ListComponent<T, ChatMessage> chatMessageList;
+
+    @Inject
+    protected ServerInformationHandler serverInformationHandler;
+
+    @Inject
+    protected SessionRestClient restClient;
+
+    @Inject
+    protected ViewLoader viewLoader;
 
     public ChatController(Parent view, Editor editor) {
         this.view = view;
         this.editor = editor;
-        restClient = NetworkClientInjector.getRestClient();
         currentUser = editor.getOrCreateAccord().getCurrentUser();
-        serverInformationHandler = new ServerInformationHandler(editor);
         chatMessageInput = new ChatMessageInput();
         chatMessageList = new ListComponent<>("message-list");
         chatMessageList.setIsScrollAware(true);

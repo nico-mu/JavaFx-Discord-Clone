@@ -1,5 +1,8 @@
 package de.uniks.stp.controller;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.NavBarList;
@@ -9,10 +12,9 @@ import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.ServerInformationHandler;
-import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.network.rest.ServerInformationHandler;
+import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.notification.NotificationEvent;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.notification.SubscriberInterface;
@@ -40,18 +42,32 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     private final NavBarList navBarList;
     private final static String NAV_BAR_CONTAINER_ID = "#nav-bar";
 
+    private final SessionRestClient restClient;
+    private final ServerInformationHandler serverInformationHandler;
+    private final NotificationService notificationService;
+    private final WebSocketService webSocketService;
+    private final Router router;
+
     private AnchorPane anchorPane;
-    private RestClient restClient;
-    private ServerInformationHandler serverInformationHandler;
     PropertyChangeListener availableServersPropertyChangeListener = this::onAvailableServersPropertyChange;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
 
-    public NavBarListController(Parent view, Editor editor) {
+    @AssistedInject
+    public NavBarListController(Editor editor,
+                                SessionRestClient restClient,
+                                ServerInformationHandler informationHandler,
+                                NotificationService notificationService,
+                                WebSocketService webSocketService,
+                                Router router,
+                                @Assisted Parent view) {
         this.view = view;
         this.editor = editor;
         this.navBarList = new NavBarList(editor);
-        this.restClient = NetworkClientInjector.getRestClient();
-        this.serverInformationHandler = new ServerInformationHandler(editor);
+        this.restClient = restClient;
+        this.serverInformationHandler = informationHandler;
+        this.notificationService = notificationService;
+        this.webSocketService = webSocketService;
+        this.router = router;
     }
 
     @Override
@@ -67,15 +83,15 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
         //TODO: show spinner
         restClient.getServers(this::callback);
-        NotificationService.registerChannelSubscriber(this);
-        NotificationService.registerUserSubscriber(this);
+        notificationService.registerChannelSubscriber(this);
+        notificationService.registerUserSubscriber(this);
     }
 
     private void serverAdded(final Server server) {
         if (Objects.nonNull(server) && !navBarList.containsServer(server)) {
-            WebSocketService.addServerWebSocket(server.getId());  // enables sending & receiving messages
+            webSocketService.addServerWebSocket(server.getId());  // enables sending & receiving messages
             final NavBarServerElement navBarElement = new NavBarServerElement(server);
-            navBarElement.setNotificationCount(NotificationService.getServerNotificationCount(server));
+            navBarElement.setNotificationCount(notificationService.getServerNotificationCount(server));
             Platform.runLater(() -> navBarList.addServerElement(server, navBarElement));
             server.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
         }
@@ -83,16 +99,16 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
 
     private void serverRemoved(final Server server) {
         // in case the deleted server is currently shown: show home screen
-        HashMap<String, String> currentArgs = Router.getCurrentArgs();
+        HashMap<String, String> currentArgs = router.getCurrentArgs();
         if(currentArgs.containsKey(":id") && currentArgs.get(":id").equals(server.getId())) {
-            Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE));
+            Platform.runLater(()-> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_ONLINE));
             navBarList.setHomeElementActive();
         }
 
         if (Objects.nonNull(server) && navBarList.containsServer(server)) {
             Platform.runLater(() -> navBarList.removeServerElement(server));
             for (Channel channel : server.getChannels()) {
-                NotificationService.removePublisher(channel);
+                notificationService.removePublisher(channel);
             }
         }
         server.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
@@ -111,8 +127,8 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
                 restClient.getServerInformation(serverId, serverInformationHandler::handleServerInformationRequest);
                 restClient.getCategories(server.getId(), (msg) -> serverInformationHandler.handleCategories(msg, server));
             }
-            if (Router.getCurrentArgs().containsKey(":id") && Router.getCurrentArgs().containsKey(":channelId")) {
-                String activeServerId = Router.getCurrentArgs().get(":id");
+            if (router.getCurrentArgs().containsKey(":id") && router.getCurrentArgs().containsKey(":channelId")) {
+                String activeServerId = router.getCurrentArgs().get(":id");
                 Server server = editor.getServer(activeServerId);
 
                 if(Objects.nonNull(server) && navBarList.containsServer(server)) {
@@ -149,8 +165,8 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         }
         navBarList.clear();
 
-        NotificationService.removeChannelSubscriber(this);
-        NotificationService.removeUserSubscriber(this);
+        notificationService.removeChannelSubscriber(this);
+        notificationService.removeUserSubscriber(this);
     }
 
     @Override
@@ -161,7 +177,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
             Server server = Objects.isNull(category) ? channel.getServer(): category.getServer();
 
             if (Objects.nonNull(server) && navBarList.containsServer(server)) {
-                navBarList.getServerElement(server).setNotificationCount(NotificationService.getServerNotificationCount(server));
+                navBarList.getServerElement(server).setNotificationCount(notificationService.getServerNotificationCount(server));
             }
         }
     }
@@ -194,5 +210,10 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         if(Objects.nonNull(server) && navBarList.containsServer(server)) {
             Platform.runLater(() -> navBarList.getServerElement(server).installTooltip(server.getName()));
         }
+    }
+
+    @AssistedFactory
+    public interface NavBarListControllerFactory {
+        NavBarListController create(Parent view);
     }
 }

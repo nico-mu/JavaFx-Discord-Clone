@@ -1,16 +1,19 @@
-package de.uniks.stp.network;
+package de.uniks.stp.network.websocket;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
+import de.uniks.stp.Editor;
 import de.uniks.stp.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import javax.json.JsonObject;
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -27,12 +30,13 @@ public class WebSocketClient extends Endpoint {
      * @param endpoint URI with connection adress
      * @param callback method to call when message is received
      */
-    public WebSocketClient(String endpoint, WSCallback callback) {
+    @AssistedInject
+    public WebSocketClient(@Named("userKey") String userKey, @Assisted String endpoint, @Assisted WSCallback callback) {
         this.noopTimer = new Timer();
 
         try {
             ClientEndpointConfig clientConfig = ClientEndpointConfig.Builder.create()
-                .configurator(new CustomWebSocketConfigurator(UserKeyProvider.getUserKey()))
+                .configurator(new CustomWebSocketConfigurator(userKey))
                 .build();
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -49,10 +53,6 @@ public class WebSocketClient extends Endpoint {
         } catch (Exception e) {
             log.error("Error during establishing websocket connection:", e);
         }
-    }
-
-    public void inject(String endpoint, WSCallback callback) {
-        //needed for testing purposes
     }
 
     /**
@@ -138,5 +138,10 @@ public class WebSocketClient extends Endpoint {
             }
             this.session = null;
         }
+    }
+
+    @AssistedFactory
+    public interface WebSocketClientFactory {
+        WebSocketClient create(String endpoint, WSCallback callback);
     }
 }

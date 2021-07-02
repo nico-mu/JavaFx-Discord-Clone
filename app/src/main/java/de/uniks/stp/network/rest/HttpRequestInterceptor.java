@@ -1,15 +1,24 @@
-package de.uniks.stp.network;
+package de.uniks.stp.network.rest;
 
+import de.uniks.stp.Editor;
 import kong.unirest.Config;
 import kong.unirest.HttpMethod;
 import kong.unirest.HttpRequest;
 import kong.unirest.Interceptor;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import static de.uniks.stp.Constants.*;
 
 public class HttpRequestInterceptor implements Interceptor {
 
+    private final String userKey;
 
+    @Inject
+    public HttpRequestInterceptor(@Named("userKey") String userKey) {
+        this.userKey = userKey;
+    }
     /**
      * Is called before a http request is sent to the server, adds
      * the userKey to the header if we need to. (For all routes except the login and register route)
@@ -32,7 +41,7 @@ public class HttpRequestInterceptor implements Interceptor {
         if(!(requestMethod == HttpMethod.POST &&
             (requestPath.equals(loginPath) || requestPath.equals(REST_USERS_PATH))))
         {
-            request.header(USER_KEY_HEADER_NAME, UserKeyProvider.getUserKey());
+            request.header(USER_KEY_HEADER_NAME, userKey);
         }
 
         Interceptor.super.onRequest(request, config);

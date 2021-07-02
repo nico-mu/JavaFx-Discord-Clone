@@ -1,17 +1,18 @@
 package de.uniks.stp.controller;
 
 import com.jfoenix.controls.*;
-import de.uniks.stp.*;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
+import de.uniks.stp.Constants;
+import de.uniks.stp.Editor;
+import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.jpa.AccordSettingKey;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.jpa.AppDatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
-import de.uniks.stp.language.LanguageService;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.UserKeyProvider;
-import de.uniks.stp.notification.NotificationService;
+import de.uniks.stp.network.rest.AppRestClient;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -31,7 +32,10 @@ public class LoginScreenController implements ControllerInterface {
 
     private final Parent view;
     private final Editor editor;
-    private final RestClient restClient;
+    private final AppRestClient restClient;
+    private final AppDatabaseService databaseService;
+    private final Router router;
+    private final ViewLoader viewLoader;
 
     private JFXTextField nameField;
     private JFXPasswordField passwordField;
@@ -46,10 +50,19 @@ public class LoginScreenController implements ControllerInterface {
     private String password;
     private boolean tempUserLogin;
 
-    public LoginScreenController(Parent view, Editor editor) {
+    @AssistedInject
+    public LoginScreenController(Editor editor,
+                                 AppDatabaseService databaseService,
+                                 AppRestClient restClient,
+                                 Router router,
+                                 ViewLoader viewLoader,
+                                 @Assisted Parent view) {
         this.view = view;
         this.editor = editor;
-        this.restClient = NetworkClientInjector.getRestClient();
+        this.restClient = restClient;
+        this.databaseService = databaseService;
+        this.router = router;
+        this.viewLoader = viewLoader;
     }
 
     /**
@@ -73,7 +86,7 @@ public class LoginScreenController implements ControllerInterface {
 
         loginButton.setDefaultButton(true);  // Allows to use Enter in order to press login button
 
-        AccordSettingDTO lastUserLogin = DatabaseService.getAccordSetting(AccordSettingKey.LAST_USER_LOGIN);
+        AccordSettingDTO lastUserLogin = databaseService.getAccordSetting(AccordSettingKey.LAST_USER_LOGIN);
         if (Objects.nonNull(lastUserLogin) && Objects.nonNull(lastUserLogin.getValue())) {
             Platform.runLater(() -> {
                 nameField.setText(lastUserLogin.getValue());
@@ -109,7 +122,7 @@ public class LoginScreenController implements ControllerInterface {
             });
             return;
         }
-        String message = ViewLoader.loadLabel(label);
+        String message = viewLoader.loadLabel(label);
         Platform.runLater(() -> {
             errorLabel.setText(message);
         });
@@ -251,34 +264,37 @@ public class LoginScreenController implements ControllerInterface {
         if (response.isSuccess()) {
             setErrorMessage(null);
             String userKey = response.getBody().getObject().getJSONObject("data").getString("userKey");
-            UserKeyProvider.setEditor(editor);
-            StageManager.setLanguageService(new LanguageService(editor));
-            StageManager.getLanguageService().startLanguageAwareness();
-            StageManager.setAudioService(new AudioService(editor));
             User currentUser = editor.createCurrentUser(name, true).setPassword(password);
             editor.setCurrentUser(currentUser);
             editor.setUserKey(userKey);
-            NotificationService.reset();
+
+            //create session component here
 
             if (!tempUserLogin && rememberMeCheckBox.isSelected()) {
                 // Save in db
-                DatabaseService.saveAccordSetting(AccordSettingKey.LAST_USER_LOGIN, name);
+                databaseService.saveAccordSetting(AccordSettingKey.LAST_USER_LOGIN, name);
             } else {
-                DatabaseService.saveAccordSetting(AccordSettingKey.LAST_USER_LOGIN, null);
+                databaseService.saveAccordSetting(AccordSettingKey.LAST_USER_LOGIN, null);
             }
 
-            Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
-            return;
+            Platform.runLater(()-> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
         }
-        // Login failed
-        Platform.runLater(passwordField::clear);
-        enableUserInput();
-        if (response.getBody().getObject().getString(Constants.MESSAGE).equals("Invalid credentials")){
-            setErrorMessage(Constants.LBL_LOGIN_WRONG_CREDENTIALS);
+        else {
+            // Login failed
+            Platform.runLater(passwordField::clear);
+            enableUserInput();
+            if (response.getBody().getObject().getString(Constants.MESSAGE).equals("Invalid credentials")){
+                setErrorMessage(Constants.LBL_LOGIN_WRONG_CREDENTIALS);
+            }
+            else{
+                setErrorMessage(Constants.LBL_LOGIN_FAILED);
+            }
         }
-        else{
-            setErrorMessage(Constants.LBL_LOGIN_FAILED);
-        }
+    }
+
+    @AssistedFactory
+    public interface LoginScreenControllerFactory {
+        LoginScreenController create(Parent view);
     }
 
 }

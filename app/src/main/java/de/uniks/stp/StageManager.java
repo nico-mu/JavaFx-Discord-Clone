@@ -6,9 +6,9 @@ import de.uniks.stp.controller.MainScreenController;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.language.LanguageService;
 import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.rest.AppRestClient;
 import de.uniks.stp.network.UserKeyProvider;
-import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
@@ -127,7 +127,7 @@ public class StageManager extends Application {
                 currentController.stop();
             }
             NetworkClientInjector.getRestClient().sendLogoutRequest(response -> {
-                RestClient.stop();
+                AppRestClient.stop();
             });
 
             WebSocketService.stop();

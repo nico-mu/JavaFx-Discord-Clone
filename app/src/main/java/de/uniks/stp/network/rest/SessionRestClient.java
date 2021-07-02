@@ -1,4 +1,4 @@
-package de.uniks.stp.network;
+package de.uniks.stp.network.rest;
 
 import de.uniks.stp.Constants;
 import kong.unirest.Callback;
@@ -6,24 +6,21 @@ import kong.unirest.HttpRequest;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 
+import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class RestClient {
-    private static final ExecutorService executorService = Executors.newCachedThreadPool();
+public class SessionRestClient extends AppRestClient {
 
-    /**
-     * Sets config for every http request made with unirest. Sets default url so we don't need to set it
-     * on every http request. For more info about the request interceptor
-     * @see HttpRequestInterceptor
-     */
-    static {
+    private final HttpRequestInterceptor httpRequestInterceptor;
+
+    @Inject
+    public SessionRestClient(HttpRequestInterceptor interceptor) {
+        super();
+        httpRequestInterceptor = interceptor;
         Unirest.config()
-            .defaultBaseUrl(Constants.REST_SERVER_BASE_URL)
-            .interceptor(new HttpRequestInterceptor());
+            .interceptor(interceptor);
     }
 
     public void getServers(Callback<JsonNode> callback) {
@@ -64,33 +61,6 @@ public class RestClient {
         sendRequest(req, callback);
     }
 
-    public static void stop() {
-        executorService.shutdown();
-        Unirest.shutDown();
-    }
-
-    private void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
-        executorService.execute(() -> req.asJsonAsync(callback));
-    }
-
-    private void sendAuthRequest(String endpoint, String name, String password, Callback<JsonNode> callback) {
-        HttpRequest<?> postUserRegister = Unirest.post(Constants.REST_USERS_PATH + endpoint)
-            .body(buildLoginOrRegisterBody(name, password));
-        sendRequest(postUserRegister, callback);
-    }
-
-    private String buildLoginOrRegisterBody(String name, String password) {
-        return Json.createObjectBuilder().add("name", name).add("password", password).build().toString();
-    }
-
-    public void register(String name, String password, Callback<JsonNode> callback) {
-        sendAuthRequest(Constants.REST_REGISTER_PATH, name, password, callback);
-    }
-
-    public void login(String name, String password, Callback<JsonNode> callback) {
-        sendAuthRequest(Constants.REST_LOGIN_PATH, name, password, callback);
-    }
-
     public void getCategories(String serverId, Callback<JsonNode> callback) {
         HttpRequest<?> request = Unirest.get(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH);
         sendRequest(request, callback);
@@ -100,11 +70,6 @@ public class RestClient {
         String requestPath = Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH;
         HttpRequest<?> request = Unirest.get(requestPath);
         sendRequest(request, callback);
-    }
-
-    public void tempRegister(Callback<JsonNode> callback) {
-        HttpRequest<?> postUserRegister = Unirest.post(Constants.REST_USERS_PATH + Constants.REST_TEMP_REGISTER_PATH);
-        sendRequest(postUserRegister, callback);
     }
 
     public void sendLogoutRequest(Callback<JsonNode> callback) {

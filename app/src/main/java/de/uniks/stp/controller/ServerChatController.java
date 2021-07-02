@@ -1,16 +1,15 @@
 package de.uniks.stp.controller;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ChatMessage;
 import de.uniks.stp.component.TextWithEmoteSupport;
-import de.uniks.stp.model.Channel;
-import de.uniks.stp.model.Message;
-import de.uniks.stp.model.ServerMessage;
-import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.model.*;
+import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.util.InviteInfo;
 import de.uniks.stp.util.MessageUtil;
 import javafx.application.Platform;
@@ -40,6 +39,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     private static final String LOAD_OLD_MESSAGES_BOX = "#load-old-messages-hbox";
 
     private final Channel model;
+    private final WebSocketService webSocketService;
     private TextWithEmoteSupport channelNameLabel;
     private VBox serverChatVBox;
     private HBox loadOldMessagesBox;
@@ -49,11 +49,16 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
     private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
 
-    public ServerChatController(Parent view, Editor editor, Channel model) {
+    @AssistedInject
+    public ServerChatController(Editor editor,
+                                WebSocketService webSocketService,
+                                @Assisted Parent view,
+                                @Assisted Channel model) {
         super(view, editor);
         this.model = model;
         canLoadOldMessages = true;
         chatMessageList.vvalueProperty().addListener(scrollValueChangedListener);
+        this.webSocketService = webSocketService;
     }
 
     @Override
@@ -124,7 +129,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
      */
     private void handleMessageSubmit(String message) {
         // send message
-        WebSocketService.sendServerMessage(model.getCategory().getServer().getId(), model.getId(), message);
+        webSocketService.sendServerMessage(model.getCategory().getServer().getId(), model.getId(), message);
     }
 
     private void handleNewMessage(PropertyChangeEvent propertyChangeEvent) {
@@ -166,7 +171,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
             }
 
             loadOldMessagesBox.setVisible(true);
-            NetworkClientInjector.getRestClient().getServerChannelMessages(model.getCategory().getServer().getId(),
+            restClient.getServerChannelMessages(model.getCategory().getServer().getId(),
                 model.getCategory().getId(), model.getId(), timestamp, this::onLoadMessagesResponse);
         }
     }
@@ -216,5 +221,10 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         } else {
             log.error("receiving old messages failed!");
         }
+    }
+
+    @AssistedFactory
+    public interface ServerChatControllerFactory {
+        ServerChatController create(Parent view, Channel channel);
     }
 }

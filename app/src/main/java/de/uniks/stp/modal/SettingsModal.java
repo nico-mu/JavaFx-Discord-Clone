@@ -1,6 +1,8 @@
 package de.uniks.stp.modal;
 
 import com.jfoenix.controls.JFXButton;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
 import de.uniks.stp.*;
 import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.view.Languages;
@@ -9,7 +11,6 @@ import javafx.scene.Parent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.MissingResourceException;
 
@@ -25,11 +26,15 @@ public class SettingsModal extends AbstractModal {
     private final KeyBasedComboBox notificationComboBox;
     private final Editor editor;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
+    private final ViewLoader viewLoader;
 
-    public SettingsModal(Parent root, Editor editor) {
+    public SettingsModal(Editor editor,
+                         ViewLoader viewLoader,
+                         @Assisted Parent root) {
         super(root);
+        this.viewLoader = viewLoader;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE_TITLE));
+        setTitle(viewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE_TITLE));
 
         this.editor = editor;
         applyButton = (JFXButton) view.lookup(SETTINGS_APPLY_BUTTON);
@@ -57,7 +62,7 @@ public class SettingsModal extends AbstractModal {
             String labelName = Constants.LANG_LABEL_PREFIX + language.key.toUpperCase();
 
             try {
-                String label = ViewLoader.loadLabel(labelName);
+                String label = viewLoader.loadLabel(labelName);
                 languageMap.put(language.key, label);
             }
             catch (MissingResourceException ex) {
@@ -91,5 +96,10 @@ public class SettingsModal extends AbstractModal {
         applyButton.setOnAction(null);
         cancelButton.setOnAction(null);
         super.close();
+    }
+
+    @AssistedFactory
+    public interface SettingsModalFactory {
+        SettingsModal create(Parent view);
     }
 }

@@ -4,12 +4,14 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.Category;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -20,6 +22,7 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.Objects;
 
 public class EditCategoryModal extends AbstractModal {
@@ -44,13 +47,27 @@ public class EditCategoryModal extends AbstractModal {
     private final JFXButton deleteButton;
 
     final Category model;
+    private final SessionDatabaseService databaseService;
+    private final ViewLoader viewLoader;
+    private final SessionRestClient restClient;
     private ConfirmationModal deleteConfirmationModal;
 
-    public EditCategoryModal(Parent root, Category model) {
+    @Inject
+    ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
+
+    @AssistedInject
+    public EditCategoryModal(ViewLoader viewLoader,
+                             SessionDatabaseService databaseService,
+                             SessionRestClient restClient,
+                             @Assisted Parent root,
+                             @Assisted Category model) {
         super(root);
         this.model = model;
+        this.databaseService = databaseService;
+        this.viewLoader = viewLoader;
+        this.restClient = restClient;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_CATEGORY_TITLE));
+        setTitle(viewLoader.loadLabel(Constants.LBL_EDIT_CATEGORY_TITLE));
 
         categoryNameTextField = (JFXTextField) view.lookup(NAME_FIELD);
         notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);
@@ -61,11 +78,11 @@ public class EditCategoryModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
         deleteButton = (JFXButton) view.lookup(DELETE_BUTTON);
 
-        boolean muted = DatabaseService.isCategoryMuted(model.getId());
+        boolean muted = databaseService.isCategoryMuted(model.getId());
         notificationsToggleButton.setSelected(!muted);
-        notificationsLabel.setText(ViewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
+        notificationsLabel.setText(viewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
         notificationsToggleButton.selectedProperty().addListener(((observable, oldValue, newValue) -> {
-            notificationsLabel.setText(ViewLoader.loadLabel(!notificationsToggleButton.isSelected() ? Constants.LBL_OFF : Constants.LBL_ON));
+            notificationsLabel.setText(viewLoader.loadLabel(!notificationsToggleButton.isSelected() ? Constants.LBL_OFF : Constants.LBL_ON));
         }));
 
         categoryNameTextField.setText(model.getName());
@@ -92,9 +109,9 @@ public class EditCategoryModal extends AbstractModal {
 
             boolean muted = !notificationsToggleButton.isSelected();
             if(muted) {
-                DatabaseService.addMutedCategoryId(model.getId());
+                databaseService.addMutedCategoryId(model.getId());
             }else {
-                DatabaseService.removeMutedCategoryId(model.getId());
+                databaseService.removeMutedCategoryId(model.getId());
             }
 
             if(categoryNameTextField.getText().equals(model.getName())) {
@@ -102,7 +119,6 @@ public class EditCategoryModal extends AbstractModal {
                 return;
             }
 
-            RestClient restClient = NetworkClientInjector.getRestClient();
             restClient.updateCategory(model.getServer().getId(), model.getId(), name, this::handleRenameCategoryResponse);
         } else {
             setErrorMessage(Constants.LBL_NO_CHANGES);
@@ -134,8 +150,8 @@ public class EditCategoryModal extends AbstractModal {
      * @param actionEvent
      */
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
-        Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
-        deleteConfirmationModal = new ConfirmationModal(confirmationModalView,
+        Parent confirmationModalView = viewLoader.loadView(Views.CONFIRMATION_MODAL);
+        deleteConfirmationModal = confirmationModalFactory.create(confirmationModalView,
             Constants.LBL_DELETE_CATEGORY,
             Constants.LBL_CONFIRM_DELETE_CATEGORY,
             this::onYesButtonClicked,
@@ -162,7 +178,6 @@ public class EditCategoryModal extends AbstractModal {
         deleteButton.setDisable(true);
         spinner.setVisible(true);
 
-        RestClient restClient = NetworkClientInjector.getRestClient();
         restClient.deleteCategory(model.getServer().getId(), model.getId(), this::handleDeleteCategoryResponse);
     }
 
@@ -213,9 +228,14 @@ public class EditCategoryModal extends AbstractModal {
             });
             return;
         }
-        String message = ViewLoader.loadLabel(label);
+        String message = viewLoader.loadLabel(label);
         Platform.runLater(() -> {
             errorLabel.setText(message);
         });
+    }
+
+    @AssistedFactory
+    public interface EditCategoryModalFactory {
+        EditCategoryModal create(Parent view, Category category);
     }
 }

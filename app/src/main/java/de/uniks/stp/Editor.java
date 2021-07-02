@@ -1,8 +1,6 @@
 package de.uniks.stp;
 
-import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.model.*;
-import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.view.Languages;
 
 import java.util.List;
@@ -72,17 +70,6 @@ public class Editor {
         if(serverMap.containsKey(id)) {
             accord.getCurrentUser().withoutAvailableServers(serverMap.get(id));
         }
-        DatabaseService.removeMutedServerId(id);
-    }
-
-    public boolean serverAdded(String serverId) {
-        List<Server> availableServers = accord.getCurrentUser().getAvailableServers();
-        for(Server server: availableServers){
-            if(server.getId().equals(serverId)){
-                return true;
-            }
-        }
-        return false;
     }
 
     public User getOrCreateOtherUser(final String userId, final String name) {
@@ -311,10 +298,8 @@ public class Editor {
 
     public void deleteChannel(String channelId) {
         Channel channel = getChannelById(channelId);
-        NotificationService.removePublisher(channel);
         channel.setServer(null);
         channel.getCategory().withoutChannels(channel);
-        DatabaseService.removeMutedChannelId(channelId);
         channel.removeYou();
     }
 

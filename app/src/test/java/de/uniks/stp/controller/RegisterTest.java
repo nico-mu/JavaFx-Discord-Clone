@@ -5,8 +5,8 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.jpa.DatabaseService;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.WebSocketClient;
+import de.uniks.stp.network.rest.AppRestClient;
+import de.uniks.stp.network.websocket.WebSocketClient;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.network.NetworkClientInjector;
 import javafx.application.Platform;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(ApplicationExtension.class)
 public class RegisterTest {
     @Mock
-    private RestClient restMock;
+    private AppRestClient restMock;
 
     @Mock
     private WebSocketClient webSocketMock;

@@ -3,13 +3,15 @@ package de.uniks.stp.modal;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.ServerInvitation;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -33,24 +35,31 @@ public class CreateInviteModal extends AbstractModal {
     public static final String CANCEL_BUTTON = "#create-invite-cancel";
     public static final String ERROR_LABEL = "#create-invite-error";
 
-    private JFXCheckBox timeCheckBox;
-    private JFXCheckBox maxCheckBox;
-    private JFXTextField maxTextField;
-    private JFXButton createButton;
-    private JFXButton cancelButton;
-    private Label errorLabel;
+    private final JFXCheckBox timeCheckBox;
+    private final JFXCheckBox maxCheckBox;
+    private final JFXTextField maxTextField;
+    private final JFXButton createButton;
+    private final JFXButton cancelButton;
+    private final Label errorLabel;
 
-    private RestClient restClient;
-    private Editor editor;
-    private Server server;
+    private final SessionRestClient restClient;
+    private final Editor editor;
+    private final Server server;
+    private final ViewLoader viewLoader;
 
-    public CreateInviteModal(Parent root, Server server, Editor editor) {
+    @AssistedInject
+    public CreateInviteModal(Editor editor,
+                             SessionRestClient restClient,
+                             ViewLoader viewLoader,
+                             @Assisted Parent root,
+                             @Assisted Server server) {
         super(root);
-        this.restClient = NetworkClientInjector.getRestClient();
+        this.restClient = restClient;
+        this.viewLoader = viewLoader;
         this.editor = editor;
         this.server = server;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_CREATE_INVITATION));
+        setTitle(viewLoader.loadLabel(Constants.LBL_CREATE_INVITATION));
         timeCheckBox = (JFXCheckBox) view.lookup(TIME_CHECKBOX);
         maxCheckBox = (JFXCheckBox) view.lookup(MAX_CHECKBOX);
         maxTextField = (JFXTextField) view.lookup(MAX_TEXTFIELD);
@@ -122,7 +131,7 @@ public class CreateInviteModal extends AbstractModal {
             });
             return;
         }
-        String message = ViewLoader.loadLabel(label);
+        String message = viewLoader.loadLabel(label);
         Platform.runLater(() -> {
             errorLabel.setText(message);
         });
@@ -137,5 +146,10 @@ public class CreateInviteModal extends AbstractModal {
         createButton.setOnAction(null);
         cancelButton.setOnAction(null);
         super.close();
+    }
+
+    @AssistedFactory
+    public interface CreateInviteModalFactory {
+        CreateInviteModal create(Parent view, Server server);
     }
 }

@@ -1,5 +1,8 @@
 package de.uniks.stp.controller;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
@@ -28,6 +31,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+
+import javax.inject.Inject;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Objects;
@@ -42,10 +47,15 @@ public class ServerScreenController implements ControllerInterface {
     private static final String SERVER_CHAT_CONTAINER = "#server-chat-container";
     private static final String SERVER_USER_LIST_CONTAINER = "#server-user-list-container";
     private static final String SETTINGS_LABEL = "#settings-label";
-    private AnchorPane view;
-    private FlowPane serverScreenView;
+
     private final Editor editor;
     private final Server model;
+    private final NotificationService notificationService;
+    private final ViewLoader viewLoader;
+    private final Router router;
+
+    private AnchorPane view;
+    private FlowPane serverScreenView;
     private TextWithEmoteSupport serverName;
     private VBox serverChannelOverview;
     private ServerCategoryListController categoryListController;
@@ -55,18 +65,45 @@ public class ServerScreenController implements ControllerInterface {
     private FlowPane serverUserListContainer;
     private Label settingsGearLabel;
 
+    @Inject
+    ServerCategoryListController.ServerCategoryListControllerFactory serverCategoryListControllerFactory;
+
+    @Inject
+    ServerChatController.ServerChatControllerFactory serverChatControllerFactory;
+
+    @Inject
+    ServerUserListController.ServerUserListControllerFactory serverUserListControllerFactory;
+
+    @Inject
+    InvitesModal.InvitesModalFactory invitesModalFactory;
+
+    @Inject
+    ServerSettingsModal.ServerSettingsModalFactory serverSettingsModalFactory;
+
+    @Inject
+    CreateCategoryModal.CreateCategoryModalFactory categoryModalFactory;
+
     private ContextMenu settingsContextMenu;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
 
-    public ServerScreenController(Parent view, Editor editor, Server model) {
+    @AssistedInject
+    public ServerScreenController(Router router,
+                                  ViewLoader viewLoader,
+                                  NotificationService notificationService,
+                                  Editor editor,
+                                  @Assisted  Parent view,
+                                  @Assisted Server model) {
         this.view = (AnchorPane) view;
         this.editor = editor;
         this.model = model;
+        this.notificationService = notificationService;
+        this.viewLoader = viewLoader;
+        this.router = router;
     }
 
     @Override
     public void init() {
-        serverScreenView = (FlowPane) ViewLoader.loadView(SERVER_SCREEN);
+        serverScreenView = (FlowPane) viewLoader.loadView(SERVER_SCREEN);
         serverChannelOverview = (VBox) serverScreenView.lookup(SERVER_CHANNEL_OVERVIEW);
         serverChatContainer = (FlowPane) serverScreenView.lookup(SERVER_CHAT_CONTAINER);
         serverUserListContainer = (FlowPane) serverScreenView.lookup(SERVER_USER_LIST_CONTAINER);
@@ -85,10 +122,10 @@ public class ServerScreenController implements ControllerInterface {
 
         settingsGearLabel.setOnMouseClicked(e -> settingsContextMenu.show(settingsGearLabel, Side.BOTTOM, 0, 0));
 
-        categoryListController = new ServerCategoryListController(serverChannelOverview, editor, model);
+        categoryListController = serverCategoryListControllerFactory.create(serverChannelOverview, model);
         categoryListController.init();
 
-        serverUserListController = new ServerUserListController(serverUserListContainer, editor, model);
+        serverUserListController = serverUserListControllerFactory.create(serverUserListContainer, model);
         serverUserListController.init();
 
         model.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
@@ -101,10 +138,10 @@ public class ServerScreenController implements ControllerInterface {
             final String categoryId = args.getArguments().get(":categoryId");
             final String channelId = args.getArguments().get(":channelId");
             final Channel channel = getChannel(serverId, categoryId, channelId);
-            NotificationService.consume(channel);
-            serverChatController = new ServerChatController(serverChatContainer, editor, channel);
+            notificationService.consume(channel);
+            serverChatController = serverChatControllerFactory.create(serverChatContainer, channel);
             serverChatController.init();
-            Router.addToControllerCache(routeInfo.getFullRoute(), serverChatController);
+            router.addToControllerCache(routeInfo.getFullRoute(), serverChatController);
         }
     }
 
@@ -125,24 +162,24 @@ public class ServerScreenController implements ControllerInterface {
     }
 
     private void onInviteUserClicked(ActionEvent actionEvent) {
-        Parent invitesModalView = ViewLoader.loadView(Views.INVITES_MODAL);
-        InvitesModal invitesModal = new InvitesModal(invitesModalView, model, editor);
+        Parent invitesModalView = viewLoader.loadView(Views.INVITES_MODAL);
+        InvitesModal invitesModal = invitesModalFactory.create(invitesModalView, model);
         invitesModal.show();
     }
 
     private void onEditServerClicked(ActionEvent actionEvent) {
-        Parent serverSettingsModalView = ViewLoader.loadView(Views.SERVER_SETTINGS_MODAL);
+        Parent serverSettingsModalView = viewLoader.loadView(Views.SERVER_SETTINGS_MODAL);
         boolean owner = false;
         if (Objects.nonNull(model.getOwner())) {
             owner = editor.getOrCreateAccord().getCurrentUser().getId().equals(model.getOwner().getId());
         }
-        ServerSettingsModal serverSettingsModal = new ServerSettingsModal(serverSettingsModalView, model, owner);
+        ServerSettingsModal serverSettingsModal = serverSettingsModalFactory.create(serverSettingsModalView, model, owner);
         serverSettingsModal.show();
     }
 
     private void onCreateCategoryClicked(ActionEvent actionEvent) {
-        Parent createCategoryModalView = ViewLoader.loadView(Views.CREATE_CATEGORY_MODAL);
-        CreateCategoryModal createCategoryModal = new CreateCategoryModal(createCategoryModalView, model, editor);
+        Parent createCategoryModalView = viewLoader.loadView(Views.CREATE_CATEGORY_MODAL);
+        CreateCategoryModal createCategoryModal = categoryModalFactory.create(createCategoryModalView, model);
         createCategoryModal.show();
     }
 
@@ -163,5 +200,10 @@ public class ServerScreenController implements ControllerInterface {
         for(MenuItem item: settingsContextMenu.getItems()){
             item.setOnAction(null);
         }
+    }
+
+    @AssistedFactory
+    public interface ServerScreenControllerFactory {
+        ServerScreenController create(Parent view, Server server);
     }
 }

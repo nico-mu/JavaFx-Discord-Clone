@@ -7,15 +7,13 @@ import de.uniks.stp.component.ChatMessage;
 import de.uniks.stp.component.ListComponent;
 import de.uniks.stp.model.*;
 import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.WebSocketClient;
-import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.network.rest.AppRestClient;
+import de.uniks.stp.network.websocket.WebSocketClient;
+import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -48,7 +46,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(ApplicationExtension.class)
 public class LoadOldMessagesTest {
     @Mock
-    private RestClient restMock;
+    private AppRestClient restMock;
 
     @Mock
     private WebSocketClient webSocketMock;

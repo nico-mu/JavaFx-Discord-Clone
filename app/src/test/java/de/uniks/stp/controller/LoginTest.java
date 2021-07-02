@@ -6,9 +6,9 @@ import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.rest.AppRestClient;
 import de.uniks.stp.network.UserKeyProvider;
-import de.uniks.stp.network.WebSocketClient;
+import de.uniks.stp.network.websocket.WebSocketClient;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(ApplicationExtension.class)
 public class LoginTest {
     @Mock
-    private RestClient restMock;
+    private AppRestClient restMock;
 
     @Mock
     private WebSocketClient webSocketMock;

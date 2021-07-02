@@ -7,9 +7,9 @@ import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.WSCallback;
-import de.uniks.stp.network.WebSocketClient;
+import de.uniks.stp.network.rest.AppRestClient;
+import de.uniks.stp.network.websocket.WSCallback;
+import de.uniks.stp.network.websocket.WebSocketClient;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.verify;
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class PrivateChatTest {
     @Mock
-    private RestClient restMock;
+    private AppRestClient restMock;
 
     @Mock
     private WebSocketClient webSocketMock;

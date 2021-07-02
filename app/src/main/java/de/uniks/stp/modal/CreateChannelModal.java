@@ -4,14 +4,16 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.UserCheckList;
 import de.uniks.stp.component.UserCheckListEntry;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -24,8 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-public class AddChannelModal extends AbstractModal {
-    private static final Logger log = LoggerFactory.getLogger(AddChannelModal.class);
+public class CreateChannelModal extends AbstractModal {
+    private static final Logger log = LoggerFactory.getLogger(CreateChannelModal.class);
 
     public static final String ADD_CHANNEL_NAME_TEXTFIELD = "#add-channel-name-textfield";
     public static final String TYPE_TOGGLE_BUTTON = "#type-toggle-button";
@@ -35,24 +37,31 @@ public class AddChannelModal extends AbstractModal {
     public static final String ADD_CHANNEL_CREATE_BUTTON = "#add-channel-create-button";
     public static final String ADD_CHANNEL_CANCEL_BUTTON = "#add-channel-cancel-button";
     public static final String ADD_CHANNEL_ERROR_LABEL = "#add-channel-error";
-    private JFXTextField channelName;
-    private JFXToggleButton typeToggleButton;
-    private JFXCheckBox privileged;
-    private JFXTextField filter;
-    private HBox userCheckListContainer;
-    private UserCheckList selectUserList;
-    private JFXButton createButton;
-    private JFXButton cancelButton;
-    private Label errorLabel;
-    private Category category;
-    private RestClient restClient;
+    private final JFXTextField channelName;
+    private final JFXToggleButton typeToggleButton;
+    private final JFXCheckBox privileged;
+    private final JFXTextField filter;
+    private final HBox userCheckListContainer;
+    private final UserCheckList selectUserList;
+    private final JFXButton createButton;
+    private final JFXButton cancelButton;
+    private final Label errorLabel;
+    private final Category category;
 
-    public AddChannelModal(Parent root, Category category) {
+    private final SessionRestClient restClient;
+    private final ViewLoader viewLoader;
+
+    @AssistedInject
+    public CreateChannelModal(SessionRestClient restClient,
+                              ViewLoader viewLoader,
+                              @Assisted Parent root,
+                              @Assisted Category category) {
         super(root);
         this.category = category;
-        this.restClient = NetworkClientInjector.getRestClient();
+        this.restClient = restClient;
+        this.viewLoader = viewLoader;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_CREATE_CHANNEL));
+        setTitle(viewLoader.loadLabel(Constants.LBL_CREATE_CHANNEL));
         channelName = (JFXTextField) view.lookup(ADD_CHANNEL_NAME_TEXTFIELD);
         typeToggleButton = (JFXToggleButton) view.lookup(TYPE_TOGGLE_BUTTON);
         privileged = (JFXCheckBox) view.lookup(PRIVILEGED_CHECKBOX);
@@ -106,7 +115,7 @@ public class AddChannelModal extends AbstractModal {
             });
             return;
         }
-        String message = ViewLoader.loadLabel(label);
+        String message = viewLoader.loadLabel(label);
         Platform.runLater(() -> {
             errorLabel.setText(message);
         });
@@ -139,5 +148,10 @@ public class AddChannelModal extends AbstractModal {
         createButton.setOnAction(null);
         cancelButton.setOnAction(null);
         super.close();
+    }
+
+    @AssistedFactory
+    public interface CreateChannelModalFactory {
+        CreateChannelModal create(Parent view, Category category);
     }
 }

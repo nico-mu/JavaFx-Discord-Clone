@@ -1,5 +1,8 @@
 package de.uniks.stp.controller;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Editor;
 import de.uniks.stp.component.ServerUserListEntry;
 import de.uniks.stp.model.Server;
@@ -29,7 +32,10 @@ public class ServerUserListController implements ControllerInterface {
     private VBox onlineUserList;
     private VBox offlineUserList;
 
-    public ServerUserListController(Parent view, Editor editor, Server model) {
+    @AssistedInject
+    public ServerUserListController(Editor editor,
+                                    @Assisted Parent view,
+                                    @Assisted Server model) {
         this.view = view;
         this.editor = editor;
         this.model = model;
@@ -115,5 +121,10 @@ public class ServerUserListController implements ControllerInterface {
         serverUserListEntryHashMap.clear();
         onlineUserList.getChildren().clear();
         offlineUserList.getChildren().clear();
+    }
+
+    @AssistedFactory
+    public interface ServerUserListControllerFactory {
+        ServerUserListController create(Parent view, Server server);
     }
 }

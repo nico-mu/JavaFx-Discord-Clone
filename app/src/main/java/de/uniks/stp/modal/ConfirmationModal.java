@@ -1,6 +1,9 @@
 package de.uniks.stp.modal;
 
 import com.jfoenix.controls.JFXButton;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.ViewLoader;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -26,7 +29,14 @@ public class ConfirmationModal extends AbstractModal {
      * @param yesHandler EventHandler that will be called when Yes-button is pressed
      * @param noHandler EventHandler that will be called when No-button is pressed
      */
-    public ConfirmationModal(Parent root, String titleLBL, String confirmLBL, EventHandler<ActionEvent> yesHandler, EventHandler<ActionEvent> noHandler) {
+
+    @AssistedInject
+    public ConfirmationModal(ViewLoader viewLoader,
+                             @Assisted Parent root,
+                             @Assisted String titleLBL,
+                             @Assisted String confirmLBL,
+                             @Assisted EventHandler<ActionEvent> yesHandler,
+                             @Assisted EventHandler<ActionEvent> noHandler) {
         super(root);
 
         initStyle(StageStyle.TRANSPARENT);
@@ -37,8 +47,8 @@ public class ConfirmationModal extends AbstractModal {
         yesButton = (JFXButton) view.lookup(YES_BUTTON);
         noButton = (JFXButton) view.lookup(NO_BUTTON);
 
-        titleLabel.setText(ViewLoader.loadLabel(titleLBL));
-        confirmLabel.setText(ViewLoader.loadLabel(confirmLBL));
+        titleLabel.setText(viewLoader.loadLabel(titleLBL));
+        confirmLabel.setText(viewLoader.loadLabel(confirmLBL));
 
         yesButton.setOnAction(yesHandler);
         yesButton.setDefaultButton(true);  // use Enter in order to press button
@@ -51,5 +61,14 @@ public class ConfirmationModal extends AbstractModal {
         yesButton.setOnAction(null);
         noButton.setOnAction(null);
         super.close();
+    }
+
+    @AssistedFactory
+    public interface ConfirmationModalFactory {
+        ConfirmationModal create(Parent root,
+                                 String titleLBL,
+                                 String confirmLBL,
+                                 EventHandler<ActionEvent> yesHandler,
+                                 EventHandler<ActionEvent> noHandler);
     }
 }

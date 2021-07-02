@@ -1,17 +1,20 @@
 package de.uniks.stp.controller;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ChatMessage;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.minigame.GameInvitation;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.util.InviteInfo;
 import de.uniks.stp.util.MessageUtil;
@@ -20,6 +23,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
+import javax.inject.Inject;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Date;
@@ -37,20 +41,34 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
      * contains chat partner user object
      */
     private final User user;
+    private final NotificationService notificationService;
+    private final SessionDatabaseService databaseService;
+    private final WebSocketService webSocketService;
+
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
 
+    @Inject
+    private MiniGameController.MiniGameControllerFactory miniGameControllerFactory;
 
     private final MiniGameController miniGameController;
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
     private final PropertyChangeListener statusChangeListener = this::onStatusChange;
 
-
-    public PrivateChatController(Parent view, Editor editor, User user) {
+    @AssistedInject
+    public PrivateChatController(Editor editor,
+                                 NotificationService notificationService,
+                                 SessionDatabaseService databaseService,
+                                 WebSocketService webSocketService,
+                                 @Assisted User user,
+                                 @Assisted Parent view) {
         super(view, editor);
         this.user = user;
-        this.miniGameController = new MiniGameController(user);
+        this.miniGameController = miniGameControllerFactory.create(user);
         miniGameController.init();
+        this.notificationService = notificationService;
+        this.databaseService = databaseService;
+        this.webSocketService = webSocketService;
     }
 
     @Override
@@ -65,8 +83,8 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
 
         User otherUser = editor.getOtherUserById(user.getId());
 
-        NotificationService.consume(user);
-        NotificationService.removePublisher(user);
+        notificationService.consume(user);
+        notificationService.removePublisher(user);
 
         boolean status = Objects.nonNull(otherUser);
         user.setStatus(status);
@@ -100,9 +118,9 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
 
             if(MiniGameController.isPlayMessage(messageText) && message.getTimestamp() > timestampBefore){
                 if(message.getSender().getName().equals(currentUser.getName())){
-                    message.setMessage(ViewLoader.loadLabel(Constants.LBL_GAME_WAIT));
+                    message.setMessage(viewLoader.loadLabel(Constants.LBL_GAME_WAIT));
                 } else{
-                    message.setMessage(ViewLoader.loadLabel(Constants.LBL_GAME_CHALLENGE));
+                    message.setMessage(viewLoader.loadLabel(Constants.LBL_GAME_CHALLENGE));
                 }
             }
             else {
@@ -125,7 +143,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
     }
 
     protected void loadMessages() {
-        List<DirectMessageDTO> directMessages = DatabaseService.getConversation(currentUser.getName(), user.getName());
+        List<DirectMessageDTO> directMessages = databaseService.getConversation(currentUser.getName(), user.getName());
         for (DirectMessageDTO directMessageDTO : directMessages) {
             DirectMessage message = (DirectMessage) new DirectMessage()
                 .setMessage(directMessageDTO.getMessage())
@@ -176,10 +194,10 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
             .setTimestamp(new Date().getTime()).setId(UUID.randomUUID().toString());
         // This fires handleNewPrivateMessage()
         msg.setReceiver(user);
-        DatabaseService.saveDirectMessage(msg);
+        databaseService.saveDirectMessage(msg);
 
         // send message to the server
-        WebSocketService.sendPrivateMessage(user.getName(), message);
+        webSocketService.sendPrivateMessage(user.getName(), message);
     }
 
     private void setOnlineHeaderLabel() {
@@ -190,7 +208,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
 
     private void setOfflineHeaderLabel() {
         Platform.runLater(() -> {
-            homeScreenLabel.setText(user.getName() + " (" + ViewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
+            homeScreenLabel.setText(user.getName() + " (" + viewLoader.loadLabel(Constants.LBL_USER_OFFLINE) + ")");
         });
     }
 
@@ -221,5 +239,10 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
     private void onStatusChange(PropertyChangeEvent propertyChangeEvent) {
         boolean status = (boolean) propertyChangeEvent.getNewValue();
         changeChatViewStatus(status);
+    }
+
+    @AssistedFactory
+    public interface PrivateChatControllerFactory {
+        PrivateChatController create(Parent view, User user);
     }
 }

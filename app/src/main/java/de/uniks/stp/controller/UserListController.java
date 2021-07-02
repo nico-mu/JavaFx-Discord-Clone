@@ -1,6 +1,9 @@
 package de.uniks.stp.controller;
 
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.annotation.Route;
@@ -8,8 +11,7 @@ import de.uniks.stp.component.ListComponent;
 import de.uniks.stp.component.UserListEntry;
 import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
@@ -29,14 +31,19 @@ public class UserListController implements ControllerInterface {
     private final ListComponent<User, UserListEntry> onlineUserList;
     private final VBox onlineUsersContainer;
     private final Parent view;
+    private final SessionRestClient restClient;
     private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
 
-    public UserListController(Parent view, final Editor editor) {
+    @AssistedInject
+    public UserListController(Editor editor,
+                              SessionRestClient restClient,
+                              @Assisted Parent view) {
         this.editor = editor;
         this.view = view;
         onlineUsersContainer = (VBox) view;
         onlineUserList = new ListComponent<>();
         onlineUsersContainer.getChildren().add(onlineUserList);
+        this.restClient = restClient;
     }
 
     private void onAvailableUsersPropertyChange(final PropertyChangeEvent propertyChangeEvent) {
@@ -66,8 +73,6 @@ public class UserListController implements ControllerInterface {
     public void init() {
         final Accord accord = editor.getOrCreateAccord();
         accord.listeners().addPropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
-
-        final RestClient restClient = NetworkClientInjector.getRestClient();
         restClient.requestOnlineUsers(this::handleUserOnlineRequest);
     }
 
@@ -93,5 +98,10 @@ public class UserListController implements ControllerInterface {
     public void stop() {
         final Accord accord = editor.getOrCreateAccord();
         accord.listeners().removePropertyChangeListener(availableUsersPropertyChangeListener);
+    }
+
+    @AssistedFactory
+    public interface UserListControllerFactory {
+        UserListController create(Parent view);
     }
 }

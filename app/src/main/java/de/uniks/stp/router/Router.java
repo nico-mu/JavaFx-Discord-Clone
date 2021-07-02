@@ -11,27 +11,27 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Router {
 
-    private static HashMap<String, Class<?>> routeMap;
-    private static ConcurrentHashMap<String, ControllerInterface> controllerCache;
-    private static String currentRoute;
-    private static RouteArgs currentArgs;
+    private final HashMap<String, Class<?>> routeMap;
+    private final ConcurrentHashMap<String, ControllerInterface> controllerCache;
+    private String currentRoute;
+    private RouteArgs currentArgs;
 
-    public static void init() {
+    public Router() {
         routeMap = new RouteMap().getRoutes();
         currentRoute = null;
         currentArgs = new RouteArgs();
         controllerCache = new ConcurrentHashMap<>();
     }
 
-    public static String getCurrentRoute() {
+    public String getCurrentRoute() {
         return currentRoute;
     }
 
-    public static HashMap<String, String> getCurrentArgs() {
+    public HashMap<String, String> getCurrentArgs() {
         return currentArgs.getArguments();
     }
 
-    public static String compareRoutes(String newRoute, String oldRoute) {
+    public String compareRoutes(String newRoute, String oldRoute) {
         StringBuilder intersection = new StringBuilder();
         int compareLength = Math.min(oldRoute.length(), newRoute.length());
 
@@ -45,7 +45,7 @@ public class Router {
         return intersection.toString();
     }
 
-    public static void shutdownControllers(String neededRoute) {
+    public void shutdownControllers(String neededRoute) {
         List<String> keysToRemove = new ArrayList<>();
         for (String routeName : controllerCache.keySet()) {
             if (routeName.contains(neededRoute) && routeName.length() > neededRoute.length()) {
@@ -69,13 +69,13 @@ public class Router {
         }
     }
 
-    public static void forceReload() {
+    public void forceReload() {
         shutdownControllers("");
         route(currentRoute, currentArgs);
     }
 
 
-    private static Stack<RouteInfo> getRequirements(String route) {
+    private Stack<RouteInfo> getRequirements(String route) {
         Stack<RouteInfo> requirements = new Stack<>();
         String remainingRoute = route;
         String relativeRoutePart;
@@ -110,15 +110,15 @@ public class Router {
         return requirements;
     }
 
-    public static void route(String route) {
+    public void route(String route) {
         routeWithArgs(route, new RouteArgs());
     }
 
-    public static void route(String route, RouteArgs args) {
+    public void route(String route, RouteArgs args) {
         routeWithArgs(route, args);
     }
 
-    public static void routeWithArgs(String route, RouteArgs args) {
+    private void routeWithArgs(String route, RouteArgs args) {
         if (!routeMap.containsKey(route)) {
             throw new RuntimeException("Unknown route " + route);
         }
@@ -168,7 +168,7 @@ public class Router {
         }
     }
 
-    public static boolean checkRequiredArgs(String route, RouteArgs args) {
+    private boolean checkRequiredArgs(String route, RouteArgs args) {
         //parse args from route
         String[] splitRoute = route.split("/");
         for (String split : splitRoute) {
@@ -179,7 +179,7 @@ public class Router {
         return true;
     }
 
-    public static boolean routeContainsArgs(String route) {
+    private boolean routeContainsArgs(String route) {
         return route.contains(":");
     }
 
@@ -191,7 +191,7 @@ public class Router {
         return route.isEmpty();
     }
 
-    public static void addToControllerCache(String routeName, ControllerInterface controller) {
+    public void addToControllerCache(String routeName, ControllerInterface controller) {
         controllerCache.putIfAbsent(routeName, controller);
     }
 }
