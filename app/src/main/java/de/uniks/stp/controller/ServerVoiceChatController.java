@@ -31,13 +31,12 @@ import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
 public class ServerVoiceChatController implements ControllerInterface {
+    public static final String VOICE_CHANNEL_USER_CONTAINER_ID = "#voice-channel-user-container";
+    public static final String VOICE_CHANNEL_USER_SCROLL_CONTAINER_ID = "#voice-channel-user-scroll-container";
+    public static final String AUDIO_INPUT_BTN_ID = "#audio-input-btn";
+    public static final String AUDIO_OUTPUT_BTN_ID = "#audio-output-btn";
+    public static final String HANG_UP_BTN_ID = "#hang-up-btn";
     private static final Logger log = LoggerFactory.getLogger(ServerVoiceChatController.class);
-
-    private static final String VOICE_CHANNEL_USER_CONTAINER_ID = "#voice-channel-user-container";
-    private static final String VOICE_CHANNEL_USER_SCROLL_CONTAINER_ID = "#voice-channel-user-scroll-container";
-    private static final String AUDIO_INPUT_BTN_ID = "#audio-input-btn";
-    private static final String AUDIO_OUTPUT_BTN_ID = "#audio-output-btn";
-    private static final String HANG_UP_BTN_ID = "#hang-up-btn";
     private static final Image initAudioInputImg = ViewLoader.loadImage("microphone.png");
     private static final Image otherAudioInputImg = ViewLoader.loadImage("microphone-mute.png");
     private static final Image initAudioOutputImg = ViewLoader.loadImage("volume.png");
