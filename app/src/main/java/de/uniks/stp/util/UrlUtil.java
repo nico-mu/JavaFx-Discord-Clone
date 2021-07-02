@@ -46,6 +46,15 @@ public class UrlUtil {
     public static void addMedia(Message message, ChatMessage messageNode) {
         for (String url : UrlUtil.extractURLs(message.getMessage())) {
             String contentType = UrlUtil.getContentType(Objects.requireNonNull(createURL(url)));
+            if(url.startsWith("https://www.youtube.com/")) {
+                String embedUrl;
+                if(url.contains("watch?v=")) {
+                    embedUrl = url.replace("watch?v=", "embed/");
+                }else {
+                    embedUrl = url.replace("https://www.youtube.com/", "https://www.youtube.com/embed/");
+                }
+                NetworkClientInjector.getMediaRequestClient().addYouTubeVideo(url, messageNode);
+            }
             if (Objects.isNull(contentType)) {
                 continue;
             }

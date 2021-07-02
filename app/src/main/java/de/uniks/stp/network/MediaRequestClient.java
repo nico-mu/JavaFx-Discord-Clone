@@ -22,5 +22,9 @@ public class MediaRequestClient {
     public void stop() {
         executor.shutdown();
     }
+
+    public void addYouTubeVideo(String url, ChatMessage messageNode) {
+        executor.submit(() -> messageNode.addYouTubeVideo(url));
+    }
 }
 

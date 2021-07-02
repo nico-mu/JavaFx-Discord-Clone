@@ -132,4 +132,15 @@ public class ChatMessage extends HBox {
             textVBox.getChildren().add(webView);
         });
     }
+
+    public void addYouTubeVideo(String url) {
+        Platform.runLater(() -> {
+            WebView webView = new WebView();
+            webView.getEngine().load(url);
+            webView.setMaxWidth(250);
+            webView.setMaxHeight(250);
+            Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
+            textVBox.getChildren().add(webView);
+        });
+    }
 }
