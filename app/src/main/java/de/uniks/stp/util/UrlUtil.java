@@ -51,8 +51,8 @@ public class UrlUtil {
             }
             if (contentType.startsWith("image/")) {
                 NetworkClientInjector.getMediaRequestClient().addImage(url, messageNode);
-            } else if (contentType.startsWith("video/")) {
-                // TODO: add video
+            } else if (contentType.startsWith("video/") || contentType.equals("application/octet-stream")) {
+                NetworkClientInjector.getMediaRequestClient().addVideo(url, contentType, messageNode);
             }
         }
     }

@@ -120,4 +120,15 @@ public class ChatMessage extends HBox {
     private void onMessageDelete(MouseEvent mouseEvent) {
         DeleteMessageModal deleteMessageModal = new DeleteMessageModal((ServerMessage) model);
     }
+
+    public void addVideo(String url, String type) {
+        Platform.runLater(() -> {
+            WebView webView = new WebView();
+            webView.getEngine().loadContent("<body style=\"margin:0;\"> <video style=\"margin:0; padding-top:50;width:200;object-fit: contain\" controls <source src=\"" + url + "\" type=\"" + type + "\"</source> </video> </body>", "text/html");
+            webView.setMaxHeight(200);
+            webView.setMaxWidth(200);
+            Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
+            textVBox.getChildren().add(webView);
+        });
+    }
 }

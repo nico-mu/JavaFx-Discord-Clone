@@ -17,6 +17,8 @@ public class MediaRequestClient {
         executor.submit(() -> messageNode.addImage(url));
     }
 
+    public void addVideo(String url, String type, ChatMessage messageNode) {executor.submit(() -> messageNode.addVideo(url, type));}
+
     public void stop() {
         executor.shutdown();
     }
