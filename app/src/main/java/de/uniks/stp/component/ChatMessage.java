@@ -96,6 +96,7 @@ public class ChatMessage extends HBox {
             webView.getEngine().loadContent("<body style=\"margin:0\"><img src=\"" + url + "\" style=\"width:200; height:200\"></body>", "text/html");
             webView.setMaxWidth(200);
             webView.setMaxHeight(200);
+            webView.setMouseTransparent(true);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
             textVBox.getChildren().add(webView);
         });
@@ -118,7 +119,7 @@ public class ChatMessage extends HBox {
     }
 
     private void onMessageDelete(MouseEvent mouseEvent) {
-        DeleteMessageModal deleteMessageModal = new DeleteMessageModal((ServerMessage) model);
+        new DeleteMessageModal((ServerMessage) model);
     }
 
     public void addVideo(String url, String type) {

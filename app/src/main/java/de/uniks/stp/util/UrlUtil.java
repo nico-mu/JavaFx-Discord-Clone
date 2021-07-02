@@ -49,7 +49,7 @@ public class UrlUtil {
             if (Objects.isNull(contentType)) {
                 continue;
             }
-            if (contentType.startsWith("image/")) {
+            if (contentType.startsWith("image/") || message.getMessage().endsWith(".gif") || message.getMessage().endsWith(".png") || message.getMessage().endsWith(".jpg")) {
                 NetworkClientInjector.getMediaRequestClient().addImage(url, messageNode);
             } else if (contentType.startsWith("video/") || contentType.equals("application/octet-stream")) {
                 NetworkClientInjector.getMediaRequestClient().addVideo(url, contentType, messageNode);
