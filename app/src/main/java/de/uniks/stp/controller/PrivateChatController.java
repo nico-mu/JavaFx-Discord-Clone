@@ -51,18 +51,22 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
     @Inject
     private MiniGameController.MiniGameControllerFactory miniGameControllerFactory;
 
+    private final Parent view;
     private final MiniGameController miniGameController;
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
     private final PropertyChangeListener statusChangeListener = this::onStatusChange;
+
 
     @AssistedInject
     public PrivateChatController(Editor editor,
                                  NotificationService notificationService,
                                  SessionDatabaseService databaseService,
                                  WebSocketService webSocketService,
-                                 @Assisted User user,
-                                 @Assisted Parent view) {
-        super(view, editor);
+                                 @Assisted Parent view,
+                                 @Assisted User user
+                                 ) {
+        super(editor);
+        this.view = view;
         this.user = user;
         this.miniGameController = miniGameControllerFactory.create(user);
         miniGameController.init();
@@ -108,11 +112,11 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
     @Override
     protected ChatMessage parseMessage(Message message) {
         String messageText = message.getMessage();
-        long timestampBefore =  new Date().getTime() - GameInvitation.TIMEOUT;
+        long timestampBefore = new Date().getTime() - GameInvitation.TIMEOUT;
         InviteInfo info = null;
 
         if (miniGameController.isIncomingCommandMessage(messageText)) {
-            if(!message.getSender().getName().equals(currentUser.getName())){
+            if (!message.getSender().getName().equals(currentUser.getName())) {
                 miniGameController.handleIncomingMessage((DirectMessage) message);  //when sent by chatPartner
             }
 
@@ -122,20 +126,18 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
                 } else{
                     message.setMessage(viewLoader.loadLabel(Constants.LBL_GAME_CHALLENGE));
                 }
-            }
-            else {
+            } else {
                 message.removeYou();
                 return null;
             }
-        }
-        else if(!message.getSender().getName().equals(currentUser.getName())) {
+        } else if (!message.getSender().getName().equals(currentUser.getName())) {
             // check if message contains a server invite link
             info = MessageUtil.getInviteInfo(messageText);
         }
 
-        ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage());
+        ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage(), false);
 
-        if(Objects.nonNull(info) && Objects.isNull(editor.getServer(info.getServerId()))) {
+        if (Objects.nonNull(info) && Objects.isNull(editor.getServer(info.getServerId()))) {
             messageNode.addJoinButtonButton(info, this::joinServer);
         }
 
@@ -152,8 +154,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
 
             if (directMessageDTO.getSenderName().equals(currentUser.getName())) {
                 message.setSender(currentUser);
-            }
-            else {
+            } else {
                 String senderId = directMessageDTO.getSender();
                 String senderName = directMessageDTO.getSenderName();
                 message.setSender(editor.getOrCreateChatPartnerOfCurrentUser(senderId, senderName));
@@ -161,8 +162,8 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
 
             ChatMessage messageElement = parseMessage(message);
 
-            if(Objects.nonNull(messageElement)) {
-                chatMessageList.addElement(message,  parseMessage(message));
+            if (Objects.nonNull(messageElement)) {
+                chatMessageList.addElement(message, parseMessage(message));
             }
         }
     }
@@ -217,20 +218,19 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
 
         if (Objects.nonNull(directMessage)) {
             ChatMessage messageElement = parseMessage(directMessage);
-            if(Objects.nonNull(messageElement)) {
+            if (Objects.nonNull(messageElement)) {
                 Platform.runLater(() -> {
-                    chatMessageList.addElement(directMessage,  parseMessage(directMessage));
+                    chatMessageList.addElement(directMessage, parseMessage(directMessage));
                 });
             }
         }
     }
 
     private void changeChatViewStatus(boolean mode) {
-        if(mode) {
+        if (mode) {
             chatMessageInput.enable();
             setOnlineHeaderLabel();
-        }
-        else {
+        } else {
             chatMessageInput.disable();
             setOfflineHeaderLabel();
         }

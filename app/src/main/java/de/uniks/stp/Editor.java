@@ -155,6 +155,17 @@ public class Editor {
         return null;
     }
 
+    public Category getCategory(final String categoryId) {
+        for (Server server : accord.getCurrentUser().getAvailableServers()) {
+            for (Category category : server.getCategories()) {
+                if (category.getId().equals(categoryId)) {
+                    return category;
+                }
+            }
+        }
+        return null;
+    }
+
     public void deleteCategory(String serverId, String categoryId){
         Server server = getServer(serverId);
         Category delCat = getCategory(categoryId, server);
@@ -304,11 +315,25 @@ public class Editor {
     }
 
     public ServerMessage getOrCreateServerMessage(String msgId, Channel channel) {
-        for (ServerMessage message : channel.getMessages()) {
-            if(message.getId().equals(msgId)) {
-                return message;
+        synchronized (Channel.class) {
+            for (ServerMessage message : channel.getMessages()) {
+                if(message.getId().equals(msgId)) {
+                    return message;
+                }
             }
         }
         return (ServerMessage) new ServerMessage().setId(msgId);
+    }
+
+    public void deleteServerMessage(String messageId, Channel channel) {
+        synchronized (Channel.class) {
+            ServerMessage toRemove = null;
+            for (ServerMessage message : channel.getMessages()) {
+                if(message.getId().equals(messageId)) {
+                    toRemove = message;
+                }
+            }
+            channel.withoutMessages(toRemove);
+        }
     }
 }

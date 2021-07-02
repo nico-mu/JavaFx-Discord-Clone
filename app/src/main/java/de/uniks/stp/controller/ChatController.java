@@ -8,12 +8,10 @@ import de.uniks.stp.component.ChatMessageInput;
 import de.uniks.stp.component.ListComponent;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.rest.AppRestClient;
 import de.uniks.stp.network.rest.ServerInformationHandler;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.util.InviteInfo;
 import javafx.event.ActionEvent;
-import javafx.scene.Parent;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -24,7 +22,6 @@ import javax.inject.Inject;
 abstract public class ChatController<T> {
 
     private static final Logger log = LoggerFactory.getLogger(ChatController.class);
-    protected final Parent view;
     protected final Editor editor;
     protected final User currentUser;
     protected final ChatMessageInput chatMessageInput;
@@ -39,8 +36,7 @@ abstract public class ChatController<T> {
     @Inject
     protected ViewLoader viewLoader;
 
-    public ChatController(Parent view, Editor editor) {
-        this.view = view;
+    public ChatController(Editor editor) {
         this.editor = editor;
         currentUser = editor.getOrCreateAccord().getCurrentUser();
         chatMessageInput = new ChatMessageInput();
@@ -68,11 +64,11 @@ abstract public class ChatController<T> {
     protected void onJoinServerResponse(String serverId, HttpResponse<JsonNode> response) {
         log.debug(response.getBody().toPrettyString());
 
-        if(response.isSuccess()){
+        if (response.isSuccess()) {
             editor.getOrCreateServer(serverId);
             restClient.getServerInformation(serverId, serverInformationHandler::handleServerInformationRequest);
             restClient.getCategories(serverId, (msg) -> serverInformationHandler.handleCategories(msg, editor.getServer(serverId)));
-        } else{
+        } else {
             log.error("Join Server failed because: " + response.getBody().getObject().getString("message"));
         }
     }

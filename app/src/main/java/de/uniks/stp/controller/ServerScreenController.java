@@ -8,7 +8,6 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.TextWithEmoteSupport;
-import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.modal.CreateCategoryModal;
 import de.uniks.stp.modal.InvitesModal;
 import de.uniks.stp.modal.ServerSettingsModal;
@@ -44,9 +43,10 @@ public class ServerScreenController implements ControllerInterface {
 
     private static final String SERVER_NAME_ID = "#server-name";
     private static final String SERVER_CHANNEL_OVERVIEW = "#server-channel-overview";
-    private static final String SERVER_CHAT_CONTAINER = "#server-chat-container";
+    private static final String SERVER_CHANNEL_CONTAINER = "#server-channel-container";
     private static final String SERVER_USER_LIST_CONTAINER = "#server-user-list-container";
     private static final String SETTINGS_LABEL = "#settings-label";
+    private static final String CHANNEL_NAME_LABEL = "#channel-name-label";
 
     private final Editor editor;
     private final Server model;
@@ -56,14 +56,18 @@ public class ServerScreenController implements ControllerInterface {
 
     private AnchorPane view;
     private FlowPane serverScreenView;
+    private Channel selectedChannel;
     private TextWithEmoteSupport serverName;
+
     private VBox serverChannelOverview;
     private ServerCategoryListController categoryListController;
-    private FlowPane serverChatContainer;
-    private ServerChatController serverChatController;
+    private VBox serverChannelContainer;
+    private ControllerInterface serverChannelController;
     private ServerUserListController serverUserListController;
     private FlowPane serverUserListContainer;
     private Label settingsGearLabel;
+    private ContextMenu settingsContextMenu;
+    private TextWithEmoteSupport channelNameLabel;
 
     @Inject
     ServerCategoryListController.ServerCategoryListControllerFactory serverCategoryListControllerFactory;
@@ -83,7 +87,7 @@ public class ServerScreenController implements ControllerInterface {
     @Inject
     CreateCategoryModal.CreateCategoryModalFactory categoryModalFactory;
 
-    private ContextMenu settingsContextMenu;
+    private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
 
     @AssistedInject
@@ -105,10 +109,12 @@ public class ServerScreenController implements ControllerInterface {
     public void init() {
         serverScreenView = (FlowPane) viewLoader.loadView(SERVER_SCREEN);
         serverChannelOverview = (VBox) serverScreenView.lookup(SERVER_CHANNEL_OVERVIEW);
-        serverChatContainer = (FlowPane) serverScreenView.lookup(SERVER_CHAT_CONTAINER);
+        serverChannelContainer = (VBox) serverScreenView.lookup(SERVER_CHANNEL_CONTAINER);
         serverUserListContainer = (FlowPane) serverScreenView.lookup(SERVER_USER_LIST_CONTAINER);
         settingsGearLabel = (Label) serverScreenView.lookup(SETTINGS_LABEL);
         settingsContextMenu = settingsGearLabel.getContextMenu();
+
+        channelNameLabel = (TextWithEmoteSupport) serverScreenView.lookup(CHANNEL_NAME_LABEL);
 
         view.getChildren().add(serverScreenView);
         serverName = (TextWithEmoteSupport) view.lookup(SERVER_NAME_ID);
@@ -133,31 +139,51 @@ public class ServerScreenController implements ControllerInterface {
 
     @Override
     public void route(RouteInfo routeInfo, RouteArgs args) {
+        subviewCleanup();
         if (routeInfo.getSubControllerRoute().equals(Constants.ROUTE_CHANNEL)) {
             final String serverId = args.getArguments().get(":id");
             final String categoryId = args.getArguments().get(":categoryId");
             final String channelId = args.getArguments().get(":channelId");
-            final Channel channel = getChannel(serverId, categoryId, channelId);
+            final Channel channel = selectAndGetChannel(serverId, categoryId, channelId);
             notificationService.consume(channel);
-            serverChatController = serverChatControllerFactory.create(serverChatContainer, channel);
-            serverChatController.init();
-            router.addToControllerCache(routeInfo.getFullRoute(), serverChatController);
+            serverChannelController = serverChatControllerFactory.create(serverChannelContainer, channel);
+            serverChannelController.init();
+            router.addToControllerCache(routeInfo.getFullRoute(), serverChannelController);
         }
     }
 
-    private Channel getChannel(final String serverId, final String categoryId, final String channelId) {
+    private void subviewCleanup() {
+        serverChannelContainer.getChildren().clear();
+    }
+
+    private Channel selectAndGetChannel(final String serverId, final String categoryId, final String channelId) {
         Server server = editor.getServer(serverId);
         Category category = editor.getCategory(categoryId, server);
         Channel channel = editor.getChannel(channelId, category);
         if (Objects.isNull(channel)) {
             channel = editor.getChannel(channelId, server);
         }
+        if (Objects.nonNull(selectedChannel)) {
+            selectedChannel.listeners().removePropertyChangeListener(channelNameListener);
+        }
+        selectedChannel = channel;
+        channelNameLabel.setText(selectedChannel.getName());
+        channel.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
+
         return channel;
     }
 
     private void onServerNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        Platform.runLater(()-> {
-            serverName.setText(model.getName());
+        final String newName = (String) propertyChangeEvent.getNewValue();
+        Platform.runLater(() -> {
+            serverName.setText(newName);
+        });
+    }
+
+    private void onChannelNamePropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final String newName = (String) propertyChangeEvent.getNewValue();
+        Platform.runLater(() -> {
+            channelNameLabel.setText(newName);
         });
     }
 
@@ -188,16 +214,20 @@ public class ServerScreenController implements ControllerInterface {
         if (Objects.nonNull(categoryListController)) {
             categoryListController.stop();
         }
-        if (Objects.nonNull(serverChatController)) {
-            serverChatController.stop();
+        if (Objects.nonNull(serverChannelController)) {
+            serverChannelController.stop();
         }
         if (Objects.nonNull(serverUserListController)) {
             serverUserListController.stop();
         }
+        if (Objects.nonNull(selectedChannel)) {
+            selectedChannel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNameListener);
+        }
+
         settingsGearLabel.setOnMouseClicked(null);
         model.listeners().removePropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
 
-        for(MenuItem item: settingsContextMenu.getItems()){
+        for (MenuItem item : settingsContextMenu.getItems()) {
             item.setOnAction(null);
         }
     }

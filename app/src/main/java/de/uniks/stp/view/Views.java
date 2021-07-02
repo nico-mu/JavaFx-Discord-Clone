@@ -7,6 +7,7 @@ public enum Views {
     HOME_SCREEN("HomeScreen.fxml"),
     LOGIN_SCREEN("LoginScreen.fxml"),
     SERVER_SCREEN("ServerScreen.fxml"),
+    SERVER_CHAT_SCREEN("ServerChatScreen.fxml"),
     USER_INFO_SCREEN("UserInfoScreen.fxml"),
     SETTINGS_MODAL("SettingsModal.fxml"),
     ADD_SERVER_MODAL("AddServerModal.fxml"),
@@ -18,6 +19,7 @@ public enum Views {
     EDIT_CATEGORY_MODAL("EditCategoryModal.fxml"),
     EDIT_CHANNEL_MODAL("EditChannelModal.fxml"),
     CONFIRMATION_MODAL("ConfirmationModal.fxml"),
+    EDIT_MESSAGE_MODAL("EditMessageModal.fxml"),
     EASTER_EGG_MODAL("EasterEggModal.fxml");
 
     public final URL path;

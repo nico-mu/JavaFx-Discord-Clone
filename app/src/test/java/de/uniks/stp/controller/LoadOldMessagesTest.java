@@ -76,11 +76,16 @@ public class LoadOldMessagesTest {
         // prepare start situation
         Editor editor = StageManager.getEditor();
         long timeStart = new Date().getTime();
+        String userNameOne = "Bob";
+        String userNameTwo = "Eve";
 
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Platti")).setUserKey("123-45");
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("Platti").setId("1-1")).setUserKey("123-45");
 
         String serverId ="12345678";
-        Server server = new Server().setName("Plattis Server").setId(serverId);
+        User userOne = new User().setName(userNameOne).setId("1");
+        User userTwo = new User().setName(userNameTwo).setId("2");
+        editor.getOrCreateAccord().withOtherUsers(userOne, userTwo);
+        Server server = new Server().setName("Plattis Server").setId(serverId).withUsers(userOne, userTwo);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
         WebSocketService.addServerWebSocket(serverId);
@@ -98,9 +103,9 @@ public class LoadOldMessagesTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         // old messages will be loaded automatically
-        JSONObject msg1 = getMessageAsJson(channelId, timeStart - 50, "first old message", "Bob");
-        JSONObject msg2 = getMessageAsJson(channelId, timeStart - 30, "first old message", "Eve");
-        JSONObject msg3 = getMessageAsJson(channelId, timeStart - 10, "third old message", "Bob");
+        JSONObject msg1 = getMessageAsJson(channelId, timeStart - 50, "first old message", userNameOne);
+        JSONObject msg2 = getMessageAsJson(channelId, timeStart - 30, "first old message", userNameTwo);
+        JSONObject msg3 = getMessageAsJson(channelId, timeStart - 10, "third old message", userNameOne);
         JSONArray data = new JSONArray().put(msg2).put(msg1).put(msg3);
 
         JSONObject j = new JSONObject().put("status", "success").put("message", "").put("data", data);
@@ -140,9 +145,8 @@ public class LoadOldMessagesTest {
         return new JSONObject().put("id", Integer.toString(idCounter++))
             .put("channel", channelId)
             .put("timestamp", timestamp)
-            .put("from", "Bob")
+            .put("from", from)
             .put("text", text);
-
     }
 
     @Test
@@ -150,12 +154,17 @@ public class LoadOldMessagesTest {
         // prepare start situation
         Editor editor = StageManager.getEditor();
         long timeStart = new Date().getTime();
+        String userNameOne = "Eve";
+        String userNameTwo = "Bob";
 
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Platti")).setUserKey("123-45");
+        editor.getOrCreateAccord().setCurrentUser(new User().setName("Platti").setId("1-1")).setUserKey("123-45");
 
         String serverId ="12345678";
-        Server server = new Server().setName("Plattis Server").setId(serverId);
+        User user = new User().setName(userNameOne).setId("1");
+        User userTwo = new User().setName(userNameTwo).setId("2");
+        Server server = new Server().setName("Plattis Server").setId(serverId).withUsers(user);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
+        editor.getOrCreateAccord().withOtherUsers(user, userTwo);
 
         WebSocketService.addServerWebSocket(serverId);
 
@@ -176,7 +185,7 @@ public class LoadOldMessagesTest {
         JSONObject msg;
 
         for(int i = 0; i < 50; i++){
-            msg = getMessageAsJson(channelId, timeStart-100+i, Integer.toString(i), "Eve");
+            msg = getMessageAsJson(channelId, timeStart-100+i, Integer.toString(i), userNameOne);
             data.put(msg);
         }
 
