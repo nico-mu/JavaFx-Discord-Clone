@@ -1,5 +1,6 @@
 package de.uniks.stp.component;
 
+import com.jfoenix.controls.JFXSpinner;
 import com.sun.javafx.webkit.Accessor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.DeleteMessageModal;
@@ -14,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -132,7 +134,7 @@ public class ChatMessage extends HBox {
             WebView webView = new WebView();
             webView.getEngine().loadContent("<body style=\"margin:0;\"><div style=\"margin:0; width:250; overflow:hidden;\"><video style=\"width:100%; height:auto; object-fit: contain\" controls <source src=\"" + url + "\" type=\"" + type + "\"</source></video></div></body>", "text/html");
             webView.setMaxHeight(200);
-            webView.setMaxWidth(250);
+            webView.setMaxWidth(500);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
             textVBox.getChildren().add(webView);
             medias.add(webView);
@@ -145,6 +147,30 @@ public class ChatMessage extends HBox {
             webView.getEngine().load(url);
             webView.setMaxWidth(250);
             webView.setMaxHeight(250);
+            Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
+            textVBox.getChildren().add(webView);
+            medias.add(webView);
+        });
+    }
+
+    public void addSpinner() {
+        Platform.runLater(() -> {
+            VBox vBox = new VBox();
+            vBox.setPrefHeight(100);
+            vBox.setPrefWidth(100);
+            vBox.setAlignment(Pos.CENTER);
+            JFXSpinner spinner = new JFXSpinner();
+            vBox.getChildren().add(spinner);
+            textVBox.getChildren().add(vBox);
+        });
+    }
+
+    public void loadContent(String content) {
+        Platform.runLater(() -> {
+            WebView webView = new WebView();
+            webView.getEngine().loadContent(content, "text/html");
+            webView.setMaxHeight(200);
+            webView.setMaxWidth(200);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
             textVBox.getChildren().add(webView);
             medias.add(webView);

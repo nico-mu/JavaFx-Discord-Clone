@@ -107,7 +107,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     protected ChatMessage parseMessage(Message message) {
         ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage(),
             message.getSender().getId().equals(editor.getOrCreateAccord().getCurrentUser().getId()));
-        UrlUtil.addMedia(message, messageNode);
+        new UrlUtil().addMedia(message, messageNode);
 
         if (!message.getSender().getName().equals(currentUser.getName())) {
             InviteInfo info = MessageUtil.getInviteInfo(message.getMessage());
@@ -166,7 +166,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     private void onMessageTextChange(PropertyChangeEvent propertyChangeEvent) {
         ServerMessage message = (ServerMessage) propertyChangeEvent.getSource();
         chatMessageList.getElement(message).setMessageText(message.getMessage());
-        UrlUtil.addMedia(message, chatMessageList.getElement(message));
+        new UrlUtil().addMedia(message, chatMessageList.getElement(message));
     }
 
     /**
