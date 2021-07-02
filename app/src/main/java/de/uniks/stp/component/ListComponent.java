@@ -11,6 +11,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ListComponent<Model, Element extends Node> extends ScrollPane {
@@ -70,6 +71,10 @@ public class ListComponent<Model, Element extends Node> extends ScrollPane {
             return elementHashMap.get(model);
         }
         return null;
+    }
+
+    public Collection<Element> getElements() {
+        return elementHashMap.values();
     }
 
     public void addElement(Model model, Element element) {

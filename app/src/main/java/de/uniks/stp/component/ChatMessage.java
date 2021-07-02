@@ -23,6 +23,8 @@ import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class ChatMessage extends HBox {
@@ -46,9 +48,11 @@ public class ChatMessage extends HBox {
     private ImageView deleteMessage;
 
     private Message model;
+    private List<WebView> medias;
 
     public ChatMessage(Message message, String language, boolean editable) {
         this.model = message;
+        medias = new ArrayList<>();
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -99,6 +103,7 @@ public class ChatMessage extends HBox {
             webView.setMouseTransparent(true);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
             textVBox.getChildren().add(webView);
+            medias.add(webView);
         });
     }
 
@@ -130,6 +135,7 @@ public class ChatMessage extends HBox {
             webView.setMaxWidth(250);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
             textVBox.getChildren().add(webView);
+            medias.add(webView);
         });
     }
 
@@ -141,6 +147,16 @@ public class ChatMessage extends HBox {
             webView.setMaxHeight(250);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
             textVBox.getChildren().add(webView);
+            medias.add(webView);
         });
+    }
+
+    public void stop() {
+        this.getChildren().clear();
+        for (WebView webView : medias) {
+            webView.getEngine().load(null);
+            webView = null;
+        }
+        medias = null;
     }
 }

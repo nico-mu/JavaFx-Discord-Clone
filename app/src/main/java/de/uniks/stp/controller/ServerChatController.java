@@ -84,6 +84,9 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
             for (Message message : model.getMessages()) {
                 message.listeners().removePropertyChangeListener(Message.PROPERTY_MESSAGE, messagesChangeListener);
             }
+            for (ChatMessage chatMessage : chatMessageList.getElements()) {
+                chatMessage.stop();
+            }
         }
     }
 

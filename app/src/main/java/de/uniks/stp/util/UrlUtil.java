@@ -36,7 +36,7 @@ public class UrlUtil {
             e.printStackTrace();
             return null;
         }
-        return connection.getHeaderField("Content-Type");
+        return connection.getContentType();
     }
 
     public static List<String> extractURLs(String string) {
