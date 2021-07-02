@@ -84,15 +84,18 @@ public class ChatMessage extends HBox {
     }
 
     public void setMessageText(String newText) {
-        Platform.runLater(() -> messageText.setText(newText));
+        Platform.runLater(() -> {
+            messageText.setText(newText);
+            textVBox.getChildren().removeIf(node -> node instanceof WebView);
+        });
     }
 
     public void addImage(String url) {
         Platform.runLater(() -> {
             WebView webView = new WebView();
-            webView.getEngine().loadContent("<img src=\"" + url + "\" width=\"80\" height=\"80\">", "text/html");
-            webView.setMaxHeight(100);
-            webView.setMaxWidth(100);
+            webView.getEngine().loadContent("<body style=\"margin:0\"><img src=\"" + url + "\" style=\"width:200; height:200\"></body>", "text/html");
+            webView.setMaxWidth(200);
+            webView.setMaxHeight(200);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
             textVBox.getChildren().add(webView);
         });

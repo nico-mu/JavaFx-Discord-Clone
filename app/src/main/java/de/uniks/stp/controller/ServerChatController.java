@@ -9,7 +9,6 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.MediaRequestClient;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.WebSocketService;
 import de.uniks.stp.util.InviteInfo;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
@@ -48,7 +46,6 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     private HBox loadOldMessagesBox;
     private VBox serverChatVBox;
 
-    private final MediaRequestClient mediaRequestClient = NetworkClientInjector.getMediaRequestClient();
     private final ChangeListener<Number> scrollValueChangedListener = this::onScrollValueChanged;
     private final PropertyChangeListener messagesChangeListener = this::handleNewMessage;
     private final PropertyChangeListener messageTextChangeListener = this::onMessageTextChange;
@@ -166,6 +163,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     private void onMessageTextChange(PropertyChangeEvent propertyChangeEvent) {
         ServerMessage message = (ServerMessage) propertyChangeEvent.getSource();
         chatMessageList.getElement(message).setMessageText(message.getMessage());
+        UrlUtil.addMedia(message, chatMessageList.getElement(message));
     }
 
     /**
