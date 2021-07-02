@@ -17,7 +17,6 @@ public class MediaRequestClient {
     }
 
     public void addImage(String url, ChatMessage messageNode) {
-        log.debug("Get Image from: " + url);
         executor.submit(() -> messageNode.addImage(url));
     }
 
