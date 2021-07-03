@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
 public class ServerVoiceChatController implements ControllerInterface {
@@ -51,8 +50,6 @@ public class ServerVoiceChatController implements ControllerInterface {
     private static final Image otherAudioInputImg = ViewLoader.loadImage("microphone-mute.png");
     private static final Image initAudioOutputImg = ViewLoader.loadImage("volume.png");
     private static final Image otherAudioOutputImg = ViewLoader.loadImage("volume-mute.png");
-    private ExecutorService executorService;
-
     private final HashMap<User, VoiceChatUserEntry> userVoiceChatUserHashMap = new HashMap<>();
     private final Channel model;
     private final RestClient restClient;
@@ -68,14 +65,13 @@ public class ServerVoiceChatController implements ControllerInterface {
     private ImageView audioOutputImgView;
 
     private boolean stopping = false;
+    private ExecutorService executorService;
 
     private Boolean audioInMute = false;
     private TargetDataLine audioInDataLine;
-    private Future<?> audioInFuture;
 
     private Boolean audioOutMute = false;
     private SourceDataLine audioOutDataLine;
-    private Future<?> audioOutFuture;
 
     public ServerVoiceChatController(VBox view, Editor editor, Channel model) {
         this.view = view;
@@ -181,17 +177,10 @@ public class ServerVoiceChatController implements ControllerInterface {
 
         // Join UDP-Voicestream
         initAudio();
+
         executorService = Executors.newCachedThreadPool();
-
-        if (Objects.nonNull(audioOutFuture)) {
-            audioOutFuture.cancel(true);
-        }
-        audioOutFuture = executorService.submit(this::receiveAndPlayAudio);
-
-        if (Objects.nonNull(audioInFuture)) {
-            audioInFuture.cancel(true);
-        }
-        audioInFuture = executorService.submit(this::recordAndSendAudio);
+        executorService.execute(this::receiveAndPlayAudio);
+        executorService.execute(this::recordAndSendAudio);
     }
 
     private void receiveAndPlayAudio() {
@@ -209,6 +198,7 @@ public class ServerVoiceChatController implements ControllerInterface {
         DatagramSocket audioOutDatagramSocket;
         try {
             audioOutDatagramSocket = new DatagramSocket();
+            audioOutDatagramSocket.connect(address, Constants.AUDIOSTREAM_PORT);
         } catch (SocketException e) {
             log.error("Failed to initialize the DatagramSocket.", e);
             return;
@@ -223,16 +213,17 @@ public class ServerVoiceChatController implements ControllerInterface {
                 continue;
             }
             byte[] audioBuf = new byte[Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE + Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE];
-            final DatagramPacket audioOutDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length, address, Constants.AUDIOSTREAM_PORT);
+            final DatagramPacket audioOutDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length);
             try {
                 audioOutDatagramSocket.receive(audioOutDatagramPacket);
                 log.debug("Received audio packet {}", audioBuf);
-                audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, audioBuf.length);
+                final int written = audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
+                log.debug("written {} bytes to the audioOutDataLine", written);
             } catch (IOException e) {
-                log.error("Failed to send an audio packet.", e);
-                return;
+                log.error("Failed to receive an audio packet.", e);
             }
         }
+        audioOutDatagramSocket.disconnect();
         audioOutDatagramSocket.close();
     }
 
@@ -263,6 +254,7 @@ public class ServerVoiceChatController implements ControllerInterface {
         DatagramSocket audioInDatagramSocket;
         try {
             audioInDatagramSocket = new DatagramSocket();
+            audioInDatagramSocket.connect(address, Constants.AUDIOSTREAM_PORT);
         } catch (SocketException e) {
             log.error("Failed to initialize the DatagramSocket.", e);
             return;
@@ -276,16 +268,17 @@ public class ServerVoiceChatController implements ControllerInterface {
                 }
                 continue;
             }
-            audioInDataLine.read(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, audioBuf.length);
-            final DatagramPacket audioInDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length, address, Constants.AUDIOSTREAM_PORT);
+            final int read = audioInDataLine.read(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
+//            log.debug("read {} bytes from the audioInDataLine", read);
+            final DatagramPacket audioInDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length);
             try {
                 audioInDatagramSocket.send(audioInDatagramPacket);
-                log.debug("Sent audio packet {}", audioBuf);
+//                log.debug("Sent audio packet {}", audioBuf);
             } catch (IOException e) {
                 log.error("Failed to send an audio packet.", e);
-                return;
             }
         }
+        audioInDatagramSocket.disconnect();
         audioInDatagramSocket.close();
     }
 
@@ -336,16 +329,11 @@ public class ServerVoiceChatController implements ControllerInterface {
     @Override
     public void stop() {
         stopping = true;
-        if (Objects.nonNull(audioInFuture)) {
-            audioInFuture.cancel(true);
-            audioInFuture = null;
+
+        if (Objects.nonNull(executorService)) {
+            executorService.shutdown();
+            executorService = null;
         }
-        if (Objects.nonNull(audioOutFuture)) {
-            audioOutFuture.cancel(true);
-            audioOutFuture = null;
-        }
-        executorService.shutdown();
-        executorService = null;
 
         if (Objects.nonNull(audioInDataLine)) {
             audioInDataLine.close();
