@@ -47,6 +47,12 @@ public class ChatMessageInput extends HBox {
         emoteTextArea.setOnKeyPressed(this::checkForEnter);
 
         VirtualizedScrollPane<EmoteTextArea> scroll = new VirtualizedScrollPane<>(emoteTextArea);
+        emoteTextArea.heightProperty().addListener(((observable, oldValue, newValue) -> {
+            System.out.print((double) newValue);
+            chatViewMessageInput.setMinHeight((double) newValue);
+            scroll.setPrefHeight((double) newValue);
+        }));
+        emoteTextArea.setPrefHeight(40);
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
 

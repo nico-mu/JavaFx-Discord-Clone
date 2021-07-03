@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
-<?import com.jfoenix.controls.JFXButton?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.*?>
 
-<fx:root type="HBox" xmlns="http://javafx.com/javafx" alignment="CENTER_RIGHT" prefHeight="15.0" prefWidth="200.0"
-         VBox.vgrow="SOMETIMES" xmlns:fx="http://javafx.com/fxml">
+<fx:root alignment="CENTER_RIGHT" maxHeight="150.0" prefWidth="200.0" type="HBox" VBox.vgrow="SOMETIMES" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <VBox.margin>
-        <Insets top="30.0"/>
+        <Insets top="30.0" />
     </VBox.margin>
-    <VBox fx:id="chatViewMessageInput" minHeight="40.0" styleClass="message-input" HBox.hgrow="ALWAYS">
+    <VBox fx:id="chatViewMessageInput" maxHeight="150.0" styleClass="message-input" HBox.hgrow="ALWAYS">
         <padding>
-            <Insets bottom="5.0" left="5.0" right="10.0" top="5.0"/>
+            <Insets bottom="5.0" left="5.0" right="10.0" top="5.0" />
         </padding>
     </VBox>
-    <JFXButton fx:id="chatViewSubmitButton" minWidth="100.0" prefHeight="100.0" prefWidth="130.0"
-               styleClass="submit-button" text="%LBL_CHAT_SEND" textFill="WHITE">
+    <JFXButton fx:id="chatViewSubmitButton" maxHeight="40.0" minHeight="40.0" minWidth="100.0" prefHeight="40.0" prefWidth="130.0" styleClass="submit-button" text="%LBL_CHAT_SEND" textFill="WHITE">
         <font>
-            <Font name="System Bold" size="12.0"/>
+            <Font name="System Bold" size="12.0" />
         </font>
     </JFXButton>
 </fx:root>

@@ -68,6 +68,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
         //add chatMessageList
         serverChatVBox.getChildren().add(chatMessageList);
+        VBox.setVgrow(chatMessageList, Priority.ALWAYS);
         //add chatMessageInput
         serverChatVBox.getChildren().add(chatMessageInput);
 
