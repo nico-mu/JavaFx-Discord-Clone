@@ -355,4 +355,8 @@ public class Editor {
             channel.withoutMessages(toRemove);
         }
     }
+
+    public String getCurrentUserName() {
+        return getOrCreateAccord().getCurrentUser().getName();
+    }
 }

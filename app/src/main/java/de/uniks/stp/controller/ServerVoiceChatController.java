@@ -3,6 +3,7 @@ package de.uniks.stp.controller;
 import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.VoiceChatUserEntry;
@@ -24,10 +25,19 @@ import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.sound.sampled.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
 public class ServerVoiceChatController implements ControllerInterface {
@@ -41,6 +51,8 @@ public class ServerVoiceChatController implements ControllerInterface {
     private static final Image otherAudioInputImg = ViewLoader.loadImage("microphone-mute.png");
     private static final Image initAudioOutputImg = ViewLoader.loadImage("volume.png");
     private static final Image otherAudioOutputImg = ViewLoader.loadImage("volume-mute.png");
+    private static final ExecutorService executorService = Executors.newCachedThreadPool();
+
     private final HashMap<User, VoiceChatUserEntry> userVoiceChatUserHashMap = new HashMap<>();
     private final Channel model;
     private final RestClient restClient;
@@ -54,8 +66,12 @@ public class ServerVoiceChatController implements ControllerInterface {
     private JFXButton audioOutputButton;
     private ImageView audioInputImgView;
     private ImageView audioOutputImgView;
-    private boolean audioInMute = false;
-    private boolean audioOutMute = false;
+
+    private Boolean audioInMute = false;
+    private TargetDataLine audioInDataLine;
+    private Future<?> audioInFuture;
+
+    private Boolean audioOutMute = false;
 
     public ServerVoiceChatController(VBox view, Editor editor, Channel model) {
         this.view = view;
@@ -158,8 +174,81 @@ public class ServerVoiceChatController implements ControllerInterface {
         final JSONObject data = response.getBody().getObject().getJSONObject("data");
 
         log.debug("{}: {}", status, message);
-        // TODO join UDP-Voicestream
 
+        // Join UDP-Voicestream
+        initAudio();
+
+        if (Objects.nonNull(audioInFuture)) {
+            audioInFuture.cancel(true);
+        }
+        audioInFuture = executorService.submit(this::recordAndSendAudio);
+    }
+
+    private void recordAndSendAudio() {
+        if (Objects.isNull(audioInDataLine)) {
+            log.error("Audio recording not startet. The dataLine is not set up properly.");
+            return;
+        }
+
+        final JsonObject metadataObject = Json.createObjectBuilder()
+            .add("channel", model.getId())
+            .add("name", StageManager.getEditor().getCurrentUserName())
+            .build();
+        byte[] metadataBytes = metadataObject.toString().getBytes(StandardCharsets.UTF_8);
+        if (metadataBytes.length > Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE) {
+            log.error("There are more bytes required for metadata than the package allows. Cancelling..");
+            return;
+        }
+        byte[] audioBuf = new byte[Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE + Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE];
+        System.arraycopy(metadataBytes, 0, audioBuf, 0, metadataBytes.length);
+        InetAddress address;
+        try {
+            address = InetAddress.getByName(Constants.AUDIOSTREAM_BASE_URL);
+        } catch (UnknownHostException e) {
+            log.error("The host address on {} could not be resolved and is unknown.", Constants.AUDIOSTREAM_BASE_URL, e);
+            return;
+        }
+        DatagramSocket audioInDatagramSocket;
+        try {
+            audioInDatagramSocket = new DatagramSocket();
+        } catch (SocketException e) {
+            log.error("Failed to initialize the DatagramSocket.", e);
+            return;
+        }
+        while (!audioInMute) {
+            audioInDataLine.read(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, audioBuf.length);
+            final DatagramPacket audioInDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length, address, Constants.AUDIOSTREAM_PORT);
+            try {
+                audioInDatagramSocket.send(audioInDatagramPacket);
+                log.debug("Sent audio packet {}", audioBuf);
+            } catch (IOException e) {
+                log.error("Failed to send an audio packet.", e);
+                return;
+            }
+        }
+        audioInDatagramSocket.close();
+    }
+
+    private void initAudio() {
+        final AudioFormat audioFormat = new AudioFormat(
+            Constants.AUDIOSTREAM_SAMPLE_RATE,
+            Constants.AUDIOSTREAM_SAMPLE_SIZE_BITS,
+            Constants.AUDIOSTREAM_CHANNEL,
+            Constants.AUDIOSTREAM_SIGNED,
+            Constants.AUDIOSTREAM_BIG_ENDIAN
+        );
+        DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
+        if (AudioSystem.isLineSupported(info)) {
+            try {
+                audioInDataLine = (TargetDataLine) AudioSystem.getLine(info);
+                audioInDataLine.open(audioFormat);
+                audioInDataLine.start();
+            } catch (LineUnavailableException e) {
+                log.error("Audio is currently unavailable on this system.");
+            }
+        } else {
+            log.error("Audio is not supported on this system.");
+        }
     }
 
     private void leaveAudioChannelCallback(HttpResponse<JsonNode> response) {
@@ -173,6 +262,17 @@ public class ServerVoiceChatController implements ControllerInterface {
 
     @Override
     public void stop() {
+        if (Objects.nonNull(audioInFuture)) {
+            audioInFuture.cancel(true);
+            audioInFuture = null;
+        }
+
+        if (Objects.nonNull(audioInDataLine)) {
+            audioInDataLine.close();
+            audioInDataLine.drain();
+            audioInDataLine.stop();
+            audioInDataLine = null;
+        }
         restClient.leaveAudioChannel(this.model, this::leaveAudioChannelCallback);
         model.listeners().removePropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
 
