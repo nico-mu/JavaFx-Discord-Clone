@@ -18,6 +18,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
@@ -74,6 +75,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
 
         chatMessageInput.setOnMessageSubmit(this::handleMessageSubmit);
+        VBox.setVgrow(serverChatView, Priority.ALWAYS);
     }
 
     @Override
