@@ -57,6 +57,10 @@ public class HomeScreenController implements ControllerInterface {
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
         directMessageListController = new DirectMessageListController(directMessagesContainer, editor);
         directMessageListController.init();
+        homeScreenView.setPrefHeight(view.getHeight());
+        view.heightProperty().addListener(((observable, oldValue, newValue) -> {
+            homeScreenView.setPrefHeight((double) newValue);
+        }));
     }
 
     @Override
