@@ -51,7 +51,7 @@ public class ServerVoiceChatController implements ControllerInterface {
     private static final Image otherAudioInputImg = ViewLoader.loadImage("microphone-mute.png");
     private static final Image initAudioOutputImg = ViewLoader.loadImage("volume.png");
     private static final Image otherAudioOutputImg = ViewLoader.loadImage("volume-mute.png");
-    private static final ExecutorService executorService = Executors.newCachedThreadPool();
+    private ExecutorService executorService;
 
     private final HashMap<User, VoiceChatUserEntry> userVoiceChatUserHashMap = new HashMap<>();
     private final Channel model;
@@ -67,11 +67,15 @@ public class ServerVoiceChatController implements ControllerInterface {
     private ImageView audioInputImgView;
     private ImageView audioOutputImgView;
 
+    private boolean stopping = false;
+
     private Boolean audioInMute = false;
     private TargetDataLine audioInDataLine;
     private Future<?> audioInFuture;
 
     private Boolean audioOutMute = false;
+    private SourceDataLine audioOutDataLine;
+    private Future<?> audioOutFuture;
 
     public ServerVoiceChatController(VBox view, Editor editor, Channel model) {
         this.view = view;
@@ -177,11 +181,59 @@ public class ServerVoiceChatController implements ControllerInterface {
 
         // Join UDP-Voicestream
         initAudio();
+        executorService = Executors.newCachedThreadPool();
+
+        if (Objects.nonNull(audioOutFuture)) {
+            audioOutFuture.cancel(true);
+        }
+        audioOutFuture = executorService.submit(this::receiveAndPlayAudio);
 
         if (Objects.nonNull(audioInFuture)) {
             audioInFuture.cancel(true);
         }
         audioInFuture = executorService.submit(this::recordAndSendAudio);
+    }
+
+    private void receiveAndPlayAudio() {
+        if (Objects.isNull(audioOutDataLine)) {
+            log.error("Audio playback not startet. The dataLine is not set up properly.");
+            return;
+        }
+        InetAddress address;
+        try {
+            address = InetAddress.getByName(Constants.AUDIOSTREAM_BASE_URL);
+        } catch (UnknownHostException e) {
+            log.error("The host address on {} could not be resolved and is unknown.", Constants.AUDIOSTREAM_BASE_URL, e);
+            return;
+        }
+        DatagramSocket audioOutDatagramSocket;
+        try {
+            audioOutDatagramSocket = new DatagramSocket();
+        } catch (SocketException e) {
+            log.error("Failed to initialize the DatagramSocket.", e);
+            return;
+        }
+        while (!stopping) {
+            if (audioOutMute) {
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    log.error("Thread interrupted while sleeping", e);
+                }
+                continue;
+            }
+            byte[] audioBuf = new byte[Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE + Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE];
+            final DatagramPacket audioOutDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length, address, Constants.AUDIOSTREAM_PORT);
+            try {
+                audioOutDatagramSocket.receive(audioOutDatagramPacket);
+                log.debug("Received audio packet {}", audioBuf);
+                audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, audioBuf.length);
+            } catch (IOException e) {
+                log.error("Failed to send an audio packet.", e);
+                return;
+            }
+        }
+        audioOutDatagramSocket.close();
     }
 
     private void recordAndSendAudio() {
@@ -215,7 +267,15 @@ public class ServerVoiceChatController implements ControllerInterface {
             log.error("Failed to initialize the DatagramSocket.", e);
             return;
         }
-        while (!audioInMute) {
+        while (!stopping) {
+            if (audioInMute) {
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    log.error("Thread interrupted while sleeping", e);
+                }
+                continue;
+            }
             audioInDataLine.read(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, audioBuf.length);
             final DatagramPacket audioInDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length, address, Constants.AUDIOSTREAM_PORT);
             try {
@@ -237,18 +297,31 @@ public class ServerVoiceChatController implements ControllerInterface {
             Constants.AUDIOSTREAM_SIGNED,
             Constants.AUDIOSTREAM_BIG_ENDIAN
         );
-        DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
-        if (AudioSystem.isLineSupported(info)) {
+        final DataLine.Info infoIn = new DataLine.Info(TargetDataLine.class, audioFormat);
+        if (AudioSystem.isLineSupported(infoIn)) {
             try {
-                audioInDataLine = (TargetDataLine) AudioSystem.getLine(info);
+                audioInDataLine = (TargetDataLine) AudioSystem.getLine(infoIn);
                 audioInDataLine.open(audioFormat);
                 audioInDataLine.start();
             } catch (LineUnavailableException e) {
-                log.error("Audio is currently unavailable on this system.");
+                log.error("Audio input is currently unavailable on this system.");
             }
         } else {
-            log.error("Audio is not supported on this system.");
+            log.error("Audio input is not supported on this system.");
         }
+        final DataLine.Info infoOut = new DataLine.Info(SourceDataLine.class, audioFormat);
+        if (AudioSystem.isLineSupported(infoOut)) {
+            try {
+                audioOutDataLine = (SourceDataLine) AudioSystem.getLine(infoOut);
+                audioOutDataLine.open(audioFormat);
+                audioOutDataLine.start();
+            } catch (LineUnavailableException e) {
+                log.error("Audio output is currently unavailable on this system.");
+            }
+        } else {
+            log.error("Audio output is not supported on this system.");
+        }
+
     }
 
     private void leaveAudioChannelCallback(HttpResponse<JsonNode> response) {
@@ -262,16 +335,29 @@ public class ServerVoiceChatController implements ControllerInterface {
 
     @Override
     public void stop() {
+        stopping = true;
         if (Objects.nonNull(audioInFuture)) {
             audioInFuture.cancel(true);
             audioInFuture = null;
         }
+        if (Objects.nonNull(audioOutFuture)) {
+            audioOutFuture.cancel(true);
+            audioOutFuture = null;
+        }
+        executorService.shutdown();
+        executorService = null;
 
         if (Objects.nonNull(audioInDataLine)) {
             audioInDataLine.close();
             audioInDataLine.drain();
             audioInDataLine.stop();
             audioInDataLine = null;
+        }
+        if (Objects.nonNull(audioOutDataLine)) {
+            audioOutDataLine.close();
+            audioOutDataLine.drain();
+            audioOutDataLine.stop();
+            audioOutDataLine = null;
         }
         restClient.leaveAudioChannel(this.model, this::leaveAudioChannelCallback);
         model.listeners().removePropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
