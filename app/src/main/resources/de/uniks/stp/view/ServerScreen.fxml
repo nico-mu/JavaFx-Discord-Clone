@@ -1,97 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.uniks.stp.component.TextWithEmoteSupport?>
+<?import de.uniks.stp.component.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<FlowPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-          prefHeight="472.0" prefWidth="696.0" styleClass="container"
-          stylesheets="@../style/css/view/server.css" xmlns="http://javafx.com/javafx/11.0.1">
-    <HBox prefHeight="472.0" prefWidth="698.0">
-        <FlowPane id="server-overview-container" alignment="TOP_CENTER" prefHeight="472.0" prefWidth="221.0"
-                  styleClass="server-overview">
-            <HBox id="server-name-container" alignment="CENTER_LEFT" prefHeight="54.0" prefWidth="198.0"
-                  styleClass="server-name-container">
-                <FlowPane.margin>
-                    <Insets bottom="15.0"/>
-                </FlowPane.margin>
-                <TextWithEmoteSupport id="server-name" prefHeight="32.0" prefWidth="140.0"
-                                      styleClass="server-name-label">
-                    <HBox.margin>
-                        <Insets left="5.0"/>
-                    </HBox.margin>
-                </TextWithEmoteSupport>
-                <Label id="settings-label">
-                    <graphic>
-                        <ImageView id="settings-gear" fitHeight="45.0" fitWidth="45.0">
-                            <Image url="@../img/gear.png"/>
-                        </ImageView>
-                    </graphic>
-                    <contextMenu>
-                        <ContextMenu id="settings-context-menu">
-                            <items>
-                                <MenuItem id="invite-menu-item" text="%LBL_INVITE_USER"/>
-                                <MenuItem id="edit-menu-item" text="%LBL_EDIT_SERVER"/>
-                                <MenuItem id="create-menu-item" text="%LBL_CREATE_CATEGORY"/>
-                            </items>
-                        </ContextMenu>
-                    </contextMenu>
+<?import javafx.scene.text.*?>
+
+<HBox prefHeight="472.0" prefWidth="769.0" styleClass="container" stylesheets="@../style/css/view/server.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox id="server-overview-container" alignment="TOP_CENTER" prefHeight="472.0" prefWidth="221.0" styleClass="server-overview">
+        <HBox id="server-name-container" alignment="CENTER_LEFT" prefHeight="54.0" prefWidth="198.0" styleClass="server-name-container">
+            <FlowPane.margin>
+                <Insets bottom="15.0" />
+            </FlowPane.margin>
+            <TextWithEmoteSupport id="server-name" prefHeight="32.0" prefWidth="140.0" styleClass="server-name-label">
+                <HBox.margin>
+                    <Insets left="5.0" />
+                </HBox.margin>
+            </TextWithEmoteSupport>
+            <Label id="settings-label">
+                <graphic>
+                    <ImageView id="settings-gear" fitHeight="45.0" fitWidth="45.0">
+                        <Image url="@../img/gear.png" />
+                    </ImageView>
+                </graphic>
+                <contextMenu>
+                    <ContextMenu id="settings-context-menu">
+                        <items>
+                            <MenuItem id="invite-menu-item" text="%LBL_INVITE_USER" />
+                            <MenuItem id="edit-menu-item" text="%LBL_EDIT_SERVER" />
+                            <MenuItem id="create-menu-item" text="%LBL_CREATE_CATEGORY" />
+                        </items>
+                    </ContextMenu>
+                </contextMenu>
+            </Label>
+        </HBox>
+        <VBox id="server-channel-overview" prefHeight="399.0" prefWidth="197.0" styleClass="server-channel-overview" />
+    </VBox>
+    <Pane maxWidth="10.0" minWidth="10.0" styleClass="mid-pane" HBox.hgrow="ALWAYS" />
+    <VBox prefHeight="472.0" prefWidth="322.0" styleClass="server-chat" HBox.hgrow="ALWAYS">
+        <VBox id="channel-name-container" prefWidth="343.0" styleClass="channel-name-container">
+            <FlowPane.margin>
+                <Insets />
+            </FlowPane.margin>
+            <TextWithEmoteSupport id="channel-name-label" maxHeight="40" prefHeight="40.0" prefWidth="190.0" styleClass="channel-name-label">
+                <VBox.margin>
+                    <Insets left="10.0" />
+                </VBox.margin>
+            </TextWithEmoteSupport>
+        </VBox>
+        <VBox id="server-channel-container" prefWidth="343.0" styleClass="container" />
+    </VBox>
+    <Pane maxWidth="10.0" minWidth="10.0" styleClass="mid-pane" HBox.hgrow="ALWAYS" />
+    <FlowPane id="server-user-list-container" maxWidth="180.0" minWidth="180.0" styleClass="server-user-list" HBox.hgrow="ALWAYS">
+        <padding>
+            <Insets left="10.0" top="10.0" />
+        </padding>
+        <ScrollPane id="server-user-list-scroll" fitToHeight="true" fitToWidth="true" prefHeight="459.0" prefWidth="110.0" styleClass="server-user-list-container">
+            <VBox prefHeight="200.0" styleClass="server-user-list-container">
+                <Label text="Online" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
                 </Label>
-            </HBox>
-            <VBox id="server-channel-overview" prefHeight="399.0" prefWidth="197.0"
-                  styleClass="server-channel-overview"/>
-        </FlowPane>
-        <Pane prefHeight="472.0" prefWidth="70.0" styleClass="mid-pane"/>
-        <FlowPane prefHeight="472.0" prefWidth="322.0" styleClass="server-chat">
-            <VBox id="channel-name-container" prefWidth="343.0" styleClass="channel-name-container">
-                <FlowPane.margin>
-                    <Insets/>
-                </FlowPane.margin>
-                <TextWithEmoteSupport id="channel-name-label" maxHeight="40" prefHeight="40.0" prefWidth="190.0"
-                                      styleClass="channel-name-label">
+                <VBox id="online-user-list">
                     <VBox.margin>
-                        <Insets left="10.0"/>
+                        <Insets top="5.0" />
                     </VBox.margin>
-                </TextWithEmoteSupport>
-            </VBox>
-            <VBox id="server-channel-container" prefWidth="343.0" styleClass="container"/>
-        </FlowPane>
-        <Pane prefHeight="472.0" prefWidth="70.0" styleClass="mid-pane"/>
-        <FlowPane id="server-user-list-container" prefWidth="187.0" styleClass="server-user-list" HBox.hgrow="ALWAYS">
-            <padding>
-                <Insets left="10.0" top="10.0"/>
-            </padding>
-            <ScrollPane id="server-user-list-scroll" fitToHeight="true" fitToWidth="true" prefHeight="459.0"
-                        prefWidth="110.0" styleClass="server-user-list-container">
-                <VBox prefHeight="200.0" styleClass="server-user-list-container">
-                    <Label text="Online" textFill="WHITE">
-                        <font>
-                            <Font name="System Bold" size="14.0"/>
-                        </font>
-                    </Label>
-                    <VBox id="online-user-list">
-                        <VBox.margin>
-                            <Insets top="5.0"/>
-                        </VBox.margin>
-                    </VBox>
-                    <Label text="Offline" textFill="WHITE">
-                        <font>
-                            <Font name="System Bold" size="14.0"/>
-                        </font>
-                        <VBox.margin>
-                            <Insets top="20.0"/>
-                        </VBox.margin>
-                    </Label>
-                    <VBox id="offline-user-list">
-                        <VBox.margin>
-                            <Insets top="5.0"/>
-                        </VBox.margin>
-                    </VBox>
                 </VBox>
-            </ScrollPane>
-        </FlowPane>
-    </HBox>
-</FlowPane>
+                <Label text="Offline" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets top="20.0" />
+                    </VBox.margin>
+                </Label>
+                <VBox id="offline-user-list">
+                    <VBox.margin>
+                        <Insets top="5.0" />
+                    </VBox.margin>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </FlowPane>
+</HBox>
