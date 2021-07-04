@@ -1,7 +1,12 @@
 package de.uniks.stp.network;
 
 import de.uniks.stp.component.ChatMessage;
+import de.uniks.stp.util.UrlUtil;
+import kong.unirest.*;
+import kong.unirest.json.JSONException;
+import kong.unirest.json.JSONObject;
 
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,22 +18,42 @@ public class MediaRequestClient {
         executor = Executors.newFixedThreadPool(POOL_SIZE);
     }
 
-    public void addImage(String url, ChatMessage messageNode) {
-        executor.submit(() -> messageNode.addImage(url));
-    }
-
-    public void addVideo(String url, String type, ChatMessage messageNode) {executor.submit(() -> messageNode.addVideo(url, type));}
-
     public void stop() {
         executor.shutdown();
     }
 
-    public void addYouTubeVideo(String url, ChatMessage messageNode) {
-        executor.submit(() -> messageNode.addYouTubeVideo(url));
+    public void loadImage(String content, ChatMessage messageNode) {
+        executor.submit(() -> messageNode.addImage(content));
     }
 
-    public void loadContent(String content, ChatMessage messageNode) {
-        executor.submit(() -> messageNode.loadContent(content));
+    public void loadVideo(String content, ChatMessage messageNode) {
+        executor.submit(() -> messageNode.addVideo(content));
+    }
+
+    public void getMediaInformation(String url, Callback<JsonNode> callback) {
+        HttpRequest<?> req = Unirest.get(url);
+        sendRequest(req, callback);
+    }
+
+    public void handleMediaInformation(HttpResponse<JsonNode> response, ChatMessage messageNode) {
+        JsonNode jsonNode = response.getBody();
+        JSONObject jsonObject = jsonNode.getObject();
+        String html = jsonObject.getString("html");
+        try {
+            JSONObject file = (JSONObject) jsonObject.getJSONObject("links").getJSONArray("file").get(0);
+            String contentType = file.getString("type");
+            if (contentType.startsWith("image")) {
+                loadImage(html, messageNode);
+            } else {
+                loadVideo(html, messageNode);
+            }
+        } catch (JSONException e) {
+            loadVideo(html, messageNode);
+        }
+    }
+
+    private void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
+        executor.execute(() -> req.asJsonAsync(callback));
     }
 }
 

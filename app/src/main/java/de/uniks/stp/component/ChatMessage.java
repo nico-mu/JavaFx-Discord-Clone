@@ -11,11 +11,13 @@ import de.uniks.stp.util.DateUtil;
 import de.uniks.stp.util.InviteInfo;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -28,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class ChatMessage extends HBox {
 
@@ -50,11 +53,9 @@ public class ChatMessage extends HBox {
     private ImageView deleteMessage;
 
     private Message model;
-    private List<WebView> medias;
 
     public ChatMessage(Message message, String language, boolean editable) {
         this.model = message;
-        medias = new ArrayList<>();
         FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -84,28 +85,15 @@ public class ChatMessage extends HBox {
         deleteMessage.setVisible(false);
     }
 
-    public void addJoinButtonButton(InviteInfo inviteInfo, EventHandler<ActionEvent> onButtonPressed){
+    public void addJoinButtonButton(InviteInfo inviteInfo, EventHandler<ActionEvent> onButtonPressed) {
         JoinServerButton button = new JoinServerButton(inviteInfo, onButtonPressed);
-        Platform.runLater(()-> textVBox.getChildren().add(button));
+        Platform.runLater(() -> textVBox.getChildren().add(button));
     }
 
     public void setMessageText(String newText) {
         Platform.runLater(() -> {
             messageText.setText(newText);
             textVBox.getChildren().removeIf(node -> node instanceof WebView);
-        });
-    }
-
-    public void addImage(String url) {
-        Platform.runLater(() -> {
-            WebView webView = new WebView();
-            webView.getEngine().loadContent("<body style=\"margin:0\"><img src=\"" + url + "\" style=\"width:200; height:200\"></body>", "text/html");
-            webView.setMaxWidth(200);
-            webView.setMaxHeight(200);
-            webView.setMouseTransparent(true);
-            Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
-            textVBox.getChildren().add(webView);
-            medias.add(webView);
         });
     }
 
@@ -129,6 +117,7 @@ public class ChatMessage extends HBox {
         new DeleteMessageModal((ServerMessage) model);
     }
 
+    /*
     public void addVideo(String url, String type) {
         Platform.runLater(() -> {
             WebView webView = new WebView();
@@ -137,21 +126,9 @@ public class ChatMessage extends HBox {
             webView.setMaxWidth(500);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
             textVBox.getChildren().add(webView);
-            medias.add(webView);
         });
     }
-
-    public void addYouTubeVideo(String url) {
-        Platform.runLater(() -> {
-            WebView webView = new WebView();
-            webView.getEngine().load(url);
-            webView.setMaxWidth(250);
-            webView.setMaxHeight(250);
-            Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
-            textVBox.getChildren().add(webView);
-            medias.add(webView);
-        });
-    }
+    */
 
     public void addSpinner() {
         Platform.runLater(() -> {
@@ -165,23 +142,44 @@ public class ChatMessage extends HBox {
         });
     }
 
-    public void loadContent(String content) {
+    public void addVideo(String content) {
+        loadContent(content, false);
+    }
+
+    public void addImage(String content) {
+        loadContent(content, true);
+    }
+
+    private void loadContent(String content, boolean notIntractable) {
         Platform.runLater(() -> {
             WebView webView = new WebView();
             webView.getEngine().loadContent(content, "text/html");
             webView.setMaxHeight(200);
             webView.setMaxWidth(200);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
+            webView.setMouseTransparent(notIntractable);
+            // disables scrollbars on images and videos:
+            webView.getChildrenUnmodifiable().addListener((ListChangeListener<Node>) change -> {
+                Set<Node> deadSeaScrolls = webView.lookupAll(".scroll-bar");
+                for (Node scroll : deadSeaScrolls) {
+                    scroll.setVisible(false);
+                }
+            });
             textVBox.getChildren().add(webView);
-            medias.add(webView);
         });
     }
 
     public void stop() {
-        for (WebView webView : medias) {
-            webView.getEngine().load(null);
-            webView = null;
+        List<Node> toRemove = new ArrayList<>();
+        for (Node node : textVBox.getChildren()) {
+            if (node instanceof WebView) {
+                WebView webView = (WebView) node;
+                webView.getEngine().load(null);
+                toRemove.add(node);
+            }
         }
-        medias.clear();
+        for (Node node : toRemove) {
+            textVBox.getChildren().remove(node);
+        }
     }
 }
