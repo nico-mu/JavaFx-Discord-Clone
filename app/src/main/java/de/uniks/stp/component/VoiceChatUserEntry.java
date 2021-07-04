@@ -17,7 +17,6 @@ public class VoiceChatUserEntry extends VBox {
 
     private static final Image initAudioInputImg = ViewLoader.loadImage("microphone.png");
     private static final Image otherAudioInputImg = ViewLoader.loadImage("microphone-mute.png");
-    private final User user;
     @FXML
     private Label userNameLabel;
     @FXML
@@ -37,8 +36,6 @@ public class VoiceChatUserEntry extends VBox {
             throw new RuntimeException(exception);
         }
         userMuteImgView = (ImageView) muteAudioButton.getGraphic();
-
-        this.user = user;
 
         setUserName(user.getName());
 
