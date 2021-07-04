@@ -54,7 +54,6 @@ public class ServerVoiceChatController implements ControllerInterface {
     private final Channel model;
     private final RestClient restClient;
     private final VBox view;
-    private final Editor editor;
     private VBox serverVoiceChatView;
     private FlowPane voiceChannelUserContainer;
     private final PropertyChangeListener audioMembersPropertyChangeListener = this::onAudioMembersPropertyChange;
@@ -64,7 +63,7 @@ public class ServerVoiceChatController implements ControllerInterface {
     private ImageView audioInputImgView;
     private ImageView audioOutputImgView;
 
-    private boolean stopping = false;
+    private boolean stopping;
     private ExecutorService executorService;
 
     private Boolean audioInMute = false;
@@ -73,9 +72,10 @@ public class ServerVoiceChatController implements ControllerInterface {
     private Boolean audioOutMute = false;
     private SourceDataLine audioOutDataLine;
 
+    private DatagramSocket datagramSocket;
+
     public ServerVoiceChatController(VBox view, Editor editor, Channel model) {
         this.view = view;
-        this.editor = editor;
         this.model = model;
         restClient = NetworkClientInjector.getRestClient();
     }
@@ -115,6 +115,7 @@ public class ServerVoiceChatController implements ControllerInterface {
         model.getAudioMembers().forEach(this::userJoined);
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
 
+        stopping = false;
         restClient.joinAudioChannel(this.model, this::joinAudioChannelCallback);
     }
 
@@ -188,21 +189,7 @@ public class ServerVoiceChatController implements ControllerInterface {
             log.error("Audio playback not startet. The dataLine is not set up properly.");
             return;
         }
-        InetAddress address;
-        try {
-            address = InetAddress.getByName(Constants.AUDIOSTREAM_BASE_URL);
-        } catch (UnknownHostException e) {
-            log.error("The host address on {} could not be resolved and is unknown.", Constants.AUDIOSTREAM_BASE_URL, e);
-            return;
-        }
-        DatagramSocket audioOutDatagramSocket;
-        try {
-            audioOutDatagramSocket = new DatagramSocket();
-            audioOutDatagramSocket.connect(address, Constants.AUDIOSTREAM_PORT);
-        } catch (SocketException e) {
-            log.error("Failed to initialize the DatagramSocket.", e);
-            return;
-        }
+
         while (!stopping) {
             if (audioOutMute) {
                 try {
@@ -215,7 +202,7 @@ public class ServerVoiceChatController implements ControllerInterface {
             byte[] audioBuf = new byte[Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE + Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE];
             final DatagramPacket audioOutDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length);
             try {
-                audioOutDatagramSocket.receive(audioOutDatagramPacket);
+                datagramSocket.receive(audioOutDatagramPacket);
                 log.debug("Received audio packet {}", audioBuf);
                 final int written = audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
                 log.debug("written {} bytes to the audioOutDataLine", written);
@@ -223,8 +210,6 @@ public class ServerVoiceChatController implements ControllerInterface {
                 log.error("Failed to receive an audio packet.", e);
             }
         }
-        audioOutDatagramSocket.disconnect();
-        audioOutDatagramSocket.close();
     }
 
     private void recordAndSendAudio() {
@@ -244,21 +229,7 @@ public class ServerVoiceChatController implements ControllerInterface {
         }
         byte[] audioBuf = new byte[Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE + Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE];
         System.arraycopy(metadataBytes, 0, audioBuf, 0, metadataBytes.length);
-        InetAddress address;
-        try {
-            address = InetAddress.getByName(Constants.AUDIOSTREAM_BASE_URL);
-        } catch (UnknownHostException e) {
-            log.error("The host address on {} could not be resolved and is unknown.", Constants.AUDIOSTREAM_BASE_URL, e);
-            return;
-        }
-        DatagramSocket audioInDatagramSocket;
-        try {
-            audioInDatagramSocket = new DatagramSocket();
-            audioInDatagramSocket.connect(address, Constants.AUDIOSTREAM_PORT);
-        } catch (SocketException e) {
-            log.error("Failed to initialize the DatagramSocket.", e);
-            return;
-        }
+
         while (!stopping) {
             if (audioInMute) {
                 try {
@@ -272,14 +243,12 @@ public class ServerVoiceChatController implements ControllerInterface {
 //            log.debug("read {} bytes from the audioInDataLine", read);
             final DatagramPacket audioInDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length);
             try {
-                audioInDatagramSocket.send(audioInDatagramPacket);
+                datagramSocket.send(audioInDatagramPacket);
 //                log.debug("Sent audio packet {}", audioBuf);
             } catch (IOException e) {
                 log.error("Failed to send an audio packet.", e);
             }
         }
-        audioInDatagramSocket.disconnect();
-        audioInDatagramSocket.close();
     }
 
     private void initAudio() {
@@ -315,6 +284,20 @@ public class ServerVoiceChatController implements ControllerInterface {
             log.error("Audio output is not supported on this system.");
         }
 
+
+        InetAddress address;
+        try {
+            address = InetAddress.getByName(Constants.AUDIOSTREAM_BASE_URL);
+        } catch (UnknownHostException e) {
+            log.error("The host address on {} could not be resolved and is unknown.", Constants.AUDIOSTREAM_BASE_URL, e);
+            return;
+        }
+        try {
+            datagramSocket = new DatagramSocket();
+            datagramSocket.connect(address, Constants.AUDIOSTREAM_PORT);
+        } catch (SocketException e) {
+            log.error("Failed to set up DatagramSocket", e);
+        }
     }
 
     private void leaveAudioChannelCallback(HttpResponse<JsonNode> response) {
@@ -323,12 +306,6 @@ public class ServerVoiceChatController implements ControllerInterface {
         final JSONObject data = response.getBody().getObject().getJSONObject("data");
 
         log.debug("{}: {}", status, message);
-
-    }
-
-    @Override
-    public void stop() {
-        stopping = true;
 
         if (Objects.nonNull(executorService)) {
             executorService.shutdown();
@@ -347,10 +324,23 @@ public class ServerVoiceChatController implements ControllerInterface {
             audioOutDataLine.stop();
             audioOutDataLine = null;
         }
+
+        if (Objects.nonNull(datagramSocket)) {
+            datagramSocket.disconnect();
+            datagramSocket.close();
+            datagramSocket = null;
+        }
+    }
+
+    @Override
+    public void stop() {
+        stopping = true;
+
         restClient.leaveAudioChannel(this.model, this::leaveAudioChannelCallback);
         model.listeners().removePropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
 
         audioInputButton.setOnMouseClicked(null);
         hangUpButton.setOnMouseClicked(null);
+        audioOutputButton.setOnMouseClicked(null);
     }
 }
