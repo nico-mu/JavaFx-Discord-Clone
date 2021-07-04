@@ -3,7 +3,6 @@ package de.uniks.stp.controller;
 import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.VoiceChatUserEntry;
@@ -21,7 +20,6 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
-import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +77,7 @@ public class ServerVoiceChatController implements ControllerInterface {
         this.view = view;
         this.model = model;
         restClient = NetworkClientInjector.getRestClient();
-        currentUserName = StageManager.getEditor().getCurrentUserName();
+        currentUserName = editor.getCurrentUserName();
     }
 
     private void onAudioMembersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
@@ -170,18 +168,16 @@ public class ServerVoiceChatController implements ControllerInterface {
     }
 
     private void joinAudioChannelCallback(HttpResponse<JsonNode> response) {
-        final String status = response.getBody().getObject().getString("status");
-        final String message = response.getBody().getObject().getString("message");
-        final JSONObject data = response.getBody().getObject().getJSONObject("data");
+        if (response.isSuccess()) {
+            // Join UDP-Voicestream
+            initAudio();
 
-        log.debug("{}: {}", status, message);
-
-        // Join UDP-Voicestream
-        initAudio();
-
-        executorService = Executors.newCachedThreadPool();
-        executorService.execute(this::receiveAndPlayAudio);
-        executorService.execute(this::recordAndSendAudio);
+            executorService = Executors.newCachedThreadPool();
+            executorService.execute(this::receiveAndPlayAudio);
+            executorService.execute(this::recordAndSendAudio);
+        } else {
+            log.error("Joining the AudioChannel failed");
+        }
     }
 
     private void receiveAndPlayAudio() {
@@ -226,7 +222,7 @@ public class ServerVoiceChatController implements ControllerInterface {
 
         final JsonObject metadataObject = Json.createObjectBuilder()
             .add("channel", model.getId())
-            .add("name", StageManager.getEditor().getCurrentUserName())
+            .add("name", currentUserName)
             .build();
         byte[] metadataBytes = metadataObject.toString().getBytes(StandardCharsets.UTF_8);
         if (metadataBytes.length > Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE) {
@@ -304,11 +300,9 @@ public class ServerVoiceChatController implements ControllerInterface {
     }
 
     private void leaveAudioChannelCallback(HttpResponse<JsonNode> response) {
-        final String status = response.getBody().getObject().getString("status");
-        final String message = response.getBody().getObject().getString("message");
-        final JSONObject data = response.getBody().getObject().getJSONObject("data");
-
-        log.debug("{}: {}", status, message);
+        if (!response.isSuccess()) {
+            log.error("Leaving the AudioChannel failed. Cleaning up continues anyways.");
+        }
 
         if (Objects.nonNull(executorService)) {
             executorService.shutdown();
