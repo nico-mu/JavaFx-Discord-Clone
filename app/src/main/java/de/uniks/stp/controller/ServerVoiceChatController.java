@@ -182,7 +182,7 @@ public class ServerVoiceChatController implements ControllerInterface {
 
     private void receiveAndPlayAudio() {
         if (Objects.isNull(audioOutDataLine)) {
-            log.error("Audio playback not startet. The dataLine is not set up properly.");
+            log.error("Audio playback not started. The dataLine is not set up properly.");
             return;
         }
 
