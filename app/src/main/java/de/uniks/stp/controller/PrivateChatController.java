@@ -123,7 +123,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
             messageNode.addJoinButtonButton(info, this::joinServer);
         }
 
-        new UrlUtil().addMedia(message, messageNode);
+        UrlUtil.addMedia(message, messageNode);
 
         return messageNode;
     }

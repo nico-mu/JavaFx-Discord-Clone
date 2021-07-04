@@ -1,5 +1,6 @@
 package de.uniks.stp.network;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.component.ChatMessage;
 import de.uniks.stp.util.UrlUtil;
 import kong.unirest.*;
@@ -31,8 +32,10 @@ public class MediaRequestClient {
     }
 
     public void getMediaInformation(String url, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.get(url);
-        sendRequest(req, callback);
+        if (!url.contains(Constants.REST_SERVER_BASE_URL)) {
+            HttpRequest<?> req = Unirest.get(url);
+            sendRequest(req, callback);
+        }
     }
 
     public void handleMediaInformation(HttpResponse<JsonNode> response, ChatMessage messageNode) {
