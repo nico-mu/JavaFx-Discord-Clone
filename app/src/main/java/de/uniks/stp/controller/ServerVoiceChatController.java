@@ -211,8 +211,7 @@ public class ServerVoiceChatController implements ControllerInterface {
                 final JsonObject metadataJson = Json.createReader(new StringReader(metadataString)).readObject();
                 final String username = metadataJson.getString("name");
                 if (Objects.nonNull(username) && !username.equals(currentUserName)) {
-                    final int written = audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
-                    log.debug("written {} bytes to the audioOutDataLine", written);
+                    audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
                 }
             } catch (IOException e) {
                 log.error("Failed to receive an audio packet.", e);
@@ -247,12 +246,10 @@ public class ServerVoiceChatController implements ControllerInterface {
                 }
                 continue;
             }
-            final int read = audioInDataLine.read(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
-//            log.debug("read {} bytes from the audioInDataLine", read);
+            audioInDataLine.read(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
             final DatagramPacket audioInDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length);
             try {
                 datagramSocket.send(audioInDatagramPacket);
-//                log.debug("Sent audio packet {}", audioBuf);
             } catch (IOException e) {
                 log.error("Failed to send an audio packet.", e);
             }
@@ -291,7 +288,6 @@ public class ServerVoiceChatController implements ControllerInterface {
         } else {
             log.error("Audio output is not supported on this system.");
         }
-
 
         InetAddress address;
         try {
