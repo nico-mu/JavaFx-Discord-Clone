@@ -2,6 +2,7 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.SettingsModal;
 import de.uniks.stp.network.NetworkClientInjector;
@@ -73,6 +74,8 @@ public class UserInfoController implements ControllerInterface {
 
         Platform.runLater(() ->  {
             Router.route(Constants.ROUTE_LOGIN);
+            StageManager.getStage().setMinWidth(400);
+            StageManager.getStage().setMinHeight(320);
             this.editor.prepareLogout();  //delete user related information
         });
     }

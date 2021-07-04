@@ -35,7 +35,6 @@ abstract public class ChatController<T> {
         serverInformationHandler = new ServerInformationHandler(editor);
         chatMessageInput = new ChatMessageInput();
         chatMessageList = new ListComponent<>("message-list");
-        chatMessageInput.setStyle("-fx-background-color: tomato");
         chatMessageList.setIsScrollAware(true);
         chatMessageList.getStyleClass().add("message-list");
         chatMessageList.setPrefHeight(100);

@@ -267,7 +267,11 @@ public class LoginScreenController implements ControllerInterface {
                 DatabaseService.saveAccordSetting(AccordSettingKey.LAST_USER_LOGIN, null);
             }
 
-            Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
+            Platform.runLater(()-> {
+                Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
+                StageManager.getStage().setMinWidth(1000);
+                StageManager.getStage().setMinHeight(700);
+            });
             return;
         }
         // Login failed

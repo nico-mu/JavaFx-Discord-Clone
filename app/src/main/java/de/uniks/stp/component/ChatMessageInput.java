@@ -51,7 +51,6 @@ public class ChatMessageInput extends HBox {
         emoteTextArea.setOnKeyPressed(this::checkForEnter);
 
         VirtualizedScrollPane<EmoteTextArea> scroll = new VirtualizedScrollPane<>(emoteTextArea);
-        chatViewMessageInput.setStyle("-fx-background-color: dodgerblue");
         chatViewMessageInput.setPrefHeight(emoteTextArea.getViewportHeight());
         emoteTextArea.textProperty().addListener(((observable, oldValue, newValue) -> {
             int lines = 0;
@@ -59,12 +58,11 @@ public class ChatMessageInput extends HBox {
                 lines += emoteTextArea.getParagraphLinesCount(i);
             }
             System.out.println(lines);
-            chatViewMessageInput.setMaxHeight(lines * 15 * 10);
-            chatViewMessageInput.setPrefHeight(lines * 15 * 10);
-            root.setPrefHeight(lines * 15 + 10);
-            root.setPrefHeight(lines * 15 + 10);
+            chatViewMessageInput.setMaxHeight(lines * 15 + 25);
+            chatViewMessageInput.setPrefHeight(lines * 15 + 25);
+            root.setPrefHeight(lines * 15 + 25);
+            root.setPrefHeight(lines * 15 + 25);
         }));
-        emoteTextArea.setStyle("-fx-background-color: green");
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
 
