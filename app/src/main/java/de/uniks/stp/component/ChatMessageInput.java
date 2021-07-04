@@ -56,7 +56,6 @@ public class ChatMessageInput extends HBox {
             for (int i = 0; i < emoteTextArea.getParagraphs().size(); i++) {
                 lines += emoteTextArea.getParagraphLinesCount(i);
             }
-            System.out.println(lines);
             chatViewMessageInput.setMaxHeight(lines * 15 + 25);
             chatViewMessageInput.setPrefHeight(lines * 15 + 25);
             root.setPrefHeight(lines * 15 + 25);
