@@ -19,6 +19,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -71,11 +72,14 @@ public class UserInfoController implements ControllerInterface {
         if (!response.isSuccess()) {
             log.error("logout failed");
         }
-
+        Stage stage = StageManager.getStage();
         Platform.runLater(() ->  {
             Router.route(Constants.ROUTE_LOGIN);
-            StageManager.getStage().setMinWidth(400);
-            StageManager.getStage().setMinHeight(320);
+            stage.setMinWidth(400);
+            stage.setMinHeight(355);
+            stage.setWidth(400);
+            stage.setHeight(355);
+            stage.centerOnScreen();
             this.editor.prepareLogout();  //delete user related information
         });
     }
