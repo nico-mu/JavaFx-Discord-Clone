@@ -52,6 +52,10 @@ public class StageManager extends Application {
             scene = new Scene(root);
             scene.getStylesheets().add(StageManager.class.getResource("/de/uniks/stp/style/css/component/context-menu.css").toExternalForm());
             stage.setTitle("Accord");
+            if (Objects.nonNull(stage.getScene())) {
+                stage.setHeight(stage.getHeight());
+                stage.setWidth(stage.getWidth());
+            }
             stage.setScene(scene);
         } else if (subroute.equals(Constants.ROUTE_LOGIN)) {
             root = ViewLoader.loadView(Views.LOGIN_SCREEN);
@@ -59,8 +63,6 @@ public class StageManager extends Application {
             currentController.init();
             scene = new Scene(root);
             stage.setTitle("Accord");
-            stage.setWidth(stage.getWidth());
-            stage.setHeight(stage.getHeight());
             stage.setScene(scene);
             stage.centerOnScreen();
         }
