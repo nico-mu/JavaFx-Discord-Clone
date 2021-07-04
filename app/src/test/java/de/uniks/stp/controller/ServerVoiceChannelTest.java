@@ -226,7 +226,6 @@ public class ServerVoiceChannelTest {
             endpointCallbackHashmap.clear();
         }
         endpointCallbackHashmap = null;
-        callbackCaptor = null;
         Platform.runLater(app::stop);
         WaitForAsyncUtils.waitForFxEvents();
         app = null;
