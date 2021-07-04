@@ -53,7 +53,6 @@ public class StageManager extends Application {
             scene.getStylesheets().add(StageManager.class.getResource("/de/uniks/stp/style/css/component/context-menu.css").toExternalForm());
             stage.setTitle("Accord");
             if (Objects.nonNull(stage.getScene())) {
-
                 stage.setHeight(stage.getHeight());
                 stage.setWidth(stage.getWidth());
             }
