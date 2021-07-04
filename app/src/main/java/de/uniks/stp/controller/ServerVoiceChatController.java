@@ -205,7 +205,6 @@ public class ServerVoiceChatController implements ControllerInterface {
             try {
                 datagramSocket.receive(audioOutDatagramPacket);
 
-                log.debug("Received audio packet {}", audioBuf);
                 System.arraycopy(audioBuf, 0, metadataBuf, 0, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE);
                 final String metadataString = new String(metadataBuf);
                 final JsonObject metadataJson = Json.createReader(new StringReader(metadataString)).readObject();
