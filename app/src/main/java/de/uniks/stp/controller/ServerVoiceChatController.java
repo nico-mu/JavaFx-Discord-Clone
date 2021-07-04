@@ -203,6 +203,7 @@ public class ServerVoiceChatController implements ControllerInterface {
             final DatagramPacket audioOutDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length);
             try {
                 datagramSocket.receive(audioOutDatagramPacket);
+                // TODO: Filter out own voice data
                 log.debug("Received audio packet {}", audioBuf);
                 final int written = audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
                 log.debug("written {} bytes to the audioOutDataLine", written);
