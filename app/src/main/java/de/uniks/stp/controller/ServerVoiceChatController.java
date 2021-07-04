@@ -31,6 +31,7 @@ import javax.sound.sampled.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ public class ServerVoiceChatController implements ControllerInterface {
     private final Channel model;
     private final RestClient restClient;
     private final VBox view;
+    private final String currentUserName;
     private VBox serverVoiceChatView;
     private FlowPane voiceChannelUserContainer;
     private final PropertyChangeListener audioMembersPropertyChangeListener = this::onAudioMembersPropertyChange;
@@ -62,7 +64,6 @@ public class ServerVoiceChatController implements ControllerInterface {
     private JFXButton audioOutputButton;
     private ImageView audioInputImgView;
     private ImageView audioOutputImgView;
-
     private boolean stopping;
     private ExecutorService executorService;
 
@@ -78,6 +79,7 @@ public class ServerVoiceChatController implements ControllerInterface {
         this.view = view;
         this.model = model;
         restClient = NetworkClientInjector.getRestClient();
+        currentUserName = StageManager.getEditor().getCurrentUserName();
     }
 
     private void onAudioMembersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
@@ -148,7 +150,6 @@ public class ServerVoiceChatController implements ControllerInterface {
             nextImg = initAudioOutputImg;
         }
         audioOutputImgView.setImage(nextImg);
-        // TODO implement
     }
 
     private void onHangUpButtonClick(MouseEvent mouseEvent) {
@@ -166,7 +167,6 @@ public class ServerVoiceChatController implements ControllerInterface {
             nextImg = initAudioInputImg;
         }
         audioInputImgView.setImage(nextImg);
-        // TODO implement
     }
 
     private void joinAudioChannelCallback(HttpResponse<JsonNode> response) {
@@ -201,12 +201,19 @@ public class ServerVoiceChatController implements ControllerInterface {
             }
             byte[] audioBuf = new byte[Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE + Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE];
             final DatagramPacket audioOutDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length);
+            final byte[] metadataBuf = new byte[Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE];
             try {
                 datagramSocket.receive(audioOutDatagramPacket);
-                // TODO: Filter out own voice data
+
                 log.debug("Received audio packet {}", audioBuf);
-                final int written = audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
-                log.debug("written {} bytes to the audioOutDataLine", written);
+                System.arraycopy(audioBuf, 0, metadataBuf, 0, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE);
+                final String metadataString = new String(metadataBuf);
+                final JsonObject metadataJson = Json.createReader(new StringReader(metadataString)).readObject();
+                final String username = metadataJson.getString("name");
+                if (Objects.nonNull(username) && !username.equals(currentUserName)) {
+                    final int written = audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
+                    log.debug("written {} bytes to the audioOutDataLine", written);
+                }
             } catch (IOException e) {
                 log.error("Failed to receive an audio packet.", e);
             }
