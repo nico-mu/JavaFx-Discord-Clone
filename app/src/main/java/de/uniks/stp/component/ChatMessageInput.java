@@ -16,7 +16,6 @@ import javafx.scene.layout.VBox;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ChatMessageInput extends HBox {
@@ -60,7 +59,6 @@ public class ChatMessageInput extends HBox {
             System.out.println(lines);
             chatViewMessageInput.setMaxHeight(lines * 15 + 25);
             chatViewMessageInput.setPrefHeight(lines * 15 + 25);
-            root.setPrefHeight(lines * 15 + 25);
             root.setPrefHeight(lines * 15 + 25);
         }));
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);

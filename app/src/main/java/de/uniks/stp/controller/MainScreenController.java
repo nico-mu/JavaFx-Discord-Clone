@@ -5,18 +5,15 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.notification.NotificationService;
-import de.uniks.stp.notification.SubscriberInterface;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN)
