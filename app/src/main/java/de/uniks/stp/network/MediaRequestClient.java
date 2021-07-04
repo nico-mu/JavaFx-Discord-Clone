@@ -39,6 +39,10 @@ public class MediaRequestClient {
         JsonNode jsonNode = response.getBody();
         JSONObject jsonObject = jsonNode.getObject();
         String html = jsonObject.getString("html");
+        if (jsonObject.getString("url").contains("giphy")) {
+            messageNode.addImage("<body style=\"margin:0\"><img src=\"" + jsonObject.getString("url") + "\" style=\"width:200; height:200\"></body>");
+            return;
+        }
         try {
             JSONObject file = (JSONObject) jsonObject.getJSONObject("links").getJSONArray("file").get(0);
             String contentType = file.getString("type");
