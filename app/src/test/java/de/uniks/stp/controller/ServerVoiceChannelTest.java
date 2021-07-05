@@ -52,6 +52,9 @@ public class ServerVoiceChannelTest {
     private WebSocketClient webSocketMock;
 
     @Mock
+    private VoiceChatClient voiceChatClientMock;
+
+    @Mock
     private HttpResponse<JsonNode> res;
 
     @Captor
@@ -74,6 +77,7 @@ public class ServerVoiceChannelTest {
         MockitoAnnotations.initMocks(this);
         NetworkClientInjector.setRestClient(restMock);
         NetworkClientInjector.setWebSocketClient(webSocketMock);
+        NetworkClientInjector.setVoiceChatClient(voiceChatClientMock);
         StageManager.setBackupMode(false);
         endpointCallbackHashmap = new HashMap<>();
         app = new StageManager();
