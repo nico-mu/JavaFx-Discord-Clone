@@ -136,7 +136,6 @@ public class VoiceChatClient {
 
                 System.arraycopy(audioBuf, 0, metadataBuf, 0, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE);
                 final String metadataString = new String(metadataBuf, StandardCharsets.UTF_8).replaceAll("\0+$", "");
-                log.debug(metadataString);
                 final JsonObject metadataJson = Json.createReader(new StringReader(metadataString)).readObject();
                 final String username = metadataJson.getString("name");
                 if (Objects.nonNull(username) && filteredUsers.stream().map(User::getName).noneMatch(username::equals)) {
