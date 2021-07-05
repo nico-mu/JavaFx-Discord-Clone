@@ -37,8 +37,7 @@ abstract public class ChatController<T> {
         chatMessageList = new ListComponent<>("message-list");
         chatMessageList.setIsScrollAware(true);
         chatMessageList.getStyleClass().add("message-list");
-        chatMessageList.setPrefHeight(400.0d);
-        chatMessageList.setPrefWidth(600.0d);
+        chatMessageList.setPrefHeight(100);
     }
 
     abstract protected void loadMessages();

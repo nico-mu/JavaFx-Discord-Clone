@@ -21,6 +21,7 @@ import de.uniks.stp.util.UrlUtil;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.beans.PropertyChangeEvent;
@@ -80,6 +81,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
 
         loadMessages();
         addPropertyChangeListeners();
+        VBox.setVgrow(chatMessageList, Priority.ALWAYS);
     }
 
     @Override
