@@ -53,7 +53,6 @@ public class StageManager extends Application {
             scene.getStylesheets().add(StageManager.class.getResource("/de/uniks/stp/style/css/component/context-menu.css").toExternalForm());
             stage.setTitle("Accord");
             stage.setScene(scene);
-            stage.centerOnScreen();
         } else if (subroute.equals(Constants.ROUTE_LOGIN)) {
             root = ViewLoader.loadView(Views.LOGIN_SCREEN);
             currentController = new LoginScreenController(root, editor);

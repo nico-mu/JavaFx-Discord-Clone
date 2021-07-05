@@ -42,17 +42,20 @@ public class LanguageService {
 
     private void onLanguagePropertyChange(final PropertyChangeEvent languageChangeEvent) {
         final Languages newLanguage = Languages.fromKeyOrDefault((String) languageChangeEvent.getNewValue());
-        Stage stage = StageManager.getStage();
-        double width = stage.getWidth();
-        double height = stage.getHeight();
         ViewLoader.changeLanguage(newLanguage);
         Router.forceReload();
+
+        Stage stage = StageManager.getStage();
+        double width = stage.getWidth();
         Platform.runLater(() -> {
-            stage.setWidth(width);
-            stage.setHeight(height);
+            stage.setMinWidth(width + 0.1);
+            if(stage.isMaximized()) {
+                stage.setMinWidth(1300);
+                stage.setHeight(750);
+                stage.centerOnScreen();
+            }
         });
 
         DatabaseService.saveAccordSetting(AccordSettingKey.LANGUAGE, newLanguage.key);
-
     }
 }
