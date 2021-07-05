@@ -19,6 +19,9 @@ public class UrlUtil {
     public static void addMedia(Message message, ChatMessage messageNode) {
         MediaRequestClient mediaRequestClient = NetworkClientInjector.getMediaRequestClient();
         for (String url : extractURLs(message.getMessage())) {
+            if (!url.contains("https")) {
+                url = url.replace("http", "https");
+            }
             mediaRequestClient.getMediaInformation("https://iframe.ly/api/iframely?url=" + url + "&api_key=914710cf5b1fd52a6d415c&html5=1&ssl=1&maxheight=240", (msg) -> mediaRequestClient.handleMediaInformation(msg, messageNode));
         }
     }
