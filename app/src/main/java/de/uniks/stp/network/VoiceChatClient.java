@@ -3,13 +3,11 @@ package de.uniks.stp.network;
 import de.uniks.stp.Constants;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
-import org.glassfish.grizzly.utils.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.json.stream.JsonParsingException;
 import javax.sound.sampled.*;
 import java.io.IOException;
 import java.io.StringReader;
