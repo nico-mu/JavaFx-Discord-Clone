@@ -15,6 +15,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 
 public class EasterEggModal extends AbstractModal {
     public final String ROCK = "rock";
@@ -44,10 +45,11 @@ public class EasterEggModal extends AbstractModal {
     @AssistedInject
     public EasterEggModal(ViewLoader viewLoader,
                           WebSocketService webSocketService,
+                          Stage primaryStage,
                           @Assisted Parent root,
                           @Assisted User opponentUser,
                           @Assisted EventHandler<ActionEvent> closeHandler) {
-        super(root);
+        super(root, primaryStage);
         this.opponentUser = opponentUser;
         this.viewLoader = viewLoader;
         this.webSocketService = webSocketService;
@@ -249,6 +251,6 @@ public class EasterEggModal extends AbstractModal {
 
     @AssistedFactory
     public interface EasterEggModalFactory {
-        EasterEggModal create(Parent view);
+        EasterEggModal create(Parent view, User opponentUser, EventHandler<ActionEvent> closeEventHandler);
     }
 }

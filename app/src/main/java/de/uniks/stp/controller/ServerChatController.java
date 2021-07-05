@@ -5,13 +5,17 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ChatMessage;
-import de.uniks.stp.network.websocket.WebSocketService;
+import de.uniks.stp.component.ChatMessageInput;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.rest.ServerInformationHandler;
+import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.util.InviteInfo;
 import de.uniks.stp.util.MessageUtil;
 import de.uniks.stp.view.Views;
@@ -41,6 +45,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     private final Channel model;
     private final VBox view;
+    private final ChatMessage.ChatMessageFactory chatMessageFactory;
     private VBox serverChatView;
     private boolean canLoadOldMessages;
     private HBox loadOldMessagesBox;
@@ -56,14 +61,20 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     @AssistedInject
     public ServerChatController(Editor editor,
                                 WebSocketService webSocketService,
+                                ViewLoader viewLoader,
+                                ServerInformationHandler serverInformationHandler,
+                                SessionRestClient restClient,
+                                ChatMessageInput chatMessageInput,
+                                ChatMessage.ChatMessageFactory chatMessageFactory,
                                 @Assisted VBox view,
                                 @Assisted Channel model) {
-        super(editor);
+        super(editor, serverInformationHandler, restClient, chatMessageInput, viewLoader);
         this.view = view;
         this.model = model;
         canLoadOldMessages = true;
         chatMessageList.vvalueProperty().addListener(scrollValueChangedListener);
         this.webSocketService = webSocketService;
+        this.chatMessageFactory = chatMessageFactory;
     }
 
     @Override
@@ -93,6 +104,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
                 message.listeners().removePropertyChangeListener(Message.PROPERTY_MESSAGE, messagesChangeListener);
             }
         }
+        chatMessageList.vvalueProperty().removeListener(scrollValueChangedListener);
     }
 
     @Override
@@ -110,7 +122,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     @Override
     protected ChatMessage parseMessage(Message message) {
-        ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage(),
+        ChatMessage messageNode = chatMessageFactory.create(message,
             message.getSender().getId().equals(editor.getOrCreateAccord().getCurrentUser().getId()));
 
         if (!message.getSender().getName().equals(currentUser.getName())) {

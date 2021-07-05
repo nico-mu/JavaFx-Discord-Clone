@@ -6,8 +6,8 @@ import de.uniks.stp.router.RouteInfo;
 public interface ControllerInterface {
     void init();
 
-    default void route(RouteInfo routeInfo, RouteArgs args) {
-
+    default ControllerInterface route(RouteInfo routeInfo, RouteArgs args) {
+        return null;
     }
 
     void stop();

@@ -1,22 +1,23 @@
 package de.uniks.stp.router;
 
-import de.uniks.stp.StageManager;
+import de.uniks.stp.controller.AppController;
 import de.uniks.stp.controller.ControllerInterface;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import javax.inject.Inject;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Router {
 
     private final HashMap<String, Class<?>> routeMap;
     private final ConcurrentHashMap<String, ControllerInterface> controllerCache;
+    private final AppController appController;
     private String currentRoute;
     private RouteArgs currentArgs;
 
-    public Router() {
+    @Inject
+    public Router(AppController appController) {
+        this.appController = appController;
         routeMap = new RouteMap().getRoutes();
         currentRoute = null;
         currentArgs = new RouteArgs();
@@ -150,20 +151,21 @@ public class Router {
 
         for (int i = 0; i < requirementCount; i++) {
             RouteInfo nextRoute = requirements.pop();
+            ControllerInterface newController = null;
 
             if (isBaseRoute(nextRoute.getCurrentControllerRoute()) && !controllerCache.containsKey(nextRoute.getSubControllerRoute())) {
-                StageManager.route(nextRoute);
-                if (!controllerCache.containsKey(nextRoute.getSubControllerRoute())) {
-                    throw new RuntimeException("Controller for route " + nextRoute.getSubControllerRoute() + " was not added to cache by StageManager");
-                }
+                newController = appController.route(nextRoute);
             } else {
                 //get controller from cache and use its route method
                 ControllerInterface currentController = controllerCache.get(nextRoute.getCurrentControllerRoute());
-                currentController.route(nextRoute, args);
+                newController = currentController.route(nextRoute, args);
+            }
 
-                if (!controllerCache.containsKey(nextRoute.getCurrentControllerRoute())) {
-                    throw new RuntimeException("Controller for route " + nextRoute.getCurrentControllerRoute() + "was not added to cache by " + currentController.getClass().getName());
-                }
+            if(Objects.isNull(newController)) {
+                throw new RuntimeException("Route " + nextRoute.getCurrentControllerRoute() + " does not exist");
+            }
+            else {
+                addToControllerCache(nextRoute.getFullRoute(), newController);
             }
         }
     }
@@ -191,7 +193,7 @@ public class Router {
         return route.isEmpty();
     }
 
-    public void addToControllerCache(String routeName, ControllerInterface controller) {
+    private void addToControllerCache(String routeName, ControllerInterface controller) {
         controllerCache.putIfAbsent(routeName, controller);
     }
 }

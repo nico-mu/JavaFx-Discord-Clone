@@ -1,6 +1,5 @@
 package de.uniks.stp.jpa;
 
-import de.uniks.stp.Editor;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.jpa.model.MutedCategoryDTO;
 import de.uniks.stp.jpa.model.MutedChannelDTO;
@@ -51,7 +50,7 @@ public class SessionDatabaseService extends AppDatabaseService {
         entityManager.close();
     }
 
-    public List<DirectMessageDTO> getConversation(String currentUserName, String receiverName) {
+    public final List<DirectMessageDTO> getConversation(String currentUserName, String receiverName) {
         Objects.requireNonNull(currentUserName);
         Objects.requireNonNull(receiverName);
 
@@ -134,7 +133,7 @@ public class SessionDatabaseService extends AppDatabaseService {
         entityManager.close();
     }
 
-    public List<Pair<String, String>> getAllConversationPartnerOf(String currentUserName) {
+    public final List<Pair<String, String>> getAllConversationPartnerOf(String currentUserName) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -214,10 +213,7 @@ public class SessionDatabaseService extends AppDatabaseService {
         transaction.commit();
         entityManager.close();
 
-        if(Objects.nonNull(result)) {
-            return true;
-        }
-        return false;
+        return Objects.nonNull(result);
     }
 
     public void addMutedCategoryId(String categoryId) {
@@ -259,10 +255,7 @@ public class SessionDatabaseService extends AppDatabaseService {
         transaction.commit();
         entityManager.close();
 
-        if(Objects.nonNull(result)) {
-            return true;
-        }
-        return false;
+        return Objects.nonNull(result);
     }
 
     public void addMutedServerId(String serverId) {
@@ -304,9 +297,6 @@ public class SessionDatabaseService extends AppDatabaseService {
         transaction.commit();
         entityManager.close();
 
-        if(Objects.nonNull(result)) {
-            return true;
-        }
-        return false;
+        return Objects.nonNull(result);
     }
 }

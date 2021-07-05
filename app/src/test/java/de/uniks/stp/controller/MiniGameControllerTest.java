@@ -4,7 +4,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.emote.EmoteTextArea;
+import de.uniks.stp.component.EmoteTextArea;
 import de.uniks.stp.jpa.DatabaseService;
 import de.uniks.stp.minigame.GameCommand;
 import de.uniks.stp.model.User;

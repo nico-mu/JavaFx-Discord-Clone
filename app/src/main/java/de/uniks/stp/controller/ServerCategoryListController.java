@@ -5,11 +5,11 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.*;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
-import de.uniks.stp.model.User;
 import de.uniks.stp.notification.NotificationEvent;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.notification.SubscriberInterface;
@@ -38,10 +38,14 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     private VBox vBox;
     private final HashMap<Category, ServerCategoryElement> categoryElementHashMap;
     private final HashMap<Channel, ServerChannelElement> channelElementHashMap;
+    private final ServerCategoryElement.ServerCategoryElementFactory serverCategoryElementFactory;
+    private final ServerVoiceChannelElement.ServerVoiceChannelElementFactory serverVoiceChannelElementFactory;
+    private final ServerTextChannelElement.ServerTextChannelElementFactory serverTextChannelElementFactory;
 
 
     private final NotificationService notificationService;
     private final Router router;
+    private final ViewLoader viewLoader;
 
     PropertyChangeListener categoriesPropertyChangeListener = this::onCategoriesPropertyChanged;
     PropertyChangeListener channelPropertyChangeListener = this::onChannelPropertyChanged;
@@ -49,19 +53,28 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     PropertyChangeListener channelNamePropertyChangeListener = this::onChannelNamePropertyChanged;
 
     @AssistedInject
-    public ServerCategoryListController( Editor editor,
+    public ServerCategoryListController(Editor editor,
                                          Router router,
                                          NotificationService notificationService,
+                                         ViewLoader viewLoader,
+                                         ServerCategoryList serverCategoryList,
+                                         ServerCategoryElement.ServerCategoryElementFactory serverCategoryElementFactory,
+                                         ServerVoiceChannelElement.ServerVoiceChannelElementFactory serverVoiceChannelElementFactory,
+                                         ServerTextChannelElement.ServerTextChannelElementFactory serverTextChannelElementFactory,
                                          @Assisted Parent view,
                                          @Assisted Server model) {
         this.view = view;
         this.editor = editor;
         this.model = model;
-        this.serverCategoryList = new ServerCategoryList();
+        this.serverCategoryList = serverCategoryList;
         categoryElementHashMap = new HashMap<>();
         channelElementHashMap = new HashMap<>();
         this.notificationService = notificationService;
         this.router = router;
+        this.viewLoader = viewLoader;
+        this.serverCategoryElementFactory = serverCategoryElementFactory;
+        this.serverVoiceChannelElementFactory = serverVoiceChannelElementFactory;
+        this.serverTextChannelElementFactory = serverTextChannelElementFactory;
         notificationService.registerChannelSubscriber(this);
     }
 
@@ -118,7 +131,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     private void categoryAdded(final Category category) {
         if (Objects.nonNull(category) && !categoryElementHashMap.containsKey(category)) {
             category.listeners().addPropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
-            final ServerCategoryElement serverCategoryElement = new ServerCategoryElement(category);
+            final ServerCategoryElement serverCategoryElement = serverCategoryElementFactory.create(category);
             categoryElementHashMap.put(category, serverCategoryElement);
             Platform.runLater(() -> serverCategoryList.addElement(serverCategoryElement));
             category.listeners().addPropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
@@ -200,7 +213,15 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             !channelElementHashMap.containsKey(channel) && categoryElementHashMap.containsKey(category)) {
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             boolean voice = channel.getType().equals("audio");
-            final ServerChannelElement serverChannelElement = voice ? new ServerVoiceChannelElement(channel, editor) : new ServerTextChannelElement(channel, editor);
+            final ServerChannelElement serverChannelElement;
+
+            if(voice) {
+                serverChannelElement = serverVoiceChannelElementFactory.create(channel);
+            }
+            else {
+                serverChannelElement = serverTextChannelElementFactory.create(channel);
+            }
+
             notificationService.register(channel);
             channel.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             channelElementHashMap.put(channel, serverChannelElement);

@@ -17,8 +17,6 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-
 abstract public class ChatController<T> {
 
     private static final Logger log = LoggerFactory.getLogger(ChatController.class);
@@ -27,20 +25,23 @@ abstract public class ChatController<T> {
     protected final ChatMessageInput chatMessageInput;
     protected final ListComponent<T, ChatMessage> chatMessageList;
 
-    @Inject
+
     protected ServerInformationHandler serverInformationHandler;
-
-    @Inject
     protected SessionRestClient restClient;
-
-    @Inject
     protected ViewLoader viewLoader;
 
-    public ChatController(Editor editor) {
+    public ChatController(Editor editor,
+                          ServerInformationHandler informationHandler,
+                          SessionRestClient restClient,
+                          ChatMessageInput chatMessageInput,
+                          ViewLoader viewLoader) {
         this.editor = editor;
+        this.viewLoader = viewLoader;
+        this.serverInformationHandler = informationHandler;
+        this.restClient = restClient;
         currentUser = editor.getOrCreateAccord().getCurrentUser();
-        chatMessageInput = new ChatMessageInput();
-        chatMessageList = new ListComponent<>("message-list");
+        this.chatMessageInput = chatMessageInput;
+        chatMessageList = new ListComponent<>(viewLoader, "message-list");
         chatMessageList.setIsScrollAware(true);
         chatMessageList.getStyleClass().add("message-list");
         chatMessageList.setPrefHeight(400.0d);

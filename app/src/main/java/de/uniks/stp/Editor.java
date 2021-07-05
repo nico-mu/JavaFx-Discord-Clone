@@ -1,8 +1,8 @@
 package de.uniks.stp;
 
 import de.uniks.stp.model.*;
-import de.uniks.stp.view.Languages;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -12,19 +12,20 @@ public class Editor {
     // Connection to model root object
     private Accord accord;
 
+    @Inject
+    public Editor() {
+
+    }
+
     public Accord getOrCreateAccord() {
         if (Objects.isNull(accord)) {
-            accord = new Accord().setLanguage(Languages.GERMAN.key);
+            accord = new Accord();
         }
         return accord;
     }
 
-    public void setUserKey(String userKey) {
-        accord.setUserKey(userKey);
-    }
-
     public User createCurrentUser(String name, boolean status) {
-        return new User().setAccord(accord).setName(name).setStatus(status);
+        return new User().setAccord(getOrCreateAccord()).setName(name).setStatus(status);
     }
 
     public void setCurrentUser(User currentUser) {
@@ -292,8 +293,7 @@ public class Editor {
     }
 
     public void prepareLogout() {
-        accord.setUserKey("");
-        accord = new Accord().setLanguage(accord.getLanguage());
+        accord = new Accord();
     }
 
     public ServerInvitation getOrCreateServerInvitation(String invId, String link, String type, int max, int current, String serverId) {

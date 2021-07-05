@@ -31,8 +31,11 @@ abstract public class NavBarElement extends HBox {
     @FXML
     protected Circle circle;
 
-    public NavBarElement() {
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.NAV_BAR_ELEMENT);
+    protected final ViewLoader viewLoader;
+
+    public NavBarElement(ViewLoader viewLoader) {
+        this.viewLoader = viewLoader;
+        FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.NAV_BAR_ELEMENT);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 

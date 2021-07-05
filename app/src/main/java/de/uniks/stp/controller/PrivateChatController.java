@@ -8,12 +8,15 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ChatMessage;
+import de.uniks.stp.component.ChatMessageInput;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.minigame.GameInvitation;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.rest.ServerInformationHandler;
+import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.util.InviteInfo;
@@ -44,15 +47,16 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
     private final NotificationService notificationService;
     private final SessionDatabaseService databaseService;
     private final WebSocketService webSocketService;
+    private final ChatMessage.ChatMessageFactory chatMessageFactory;
 
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
 
     @Inject
-    private MiniGameController.MiniGameControllerFactory miniGameControllerFactory;
+    MiniGameController.MiniGameControllerFactory miniGameControllerFactory;
 
     private final Parent view;
-    private final MiniGameController miniGameController;
+    private MiniGameController miniGameController;
     private final PropertyChangeListener messagesChangeListener = this::handleNewPrivateMessage;
     private final PropertyChangeListener statusChangeListener = this::onStatusChange;
 
@@ -62,21 +66,27 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
                                  NotificationService notificationService,
                                  SessionDatabaseService databaseService,
                                  WebSocketService webSocketService,
+                                 ViewLoader viewLoader,
+                                 ServerInformationHandler serverInformationHandler,
+                                 SessionRestClient restClient,
+                                 ChatMessageInput chatMessageInput,
+                                 ChatMessage.ChatMessageFactory chatMessageFactory,
                                  @Assisted Parent view,
-                                 @Assisted User user
-                                 ) {
-        super(editor);
+                                 @Assisted User user) {
+        super(editor, serverInformationHandler, restClient, chatMessageInput, viewLoader);
         this.view = view;
         this.user = user;
-        this.miniGameController = miniGameControllerFactory.create(user);
-        miniGameController.init();
         this.notificationService = notificationService;
         this.databaseService = databaseService;
         this.webSocketService = webSocketService;
+        this.chatMessageFactory = chatMessageFactory;
     }
 
     @Override
     public void init() {
+        this.miniGameController = miniGameControllerFactory.create(user);
+        miniGameController.init();
+
         onlineUsersContainer = (VBox) view.lookup(ONLINE_USERS_CONTAINER_ID);
         homeScreenLabel = (Label) view.lookup(HOME_SCREEN_LABEL_ID);
 
@@ -135,7 +145,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
             info = MessageUtil.getInviteInfo(messageText);
         }
 
-        ChatMessage messageNode = new ChatMessage(message, editor.getOrCreateAccord().getLanguage(), false);
+        ChatMessage messageNode = chatMessageFactory.create(message, false);
 
         if (Objects.nonNull(info) && Objects.isNull(editor.getServer(info.getServerId()))) {
             messageNode.addJoinButtonButton(info, this::joinServer);

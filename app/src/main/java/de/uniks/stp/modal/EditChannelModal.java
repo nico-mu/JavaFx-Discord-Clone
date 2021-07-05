@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
@@ -23,6 +24,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -72,13 +74,17 @@ public class EditChannelModal extends AbstractModal {
     @Inject
     ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
 
+    @AssistedInject
     public EditChannelModal(Editor editor,
                             SessionRestClient restClient,
                             SessionDatabaseService databaseService,
                             ViewLoader viewLoader,
+                            Stage primaryStage,
+                            UserCheckList userCheckList,
+                            UserCheckListEntry.UserCheckListEntryFactory userCheckListEntryFactory,
                             @Assisted Parent root,
                             @Assisted Channel channel) {
-        super(root);
+        super(root, primaryStage);
         this.editor = editor;
         this.category = channel.getCategory();
         this.channel = channel;
@@ -115,7 +121,7 @@ public class EditChannelModal extends AbstractModal {
         }));
         privileged.setSelected(channel.isPrivileged());
 
-        selectUserList = new UserCheckList();
+        selectUserList = userCheckList;
         selectUserList.setMaxHeight(userCheckListContainer.getMaxHeight());
         selectUserList.setDisable(true);
         userCheckListContainer.getChildren().add(selectUserList);
@@ -142,7 +148,7 @@ public class EditChannelModal extends AbstractModal {
             if(user.getName().equals(editor.getOrCreateAccord().getCurrentUser().getName())) {
                 continue;
             }
-            UserCheckListEntry userCheckListEntry = new UserCheckListEntry(user);
+            UserCheckListEntry userCheckListEntry = userCheckListEntryFactory.create(user);
             if(memberNames.contains(user.getName())) {
                 userCheckListEntry.setSelected(true);
             }

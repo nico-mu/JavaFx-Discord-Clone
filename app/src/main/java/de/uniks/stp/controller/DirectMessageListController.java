@@ -32,22 +32,25 @@ public class DirectMessageListController implements ControllerInterface, Subscri
     private final SessionDatabaseService databaseService;
     private final ViewLoader viewLoader;
     private final Router router;
+    private final DirectMessageEntry.DirectMessageEntryFactory directMessageEntryFactory;
 
     @AssistedInject
     public DirectMessageListController(Editor editor,
                                        NotificationService notificationService,
                                        SessionDatabaseService databaseService,
                                        ViewLoader viewLoader,
+                                       DirectMessageEntry.DirectMessageEntryFactory directMessageEntryFactory,
                                        Router router,
                                        @Assisted Parent view) {
         this.editor = editor;
         directMessagesContainer = (VBox) view;
-        directMessagePartnerList = new ListComponent<>();
+        directMessagePartnerList = new ListComponent<>(viewLoader);
         directMessagesContainer.getChildren().add(directMessagePartnerList);
         this.notificationService = notificationService;
         this.databaseService = databaseService;
         this.viewLoader = viewLoader;
         this.router = router;
+        this.directMessageEntryFactory = directMessageEntryFactory;
     }
 
     @Override
@@ -103,7 +106,7 @@ public class DirectMessageListController implements ControllerInterface, Subscri
         }
 
         if(!directMessagePartnerList.contains(otherUser)) {
-            DirectMessageEntry directMessagePartnerEntry = new DirectMessageEntry(otherUser);
+            DirectMessageEntry directMessagePartnerEntry = directMessageEntryFactory.create(otherUser);
 
             Platform.runLater(() -> {
                 directMessagePartnerList.addElement(otherUser, directMessagePartnerEntry);

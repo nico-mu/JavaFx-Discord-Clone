@@ -18,7 +18,6 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +47,13 @@ public class HomeScreenController implements ControllerInterface {
     private PrivateChatController privateChatController;
 
     @Inject
-    private DirectMessageListController.DirectMessageListControllerFactory directMessageListControllerFactory;
+    DirectMessageListController.DirectMessageListControllerFactory directMessageListControllerFactory;
 
     @Inject
-    private PrivateChatController.PrivateChatControllerFactory privateChatControllerFactory;
+    PrivateChatController.PrivateChatControllerFactory privateChatControllerFactory;
 
     @Inject
-    private UserListController.UserListControllerFactory userListControllerFactory;
+    UserListController.UserListControllerFactory userListControllerFactory;
 
 
     @AssistedInject
@@ -81,7 +80,7 @@ public class HomeScreenController implements ControllerInterface {
     }
 
     @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
+    public ControllerInterface route(RouteInfo routeInfo, RouteArgs args) {
         String subRoute = routeInfo.getSubControllerRoute();
         subviewCleanup();
         if (subRoute.equals(Constants.ROUTE_PRIVATE_CHAT)) {
@@ -94,20 +93,21 @@ public class HomeScreenController implements ControllerInterface {
                     user = editor.getOrCreateChatPartnerOfCurrentUser(otherUser.getId(), otherUser.getName());
                 } else {
                     log.error("No user can be selected.");
-                    return;
+                    return null;
                 }
             }
             directMessageListController.addUserToSidebar(user);
             privateChatController = privateChatControllerFactory.create(view, user);
             privateChatController.init();
-            router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
+            return privateChatController;
 
         } else if (subRoute.equals(Constants.ROUTE_LIST_ONLINE_USERS)) {
             userListController = userListControllerFactory.create(onlineUsersContainer);
             userListController.init();
-            router.addToControllerCache(routeInfo.getFullRoute(), userListController);
             homeScreenLabel.setText(viewLoader.loadLabel(Constants.LBL_ONLINE_USERS));
+            return userListController;
         }
+        return null;
     }
 
     @Override

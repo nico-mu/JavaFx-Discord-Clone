@@ -19,6 +19,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -54,9 +55,12 @@ public class CreateChannelModal extends AbstractModal {
     @AssistedInject
     public CreateChannelModal(SessionRestClient restClient,
                               ViewLoader viewLoader,
+                              Stage primaryStage,
+                              UserCheckList userCheckList,
+                              UserCheckListEntry.UserCheckListEntryFactory userCheckListEntryFactory,
                               @Assisted Parent root,
                               @Assisted Category category) {
-        super(root);
+        super(root, primaryStage);
         this.category = category;
         this.restClient = restClient;
         this.viewLoader = viewLoader;
@@ -71,7 +75,7 @@ public class CreateChannelModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(ADD_CHANNEL_CANCEL_BUTTON);
         errorLabel = (Label) view.lookup(ADD_CHANNEL_ERROR_LABEL);
 
-        selectUserList = new UserCheckList();
+        selectUserList = userCheckList;
         selectUserList.setMaxHeight(userCheckListContainer.getMaxHeight());
         selectUserList.setDisable(true);
         userCheckListContainer.getChildren().add(selectUserList);
@@ -87,7 +91,7 @@ public class CreateChannelModal extends AbstractModal {
         }));
 
         for (User user : category.getServer().getUsers()) {
-            UserCheckListEntry userCheckListEntry = new UserCheckListEntry(user);
+            UserCheckListEntry userCheckListEntry = userCheckListEntryFactory.create(user);
             selectUserList.addUserToChecklist(userCheckListEntry);
         }
     }

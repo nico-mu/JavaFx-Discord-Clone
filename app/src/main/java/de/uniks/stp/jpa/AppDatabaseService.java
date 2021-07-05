@@ -1,20 +1,11 @@
 package de.uniks.stp.jpa;
 
-import de.uniks.stp.jpa.model.*;
-import de.uniks.stp.model.DirectMessage;
-import javafx.util.Pair;
+import de.uniks.stp.jpa.model.AccordSettingDTO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 
 public class AppDatabaseService {

@@ -1,14 +1,13 @@
 package de.uniks.stp.controller;
 
-import com.sun.javafx.application.HostServicesDelegate;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.SettingsModal;
-import de.uniks.stp.model.Server;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
@@ -40,6 +39,7 @@ public class UserInfoController implements ControllerInterface {
     private final SessionRestClient restClient;
     private final ViewLoader viewLoader;
     private final Router router;
+    private final AccordApp app;
     private Label usernameLabel;
     private Button logoutButton;
     private VBox settingsGearContainer;
@@ -49,6 +49,7 @@ public class UserInfoController implements ControllerInterface {
 
     @AssistedInject
     public UserInfoController(Editor editor,
+                              AccordApp app,
                               ViewLoader viewLoader,
                               SessionRestClient restClient,
                               Router router,
@@ -58,6 +59,7 @@ public class UserInfoController implements ControllerInterface {
         this.restClient = restClient;
         this.viewLoader = viewLoader;
         this.router = router;
+        this.app = app;
 
     }
 
@@ -92,6 +94,10 @@ public class UserInfoController implements ControllerInterface {
         Platform.runLater(() ->  {
             router.route(Constants.ROUTE_LOGIN);
             this.editor.prepareLogout();  //delete user related information
+            app.getSessionComponent().getWebsocketService().stop();
+            app.getSessionComponent().getSessionDatabaseService().stop();
+            app.getSessionComponent().getSessionRestClient().stop();
+            app.setSessionComponent(null);
         });
     }
 

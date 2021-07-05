@@ -6,14 +6,18 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.function.Consumer;
 
 public class EmotePickerButton extends VBox {
-    private final EmotePickerPopup popup = new EmotePickerPopup();
+    private final EmotePickerPopup popup;
 
-    public EmotePickerButton() {
-        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.EMOTE_PICKER_BUTTON);
+    @Inject
+    public EmotePickerButton(ViewLoader viewLoader) {
+        popup = new EmotePickerPopup(viewLoader);
+
+        final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.EMOTE_PICKER_BUTTON);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 

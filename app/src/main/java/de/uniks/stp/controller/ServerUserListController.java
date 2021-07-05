@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import de.uniks.stp.Editor;
+import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.ServerUserListEntry;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
@@ -29,16 +30,22 @@ public class ServerUserListController implements ControllerInterface {
     private final Parent view;
     private final Editor editor;
     private final Server model;
+    private final ViewLoader viewLoader;
+    private final ServerUserListEntry.ServerUserListEntryFactory serverUserListEntryFactory;
     private VBox onlineUserList;
     private VBox offlineUserList;
 
     @AssistedInject
     public ServerUserListController(Editor editor,
+                                    ViewLoader viewLoader,
+                                    ServerUserListEntry.ServerUserListEntryFactory serverUserListEntryFactory,
                                     @Assisted Parent view,
                                     @Assisted Server model) {
         this.view = view;
+        this.viewLoader = viewLoader;
         this.editor = editor;
         this.model = model;
+        this.serverUserListEntryFactory = serverUserListEntryFactory;
     }
 
     public void init() {
@@ -101,14 +108,14 @@ public class ServerUserListController implements ControllerInterface {
 
     private void offlineUser(User user) {
         removeUser(user);
-        ServerUserListEntry serverUserListEntry = new ServerUserListEntry(user);
+        ServerUserListEntry serverUserListEntry = serverUserListEntryFactory.create(user);
         serverUserListEntryHashMap.put(user, serverUserListEntry);
         Platform.runLater(() -> offlineUserList.getChildren().add(serverUserListEntry));
     }
 
     private void onlineUser(User user) {
         removeUser(user);
-        ServerUserListEntry serverUserListEntry = new ServerUserListEntry(user);
+        ServerUserListEntry serverUserListEntry = serverUserListEntryFactory.create(user);
         serverUserListEntryHashMap.put(user, serverUserListEntry);
         Platform.runLater(() -> onlineUserList.getChildren().add(serverUserListEntry));
     }

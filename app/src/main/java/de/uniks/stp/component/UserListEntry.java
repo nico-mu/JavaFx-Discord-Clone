@@ -1,5 +1,8 @@
 package de.uniks.stp.component;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.User;
@@ -17,10 +20,15 @@ public class UserListEntry extends HBox {
 
     @FXML
     private Label userNameLabel;
-    private final User user;
 
-    public UserListEntry(final User user) {
-        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
+    private final User user;
+    private final Router router;
+
+    @AssistedInject
+    public UserListEntry(ViewLoader viewLoader,
+                         Router router,
+                         @Assisted final User user) {
+        final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
         this.setId(user.getId() + "-UserListEntry");
@@ -32,6 +40,7 @@ public class UserListEntry extends HBox {
         }
 
         this.user = user;
+        this.router = router;
 
         setUserName(user.getName());
 
@@ -40,10 +49,15 @@ public class UserListEntry extends HBox {
 
     private void handleClick(MouseEvent mouseEvent) {
         RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, user.getId());
-        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args);
+        router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args);
     }
 
     public void setUserName(final String userName) {
         userNameLabel.setText(userName);
+    }
+
+    @AssistedFactory
+    public interface UserListEntryFactory {
+        UserListEntry create(User user);
     }
 }

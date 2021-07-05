@@ -1,5 +1,8 @@
 package de.uniks.stp.component;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.InvitesModal;
@@ -33,10 +36,13 @@ public class InviteListEntry extends HBox {
     private ServerInvitation model;
     private InvitesModal invitesModal;
 
-    public InviteListEntry(ServerInvitation serverInvitation, InvitesModal invitesModal) {
+    @AssistedInject
+    public InviteListEntry(ViewLoader viewLoader,
+                           @Assisted ServerInvitation serverInvitation,
+                           @Assisted InvitesModal invitesModal) {
         this.model = serverInvitation;
         this.invitesModal = invitesModal;
-        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.INVITE_LIST_ENTRY);
+        final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.INVITE_LIST_ENTRY);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -47,8 +53,8 @@ public class InviteListEntry extends HBox {
         }
 
         invite.setText(serverInvitation.getLink().substring(serverInvitation.getLink().length() - 15));
-        Boolean temporal = serverInvitation.getType().equals("temporal");
-        String type = temporal ? ViewLoader.loadLabel(Constants.LBL_CREATE_INVITATION_TIME) : ViewLoader.loadLabel(Constants.LBL_MAX);
+        boolean temporal = serverInvitation.getType().equals("temporal");
+        String type = temporal ? viewLoader.loadLabel(Constants.LBL_CREATE_INVITATION_TIME) : viewLoader.loadLabel(Constants.LBL_MAX);
         until.setText(type);
         String currentMaxString = serverInvitation.getType().equals("temporal") ? "-" : serverInvitation.getCurrent() + " / " + serverInvitation.getMax();
         currentMax.setText(currentMaxString);
@@ -68,6 +74,11 @@ public class InviteListEntry extends HBox {
         ClipboardContent content = new ClipboardContent();
         content.putString(link);
         clipboard.setContent(content);
+    }
+
+    @AssistedFactory
+    public interface InviteListEntryFactory {
+        InviteListEntry create(ServerInvitation serverInvitation, InvitesModal invitesModal);
     }
 
 }

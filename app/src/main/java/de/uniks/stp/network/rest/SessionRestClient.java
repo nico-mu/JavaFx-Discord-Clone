@@ -4,7 +4,6 @@ import de.uniks.stp.Constants;
 import kong.unirest.Callback;
 import kong.unirest.HttpRequest;
 import kong.unirest.JsonNode;
-import kong.unirest.Unirest;
 
 import javax.inject.Inject;
 import javax.json.Json;
@@ -13,73 +12,69 @@ import java.util.ArrayList;
 
 public class SessionRestClient extends AppRestClient {
 
-    private final HttpRequestInterceptor httpRequestInterceptor;
-
     @Inject
     public SessionRestClient(HttpRequestInterceptor interceptor) {
         super();
-        httpRequestInterceptor = interceptor;
-        Unirest.config()
-            .interceptor(interceptor);
+        instance.config().interceptor(interceptor);
     }
 
     public void getServers(Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.get(Constants.REST_SERVER_PATH);
+        HttpRequest<?> req = instance.get(Constants.REST_SERVER_PATH);
         sendRequest(req, callback);
     }
 
     public void getServerInformation(String id, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.get(Constants.REST_SERVER_PATH + "/" + id);
+        HttpRequest<?> req = instance.get(Constants.REST_SERVER_PATH + "/" + id);
         sendRequest(req, callback);
     }
 
     public void renameServer(String id, String newName, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.put(Constants.REST_SERVER_PATH + "/" + id)
+        HttpRequest<?> req = instance.put(Constants.REST_SERVER_PATH + "/" + id)
             .body(Json.createObjectBuilder().add("name", newName).build().toString());
         sendRequest(req, callback);
     }
 
     public void deleteServer(String id, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + id);
+        HttpRequest<?> req = instance.delete(Constants.REST_SERVER_PATH + "/" + id);
         sendRequest(req, callback);
     }
 
     public void createCategory(String id, String name, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + id + Constants.REST_CATEGORY_PATH)
+        HttpRequest<?> req = instance.post(Constants.REST_SERVER_PATH + "/" + id + Constants.REST_CATEGORY_PATH)
             .body(Json.createObjectBuilder().add("name", name).build().toString());
         sendRequest(req, callback);
     }
 
     public void updateCategory(String serverId, String catId, String name, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.put(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + catId)
+        HttpRequest<?> req = instance.put(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + catId)
             .body(Json.createObjectBuilder().add("name", name).build().toString());
         sendRequest(req, callback);
     }
 
     public void deleteCategory(String serverId, String categoryId, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId);
+        HttpRequest<?> req = instance.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId);
         sendRequest(req, callback);
     }
 
     public void getCategories(String serverId, Callback<JsonNode> callback) {
-        HttpRequest<?> request = Unirest.get(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH);
+        HttpRequest<?> request = instance.get(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH);
         sendRequest(request, callback);
     }
 
     public void getChannels(String serverId, String categoryId,  Callback<JsonNode> callback) {
         String requestPath = Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH;
-        HttpRequest<?> request = Unirest.get(requestPath);
+        HttpRequest<?> request = instance.get(requestPath);
         sendRequest(request, callback);
     }
 
     public void sendLogoutRequest(Callback<JsonNode> callback) {
         //
-        HttpRequest<?> postUserLogout = Unirest.post(Constants.REST_USERS_PATH + Constants.REST_LOGOUT_PATH);
+        HttpRequest<?> postUserLogout = instance.post(Constants.REST_USERS_PATH + Constants.REST_LOGOUT_PATH);
         sendRequest(postUserLogout, callback);
     }
 
     public void requestOnlineUsers(final Callback<JsonNode> callback) {
-        sendRequest(Unirest.get(Constants.REST_USERS_PATH), callback);
+        sendRequest(instance.get(Constants.REST_USERS_PATH), callback);
     }
 
     public String buildCreateServerRequest(String name) {
@@ -87,7 +82,7 @@ public class SessionRestClient extends AppRestClient {
     }
 
     public void createServer(String name, Callback<JsonNode> callback) {
-        HttpRequest<?> postCreateServer = Unirest.post(Constants.SERVERS_PATH)
+        HttpRequest<?> postCreateServer = instance.post(Constants.SERVERS_PATH)
             .body(buildCreateServerRequest(name));
         sendRequest(postCreateServer, callback);
     }
@@ -105,7 +100,7 @@ public class SessionRestClient extends AppRestClient {
             + Constants.REST_CATEGORY_PATH + "/" + categoryId
             + Constants.REST_CHANNEL_PATH+ "/" + channelId
             + Constants.REST_MESSAGES_PATH + Constants.REST_TIMESTAMP_PATH + timestamp;
-        HttpRequest<?> request = Unirest.get(requestPath);
+        HttpRequest<?> request = instance.get(requestPath);
         sendRequest(request, callback);
     }
 
@@ -114,7 +109,7 @@ public class SessionRestClient extends AppRestClient {
         for(String userId : members){
             arrayBuilder.add(userId);
         }
-        HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH)
+        HttpRequest<?> req = instance.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH)
             .body(Json.createObjectBuilder()
                 .add("name", channelName)
                 .add("type", type)
@@ -124,12 +119,12 @@ public class SessionRestClient extends AppRestClient {
     }
 
     public void getServerInvitations(String serverId, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.get(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH);
+        HttpRequest<?> req = instance.get(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH);
         sendRequest(req, callback);
     }
 
     public void createServerInvitation(String serverId, String type, int max, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH)
+        HttpRequest<?> req = instance.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH)
             .body(Json.createObjectBuilder()
                 .add("type", type)
                 .add("max", max).build().toString());
@@ -137,12 +132,12 @@ public class SessionRestClient extends AppRestClient {
     }
 
     public void deleteServerInvitation(String serverId, String invId, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH + "/" + invId);
+        HttpRequest<?> req = instance.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH + "/" + invId);
         sendRequest(req, callback);
     }
 
     public void joinServer(String serverId, String invId, String username, String password, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH + "/" + invId)
+        HttpRequest<?> req = instance.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_INVITES_PATH + "/" + invId)
             .body(Json.createObjectBuilder()
                 .add("name", username)
                 .add("password", password).build().toString());
@@ -154,7 +149,7 @@ public class SessionRestClient extends AppRestClient {
         for(String userId : members){
             arrayBuilder.add(userId);
         }
-        HttpRequest<?> req = Unirest.put(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH + "/" + channelId)
+        HttpRequest<?> req = instance.put(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH + "/" + channelId)
             .body(Json.createObjectBuilder()
                 .add("name", channelName)
                 .add("privileged", privileged)
@@ -163,23 +158,23 @@ public class SessionRestClient extends AppRestClient {
     }
 
     public void deleteChannel(String serverId, String categoryId, String channelId, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId);
+        HttpRequest<?> req = instance.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId);
         sendRequest(req, callback);
     }
 
     public void leaveServer(String serverId,  Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.post(Constants.REST_SERVER_PATH + "/" + serverId + "/leave");
+        HttpRequest<?> req = instance.post(Constants.REST_SERVER_PATH + "/" + serverId + "/leave");
         sendRequest(req, callback);
     }
 
     public void updateMessage(String serverId, String categoryId, String channelId, String messageId, String text, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.put(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId + Constants.REST_MESSAGES_PATH + "/" + messageId)
+        HttpRequest<?> req = instance.put(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId + Constants.REST_MESSAGES_PATH + "/" + messageId)
             .body(Json.createObjectBuilder().add("text", text).build().toString());
         sendRequest(req, callback);
     }
 
     public void deleteMessage(String serverId, String categoryId, String channelId, String messageId, Callback<JsonNode> callback) {
-        HttpRequest<?> req = Unirest.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId + Constants.REST_MESSAGES_PATH + "/" + messageId);
+        HttpRequest<?> req = instance.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId + Constants.REST_MESSAGES_PATH + "/" + messageId);
         sendRequest(req, callback);
     }
 }

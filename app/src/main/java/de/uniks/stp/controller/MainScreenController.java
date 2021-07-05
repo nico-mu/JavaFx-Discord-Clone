@@ -8,17 +8,12 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.notification.NotificationService;
-import de.uniks.stp.notification.SubscriberInterface;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
-import de.uniks.stp.router.Router;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN)
@@ -30,7 +25,6 @@ public class MainScreenController implements ControllerInterface {
 
     private final Parent view;
     private final Editor editor;
-    private final Router router;
     private final NotificationService notificationService;
 
     @Inject
@@ -55,11 +49,9 @@ public class MainScreenController implements ControllerInterface {
     @AssistedInject
     public MainScreenController(NotificationService notificationService,
                          Editor editor,
-                         Router router,
                          @Assisted Parent view) {
         this.view = view;
         this.editor = editor;
-        this.router = router;
         this.notificationService = notificationService;
     }
 
@@ -78,21 +70,22 @@ public class MainScreenController implements ControllerInterface {
     }
 
     @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
+    public ControllerInterface route(RouteInfo routeInfo, RouteArgs args) {
         cleanup();
         String subroute = routeInfo.getSubControllerRoute();
         if (subroute.equals(Constants.ROUTE_HOME)) {
             currentController = homeScreenControllerFactory.create(this.subViewContainer);
             currentController.init();
-            router.addToControllerCache(routeInfo.getFullRoute(), currentController);
+            return currentController;
         } else if (subroute.equals(Constants.ROUTE_SERVER)) {
             Server server = editor.getServer(args.getArguments().get(":id"));
             if (Objects.nonNull(server)) {
                 currentController = serverScreenControllerFactory.create(this.subViewContainer, server);
                 currentController.init();
-                router.addToControllerCache(routeInfo.getFullRoute(), currentController);
+                return currentController;
             }
         }
+        return null;
     }
 
     private void cleanup() {

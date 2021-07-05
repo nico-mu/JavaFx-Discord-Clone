@@ -1,33 +1,66 @@
 package de.uniks.stp.dagger.modules;
 
-import dagger.Binds;
 import dagger.Module;
+import dagger.Provides;
+import de.uniks.stp.AudioService;
+import de.uniks.stp.Editor;
+import de.uniks.stp.dagger.scope.SessionScope;
 import de.uniks.stp.jpa.SessionDatabaseService;
+import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.HttpRequestInterceptor;
 import de.uniks.stp.network.rest.ServerInformationHandler;
 import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.network.websocket.WebSocketClient;
 import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
+import de.uniks.stp.router.Router;
+
+import javax.inject.Named;
 
 @Module
-public interface SessionModule {
+public class SessionModule {
 
-    @Binds
-    NotificationService bindNotificationService(NotificationService notificationService);
+    @Provides
+    @SessionScope
+    static NotificationService provideNotificationService(Router router,
+                                                          SessionDatabaseService databaseService,
+                                                          AudioService audioService) {
+        return new NotificationService(router, databaseService, audioService);
+    }
 
-    @Binds
-    SessionRestClient bindSessionRestClient(SessionRestClient sessionRestClient);
+    @Provides
+    @SessionScope
+    static SessionRestClient provideSessionRestClient(HttpRequestInterceptor interceptor) {
+        return new SessionRestClient(interceptor);
+    }
 
 
-    @Binds
-    HttpRequestInterceptor bindHttpRequestInterceptor(HttpRequestInterceptor interceptor);
+    @Provides
+    @SessionScope
+     static HttpRequestInterceptor provideHttpRequestInterceptor(@Named("userKey") String userKey) {
+        return new HttpRequestInterceptor(userKey);
+    }
 
-    @Binds
-    SessionDatabaseService bindSessionDatabaseService(SessionDatabaseService sessionDatabaseService);
+    @Provides
+    @SessionScope
+    static SessionDatabaseService provideSessionDatabaseService(@Named("currentUser") User currentUser) {
+        return new SessionDatabaseService(currentUser);
+    }
 
-    @Binds
-    WebSocketService bindWebsocketService(WebSocketService webSocketService);
+    @Provides
+    @SessionScope
+    static WebSocketService provideWebsocketService(Editor editor,
+                                                    NotificationService notificationService,
+                                                    WebSocketClient.WebSocketClientFactory webSocketClientFactory,
+                                                    SessionDatabaseService databaseService) {
+        return new WebSocketService(editor, notificationService, webSocketClientFactory, databaseService);
+    }
 
-    @Binds
-    ServerInformationHandler bindInformationHandler(ServerInformationHandler informationHandler);
+    @Provides
+    @SessionScope
+    static ServerInformationHandler provideInformationHandler(Editor editor,
+                                                              SessionRestClient restClient,
+                                                              NotificationService notificationService) {
+        return new ServerInformationHandler(editor, restClient, notificationService);
+    }
 }

@@ -8,6 +8,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.component.NavBarList;
 import de.uniks.stp.component.NavBarServerElement;
 import de.uniks.stp.component.NavBarUserElement;
+import de.uniks.stp.modal.CreateServerModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -29,6 +30,7 @@ import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -47,6 +49,11 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     private final NotificationService notificationService;
     private final WebSocketService webSocketService;
     private final Router router;
+    private final NavBarServerElement.NavBarServerElementFactory navBarServerElementFactory;
+    private final NavBarUserElement.NavBarUserElementFactory navBarUserElementFactory;
+
+    @Inject
+    CreateServerModal.CreateServerModalFactory createServerModalFactory;
 
     private AnchorPane anchorPane;
     PropertyChangeListener availableServersPropertyChangeListener = this::onAvailableServersPropertyChange;
@@ -59,15 +66,20 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
                                 NotificationService notificationService,
                                 WebSocketService webSocketService,
                                 Router router,
+                                NavBarList navBarList,
+                                NavBarServerElement.NavBarServerElementFactory navBarServerElementFactory,
+                                NavBarUserElement.NavBarUserElementFactory navBarUserElementFactory,
                                 @Assisted Parent view) {
         this.view = view;
         this.editor = editor;
-        this.navBarList = new NavBarList(editor);
         this.restClient = restClient;
         this.serverInformationHandler = informationHandler;
         this.notificationService = notificationService;
         this.webSocketService = webSocketService;
         this.router = router;
+        this.navBarList = navBarList;
+        this.navBarServerElementFactory = navBarServerElementFactory;
+        this.navBarUserElementFactory = navBarUserElementFactory;
     }
 
     @Override
@@ -90,7 +102,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     private void serverAdded(final Server server) {
         if (Objects.nonNull(server) && !navBarList.containsServer(server)) {
             webSocketService.addServerWebSocket(server.getId());  // enables sending & receiving messages
-            final NavBarServerElement navBarElement = new NavBarServerElement(server);
+            final NavBarServerElement navBarElement = navBarServerElementFactory.create(server);
             navBarElement.setNotificationCount(notificationService.getServerNotificationCount(server));
             Platform.runLater(() -> navBarList.addServerElement(server, navBarElement));
             server.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
@@ -197,7 +209,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
                     navBarList.getUserElement(user).setNotificationCount(notificationCounter);
                 }
                 else {
-                    NavBarUserElement userElement = new NavBarUserElement(user);
+                    NavBarUserElement userElement = navBarUserElementFactory.create(user);
                     Platform.runLater(() -> navBarList.addUserElement(user, userElement));
                     userElement.setNotificationCount(notificationCounter);
                 }

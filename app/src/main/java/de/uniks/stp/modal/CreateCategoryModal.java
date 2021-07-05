@@ -14,6 +14,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -41,10 +42,11 @@ public class CreateCategoryModal extends AbstractModal {
 
     @AssistedInject
     public CreateCategoryModal(ViewLoader viewLoader,
+                               Stage primaryStage,
                                SessionRestClient restClient,
                                @Assisted Parent root,
                                @Assisted Server model) {
-        super(root);
+        super(root, primaryStage);
         this.model = model;
         this.viewLoader = viewLoader;
         this.restClient = restClient;

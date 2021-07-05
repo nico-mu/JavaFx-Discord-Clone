@@ -1,6 +1,5 @@
 package de.uniks.stp.network.rest;
 
-import de.uniks.stp.Editor;
 import kong.unirest.Config;
 import kong.unirest.HttpMethod;
 import kong.unirest.HttpRequest;

@@ -1,8 +1,9 @@
-package de.uniks.stp.emote;
+package de.uniks.stp.component;
 
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.emote.*;
 import javafx.scene.Node;
 import org.fxmisc.richtext.GenericStyledArea;
 import org.fxmisc.richtext.StyledTextArea;
@@ -11,6 +12,7 @@ import org.fxmisc.richtext.model.*;
 import org.reactfx.collection.LiveList;
 import org.reactfx.util.Either;
 
+import javax.inject.Inject;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,13 +22,13 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
     private final static TextOps<String, TextStyle> styledTextOps = SegmentOps.styledTextOps();
     private final static LinkedImageOps<TextStyle> linkedImageOps = new LinkedImageOps<>();
 
-    private final String PLACEHOLDER_TEXT = ViewLoader.loadLabel(Constants.LBL_TEXT_AREA_PLACEHOLDER);
-    private final ReadOnlyStyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> placeholderNode =
-        ReadOnlyStyledDocument.fromSegment(Either.left(PLACEHOLDER_TEXT),
-            ParStyle.EMPTY, TextStyle.GRAY, this.getSegOps());
+    private final String placeholderText;
+    private final ReadOnlyStyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> placeholderNode;
+
     private final AtomicBoolean hasPlaceholder = new AtomicBoolean(true);
 
-    public EmoteTextArea() {
+    @Inject
+    public EmoteTextArea(ViewLoader viewLoader) {
         super(
             ParStyle.EMPTY, // default paragraph style
             (paragraph, style) -> {  // paragraph style setter
@@ -37,10 +39,17 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
             seg -> createNode(seg, (text, style) -> {
                 text.getStyleClass().add(style.getStyleClass());
             })); // Node creator and segment style setter
+
+        placeholderText = viewLoader.loadLabel(Constants.LBL_TEXT_AREA_PLACEHOLDER);
+        placeholderNode = ReadOnlyStyledDocument.fromSegment(Either.left(placeholderText),
+            ParStyle.EMPTY,
+            TextStyle.GRAY,
+            this.getSegOps());
+
         setAutoScrollOnDragDesired(false);
         setWrapText(true);
         getStyleClass().add("emote-text-area");
-        getStylesheets().add(Objects.requireNonNull(StageManager.class.getResource("/de/uniks/stp/style/css/emote-text-area.css")).toExternalForm());
+        getStylesheets().add(Objects.requireNonNull(AccordApp.class.getResource("/de/uniks/stp/style/css/emote-text-area.css")).toExternalForm());
         // Add placeholder by default and delete it on focus
         configurePlaceholder();
     }
@@ -54,8 +63,8 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
             ReadOnlyStyledDocument.fromSegment(Either.right(new RealLinkedImage(emoteName)),
                 ParStyle.EMPTY, TextStyle.EMPTY, this.getSegOps());
 
-        if (hasPlaceholder.get() && getStringContent().equals(PLACEHOLDER_TEXT)) {
-            deleteText(0, PLACEHOLDER_TEXT.length());
+        if (hasPlaceholder.get() && getStringContent().equals(placeholderText)) {
+            deleteText(0, placeholderText.length());
             hasPlaceholder.set(false);
             insert(0, ros);
         } else {
@@ -110,8 +119,8 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
         });
 
         caretPositionProperty().addListener((k) -> {
-            if (hasPlaceholder.get() && getStringContent().equals(PLACEHOLDER_TEXT)) {
-                deleteText(0, PLACEHOLDER_TEXT.length());
+            if (hasPlaceholder.get() && getStringContent().equals(placeholderText)) {
+                deleteText(0, placeholderText.length());
                 hasPlaceholder.set(false);
             }
         });

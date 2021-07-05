@@ -3,11 +3,12 @@ package de.uniks.stp.modal;
 import com.jfoenix.controls.JFXButton;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.component.InviteList;
 import de.uniks.stp.component.InviteListEntry;
+import de.uniks.stp.component.ListComponent;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.ServerInvitation;
 import de.uniks.stp.network.rest.SessionRestClient;
@@ -17,6 +18,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
@@ -27,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class InvitesModal extends AbstractModal {
@@ -42,30 +43,33 @@ public class InvitesModal extends AbstractModal {
     private final JFXButton createButton;
     private final JFXButton cancelButton;
     private final Label errorLabel;
-    private final InviteList inviteList;
+    private final ListComponent<ServerInvitation, InviteListEntry> inviteList;
     private final ViewLoader viewLoader;
+    private final InviteListEntry.InviteListEntryFactory inviteListEntryFactory;
 
     private SessionRestClient restClient;
     private final Editor editor;
     private final Server server;
-    private final HashMap<ServerInvitation, InviteListEntry> inviteListEntryHashMap;
 
     @Inject
     CreateInviteModal.CreateInviteModalFactory createInviteModalFactory;
 
     PropertyChangeListener serverInvitationListener = this::onServerInvitationsChanged;
 
+    @AssistedInject
     public InvitesModal(Editor editor,
                         SessionRestClient restClient,
                         ViewLoader viewLoader,
+                        Stage primaryStage,
+                        InviteListEntry.InviteListEntryFactory inviteListEntryFactory,
                         @Assisted Parent root,
                         @Assisted Server server) {
-        super(root);
+        super(root, primaryStage);
         this.editor = editor;
         this.server = server;
         this.restClient = restClient;
         this.viewLoader = viewLoader;
-        inviteListEntryHashMap = new HashMap<>();
+        this.inviteListEntryFactory = inviteListEntryFactory;
 
         setTitle(viewLoader.loadLabel(Constants.LBL_INVITATIONS));
         inviteListContainer = (VBox) view.lookup(INVITE_LIST_CONTAINER);
@@ -73,7 +77,7 @@ public class InvitesModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
         errorLabel = (Label) view.lookup(ERROR_LABEL);
 
-        inviteList = new InviteList();
+        inviteList = new ListComponent<>(viewLoader);
         inviteList.setMaxHeight(inviteListContainer.getMaxHeight());
         inviteListContainer.getChildren().add(inviteList);
 
@@ -120,16 +124,14 @@ public class InvitesModal extends AbstractModal {
 
     private void invitationRemoved(ServerInvitation oldValue) {
         if (Objects.nonNull(oldValue)) {
-            InviteListEntry inviteListEntry = inviteListEntryHashMap.remove(oldValue);
-            Platform.runLater(() -> inviteList.removeInviteListEntry(inviteListEntry));
+            Platform.runLater(() -> inviteList.removeElement(oldValue));
         }
     }
 
     private void invitationAdded(ServerInvitation newValue) {
         if (Objects.nonNull(newValue)) {
-            InviteListEntry inviteListEntry = new InviteListEntry(newValue, this);
-            Platform.runLater(() -> inviteList.addInviteListEntry(inviteListEntry));
-            inviteListEntryHashMap.put(newValue, inviteListEntry);
+            InviteListEntry inviteListEntry = inviteListEntryFactory.create(newValue, this);
+            Platform.runLater(() -> inviteList.addElement(newValue, inviteListEntry));
         }
     }
 

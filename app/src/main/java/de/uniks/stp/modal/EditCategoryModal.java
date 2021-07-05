@@ -17,6 +17,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -57,11 +58,12 @@ public class EditCategoryModal extends AbstractModal {
 
     @AssistedInject
     public EditCategoryModal(ViewLoader viewLoader,
+                             Stage primaryStage,
                              SessionDatabaseService databaseService,
                              SessionRestClient restClient,
                              @Assisted Parent root,
                              @Assisted Category model) {
-        super(root);
+        super(root, primaryStage);
         this.model = model;
         this.databaseService = databaseService;
         this.viewLoader = viewLoader;

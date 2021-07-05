@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -17,6 +18,12 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class ViewLoader {
+
+    @Inject
+    public ViewLoader() {
+
+    }
+
     private final Logger log = LoggerFactory.getLogger(ViewLoader.class);
 
     private ResourceBundle resourceBundle;
@@ -52,6 +59,10 @@ public class ViewLoader {
     public void changeLanguage(Languages language) {
         //load resource bundle for given language
         resourceBundle = ResourceBundle.getBundle("de.uniks.stp.bundle.language", new Locale(language.key));
+    }
+
+    public Locale getCurrentLocale() {
+        return resourceBundle.getLocale();
     }
 
     public String loadLabel(String label) {

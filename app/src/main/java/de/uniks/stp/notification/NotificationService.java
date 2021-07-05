@@ -9,7 +9,9 @@ import de.uniks.stp.model.User;
 import de.uniks.stp.router.Router;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -21,11 +23,15 @@ public class NotificationService {
     private final List<SubscriberInterface> channelSubscriber;
     private final Router router;
     private final SessionDatabaseService databaseService;
+    private final AudioService audioService;
 
     @Inject
-    public NotificationService(Router router, SessionDatabaseService databaseService) {
+    public NotificationService(Router router,
+                               SessionDatabaseService databaseService,
+                               AudioService audioService) {
         this.router = router;
         this.databaseService = databaseService;
+        this.audioService = audioService;
         channelNotifications = new ConcurrentHashMap<>();
         userNotifications = new ConcurrentHashMap<>();
         userSubscriber = new CopyOnWriteArrayList<>();
@@ -139,7 +145,7 @@ public class NotificationService {
         }
         event.increaseNotificationsAndGet();
         notifyUser(event);
-        AudioService.playNotificationSound();
+        audioService.playNotificationSound();
     }
 
     /**
@@ -163,7 +169,7 @@ public class NotificationService {
         }
         event.increaseNotificationsAndGet();
         notifyChannel(event);
-        AudioService.playNotificationSound();
+        audioService.playNotificationSound();
     }
 
     /**

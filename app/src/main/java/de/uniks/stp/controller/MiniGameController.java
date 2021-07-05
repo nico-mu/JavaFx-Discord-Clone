@@ -15,8 +15,8 @@ import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
@@ -29,6 +29,9 @@ public class MiniGameController implements ControllerInterface {
     private final ViewLoader viewLoader;
     private EasterEggModal easterEggModal;
     private final User chatPartner;
+
+    @Inject
+    EasterEggModal.EasterEggModalFactory easterEggModalFactory;
 
     @AssistedInject
     public MiniGameController(ViewLoader viewLoader, @Assisted User chatPartner) {
@@ -59,7 +62,7 @@ public class MiniGameController implements ControllerInterface {
         closeEasterEggModal(null);
         Platform.runLater(() -> {
             Parent easterEggModalView = viewLoader.loadView(Views.EASTER_EGG_MODAL);
-            easterEggModal = new EasterEggModal(easterEggModalView,
+            easterEggModal = easterEggModalFactory.create(easterEggModalView,
                 chatPartner,
                 this::closeEasterEggModal);
             easterEggModal.show();

@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,8 +20,9 @@ public class UserCheckList extends ScrollPane {
     private VBox container;
     private HashMap<String, UserCheckListEntry> userCheckListEntryHashMap;
 
-    public UserCheckList() {
-        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST);
+    @Inject
+    public UserCheckList(ViewLoader viewLoader) {
+        final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.USER_LIST);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
         userCheckListEntryHashMap = new HashMap<>();

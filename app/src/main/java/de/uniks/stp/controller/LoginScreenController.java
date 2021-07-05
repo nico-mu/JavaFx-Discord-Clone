@@ -4,10 +4,12 @@ import com.jfoenix.controls.*;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
+import de.uniks.stp.dagger.components.SessionComponent;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.AppDatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
@@ -24,6 +26,7 @@ import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Provider;
 import java.util.Objects;
 
 @Route(Constants.ROUTE_LOGIN)
@@ -36,6 +39,7 @@ public class LoginScreenController implements ControllerInterface {
     private final AppDatabaseService databaseService;
     private final Router router;
     private final ViewLoader viewLoader;
+    private final AccordApp app;
 
     private JFXTextField nameField;
     private JFXPasswordField passwordField;
@@ -50,8 +54,12 @@ public class LoginScreenController implements ControllerInterface {
     private String password;
     private boolean tempUserLogin;
 
+    private final Provider<SessionComponent.Builder> sessionComponentProvider;
+
     @AssistedInject
-    public LoginScreenController(Editor editor,
+    public LoginScreenController(AccordApp app,
+                                 Provider<SessionComponent.Builder> sessionComponentProvider,
+                                 Editor editor,
                                  AppDatabaseService databaseService,
                                  AppRestClient restClient,
                                  Router router,
@@ -63,6 +71,8 @@ public class LoginScreenController implements ControllerInterface {
         this.databaseService = databaseService;
         this.router = router;
         this.viewLoader = viewLoader;
+        this.app = app;
+        this.sessionComponentProvider = sessionComponentProvider;
     }
 
     /**
@@ -266,9 +276,14 @@ public class LoginScreenController implements ControllerInterface {
             String userKey = response.getBody().getObject().getJSONObject("data").getString("userKey");
             User currentUser = editor.createCurrentUser(name, true).setPassword(password);
             editor.setCurrentUser(currentUser);
-            editor.setUserKey(userKey);
 
             //create session component here
+            SessionComponent sessionComponent = sessionComponentProvider.get()
+                .userKey(userKey)
+                .currentUser(currentUser)
+                .build();
+            app.setSessionComponent(sessionComponent);
+            sessionComponent.getWebsocketService().init();
 
             if (!tempUserLogin && rememberMeCheckBox.isSelected()) {
                 // Save in db

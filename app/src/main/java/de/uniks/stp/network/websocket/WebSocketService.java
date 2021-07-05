@@ -24,23 +24,25 @@ import java.util.stream.Collectors;
 public class WebSocketService {
     private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
 
-    private final HashMap<String, WebSocketClient> pathWebSocketClientHashMap = new HashMap<>();
+    private final HashMap<String, WebSocketClient> pathWebSocketClientHashMap;
     private final User currentUser;
     private final Editor editor;
     private final NotificationService notificationService;
     private final SessionDatabaseService databaseService;
+    private final WebSocketClient.WebSocketClientFactory webSocketClientFactory;
 
-    @Inject
-    private WebSocketClient.WebSocketClientFactory webSocketClientFactory;
 
     @Inject
     public WebSocketService(Editor editor,
                             NotificationService notificationService,
+                            WebSocketClient.WebSocketClientFactory webSocketClientFactory,
                             SessionDatabaseService databaseService) {
         this.editor = editor;
         currentUser = editor.getOrCreateAccord().getCurrentUser();
         this.notificationService = notificationService;
         this.databaseService = databaseService;
+        this.webSocketClientFactory = webSocketClientFactory;
+        pathWebSocketClientHashMap = new HashMap<>();
     }
 
     public void init() {

@@ -1,8 +1,13 @@
 package de.uniks.stp.component;
 
+import de.uniks.stp.ViewLoader;
 import javafx.application.Platform;
 
 public class NavBarNotificationElement extends NavBarElement implements NotificationComponentInterface {
+
+    public NavBarNotificationElement(ViewLoader viewLoader) {
+        super(viewLoader);
+    }
 
     @Override
     public void setNotificationCount(int notifications) {

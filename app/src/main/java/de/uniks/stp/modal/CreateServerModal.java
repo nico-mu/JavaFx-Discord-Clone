@@ -16,6 +16,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
@@ -46,10 +47,11 @@ public class CreateServerModal extends AbstractModal {
     @AssistedInject
     public CreateServerModal(Editor editor,
                              SessionRestClient restClient,
+                             Stage primaryStage,
                              ServerInformationHandler informationHandler,
                              ViewLoader viewLoader,
                              @Assisted Parent root) {
-        super(root);
+        super(root, primaryStage);
         this.editor = editor;
         this.restClient = restClient;
         this.viewLoader = viewLoader;

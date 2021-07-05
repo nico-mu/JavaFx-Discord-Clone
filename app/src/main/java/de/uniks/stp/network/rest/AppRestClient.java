@@ -1,27 +1,29 @@
 package de.uniks.stp.network.rest;
 
 import de.uniks.stp.Constants;
-import kong.unirest.Callback;
-import kong.unirest.HttpRequest;
-import kong.unirest.JsonNode;
-import kong.unirest.Unirest;
+import kong.unirest.*;
 
+import javax.inject.Inject;
 import javax.json.Json;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class AppRestClient {
 
-    protected static final ExecutorService executorService = Executors.newCachedThreadPool();
+    protected final ExecutorService executorService;
+    protected final UnirestInstance instance;
 
+    @Inject
     public AppRestClient() {
-        Unirest.config()
+        executorService = Executors.newCachedThreadPool();
+        instance = new UnirestInstance(new Config());
+        instance.config()
             .defaultBaseUrl(Constants.REST_SERVER_BASE_URL);
     }
 
-    public static void stop() {
+    public void stop() {
         executorService.shutdown();
-        Unirest.shutDown();
+        instance.shutDown();
     }
 
     protected void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
@@ -29,7 +31,7 @@ public class AppRestClient {
     }
 
     private void sendAuthRequest(String endpoint, String name, String password, Callback<JsonNode> callback) {
-        HttpRequest<?> postUserRegister = Unirest.post(Constants.REST_USERS_PATH + endpoint)
+        HttpRequest<?> postUserRegister = instance.post(Constants.REST_USERS_PATH + endpoint)
             .body(buildLoginOrRegisterBody(name, password));
         sendRequest(postUserRegister, callback);
     }
@@ -47,7 +49,7 @@ public class AppRestClient {
     }
 
     public void tempRegister(Callback<JsonNode> callback) {
-        HttpRequest<?> postUserRegister = Unirest.post(Constants.REST_USERS_PATH + Constants.REST_TEMP_REGISTER_PATH);
+        HttpRequest<?> postUserRegister = instance.post(Constants.REST_USERS_PATH + Constants.REST_TEMP_REGISTER_PATH);
         sendRequest(postUserRegister, callback);
     }
 }

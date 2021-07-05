@@ -1,6 +1,4 @@
 package de.uniks.stp.component;
-
-import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.NavBarCreateServerClosedEvent;
 import de.uniks.stp.event.NavBarElementChangeEvent;
@@ -14,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,8 +28,11 @@ public class NavBarList extends ScrollPane {
     private final ConcurrentHashMap<Server, NavBarServerElement> serverElementHashmap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<User, NavBarUserElement> userElementHashmap = new ConcurrentHashMap<>();
 
-    public NavBarList(Editor editor) {
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.NAV_BAR_LIST);
+    @Inject
+    public NavBarList(ViewLoader viewLoader,
+                      NavBarHomeElement navBarHomeElement,
+                      NavBarCreateServer navBarCreateServer) {
+        FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.NAV_BAR_LIST);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -45,13 +47,12 @@ public class NavBarList extends ScrollPane {
         this.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         //add home element
-        homeElement = new NavBarHomeElement();
+        homeElement = navBarHomeElement;
         elements.add(homeElement);
         this.setActiveElement(homeElement);
 
         //add create server button
-        NavBarElement createServer = new NavBarAddServer(editor);
-        elements.add(createServer);
+        elements.add(navBarCreateServer);
 
         this.addEventFilter(NavBarElementChangeEvent.NAV_BAR_ELEMENT_CHANGE, event -> {
             setActiveElement(event.getParam());
@@ -67,7 +68,6 @@ public class NavBarList extends ScrollPane {
             setActiveElement(homeElement);
             event.consume();
         });
-
     }
 
     public void setHomeElementActive() {

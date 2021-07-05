@@ -1,10 +1,12 @@
 package de.uniks.stp.modal;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.ServerMessage;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -14,16 +16,28 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 public class DeleteMessageModal {
 
     private final Logger log = LoggerFactory.getLogger(EditMessageModal.class);
     private final ConfirmationModal confirmationModal;
     private final ServerMessage message;
+    private final SessionRestClient restClient;
 
-    public DeleteMessageModal(ServerMessage message) {
+    @Inject
+    ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
+
+    @AssistedInject
+    public DeleteMessageModal(ViewLoader viewLoader,
+                              SessionRestClient restClient,
+                              @Assisted ServerMessage message) {
+
         this.message = message;
-        Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
-        confirmationModal = new ConfirmationModal(confirmationModalView,
+        this.restClient = restClient;
+
+        Parent confirmationModalView = viewLoader.loadView(Views.CONFIRMATION_MODAL);
+        confirmationModal = confirmationModalFactory.create(confirmationModalView,
             Constants.LBL_DELETE_MESSAGE_TITLE,
             Constants.LBL_CONFIRM_DELETE_MESSAGE,
             this::onYesDeleteButtonClicked,
@@ -36,7 +50,6 @@ public class DeleteMessageModal {
     }
 
     private void onYesDeleteButtonClicked(ActionEvent actionEvent) {
-        RestClient restClient = NetworkClientInjector.getRestClient();
         String serverId = this.message.getChannel().getServer().getId();
         String categoryId = this.message.getChannel().getCategory().getId();
         String channelId = this.message.getChannel().getId();
@@ -47,5 +60,10 @@ public class DeleteMessageModal {
     private void handleDeleteMessageResponse(HttpResponse<JsonNode> response) {
         log.debug(response.getBody().toPrettyString());
         Platform.runLater(confirmationModal::close);
+    }
+
+    @AssistedFactory
+    public interface DeleteMessageModalFactory {
+        DeleteMessageModal create(ServerMessage message);
     }
 }

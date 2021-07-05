@@ -1,7 +1,6 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.emote.EmoteRenderer;
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;

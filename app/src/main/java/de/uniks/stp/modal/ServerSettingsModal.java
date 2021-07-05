@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.jpa.SessionDatabaseService;
@@ -16,6 +17,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
@@ -55,13 +57,15 @@ public class ServerSettingsModal extends AbstractModal {
     @Inject
     ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
 
+    @AssistedInject
     public ServerSettingsModal(SessionDatabaseService databaseService,
                                ViewLoader viewLoader,
+                               Stage primaryStage,
                                SessionRestClient restClient,
                                @Assisted Parent root,
                                @Assisted Server model,
                                @Assisted boolean owner) {
-        super(root);
+        super(root, primaryStage);
         this.model = model;
         this.owner = owner;
         this.viewLoader = viewLoader;

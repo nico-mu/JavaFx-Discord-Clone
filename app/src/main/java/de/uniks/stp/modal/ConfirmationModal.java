@@ -10,6 +10,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 public class ConfirmationModal extends AbstractModal {
@@ -32,12 +33,13 @@ public class ConfirmationModal extends AbstractModal {
 
     @AssistedInject
     public ConfirmationModal(ViewLoader viewLoader,
+                             Stage primaryStage,
                              @Assisted Parent root,
-                             @Assisted String titleLBL,
-                             @Assisted String confirmLBL,
-                             @Assisted EventHandler<ActionEvent> yesHandler,
-                             @Assisted EventHandler<ActionEvent> noHandler) {
-        super(root);
+                             @Assisted("titleLBL") String titleLBL,
+                             @Assisted("confirmLBL") String confirmLBL,
+                             @Assisted("yesHandler") EventHandler<ActionEvent> yesHandler,
+                             @Assisted("noHandler") EventHandler<ActionEvent> noHandler) {
+        super(root, primaryStage);
 
         initStyle(StageStyle.TRANSPARENT);
         scene.setFill(Color.TRANSPARENT);
@@ -66,9 +68,9 @@ public class ConfirmationModal extends AbstractModal {
     @AssistedFactory
     public interface ConfirmationModalFactory {
         ConfirmationModal create(Parent root,
-                                 String titleLBL,
-                                 String confirmLBL,
-                                 EventHandler<ActionEvent> yesHandler,
-                                 EventHandler<ActionEvent> noHandler);
+                                 @Assisted("titleLBL") String titleLBL,
+                                 @Assisted("confirmLBL") String confirmLBL,
+                                 @Assisted("yesHandler") EventHandler<ActionEvent> yesHandler,
+                                 @Assisted("noHandler") EventHandler<ActionEvent> noHandler);
     }
 }

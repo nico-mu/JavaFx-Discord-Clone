@@ -17,7 +17,6 @@ import de.uniks.stp.model.Server;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
-import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -52,7 +51,6 @@ public class ServerScreenController implements ControllerInterface {
     private final Server model;
     private final NotificationService notificationService;
     private final ViewLoader viewLoader;
-    private final Router router;
 
     private AnchorPane view;
     private FlowPane serverScreenView;
@@ -91,8 +89,7 @@ public class ServerScreenController implements ControllerInterface {
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
 
     @AssistedInject
-    public ServerScreenController(Router router,
-                                  ViewLoader viewLoader,
+    public ServerScreenController(ViewLoader viewLoader,
                                   NotificationService notificationService,
                                   Editor editor,
                                   @Assisted  Parent view,
@@ -102,7 +99,6 @@ public class ServerScreenController implements ControllerInterface {
         this.model = model;
         this.notificationService = notificationService;
         this.viewLoader = viewLoader;
-        this.router = router;
     }
 
     @Override
@@ -138,7 +134,7 @@ public class ServerScreenController implements ControllerInterface {
     }
 
     @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
+    public ControllerInterface route(RouteInfo routeInfo, RouteArgs args) {
         subviewCleanup();
         if (routeInfo.getSubControllerRoute().equals(Constants.ROUTE_CHANNEL)) {
             final String serverId = args.getArguments().get(":id");
@@ -148,8 +144,9 @@ public class ServerScreenController implements ControllerInterface {
             notificationService.consume(channel);
             serverChannelController = serverChatControllerFactory.create(serverChannelContainer, channel);
             serverChannelController.init();
-            router.addToControllerCache(routeInfo.getFullRoute(), serverChannelController);
+            return serverChannelController;
         }
+        return null;
     }
 
     private void subviewCleanup() {
