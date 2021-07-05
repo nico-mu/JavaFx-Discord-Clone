@@ -6,7 +6,6 @@ import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.view.Languages;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,13 +81,8 @@ public class SettingsModal extends AbstractModal {
     }
 
     private void onApplyButtonClicked(ActionEvent actionEvent) {
-        Stage stage = StageManager.getStage();
-        double width = stage.getWidth();
-        double height = stage.getHeight();
         editor.getOrCreateAccord().setLanguage(languageComboBox.getSelection());
         StageManager.getAudioService().setNotificationSoundFile(notificationComboBox.getSelection());
-        stage.setWidth(width);
-        stage.setHeight(height);
         this.close();
     }
 
