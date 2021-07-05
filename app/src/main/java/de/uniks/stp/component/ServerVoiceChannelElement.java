@@ -77,13 +77,27 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
 
     public void removeAudioUser(final User user) {
         if (Objects.nonNull(user)) {
-            Platform.runLater(() -> voiceUserListComponent.removeElement(user));
+            Platform.runLater(() -> {
+                voiceUserListComponent.removeElement(user);
+                resizeAudioMemberContainer();
+            });
         }
+    }
+
+    private void resizeAudioMemberContainer() {
+        int size = model.getAudioMembers().size();
+        if (size > 5) {
+            size = 5;
+        }
+        audioMemberContainer.setMinHeight(size * 30d);
     }
 
     public void addAudioUser(final User user) {
         if (Objects.nonNull(user)) {
-            Platform.runLater(() -> voiceUserListComponent.addElement(user, new VoiceUserListEntry(user)));
+            Platform.runLater(() -> {
+                voiceUserListComponent.addElement(user, new VoiceUserListEntry(user));
+                resizeAudioMemberContainer();
+            });
         }
     }
 
