@@ -48,9 +48,9 @@ public class LanguageService {
         Stage stage = StageManager.getStage();
         double width = stage.getWidth();
         Platform.runLater(() -> {
-            stage.setMinWidth(width + 0.1);
+            stage.setWidth(width + 0.1);
             if(stage.isMaximized()) {
-                stage.setMinWidth(1300);
+                stage.setWidth(1300);
                 stage.setHeight(750);
                 stage.centerOnScreen();
             }
