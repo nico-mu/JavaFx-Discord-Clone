@@ -10,6 +10,8 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.stream.JsonParsingException;
 import javax.sound.sampled.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.*;
@@ -28,6 +30,8 @@ public class VoiceChatClient {
     private final User currentUser;
     private final Channel channel;
     private ExecutorService executorService;
+    private final Object audioInLock = new Object();
+    private final Object audioOutLock = new Object();
 
     private boolean stopping = false;
 
@@ -39,6 +43,33 @@ public class VoiceChatClient {
 
     private InetAddress address;
     private List<User> filteredUsers;
+    private PropertyChangeListener currentUserMutePropertyChangeListener = this::onCurrentUserMutePropertyChange;
+    private PropertyChangeListener currentUserAudioOffPropertyChangeListener = this::onCurrentUserAudioOffPropertyChange;
+
+    private void onCurrentUserMutePropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final boolean isMute = (boolean) propertyChangeEvent.getNewValue();
+        if (isMute && !isAudioInUnavailable()) {
+            audioInDataLine.stop();
+            audioInDataLine.drain();
+        } else {
+            audioInDataLine.start();
+            synchronized (audioInLock) {
+                audioInLock.notify();
+            }
+        }
+    }
+    private void onCurrentUserAudioOffPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final boolean isAudioOff = (boolean) propertyChangeEvent.getNewValue();
+        if (isAudioOff && !isAudioOutUnavailable()) {
+            audioOutDataLine.stop();
+            audioOutDataLine.drain();
+        } else {
+            audioOutDataLine.start();
+            synchronized (audioOutLock) {
+                audioOutLock.notify();
+            }
+        }
+    }
 
     public VoiceChatClient(User currentUser, Channel channel) {
         this.channel = channel;
@@ -65,6 +96,15 @@ public class VoiceChatClient {
                 audioInDataLine.start();
             } catch (LineUnavailableException e) {
                 log.error("Audio input is currently unavailable on this system.");
+                if (Objects.nonNull(audioInDataLine)) {
+                    if(audioInDataLine.isActive()) {
+                        audioInDataLine.stop();
+                    }
+                    if (audioInDataLine.isOpen()) {
+                        audioInDataLine.close();
+                    }
+                    audioInDataLine = null;
+                }
                 return false;
             }
         } else {
@@ -83,6 +123,15 @@ public class VoiceChatClient {
                 audioOutDataLine.start();
             } catch (LineUnavailableException e) {
                 log.error("Audio output is currently unavailable on this system.");
+                if (Objects.nonNull(audioOutDataLine)) {
+                   if(audioOutDataLine.isActive()) {
+                       audioOutDataLine.stop();
+                   }
+                   if (audioOutDataLine.isOpen()) {
+                       audioOutDataLine.close();
+                   }
+                   audioOutDataLine = null;
+                }
                 return false;
             }
         } else {
@@ -105,6 +154,9 @@ public class VoiceChatClient {
         datagramSocket = new DatagramSocket();
         executorService = Executors.newCachedThreadPool();
 
+        currentUser.listeners().addPropertyChangeListener(User.PROPERTY_MUTE, currentUserMutePropertyChangeListener);
+        currentUser.listeners().addPropertyChangeListener(User.PROPERTY_AUDIO_OFF, currentUserAudioOffPropertyChangeListener);
+
         currentUser.setAudioOff(!initAudioOutDataLine());
         currentUser.setMute(!initAudioInDataLine());
 
@@ -115,7 +167,7 @@ public class VoiceChatClient {
     }
 
     private void receiveAndPlayAudio() {
-        if (Objects.isNull(audioOutDataLine)) {
+        if (isAudioOutUnavailable()) {
             log.error("Audio playback not started. The dataLine is not set up properly.");
             return;
         }
@@ -123,7 +175,9 @@ public class VoiceChatClient {
         while (!stopping) {
             if (currentUser.isAudioOff()) {
                 try {
-                    Thread.sleep(250);
+                    synchronized (audioOutLock) {
+                        audioOutLock.wait(60000);
+                    }
                 } catch (InterruptedException e) {
                     log.error("Thread interrupted while sleeping", e);
                 }
@@ -150,7 +204,7 @@ public class VoiceChatClient {
     }
 
     private void recordAndSendAudio() {
-        if (Objects.isNull(audioInDataLine)) {
+        if (isAudioInUnavailable()) {
             log.error("Audio recording not startet. The dataLine is not set up properly.");
             return;
         }
@@ -170,7 +224,9 @@ public class VoiceChatClient {
         while (!stopping) {
             if (currentUser.isMute()) {
                 try {
-                    Thread.sleep(250);
+                    synchronized (audioInLock) {
+                        audioInLock.wait(60000);
+                    }
                 } catch (InterruptedException e) {
                     log.error("Thread interrupted while sleeping", e);
                 }
@@ -193,6 +249,16 @@ public class VoiceChatClient {
 
     public void stop() {
         stopping = true;
+        synchronized (audioInLock) {
+            audioInLock.notifyAll();
+        }
+        synchronized (audioOutLock) {
+            audioOutLock.notifyAll();
+        }
+        // Threads in ExecutorService will terminate now
+
+        currentUser.listeners().removePropertyChangeListener(User.PROPERTY_MUTE, currentUserMutePropertyChangeListener);
+        currentUser.listeners().removePropertyChangeListener(User.PROPERTY_AUDIO_OFF, currentUserAudioOffPropertyChangeListener);
 
         if (Objects.nonNull(executorService)) {
             executorService.shutdown();
@@ -200,15 +266,15 @@ public class VoiceChatClient {
         }
 
         if (Objects.nonNull(audioInDataLine)) {
-            audioInDataLine.close();
-            audioInDataLine.drain();
             audioInDataLine.stop();
+            audioInDataLine.drain();
+            audioInDataLine.close();
             audioInDataLine = null;
         }
         if (Objects.nonNull(audioOutDataLine)) {
-            audioOutDataLine.close();
-            audioOutDataLine.drain();
             audioOutDataLine.stop();
+            audioOutDataLine.drain();
+            audioOutDataLine.close();
             audioOutDataLine = null;
         }
 
