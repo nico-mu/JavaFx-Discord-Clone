@@ -276,6 +276,7 @@ public class LoginScreenController implements ControllerInterface {
                 stage.setHeight(750);
                 Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
             });
+            return;
         }
         // Login failed
         Platform.runLater(passwordField::clear);
