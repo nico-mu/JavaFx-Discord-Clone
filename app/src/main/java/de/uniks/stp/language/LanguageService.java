@@ -1,6 +1,7 @@
 package de.uniks.stp.language;
 
 import de.uniks.stp.Editor;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.DatabaseService;
@@ -8,6 +9,8 @@ import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.model.Accord;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Languages;
+import javafx.application.Platform;
+import javafx.stage.Stage;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -39,8 +42,15 @@ public class LanguageService {
 
     private void onLanguagePropertyChange(final PropertyChangeEvent languageChangeEvent) {
         final Languages newLanguage = Languages.fromKeyOrDefault((String) languageChangeEvent.getNewValue());
+        Stage stage = StageManager.getStage();
+        double width = stage.getWidth();
+        double height = stage.getHeight();
         ViewLoader.changeLanguage(newLanguage);
         Router.forceReload();
+        Platform.runLater(() -> {
+            stage.setWidth(width);
+            stage.setHeight(height);
+        });
 
         DatabaseService.saveAccordSetting(AccordSettingKey.LANGUAGE, newLanguage.key);
 
