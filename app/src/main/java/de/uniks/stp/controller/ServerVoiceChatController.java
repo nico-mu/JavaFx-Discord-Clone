@@ -194,7 +194,7 @@ public class ServerVoiceChatController implements ControllerInterface {
         if (response.isSuccess()) {
             // Join UDP-Voicestream
             if (Objects.isNull(voiceChatClient)) {
-                voiceChatClient = new VoiceChatClient(currentUser, model);
+                voiceChatClient = NetworkClientInjector.getVoiceChatClient(currentUser, model);
             }
             try {
                 voiceChatClient.init();
