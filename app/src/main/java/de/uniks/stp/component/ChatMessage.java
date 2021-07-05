@@ -142,18 +142,32 @@ public class ChatMessage extends HBox {
         });
     }
 
-    public void addVideo(String content) {
-        loadContent(content, false);
+    public void addVideo(String content, String url) {
+        loadContent(content, false, url);
     }
 
-    public void addImage(String content) {
-        loadContent(content, true);
+    public void addImage(String content, String url) {
+        loadContent(content, true, url);
     }
 
-    private void loadContent(String content, boolean notIntractable) {
+    private void loadContent(String content, boolean notIntractable, String url) {
         Platform.runLater(() -> {
             WebView webView = new WebView();
-            webView.getEngine().loadContent(content, "text/html");
+            if (content.equals("")) {
+                String media = "<head>\n" +
+                    "    <link href=\"http://vjs.zencdn.net/c/video-js.css\" rel=\"stylesheet\">\n" +
+                    "    <script src=\"http://vjs.zencdn.net/c/video.js\"></script>\n" +
+                    "</head>\n" +
+                    "<body overflow=\"hidden\">\n" +
+                    "    <video id=\"video1\" class=\"video-js vjs-default-skin\"\n" +
+                    "        data-setup='{\"controls\" : true, \"autoplay\" : false, \"preload\" : \"auto\"}'>\n" +
+                    "        <source src=\"" + url + "\" type=\"video/mp4\">\n" +
+                    "    </video>\n" +
+                    "</body>";
+                webView.getEngine().loadContent(content, "text/html");
+            }else {
+                webView.getEngine().loadContent(content, "text/html");
+            }
             webView.setMaxHeight(240);
             webView.setMaxWidth(500);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);

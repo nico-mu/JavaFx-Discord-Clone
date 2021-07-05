@@ -23,12 +23,12 @@ public class MediaRequestClient {
         executor.shutdown();
     }
 
-    public void loadImage(String content, ChatMessage messageNode) {
-        executor.submit(() -> messageNode.addImage(content));
+    public void loadImage(String content, ChatMessage messageNode, String url) {
+        executor.submit(() -> messageNode.addImage(content, url));
     }
 
-    public void loadVideo(String content, ChatMessage messageNode) {
-        executor.submit(() -> messageNode.addVideo(content));
+    public void loadVideo(String content, ChatMessage messageNode, String url) {
+        executor.submit(() -> messageNode.addVideo(content, url));
     }
 
     public void getMediaInformation(String url, Callback<JsonNode> callback) {
@@ -41,21 +41,32 @@ public class MediaRequestClient {
     public void handleMediaInformation(HttpResponse<JsonNode> response, ChatMessage messageNode) {
         JsonNode jsonNode = response.getBody();
         JSONObject jsonObject = jsonNode.getObject();
-        String html = jsonObject.getString("html");
+        String html = "";
+        String url = "";
+        try {
+            html = jsonObject.getString("html");
+        } catch (JSONException e) {
+        }
+        try {
+            url = jsonObject.getString("url");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         if (jsonObject.getString("url").contains("giphy")) {
-            messageNode.addImage("<body style=\"margin:0\"><img src=\"" + jsonObject.getString("url") + "\" style=\"width:200; height:200\"></body>");
+            messageNode.addImage("<body style=\"margin:0\"><img src=\"" + jsonObject.getString("url") + "\" style=\"width:200; height:200\"></body>", url);
             return;
         }
         try {
             JSONObject file = (JSONObject) jsonObject.getJSONObject("links").getJSONArray("file").get(0);
             String contentType = file.getString("type");
             if (contentType.startsWith("image")) {
-                loadImage(html, messageNode);
+                loadImage(html, messageNode, url);
             } else {
-                loadVideo(html, messageNode);
+                loadVideo(html, messageNode, url);
             }
         } catch (JSONException e) {
-            loadVideo(html, messageNode);
+            loadVideo(html, messageNode, url);
         }
     }
 
