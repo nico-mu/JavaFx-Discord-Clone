@@ -154,8 +154,8 @@ public class ChatMessage extends HBox {
         Platform.runLater(() -> {
             WebView webView = new WebView();
             webView.getEngine().loadContent(content, "text/html");
-            webView.setMaxHeight(200);
-            webView.setMaxWidth(200);
+            webView.setMaxHeight(240);
+            webView.setMaxWidth(500);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
             webView.setMouseTransparent(notIntractable);
             // disables scrollbars on images and videos:
