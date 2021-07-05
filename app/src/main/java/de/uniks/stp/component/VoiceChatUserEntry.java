@@ -17,6 +17,7 @@ public class VoiceChatUserEntry extends VBox {
 
     private static final Image initAudioInputImg = ViewLoader.loadImage("microphone.png");
     private static final Image otherAudioInputImg = ViewLoader.loadImage("microphone-mute.png");
+    private final User user;
     @FXML
     private Label userNameLabel;
     @FXML
@@ -36,25 +37,31 @@ public class VoiceChatUserEntry extends VBox {
             throw new RuntimeException(exception);
         }
         userMuteImgView = (ImageView) muteAudioButton.getGraphic();
-
+        this.user = user;
         setUserName(user.getName());
-
+        setMute(user.isMute());
         muteAudioButton.setOnMouseClicked(this::handleMuteAudioButtonClick);
     }
 
     private void handleMuteAudioButtonClick(MouseEvent mouseEvent) {
-        userMute = !userMute;
-        Image nextImg;
-        if (userMute) {
-            nextImg = otherAudioInputImg;
-        } else {
-            nextImg = initAudioInputImg;
-        }
-        userMuteImgView.setImage(nextImg);
-
+        final boolean isMute = user.isMute();
+        user.setMute(!isMute);
     }
 
     public void setUserName(final String userName) {
         userNameLabel.setText(userName);
+    }
+
+    public void setMute(final boolean userMute) {
+        if (this.userMute != userMute) {
+            this.userMute = userMute;
+            Image nextImg;
+            if (userMute) {
+                nextImg = otherAudioInputImg;
+            } else {
+                nextImg = initAudioInputImg;
+            }
+            userMuteImgView.setImage(nextImg);
+        }
     }
 }

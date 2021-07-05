@@ -19,8 +19,6 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 public class StageManager extends Application {
     private static final Logger log = LoggerFactory.getLogger(StageManager.class);
 
@@ -32,15 +30,7 @@ public class StageManager extends Application {
     private static LanguageService languageService;
     private static AudioService audioService;
 
-    public static void cleanup() {
-        if (Objects.nonNull(currentController)) {
-            currentController.stop();
-        }
-        currentController = null;
-    }
-
     public static void route(RouteInfo routeInfo) {
-        cleanup();
         Parent root;
         Scene scene;
         String subroute = routeInfo.getSubControllerRoute();

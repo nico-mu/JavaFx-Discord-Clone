@@ -1,11 +1,15 @@
 package de.uniks.stp.network;
 
+import de.uniks.stp.model.Channel;
+import de.uniks.stp.model.User;
+
 import java.util.Objects;
 
 public class NetworkClientInjector {
 
     private static RestClient restClient = null;
     private static WebSocketClient webSocketClient = null;
+    private static VoiceChatClient voiceChatClient = null;
 
     public static void setRestClient(RestClient newClient) {
         restClient = newClient;
@@ -28,5 +32,17 @@ public class NetworkClientInjector {
 
     public static void setWebSocketClient(WebSocketClient newWebSocketClient) {
         webSocketClient = newWebSocketClient;
+    }
+
+    public static VoiceChatClient getVoiceChatClient(User currentUser, Channel channel) {
+        if(Objects.isNull(voiceChatClient)) {
+            return new VoiceChatClient(currentUser, channel);
+        }
+        voiceChatClient.inject();
+        return voiceChatClient;
+    }
+
+    public static void setVoiceChatClient(VoiceChatClient newVoiceChatClient) {
+        voiceChatClient = newVoiceChatClient;
     }
 }

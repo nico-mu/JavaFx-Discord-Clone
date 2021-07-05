@@ -10,6 +10,9 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.NetworkClientInjector;
 import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.VoiceChatClient;
+import de.uniks.stp.router.RouteArgs;
+import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
@@ -23,19 +26,12 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.sound.sampled.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
 public class ServerVoiceChatController implements ControllerInterface {
@@ -51,9 +47,9 @@ public class ServerVoiceChatController implements ControllerInterface {
     private static final Image otherAudioOutputImg = ViewLoader.loadImage("volume-mute.png");
     private final HashMap<User, VoiceChatUserEntry> userVoiceChatUserHashMap = new HashMap<>();
     private final Channel model;
-    private final RestClient restClient;
+    private RestClient restClient;
     private final VBox view;
-    private final String currentUserName;
+    private final User currentUser;
     private VBox serverVoiceChatView;
     private FlowPane voiceChannelUserContainer;
     private final PropertyChangeListener audioMembersPropertyChangeListener = this::onAudioMembersPropertyChange;
@@ -62,22 +58,57 @@ public class ServerVoiceChatController implements ControllerInterface {
     private JFXButton audioOutputButton;
     private ImageView audioInputImgView;
     private ImageView audioOutputImgView;
-    private boolean stopping;
-    private ExecutorService executorService;
 
-    private Boolean audioInMute = false;
-    private TargetDataLine audioInDataLine;
+    private final PropertyChangeListener userMutePropertyChangeListener = this::onUserMutePropertyChange;
+    private final PropertyChangeListener audioOffPropertyChangeListener = this::onAudioOffPropertyChange;
+    private final PropertyChangeListener currentUserMutePropertyChangeListener = this::onCurrentUserMutePropertyChange;
 
-    private Boolean audioOutMute = false;
-    private SourceDataLine audioOutDataLine;
+    private VoiceChatClient voiceChatClient;
 
-    private DatagramSocket datagramSocket;
+    private void onCurrentUserMutePropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        boolean isMute = (boolean) propertyChangeEvent.getNewValue();
+        Image nextImg;
+        if (isMute) {
+            nextImg = otherAudioInputImg;
+        } else {
+            nextImg = initAudioInputImg;
+        }
+        // If ever called outside of the JFX-Thread the setImage must be wrapped in Platform.runLater()
+        audioInputImgView.setImage(nextImg);
+    }
+
+    private void onAudioOffPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final boolean isAudioOff = (boolean) propertyChangeEvent.getNewValue();
+        Image nextImg;
+        if (isAudioOff) {
+            nextImg = otherAudioOutputImg;
+        } else {
+            nextImg = initAudioOutputImg;
+        }
+        // If ever called outside of the JFX-Thread the setImage must be wrapped in Platform.runLater()
+        audioOutputImgView.setImage(nextImg);
+    }
+
+    private void onUserMutePropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final User user = (User) propertyChangeEvent.getSource();
+        if (!currentUser.equals(user) || !voiceChatClient.isAudioInUnavailable()) {
+            boolean isMute = (boolean) propertyChangeEvent.getNewValue();
+            final VoiceChatUserEntry voiceChatUserEntry = userVoiceChatUserHashMap.get(user);
+
+            if (isMute) {
+                voiceChatClient.withFilteredUsers(user);
+            } else {
+                voiceChatClient.withoutFilteredUsers(user);
+            }
+            voiceChatUserEntry.setMute(isMute);
+        }
+    }
 
     public ServerVoiceChatController(VBox view, Editor editor, Channel model) {
         this.view = view;
         this.model = model;
         restClient = NetworkClientInjector.getRestClient();
-        currentUserName = editor.getCurrentUserName();
+        currentUser = editor.getOrCreateAccord().getCurrentUser();
     }
 
     private void onAudioMembersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
@@ -114,230 +145,104 @@ public class ServerVoiceChatController implements ControllerInterface {
 
         model.getAudioMembers().forEach(this::userJoined);
         model.listeners().addPropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
+        currentUser.listeners().addPropertyChangeListener(User.PROPERTY_MUTE, currentUserMutePropertyChangeListener);
+        currentUser.listeners().addPropertyChangeListener(User.PROPERTY_AUDIO_OFF, audioOffPropertyChangeListener);
 
-        stopping = false;
         restClient.joinAudioChannel(this.model, this::joinAudioChannelCallback);
     }
 
     private void userLeft(User user) {
         if (Objects.nonNull(user)) {
-            Platform.runLater(() -> {
-                final VoiceChatUserEntry voiceChatUserEntry = userVoiceChatUserHashMap.remove(user);
-                voiceChannelUserContainer.getChildren().remove(voiceChatUserEntry);
-            });
+            final VoiceChatUserEntry voiceChatUserEntry = userVoiceChatUserHashMap.remove(user);
+            removeMutePropertyChangeListener(user);
+            Platform.runLater(() -> voiceChannelUserContainer.getChildren().remove(voiceChatUserEntry));
         }
     }
 
     private void userJoined(User user) {
         if (Objects.nonNull(user)) {
-            Platform.runLater(() -> {
-                final VoiceChatUserEntry voiceChatUserEntry = new VoiceChatUserEntry(user);
-                voiceChannelUserContainer.getChildren().add(voiceChatUserEntry);
-                userVoiceChatUserHashMap.put(user, voiceChatUserEntry);
-            });
+            user.listeners().addPropertyChangeListener(User.PROPERTY_MUTE, userMutePropertyChangeListener);
+            final VoiceChatUserEntry voiceChatUserEntry = new VoiceChatUserEntry(user);
+            userVoiceChatUserHashMap.put(user, voiceChatUserEntry);
+            Platform.runLater(() -> voiceChannelUserContainer.getChildren().add(voiceChatUserEntry));
         }
     }
 
     private void onAudioOutputButtonClick(MouseEvent mouseEvent) {
         log.debug("AudioOutput Button clicked");
-        audioOutMute = !audioOutMute;
-        Image nextImg;
-        if (audioOutMute) {
-            nextImg = otherAudioOutputImg;
-        } else {
-            nextImg = initAudioOutputImg;
+        if (!voiceChatClient.isAudioOutUnavailable()) {
+            final boolean audioOutMute = currentUser.isAudioOff();
+            currentUser.setAudioOff(!audioOutMute);
         }
-        audioOutputImgView.setImage(nextImg);
     }
 
     private void onHangUpButtonClick(MouseEvent mouseEvent) {
         log.debug("HangUp Button clicked");
-        // TODO implement
+        final String serverId = Router.getCurrentArgs().get(":id");
+        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", serverId));
     }
 
     private void onAudioInputButtonClick(MouseEvent mouseEvent) {
         log.debug("AudioInput Button clicked");
-        audioInMute = !audioInMute;
-        Image nextImg;
-        if (audioInMute) {
-            nextImg = otherAudioInputImg;
-        } else {
-            nextImg = initAudioInputImg;
+        if (!voiceChatClient.isAudioInUnavailable()) {
+            final boolean audioInMute = currentUser.isMute();
+            currentUser.setMute(!audioInMute);
         }
-        audioInputImgView.setImage(nextImg);
     }
 
     private void joinAudioChannelCallback(HttpResponse<JsonNode> response) {
         if (response.isSuccess()) {
             // Join UDP-Voicestream
-            initAudio();
-
-            executorService = Executors.newCachedThreadPool();
-            executorService.execute(this::receiveAndPlayAudio);
-            executorService.execute(this::recordAndSendAudio);
-        } else {
-            log.error("Joining the AudioChannel failed");
-        }
-    }
-
-    private void receiveAndPlayAudio() {
-        if (Objects.isNull(audioOutDataLine)) {
-            log.error("Audio playback not started. The dataLine is not set up properly.");
-            return;
-        }
-
-        while (!stopping) {
-            if (audioOutMute) {
-                try {
-                    Thread.sleep(250);
-                } catch (InterruptedException e) {
-                    log.error("Thread interrupted while sleeping", e);
-                }
-                continue;
+            if (Objects.isNull(voiceChatClient)) {
+                voiceChatClient = new VoiceChatClient(currentUser, model);
             }
-            byte[] audioBuf = new byte[Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE + Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE];
-            final DatagramPacket audioOutDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length);
-            final byte[] metadataBuf = new byte[Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE];
             try {
-                datagramSocket.receive(audioOutDatagramPacket);
-
-                System.arraycopy(audioBuf, 0, metadataBuf, 0, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE);
-                final String metadataString = new String(metadataBuf);
-                final JsonObject metadataJson = Json.createReader(new StringReader(metadataString)).readObject();
-                final String username = metadataJson.getString("name");
-                if (Objects.nonNull(username) && !username.equals(currentUserName)) {
-                    audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
-                }
-            } catch (IOException e) {
-                log.error("Failed to receive an audio packet.", e);
-            }
-        }
-    }
-
-    private void recordAndSendAudio() {
-        if (Objects.isNull(audioInDataLine)) {
-            log.error("Audio recording not startet. The dataLine is not set up properly.");
-            return;
-        }
-
-        final JsonObject metadataObject = Json.createObjectBuilder()
-            .add("channel", model.getId())
-            .add("name", currentUserName)
-            .build();
-        byte[] metadataBytes = metadataObject.toString().getBytes(StandardCharsets.UTF_8);
-        if (metadataBytes.length > Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE) {
-            log.error("There are more bytes required for metadata than the package allows. Cancelling..");
-            return;
-        }
-        byte[] audioBuf = new byte[Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE + Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE];
-        System.arraycopy(metadataBytes, 0, audioBuf, 0, metadataBytes.length);
-
-        while (!stopping) {
-            if (audioInMute) {
-                try {
-                    Thread.sleep(250);
-                } catch (InterruptedException e) {
-                    log.error("Thread interrupted while sleeping", e);
-                }
-                continue;
-            }
-            audioInDataLine.read(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
-            final DatagramPacket audioInDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length);
-            try {
-                datagramSocket.send(audioInDatagramPacket);
-            } catch (IOException e) {
-                log.error("Failed to send an audio packet.", e);
-            }
-        }
-    }
-
-    private void initAudio() {
-        final AudioFormat audioFormat = new AudioFormat(
-            Constants.AUDIOSTREAM_SAMPLE_RATE,
-            Constants.AUDIOSTREAM_SAMPLE_SIZE_BITS,
-            Constants.AUDIOSTREAM_CHANNEL,
-            Constants.AUDIOSTREAM_SIGNED,
-            Constants.AUDIOSTREAM_BIG_ENDIAN
-        );
-        final DataLine.Info infoIn = new DataLine.Info(TargetDataLine.class, audioFormat);
-        if (AudioSystem.isLineSupported(infoIn)) {
-            try {
-                audioInDataLine = (TargetDataLine) AudioSystem.getLine(infoIn);
-                audioInDataLine.open(audioFormat);
-                audioInDataLine.start();
-            } catch (LineUnavailableException e) {
-                log.error("Audio input is currently unavailable on this system.");
+                voiceChatClient.init();
+            } catch (UnknownHostException | SocketException e) {
+                log.error("Connecting to the DatagramSocket failed.", e);
             }
         } else {
-            log.error("Audio input is not supported on this system.");
-        }
-        final DataLine.Info infoOut = new DataLine.Info(SourceDataLine.class, audioFormat);
-        if (AudioSystem.isLineSupported(infoOut)) {
-            try {
-                audioOutDataLine = (SourceDataLine) AudioSystem.getLine(infoOut);
-                audioOutDataLine.open(audioFormat);
-                audioOutDataLine.start();
-            } catch (LineUnavailableException e) {
-                log.error("Audio output is currently unavailable on this system.");
-            }
-        } else {
-            log.error("Audio output is not supported on this system.");
-        }
+            final String status = response.getBody().getObject().getString("status");
+            final String message = response.getBody().getObject().getString("message");
 
-        InetAddress address;
-        try {
-            address = InetAddress.getByName(Constants.AUDIOSTREAM_BASE_URL);
-        } catch (UnknownHostException e) {
-            log.error("The host address on {} could not be resolved and is unknown.", Constants.AUDIOSTREAM_BASE_URL, e);
-            return;
-        }
-        try {
-            datagramSocket = new DatagramSocket();
-            datagramSocket.connect(address, Constants.AUDIOSTREAM_PORT);
-        } catch (SocketException e) {
-            log.error("Failed to set up DatagramSocket", e);
+            log.error("Joining the AudioChannel failed.\n{}: {}", status, message);
         }
     }
 
     private void leaveAudioChannelCallback(HttpResponse<JsonNode> response) {
         if (!response.isSuccess()) {
-            log.error("Leaving the AudioChannel failed. Cleaning up continues anyways.");
-        }
+            final String status = response.getBody().getObject().getString("status");
+            final String message = response.getBody().getObject().getString("message");
 
-        if (Objects.nonNull(executorService)) {
-            executorService.shutdown();
-            executorService = null;
-        }
-
-        if (Objects.nonNull(audioInDataLine)) {
-            audioInDataLine.close();
-            audioInDataLine.drain();
-            audioInDataLine.stop();
-            audioInDataLine = null;
-        }
-        if (Objects.nonNull(audioOutDataLine)) {
-            audioOutDataLine.close();
-            audioOutDataLine.drain();
-            audioOutDataLine.stop();
-            audioOutDataLine = null;
-        }
-
-        if (Objects.nonNull(datagramSocket)) {
-            datagramSocket.disconnect();
-            datagramSocket.close();
-            datagramSocket = null;
+            log.error("Leaving the AudioChannel failed. Cleaning up continues anyways.\n{}: {}", status, message);
         }
     }
 
     @Override
     public void stop() {
-        stopping = true;
+        log.debug("stop() called");
 
-        restClient.leaveAudioChannel(this.model, this::leaveAudioChannelCallback);
+        if (Objects.nonNull(voiceChatClient)) {
+            voiceChatClient.stop();
+            voiceChatClient = null;
+        }
+
+        if(Objects.nonNull(restClient)) {
+            restClient.leaveAudioChannel(this.model, this::leaveAudioChannelCallback);
+            restClient = null;
+        }
         model.listeners().removePropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
+        model.getAudioMembers().forEach(this::removeMutePropertyChangeListener);
+        currentUser.listeners().removePropertyChangeListener(User.PROPERTY_AUDIO_OFF, audioOffPropertyChangeListener);
+        currentUser.listeners().removePropertyChangeListener(User.PROPERTY_MUTE, currentUserMutePropertyChangeListener);
 
+        userVoiceChatUserHashMap.clear();
         audioInputButton.setOnMouseClicked(null);
         hangUpButton.setOnMouseClicked(null);
         audioOutputButton.setOnMouseClicked(null);
+    }
+
+    private void removeMutePropertyChangeListener(User user) {
+        user.listeners().removePropertyChangeListener(User.PROPERTY_MUTE, userMutePropertyChangeListener);
     }
 }
