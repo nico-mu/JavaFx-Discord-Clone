@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.stream.JsonParsingException;
 import javax.sound.sampled.*;
 import java.io.IOException;
 import java.io.StringReader;
@@ -143,6 +144,7 @@ public class VoiceChatClient {
                 }
             } catch (IOException e) {
                 log.error("Failed to receive an audio packet.", e);
+            } catch (JsonParsingException ignored) {
             }
         }
     }
