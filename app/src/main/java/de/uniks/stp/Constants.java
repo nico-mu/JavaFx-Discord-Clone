@@ -121,4 +121,14 @@ public class Constants {
 
     //Languages
     public static final String LANG_LABEL_PREFIX = "LBL_LANG_";
+
+    // Window resolution
+    public static final double RES_MAIN_SCREEN_HEIGHT = 750.0d;
+    public static final double RES_MAIN_SCREEN_WIDTH = 1300.0d;
+    public static final double RES_MIN_MAIN_SCREEN_HEIGHT = 700.0d;
+    public static final double RES_MIN_MAIN_SCREEN_WIDTH = 1000.0d;
+    public static final double RES_LOGIN_SCREEN_HEIGHT = 355.0d;
+    public static final double RES_LOGIN_SCREEN_WIDTH = 400.0d;
+    public static final double RES_MIN_LOGIN_SCREEN_HEIGHT = 355.0d;
+    public static final double RES_MIN_LOGIN_SCREEN_WIDTH = 400.0d;
 }

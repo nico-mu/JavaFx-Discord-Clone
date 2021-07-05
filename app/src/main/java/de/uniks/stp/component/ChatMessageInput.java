@@ -21,6 +21,9 @@ import java.util.function.Consumer;
 public class ChatMessageInput extends HBox {
 
     @FXML
+    private HBox root;
+
+    @FXML
     private JFXButton chatViewSubmitButton;
 
     @FXML
@@ -47,6 +50,16 @@ public class ChatMessageInput extends HBox {
         emoteTextArea.setOnKeyPressed(this::checkForEnter);
 
         VirtualizedScrollPane<EmoteTextArea> scroll = new VirtualizedScrollPane<>(emoteTextArea);
+        chatViewMessageInput.setPrefHeight(emoteTextArea.getViewportHeight());
+        emoteTextArea.textProperty().addListener(((observable, oldValue, newValue) -> {
+            int lines = 0;
+            for (int i = 0; i < emoteTextArea.getParagraphs().size(); i++) {
+                lines += emoteTextArea.getParagraphLinesCount(i);
+            }
+            chatViewMessageInput.setMaxHeight(lines * 15 + 25);
+            chatViewMessageInput.setPrefHeight(lines * 15 + 25);
+            root.setPrefHeight(lines * 15 + 25);
+        }));
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
 

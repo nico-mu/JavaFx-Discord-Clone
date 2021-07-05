@@ -2,6 +2,7 @@ package de.uniks.stp.controller;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
+import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.SettingsModal;
 import de.uniks.stp.network.NetworkClientInjector;
@@ -18,6 +19,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -70,9 +72,14 @@ public class UserInfoController implements ControllerInterface {
         if (!response.isSuccess()) {
             log.error("logout failed");
         }
-
+        Stage stage = StageManager.getStage();
         Platform.runLater(() ->  {
             Router.route(Constants.ROUTE_LOGIN);
+            stage.setMinWidth(Constants.RES_MIN_LOGIN_SCREEN_WIDTH);
+            stage.setMinHeight(Constants.RES_MIN_LOGIN_SCREEN_HEIGHT);
+            stage.setWidth(Constants.RES_LOGIN_SCREEN_WIDTH);
+            stage.setHeight(Constants.RES_LOGIN_SCREEN_HEIGHT);
+            stage.centerOnScreen();
             this.editor.prepareLogout();  //delete user related information
         });
     }

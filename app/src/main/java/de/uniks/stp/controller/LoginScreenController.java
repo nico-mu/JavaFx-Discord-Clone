@@ -17,6 +17,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
@@ -267,7 +268,14 @@ public class LoginScreenController implements ControllerInterface {
                 DatabaseService.saveAccordSetting(AccordSettingKey.LAST_USER_LOGIN, null);
             }
 
-            Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
+            Stage stage = StageManager.getStage();
+            Platform.runLater(()-> {
+                stage.setMinWidth(Constants.RES_MIN_MAIN_SCREEN_WIDTH);
+                stage.setMinHeight(Constants.RES_MIN_MAIN_SCREEN_HEIGHT);
+                stage.setWidth(Constants.RES_MAIN_SCREEN_WIDTH);
+                stage.setHeight(Constants.RES_MAIN_SCREEN_HEIGHT);
+                Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
+            });
             return;
         }
         // Login failed

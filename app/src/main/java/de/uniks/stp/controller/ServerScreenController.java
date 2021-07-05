@@ -24,8 +24,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +49,8 @@ public class ServerScreenController implements ControllerInterface {
     private static final String CHANNEL_NAME_LABEL = "#channel-name-label";
     private final Editor editor;
     private final Server model;
-    private final AnchorPane view;
-    private FlowPane serverScreenView;
+    private final VBox view;
+    private HBox serverScreenView;
     private Channel selectedChannel;
     private TextWithEmoteSupport serverName;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
@@ -66,14 +66,14 @@ public class ServerScreenController implements ControllerInterface {
     private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
 
     public ServerScreenController(Parent view, Editor editor, Server model) {
-        this.view = (AnchorPane) view;
+        this.view = (VBox) view;
         this.editor = editor;
         this.model = model;
     }
 
     @Override
     public void init() {
-        serverScreenView = (FlowPane) ViewLoader.loadView(SERVER_SCREEN);
+        serverScreenView = (HBox) ViewLoader.loadView(SERVER_SCREEN);
         serverChannelOverview = (VBox) serverScreenView.lookup(SERVER_CHANNEL_OVERVIEW);
         serverChannelContainer = (VBox) serverScreenView.lookup(SERVER_CHANNEL_CONTAINER);
         serverUserListContainer = (FlowPane) serverScreenView.lookup(SERVER_USER_LIST_CONTAINER);
@@ -91,6 +91,11 @@ public class ServerScreenController implements ControllerInterface {
         items.get(0).setOnAction(this::onInviteUserClicked);
         items.get(1).setOnAction(this::onEditServerClicked);
         items.get(2).setOnAction(this::onCreateCategoryClicked);
+
+        serverScreenView.setPrefHeight(view.getHeight());
+        view.heightProperty().addListener(((observable, oldValue, newValue) -> {
+            serverScreenView.setPrefHeight((double) newValue);
+        }));
 
         settingsGearLabel.setOnMouseClicked(e -> settingsContextMenu.show(settingsGearLabel, Side.BOTTOM, 0, 0));
 

@@ -13,7 +13,7 @@ import de.uniks.stp.view.Views;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class HomeScreenController implements ControllerInterface {
     private static final String TOGGLE_ONLINE_BUTTON_ID = "#toggle-online-button";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
 
-    private final AnchorPane view;
+    private final VBox view;
     private final Editor editor;
     private VBox onlineUsersContainer;
     private VBox directMessagesContainer;
@@ -39,13 +39,13 @@ public class HomeScreenController implements ControllerInterface {
     private PrivateChatController privateChatController;
 
     HomeScreenController(Parent view, Editor editor) {
-        this.view = (AnchorPane) view;
+        this.view = (VBox) view;
         this.editor = editor;
     }
 
     @Override
     public void init() {
-        AnchorPane homeScreenView = (AnchorPane) ViewLoader.loadView(Views.HOME_SCREEN);
+        HBox homeScreenView = (HBox) ViewLoader.loadView(Views.HOME_SCREEN);
         view.getChildren().add(homeScreenView);
 
         showOnlineUsersButton = (JFXButton) homeScreenView.lookup(TOGGLE_ONLINE_BUTTON_ID);
@@ -56,6 +56,10 @@ public class HomeScreenController implements ControllerInterface {
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
         directMessageListController = new DirectMessageListController(directMessagesContainer, editor);
         directMessageListController.init();
+        homeScreenView.setPrefHeight(view.getHeight());
+        view.heightProperty().addListener(((observable, oldValue, newValue) -> {
+            homeScreenView.setPrefHeight((double) newValue);
+        }));
     }
 
     @Override
