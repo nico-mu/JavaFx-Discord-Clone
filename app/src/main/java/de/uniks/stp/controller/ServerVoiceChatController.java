@@ -20,6 +20,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
@@ -125,6 +126,7 @@ public class ServerVoiceChatController implements ControllerInterface {
     @Override
     public void init() {
         serverVoiceChatView = (VBox) ViewLoader.loadView(Views.SERVER_VOICE_CHAT_SCREEN);
+        VBox.setVgrow(serverVoiceChatView, Priority.ALWAYS);
         view.getChildren().add(serverVoiceChatView);
 
         final ScrollPane voiceChannelUserScrollContainer = (ScrollPane) serverVoiceChatView.lookup(VOICE_CHANNEL_USER_SCROLL_CONTAINER_ID);
