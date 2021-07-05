@@ -270,10 +270,10 @@ public class LoginScreenController implements ControllerInterface {
 
             Stage stage = StageManager.getStage();
             Platform.runLater(()-> {
-                stage.setMinWidth(1000);
-                stage.setMinHeight(700);
-                stage.setWidth(1300);
-                stage.setHeight(750);
+                stage.setMinWidth(Constants.RES_MIN_MAIN_SCREEN_WIDTH);
+                stage.setMinHeight(Constants.RES_MIN_MAIN_SCREEN_HEIGHT);
+                stage.setWidth(Constants.RES_MAIN_SCREEN_WIDTH);
+                stage.setHeight(Constants.RES_MAIN_SCREEN_HEIGHT);
                 Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
             });
             return;

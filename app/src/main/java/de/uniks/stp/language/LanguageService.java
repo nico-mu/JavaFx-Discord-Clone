@@ -1,5 +1,6 @@
 package de.uniks.stp.language;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
@@ -50,8 +51,8 @@ public class LanguageService {
         Platform.runLater(() -> {
             stage.setWidth(width + 0.1);
             if(stage.isMaximized()) {
-                stage.setWidth(1300);
-                stage.setHeight(750);
+                stage.setWidth(Constants.RES_MAIN_SCREEN_WIDTH);
+                stage.setHeight(Constants.RES_MAIN_SCREEN_HEIGHT);
                 stage.centerOnScreen();
             }
         });

@@ -75,10 +75,10 @@ public class UserInfoController implements ControllerInterface {
         Stage stage = StageManager.getStage();
         Platform.runLater(() ->  {
             Router.route(Constants.ROUTE_LOGIN);
-            stage.setMinWidth(400);
-            stage.setMinHeight(355);
-            stage.setWidth(400);
-            stage.setHeight(355);
+            stage.setMinWidth(Constants.RES_MIN_LOGIN_SCREEN_WIDTH);
+            stage.setMinHeight(Constants.RES_MIN_LOGIN_SCREEN_HEIGHT);
+            stage.setWidth(Constants.RES_LOGIN_SCREEN_WIDTH);
+            stage.setHeight(Constants.RES_LOGIN_SCREEN_HEIGHT);
             stage.centerOnScreen();
             this.editor.prepareLogout();  //delete user related information
         });
