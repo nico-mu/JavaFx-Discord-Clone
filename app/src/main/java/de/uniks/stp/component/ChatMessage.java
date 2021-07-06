@@ -117,19 +117,6 @@ public class ChatMessage extends HBox {
         new DeleteMessageModal((ServerMessage) model);
     }
 
-    /*
-    public void addVideo(String url, String type) {
-        Platform.runLater(() -> {
-            WebView webView = new WebView();
-            webView.getEngine().loadContent("<body style=\"margin:0;\"><div style=\"margin:0; width:250; overflow:hidden;\"><video style=\"width:100%; height:auto; object-fit: contain\" controls <source src=\"" + url + "\" type=\"" + type + "\"</source></video></div></body>", "text/html");
-            webView.setMaxHeight(200);
-            webView.setMaxWidth(500);
-            Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
-            textVBox.getChildren().add(webView);
-        });
-    }
-    */
-
     public void addSpinner() {
         Platform.runLater(() -> {
             VBox vBox = new VBox();
@@ -164,7 +151,7 @@ public class ChatMessage extends HBox {
                     "        <source src=\"" + url + "\" type=\"video/mp4\">\n" +
                     "    </video>\n" +
                     "</body>";
-                webView.getEngine().loadContent(content, "text/html");
+                webView.getEngine().loadContent(media, "text/html");
             }else {
                 webView.getEngine().loadContent(content, "text/html");
             }

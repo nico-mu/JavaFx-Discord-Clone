@@ -45,7 +45,7 @@ public class MediaRequestClient {
         String url = "";
         try {
             html = jsonObject.getString("html");
-        } catch (JSONException e) {
+        } catch (JSONException ignored) {
         }
         try {
             url = jsonObject.getString("url");
