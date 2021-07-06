@@ -29,13 +29,13 @@ public class WebSocketService {
     private final Editor editor;
     private final NotificationService notificationService;
     private final SessionDatabaseService databaseService;
-    private final WebSocketClient.WebSocketClientFactory webSocketClientFactory;
+    private final WebSocketClientFactory webSocketClientFactory;
 
 
     @Inject
     public WebSocketService(Editor editor,
                             NotificationService notificationService,
-                            WebSocketClient.WebSocketClientFactory webSocketClientFactory,
+                            WebSocketClientFactory webSocketClientFactory,
                             SessionDatabaseService databaseService) {
         this.editor = editor;
         currentUser = editor.getOrCreateAccord().getCurrentUser();

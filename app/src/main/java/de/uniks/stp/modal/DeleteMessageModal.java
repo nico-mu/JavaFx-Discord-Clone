@@ -25,12 +25,10 @@ public class DeleteMessageModal {
     private final ServerMessage message;
     private final SessionRestClient restClient;
 
-    @Inject
-    ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
-
     @AssistedInject
     public DeleteMessageModal(ViewLoader viewLoader,
                               SessionRestClient restClient,
+                              ConfirmationModal.ConfirmationModalFactory confirmationModalFactory,
                               @Assisted ServerMessage message) {
 
         this.message = message;

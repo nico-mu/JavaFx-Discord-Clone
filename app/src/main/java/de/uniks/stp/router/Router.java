@@ -125,7 +125,7 @@ public class Router {
         }
 
         if (controllerCache.containsKey(route)) {
-            if (!currentArgs.compareTo(args)) {
+            if (route.equals(currentRoute) && !currentArgs.compareTo(args)) {
                 ControllerInterface oldController = controllerCache.remove(route);
                 oldController.stop();
             } else {
@@ -162,7 +162,7 @@ public class Router {
             }
 
             if(Objects.isNull(newController)) {
-                throw new RuntimeException("Route " + nextRoute.getCurrentControllerRoute() + " does not exist");
+                throw new RuntimeException("Route " + nextRoute.getFullRoute() + " does not exist");
             }
             else {
                 addToControllerCache(nextRoute.getFullRoute(), newController);

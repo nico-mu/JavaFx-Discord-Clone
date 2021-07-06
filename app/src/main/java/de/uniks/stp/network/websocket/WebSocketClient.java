@@ -1,8 +1,5 @@
 package de.uniks.stp.network.websocket;
 
-import dagger.assisted.Assisted;
-import dagger.assisted.AssistedFactory;
-import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.util.JsonUtil;
 import org.slf4j.Logger;
@@ -29,11 +26,7 @@ public class WebSocketClient extends Endpoint {
      * @param endpoint URI with connection adress
      * @param callback method to call when message is received
      */
-    @AssistedInject
-    public WebSocketClient(
-        @Named("userKey") String userKey,
-        @Assisted String endpoint,
-        @Assisted WSCallback callback) {
+    public WebSocketClient(@Named("userKey") String userKey, String endpoint, WSCallback callback) {
         this.noopTimer = new Timer();
 
         try {
@@ -140,10 +133,5 @@ public class WebSocketClient extends Endpoint {
             }
             this.session = null;
         }
-    }
-
-    @AssistedFactory
-    public interface WebSocketClientFactory {
-        WebSocketClient create(String endpoint, WSCallback callback);
     }
 }

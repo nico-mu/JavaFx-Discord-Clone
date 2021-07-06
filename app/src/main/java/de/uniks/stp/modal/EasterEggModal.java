@@ -17,6 +17,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
+import javax.inject.Named;
+
 public class EasterEggModal extends AbstractModal {
     public final String ROCK = "rock";
     public final String PAPER = "paper";
@@ -45,7 +47,7 @@ public class EasterEggModal extends AbstractModal {
     @AssistedInject
     public EasterEggModal(ViewLoader viewLoader,
                           WebSocketService webSocketService,
-                          Stage primaryStage,
+                          @Named("primaryStage") Stage primaryStage,
                           @Assisted Parent root,
                           @Assisted User opponentUser,
                           @Assisted EventHandler<ActionEvent> closeHandler) {

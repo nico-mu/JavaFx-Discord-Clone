@@ -1,15 +1,16 @@
 package de.uniks.stp.controller;
 
 import com.jfoenix.controls.JFXButton;
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
+import de.uniks.stp.ViewLoader;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.rest.AppRestClient;
-import de.uniks.stp.network.websocket.WebSocketClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
@@ -37,34 +38,46 @@ import java.util.Date;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(ApplicationExtension.class)
 public class InviteMessageTest {
-    @Mock
-    private AppRestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
 
     @Mock
     private HttpResponse<JsonNode> res;
 
     @Captor
     private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
-    private StageManager app;
+
+    private AccordApp app;
+    private Router router;
+    private Editor editor;
+    private SessionRestClient restMock;
+    private User currentUser;
 
     @Start
     public void start(Stage stage) {
         // start application
         MockitoAnnotations.initMocks(this);
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        editor = appTestComponent.getEditor();
+        currentUser = editor.createCurrentUser("Platti", true);
+        editor.setCurrentUser(currentUser);
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+        app.setSessionComponent(sessionTestComponent);
+
+        restMock = sessionTestComponent.getSessionRestClient();
     }
 
     /**
@@ -75,12 +88,7 @@ public class InviteMessageTest {
     @Test
     public void testPressJoinServerButton(FxRobot robot) {
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-
-        User currentUser = new User().setName("Platti");
-        editor.getOrCreateAccord().setCurrentUser(currentUser).setUserKey("123-45");
-
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
         WaitForAsyncUtils.waitForFxEvents();
 
         // show private Chat
@@ -98,7 +106,7 @@ public class InviteMessageTest {
         callback.completed(res);
 
         RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, otherUserId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         // show invite message
@@ -129,12 +137,7 @@ public class InviteMessageTest {
     @Test
     public void testJoinButtonNotShown(FxRobot robot) {
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-
-        User currentUser = new User().setName("Platti");
-        editor.getOrCreateAccord().setCurrentUser(currentUser).setUserKey("123-45");
-
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
         WaitForAsyncUtils.waitForFxEvents();
 
         // add server to model before invite message is shown
@@ -159,7 +162,7 @@ public class InviteMessageTest {
         callback.completed(res);
 
         RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, otherUserId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         // show invite message
@@ -186,7 +189,9 @@ public class InviteMessageTest {
     @AfterEach
     void tear(){
         restMock = null;
-        webSocketMock = null;
+        router = null;
+        editor = null;
+        currentUser = null;
         res = null;
         callbackCaptor = null;
         Platform.runLater(app::stop);

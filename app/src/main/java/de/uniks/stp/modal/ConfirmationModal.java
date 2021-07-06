@@ -13,6 +13,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import javax.inject.Named;
+
 public class ConfirmationModal extends AbstractModal {
     public static final String TITLE_LABEL = "#title-label";
     public static final String CONFIRM_LABEL = "#confirm-label";
@@ -33,7 +35,7 @@ public class ConfirmationModal extends AbstractModal {
 
     @AssistedInject
     public ConfirmationModal(ViewLoader viewLoader,
-                             Stage primaryStage,
+                             @Named("primaryStage") Stage primaryStage,
                              @Assisted Parent root,
                              @Assisted("titleLBL") String titleLBL,
                              @Assisted("confirmLBL") String confirmLBL,

@@ -1,13 +1,15 @@
 package de.uniks.stp.serversettings;
 
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.rest.AppRestClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.websocket.WSCallback;
-import de.uniks.stp.network.websocket.WebSocketClient;
+import de.uniks.stp.network.websocket.WebSocketClientFactory;
 import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
@@ -47,12 +49,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(ApplicationExtension.class)
 public class CreateInvitationTest {
     @Mock
-    private AppRestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
-
-    @Mock
     private HttpResponse<JsonNode> res;
 
     @Captor
@@ -65,27 +61,44 @@ public class CreateInvitationTest {
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
     private HashMap<String, WSCallback> endpointCallbackHashmap;
-    private StageManager app;
+    private AccordApp app;
+    private Router router;
+    private Editor editor;
+    private WebSocketClientFactory webSocketClientFactoryMock;
+    private WebSocketService webSocketService;
+    private SessionRestClient restMock;
 
     @Start
     public void start(Stage stage) {
+        endpointCallbackHashmap = new HashMap<>();
         // start application
         MockitoAnnotations.initMocks(this);
-        endpointCallbackHashmap = new HashMap<>();
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        editor = appTestComponent.getEditor();
+        User currentUser = editor.createCurrentUser("Test", true).setId("123-45");
+        editor.setCurrentUser(currentUser);
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+        app.setSessionComponent(sessionTestComponent);
+
+        webSocketClientFactoryMock = sessionTestComponent.getWebSocketClientFactory();
+        webSocketService = sessionTestComponent.getWebsocketService();
+        restMock = sessionTestComponent.getSessionRestClient();
+        webSocketService.init();
     }
 
     @Test
     public void createInvitationFailed(FxRobot robot) {
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
         String serverName = "TestServer";
         String serverId = "12345678";
         Server testServer = new Server().setName(serverName).setId(serverId);
@@ -94,7 +107,7 @@ public class CreateInvitationTest {
             .withAvailableServers(testServer);
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         // assert correct start situation
@@ -138,10 +151,6 @@ public class CreateInvitationTest {
     @Test
     public void createInvitation(FxRobot robot) {
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
         String serverName = "TestServer";
         String serverId = "12345678";
         Server testServer = new Server().setName(serverName).setId(serverId);
@@ -150,7 +159,7 @@ public class CreateInvitationTest {
             .withAvailableServers(testServer);
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         // assert correct start situation
@@ -263,9 +272,10 @@ public class CreateInvitationTest {
 
         Assertions.assertEquals(3, testServer.getInvitations().size());
 
-        WebSocketService.addServerWebSocket(serverId);
+        webSocketService.addServerWebSocket(serverId);
 
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -296,7 +306,10 @@ public class CreateInvitationTest {
     @AfterEach
     void tear(){
         restMock = null;
-        webSocketMock = null;
+        webSocketClientFactoryMock = null;
+        editor = null;
+        webSocketService = null;
+        router = null;
         res = null;
         callbackCaptor = null;
         stringArgumentCaptor = null;

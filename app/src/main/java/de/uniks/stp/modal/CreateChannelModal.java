@@ -25,6 +25,7 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import java.util.Objects;
 
 public class CreateChannelModal extends AbstractModal {
@@ -55,7 +56,7 @@ public class CreateChannelModal extends AbstractModal {
     @AssistedInject
     public CreateChannelModal(SessionRestClient restClient,
                               ViewLoader viewLoader,
-                              Stage primaryStage,
+                              @Named("primaryStage") Stage primaryStage,
                               UserCheckList userCheckList,
                               UserCheckListEntry.UserCheckListEntryFactory userCheckListEntryFactory,
                               @Assisted Parent root,

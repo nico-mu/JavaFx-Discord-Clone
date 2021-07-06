@@ -1,14 +1,12 @@
 package de.uniks.stp.controller;
 
 import com.jfoenix.controls.JFXTextField;
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.network.rest.AppRestClient;
-import de.uniks.stp.network.websocket.WebSocketClient;
 import de.uniks.stp.router.Router;
-import de.uniks.stp.network.NetworkClientInjector;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
@@ -25,7 +23,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
@@ -38,36 +35,34 @@ import static org.mockito.Mockito.when;
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(ApplicationExtension.class)
 public class RegisterTest {
-    @Mock
-    private AppRestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
 
     @Mock
     private HttpResponse<JsonNode> res;
 
     @Captor
     private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
-    private StageManager app;
+    private AccordApp app;
+    private ViewLoader viewLoader;
+    private Router router;
+    private AppRestClient restMock;
 
     @Start
     public void start(Stage stage) {
         // start application
         MockitoAnnotations.initMocks(this);
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
-        DatabaseService.clearAllConversations();
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        viewLoader = appTestComponent.getViewLoader();
+        restMock = appTestComponent.getAppRestClient();
     }
 
     private void clearNameField(FxRobot robot) {
         JFXTextField nameField = robot.lookup("#name-field").query();
-        Platform.runLater(() -> {
-            nameField.clear();
-        });
+        Platform.runLater(nameField::clear);
         WaitForAsyncUtils.waitForFxEvents();
     }
 
@@ -80,7 +75,7 @@ public class RegisterTest {
         robot.clickOn("#register-button");
 
         Label errorLabel = robot.lookup("#error-message").query();
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_MISSING_FIELDS), errorLabel.getText());
+        Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_MISSING_FIELDS), errorLabel.getText());
     }
 
     @Test
@@ -94,27 +89,35 @@ public class RegisterTest {
         robot.clickOn("#register-button");
 
         // register
-        JSONObject j = new JSONObject().put("status", "success").put("message", "User created");
+        JSONObject j = new JSONObject()
+            .put("status", "success")
+            .put("message", "User created");
+
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
-        verify(restMock).register(eq("Guave"), eq("evauG"), callbackCaptor.capture());
+        verify(restMock)
+            .register(eq("Guave"), eq("evauG"), callbackCaptor.capture());
 
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
 
         // login
-        j = new JSONObject().put("status", "success").put("message", "").put("data", new JSONObject().put("userKey", "123-45"));
+        j = new JSONObject()
+            .put("status", "success")
+            .put("message", "")
+            .put("data", new JSONObject()
+                .put("userKey", "123-45")
+            );
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
 
         verify(restMock).login(eq("Guave"), eq("evauG"), callbackCaptor.capture());
         callback = callbackCaptor.getValue();
         callback.completed(res);
-
         WaitForAsyncUtils.waitForFxEvents();
 
         robot.clickOn("#home-button");
-        Assertions.assertEquals(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, Router.getCurrentRoute());
+        Assertions.assertEquals(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, router.getCurrentRoute());
     }
 
     @Test
@@ -135,18 +138,16 @@ public class RegisterTest {
 
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
-        Label errorLabel = robot.lookup("#error-message").query();
-
         WaitForAsyncUtils.waitForFxEvents();
 
-        Assertions.assertEquals(Constants.ROUTE_LOGIN, Router.getCurrentRoute());
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_REGISTRATION_NAME_TAKEN), errorLabel.getText());
+        Label errorLabel = robot.lookup("#error-message").query();
+        Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_REGISTRATION_NAME_TAKEN), errorLabel.getText());
     }
 
     @AfterEach
     void tear(){
         restMock = null;
-        webSocketMock = null;
+        router = null;
         res = null;
         callbackCaptor = null;
         Platform.runLater(app::stop);

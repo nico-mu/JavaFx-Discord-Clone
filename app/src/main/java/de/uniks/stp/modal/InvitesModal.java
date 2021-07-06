@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Objects;
@@ -60,7 +61,7 @@ public class InvitesModal extends AbstractModal {
     public InvitesModal(Editor editor,
                         SessionRestClient restClient,
                         ViewLoader viewLoader,
-                        Stage primaryStage,
+                        @Named("primaryStage") Stage primaryStage,
                         InviteListEntry.InviteListEntryFactory inviteListEntryFactory,
                         @Assisted Parent root,
                         @Assisted Server server) {

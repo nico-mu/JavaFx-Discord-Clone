@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Objects;
 
 public class EditCategoryModal extends AbstractModal {
@@ -58,7 +59,7 @@ public class EditCategoryModal extends AbstractModal {
 
     @AssistedInject
     public EditCategoryModal(ViewLoader viewLoader,
-                             Stage primaryStage,
+                             @Named("primaryStage") Stage primaryStage,
                              SessionDatabaseService databaseService,
                              SessionRestClient restClient,
                              @Assisted Parent root,

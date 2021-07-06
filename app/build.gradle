@@ -39,7 +39,7 @@ dependencies {
     testCompile "org.testfx:testfx-junit5:4.0.16-alpha"
     testRuntime "org.testfx:openjfx-monocle:jdk-12.0.1+2"
 
-    testCompile 'org.mockito:mockito-core:2.22.0'
+    implementation 'org.mockito:mockito-core:2.22.0'
     annotationProcessor project(':processor')
 
     implementation 'com.google.dagger:dagger:2.37'
@@ -48,7 +48,7 @@ dependencies {
 
 test {
     useJUnitPlatform()
-    jvmArgs "-Dtestfx.headless=true"
+    jvmArgs "-Dtestfx.headless=false"
     maxHeapSize = "1024m"
     testLogging {
         events "failed"

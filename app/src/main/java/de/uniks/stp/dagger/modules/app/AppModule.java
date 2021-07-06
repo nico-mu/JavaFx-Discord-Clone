@@ -1,4 +1,4 @@
-package de.uniks.stp.dagger.modules;
+package de.uniks.stp.dagger.modules.app;
 
 
 import dagger.Module;
@@ -12,9 +12,10 @@ import de.uniks.stp.controller.LoginScreenController;
 import de.uniks.stp.dagger.components.SessionComponent;
 import de.uniks.stp.dagger.scope.AppScope;
 import de.uniks.stp.jpa.AppDatabaseService;
-import de.uniks.stp.network.rest.AppRestClient;
 import de.uniks.stp.router.Router;
 import javafx.stage.Stage;
+
+import javax.inject.Named;
 
 @Module(subcomponents = SessionComponent.class)
 public class AppModule {
@@ -27,20 +28,8 @@ public class AppModule {
 
     @Provides
     @AppScope
-    static AppRestClient provideRestClient() {
-        return new AppRestClient();
-    }
-
-    @Provides
-    @AppScope
     static ViewLoader provideViewLoader() {
         return new ViewLoader();
-    }
-
-    @Provides
-    @AppScope
-    static AppDatabaseService provideDatabaseService() {
-        return new AppDatabaseService(true);
     }
 
     @Provides
@@ -59,7 +48,7 @@ public class AppModule {
     @AppScope
     static AppController provideAppController(AccordApp app,
                                        ViewLoader viewLoader,
-                                       Stage primaryStage,
+                                       @Named("primaryStage") Stage primaryStage,
                                        LoginScreenController.LoginScreenControllerFactory loginScreenControllerFactory,
                                        AppDatabaseService databaseService) {
         return new AppController(app, viewLoader, primaryStage, loginScreenControllerFactory, databaseService);

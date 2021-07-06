@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Objects;
@@ -79,7 +80,7 @@ public class EditChannelModal extends AbstractModal {
                             SessionRestClient restClient,
                             SessionDatabaseService databaseService,
                             ViewLoader viewLoader,
-                            Stage primaryStage,
+                            @Named("primaryStage") Stage primaryStage,
                             UserCheckList userCheckList,
                             UserCheckListEntry.UserCheckListEntryFactory userCheckListEntryFactory,
                             @Assisted Parent root,

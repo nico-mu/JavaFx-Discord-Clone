@@ -9,7 +9,9 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
+import de.uniks.stp.dagger.components.AppComponent;
 import de.uniks.stp.dagger.components.SessionComponent;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.AppDatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
@@ -26,7 +28,6 @@ import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Provider;
 import java.util.Objects;
 
 @Route(Constants.ROUTE_LOGIN)
@@ -54,11 +55,8 @@ public class LoginScreenController implements ControllerInterface {
     private String password;
     private boolean tempUserLogin;
 
-    private final Provider<SessionComponent.Builder> sessionComponentProvider;
-
     @AssistedInject
     public LoginScreenController(AccordApp app,
-                                 Provider<SessionComponent.Builder> sessionComponentProvider,
                                  Editor editor,
                                  AppDatabaseService databaseService,
                                  AppRestClient restClient,
@@ -72,7 +70,6 @@ public class LoginScreenController implements ControllerInterface {
         this.router = router;
         this.viewLoader = viewLoader;
         this.app = app;
-        this.sessionComponentProvider = sessionComponentProvider;
     }
 
     /**
@@ -276,12 +273,23 @@ public class LoginScreenController implements ControllerInterface {
             String userKey = response.getBody().getObject().getJSONObject("data").getString("userKey");
             User currentUser = editor.createCurrentUser(name, true).setPassword(password);
             editor.setCurrentUser(currentUser);
+            SessionComponent sessionComponent;
 
             //create session component here
-            SessionComponent sessionComponent = sessionComponentProvider.get()
-                .userKey(userKey)
-                .currentUser(currentUser)
-                .build();
+            if(app.isTestMode()) {
+                AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+                sessionComponent = appTestComponent.sessionTestComponentBuilder()
+                    .userKey(userKey)
+                    .currentUser(currentUser)
+                    .build();
+            }
+            else {
+                AppComponent appComponent = (AppComponent) app.getAppComponent();
+                sessionComponent = appComponent.sessionComponentBuilder()
+                    .userKey(userKey)
+                    .currentUser(currentUser)
+                    .build();
+            }
             app.setSessionComponent(sessionComponent);
             sessionComponent.getWebsocketService().init();
 

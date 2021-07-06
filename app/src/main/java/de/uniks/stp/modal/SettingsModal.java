@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import java.util.HashMap;
 import java.util.MissingResourceException;
 
@@ -40,7 +41,7 @@ public class SettingsModal extends AbstractModal {
     @AssistedInject
     public SettingsModal(ViewLoader viewLoader,
                          Router router,
-                         Stage primaryStage,
+                         @Named("primaryStage") Stage primaryStage,
                          SessionDatabaseService databaseService,
                          AudioService audioService,
                          @Assisted Parent root) {

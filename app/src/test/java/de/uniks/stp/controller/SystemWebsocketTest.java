@@ -1,14 +1,14 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.rest.AppRestClient;
 import de.uniks.stp.network.websocket.WSCallback;
-import de.uniks.stp.network.websocket.WebSocketClient;
+import de.uniks.stp.network.websocket.WebSocketClientFactory;
 import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
@@ -16,9 +16,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import kong.unirest.Callback;
-import kong.unirest.HttpResponse;
-import kong.unirest.JsonNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,7 +23,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
@@ -45,52 +41,56 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(ApplicationExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class SystemWebsocketTest {
-    @Mock
-    private AppRestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
 
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
 
     @Captor
-    private ArgumentCaptor<Callback<JsonNode>> restCallbackArgumentCaptor;
-
-    @Mock
-    private HttpResponse<JsonNode> res;
-
-    @Captor
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
     private static HashMap<String, WSCallback> endpointCallbackHashmap;
-    private StageManager app;
+    private AccordApp app;
+    private Router router;
+    private Editor editor;
+    private User currentUser;
+    private WebSocketClientFactory webSocketClientFactoryMock;
+    private WebSocketService webSocketService;
 
     @Start
     public void start(Stage stage) {
         // start application
-        MockitoAnnotations.initMocks(this);
         endpointCallbackHashmap = new HashMap<>();
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        MockitoAnnotations.initMocks(this);
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
-        DatabaseService.clearAllConversations();
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        editor = appTestComponent.getEditor();
+        currentUser = editor.createCurrentUser("Test", true).setId("123-45");
+        editor.setCurrentUser(currentUser);
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+        app.setSessionComponent(sessionTestComponent);
+
+        webSocketClientFactoryMock = sessionTestComponent.getWebSocketClientFactory();
+        webSocketService = sessionTestComponent.getWebsocketService();
+        webSocketService.init();
     }
 
     @Test
     public void testUserJoined(FxRobot robot) {
-        Editor editor = StageManager.getEditor();
 
-        editor.getOrCreateAccord()
-            .setCurrentUser(new User().setName("Test"))
-            .setUserKey("123-45");
-
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(webSocketMock, times(2)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(2))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -125,18 +125,11 @@ public class SystemWebsocketTest {
 
     @Test
     public void testUserLeft(FxRobot robot) {
-        // prepare start situation
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord()
-            .setCurrentUser(new User().setName("Test"))
-            .setUserKey("123-45");
-
         String otherUserName = "otherTestUser";
         String otherUserId = "12345678";
         editor.getOrCreateOtherUser(otherUserId, otherUserName);
 
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
         WaitForAsyncUtils.waitForFxEvents();
 
         // assert correct start situation
@@ -144,7 +137,8 @@ public class SystemWebsocketTest {
         Assertions.assertNotNull(editor.getOtherUser(otherUserName));
 
         // prepare receiving a WebSocket message
-        verify(webSocketMock, times(2)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(2))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -186,22 +180,17 @@ public class SystemWebsocketTest {
         String TEST_USER_1_ID = "1";
         String TEST_USER_2_ID = "2";
 
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord()
-            .setCurrentUser(new User().setName("Test").setStatus(true))
-            .setUserKey("123-45");
-
         Server server = editor.getOrCreateServer(SERVER_ID, SERVER_NAME);
         editor.getOrCreateServerMember(TEST_USER_1_ID, TEST_USER_1_NAME, server).setStatus(false);
         editor.getOrCreateServerMember(TEST_USER_2_ID, TEST_USER_2_NAME, server).setStatus(true);
 
-        WebSocketService.addServerWebSocket(SERVER_ID);
+        webSocketService.addServerWebSocket(SERVER_ID);
 
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", SERVER_ID)));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", SERVER_ID)));
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -273,9 +262,12 @@ public class SystemWebsocketTest {
 
     @AfterEach
     void tear(){
-        restMock = null;
-        webSocketMock = null;
         stringArgumentCaptor = null;
+        webSocketService = null;
+        webSocketClientFactoryMock = null;
+        currentUser = null;
+        router = null;
+        editor = null;
         wsCallbackArgumentCaptor = null;
         endpointCallbackHashmap = null;
         Platform.runLater(app::stop);

@@ -23,6 +23,7 @@ import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import java.util.Objects;
 
 public class CreateInviteModal extends AbstractModal {
@@ -50,7 +51,7 @@ public class CreateInviteModal extends AbstractModal {
 
     @AssistedInject
     public CreateInviteModal(Editor editor,
-                             Stage primaryStage,
+                             @Named("primaryStage") Stage primaryStage,
                              SessionRestClient restClient,
                              ViewLoader viewLoader,
                              @Assisted Parent root,

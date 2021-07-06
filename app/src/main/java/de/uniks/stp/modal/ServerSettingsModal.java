@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Objects;
 
 public class ServerSettingsModal extends AbstractModal {
@@ -60,7 +61,7 @@ public class ServerSettingsModal extends AbstractModal {
     @AssistedInject
     public ServerSettingsModal(SessionDatabaseService databaseService,
                                ViewLoader viewLoader,
-                               Stage primaryStage,
+                               @Named("primaryStage") Stage primaryStage,
                                SessionRestClient restClient,
                                @Assisted Parent root,
                                @Assisted Server model,

@@ -1,26 +1,23 @@
 package de.uniks.stp.controller;
 
 import com.jfoenix.controls.JFXToggleButton;
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.rest.AppRestClient;
 import de.uniks.stp.network.websocket.WSCallback;
-import de.uniks.stp.network.websocket.WebSocketClient;
+import de.uniks.stp.network.websocket.WebSocketClientFactory;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.stage.Stage;
-import kong.unirest.Callback;
-import kong.unirest.HttpResponse;
-import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -29,7 +26,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
@@ -43,67 +39,64 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(ApplicationExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class NotificationTest {
 
-    @Mock
-    private AppRestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
-
-    @Mock
-    private HttpResponse<JsonNode> res;
-
-    @Mock
-    private HttpResponse<JsonNode> catRes;
-
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
-
-    @Captor
-    private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
-
-    @Captor
-    private ArgumentCaptor<Callback<JsonNode>> catCallbackCaptor;
 
     @Captor
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
     private HashMap<String, WSCallback> endpointCallbackHashmap;
-    private StageManager app;
+
+    private AccordApp app;
+    private Router router;
+    private Editor editor;
+    private User currentUser;
+    private NotificationService notificationService;
+    private WebSocketClientFactory webSocketClientFactoryMock;
+    private SessionDatabaseService sessionDatabaseService;
 
     @Start
     public void start(Stage stage) {
-        // start application
-        MockitoAnnotations.initMocks(this);
         endpointCallbackHashmap = new HashMap<>();
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        MockitoAnnotations.initMocks(this);
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
-        DatabaseService.clearAllConversations();
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        editor = appTestComponent.getEditor();
+        currentUser = editor.createCurrentUser("Test", true).setId("123-45");
+        editor.setCurrentUser(currentUser);
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+        app.setSessionComponent(sessionTestComponent);
+
+        notificationService = sessionTestComponent.getNotificationService();
+        webSocketClientFactoryMock = sessionTestComponent.getWebSocketClientFactory();
+        sessionDatabaseService = sessionTestComponent.getSessionDatabaseService();
+        sessionDatabaseService.clearAllConversations();
+        sessionTestComponent.getWebsocketService().init();
     }
 
     @Test
     public void testPrivateMessageNotification(FxRobot robot) {
-        Editor editor = StageManager.getEditor();
-
-        final String currentUserName = "Test";
         final String userNameOne = "UserOne";
         final String userNameTwo = "UserTwo";
 
-        final User currentUser = new User().setName(currentUserName).setId("123-45");
         final User userOne = new User().setName(userNameOne).setId("111-11");
         final User userTwo = new User().setName(userNameTwo).setId("222-22");
-
-        editor.getOrCreateAccord()
-            .setCurrentUser(currentUser)
-            .setUserKey("123-45");
 
         editor.getOrCreateAccord()
             .withOtherUsers(userOne);
@@ -111,14 +104,15 @@ public class NotificationTest {
         editor.getOrCreateAccord()
             .withOtherUsers(userTwo);
 
-        NotificationService.register(userOne);
-        NotificationService.register(userTwo);
+        notificationService.register(userOne);
+        notificationService.register(userTwo);
 
 
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(webSocketMock, times(2)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(2))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -126,13 +120,13 @@ public class NotificationTest {
         for (int i = 0; i < endpoints.size(); i++) {
             endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
         }
-        WSCallback currentUserCallback = endpointCallbackHashmap.get(Constants.WS_USER_PATH + currentUserName);
+        WSCallback currentUserCallback = endpointCallbackHashmap.get(Constants.WS_USER_PATH + currentUser.getName());
         JsonObject messageOne = Json.createObjectBuilder()
             .add("channel", "private")
             .add("timestamp", 1)
             .add("message", "Test Nachicht 1")
             .add("from", userNameOne)
-            .add("to", currentUserName)
+            .add("to", currentUser.getName())
             .build();
 
         JsonObject messageTwo = Json.createObjectBuilder()
@@ -140,7 +134,7 @@ public class NotificationTest {
             .add("timestamp", 2)
             .add("message", "Test Nachicht 2")
             .add("from", userNameTwo)
-            .add("to", currentUserName)
+            .add("to", currentUser.getName())
             .build();
 
         JsonObject messageThree = Json.createObjectBuilder()
@@ -148,7 +142,7 @@ public class NotificationTest {
             .add("timestamp", 3)
             .add("message", "Test Nachicht")
             .add("from", userNameOne)
-            .add("to", currentUserName)
+            .add("to", currentUser.getName())
             .build();
 
         currentUserCallback.handleMessage(messageOne);
@@ -158,20 +152,20 @@ public class NotificationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         Platform.runLater(() -> {
-            Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(userOne));
-            Assertions.assertEquals(1, NotificationService.getPublisherNotificationCount(userTwo));
+            Assertions.assertEquals(2, notificationService.getPublisherNotificationCount(userOne));
+            Assertions.assertEquals(1, notificationService.getPublisherNotificationCount(userTwo));
         });
         robot.clickOn("#" + userOne.getId() + "-button");
 
-        Assertions.assertEquals(0, NotificationService.getPublisherNotificationCount(userOne));
-        Assertions.assertEquals(1, NotificationService.getPublisherNotificationCount(userTwo));
+        Assertions.assertEquals(0, notificationService.getPublisherNotificationCount(userOne));
+        Assertions.assertEquals(1, notificationService.getPublisherNotificationCount(userTwo));
         currentUserCallback.handleMessage(messageOne);
         currentUserCallback.handleMessage(messageTwo);
         currentUserCallback.handleMessage(messageThree);
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(userTwo));
+        Assertions.assertEquals(2, notificationService.getPublisherNotificationCount(userTwo));
         robot.clickOn("#home-button");
         robot.clickOn("#" + userTwo.getId() + "-DirectMessageEntry");
 
@@ -183,13 +177,11 @@ public class NotificationTest {
 
     @Test
     public void testChannelNotification(FxRobot robot) {
-        Editor editor = StageManager.getEditor();
-
-        final User currentUser = new User().setName("Test").setId("123-45");
         final User userOne = new User().setName("userOne").setId("111-11");
         final User userTwo = new User().setName("userTwo").setId("222-22");
-        NotificationService.register(userOne);
-        NotificationService.register(userTwo);
+        notificationService.register(userOne);
+        notificationService.register(userTwo);
+
         final String serverName = "Test";
         final String serverId = "1";
         final String categoryName = "Cat";
@@ -198,16 +190,12 @@ public class NotificationTest {
         final String channelTwoId = "C2";
 
         editor.getOrCreateAccord()
-            .setCurrentUser(currentUser)
-            .setUserKey("123-45");
-
-        editor.getOrCreateAccord()
             .withOtherUsers(userOne);
 
         editor.getOrCreateAccord()
             .withOtherUsers(userTwo);
 
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
         WaitForAsyncUtils.waitForFxEvents();
 
         Server server = editor.getOrCreateServer(serverId, serverName);
@@ -217,8 +205,9 @@ public class NotificationTest {
         Channel channel2 = editor.getOrCreateChannel(channelTwoId, "Channel2", "text", category);
         server.withChannels(channel2);
         server.withChannels(channel);
-        NotificationService.register(channel);
-        NotificationService.register(channel2);
+
+        notificationService.register(channel);
+        notificationService.register(channel2);
 
         currentUser.withAvailableServers(server);
         userOne.withAvailableServers(server);
@@ -232,19 +221,32 @@ public class NotificationTest {
         user1.add(currentUser.getId());
         user2.add(userOne.getId());
         user2.add(userTwo.getId());
-        data.add(new JSONObject().put("id", channelOneId).put("name", "Channel1").put("type", "text").put("privileged", false).put("category", categoryId).put("members", user1));
-        data.add(new JSONObject().put("id", channelTwoId).put("name", "Channel2").put("type", "text").put("privileged", true).put("category", categoryId).put("members", user2));
-        JSONObject j = new JSONObject().put("status", "success").put("message", "")
+
+        data.add(new JSONObject()
+            .put("id", channelOneId)
+            .put("name", "Channel1")
+            .put("type", "text")
+            .put("privileged", false)
+            .put("category", categoryId)
+            .put("members", user1)
+        );
+
+        data.add(new JSONObject()
+            .put("id", channelTwoId)
+            .put("name", "Channel2")
+            .put("type", "text")
+            .put("privileged", true)
+            .put("category", categoryId)
+            .put("members", user2)
+        );
+
+        JSONObject j = new JSONObject()
+            .put("status", "success")
+            .put("message", "")
             .put("data", data);
-        ArrayList<JSONObject> dataCat = new ArrayList<>();
-        ArrayList<String> channels = new ArrayList<>();
-        channels.add(channelOneId);
-        channels.add(channelTwoId);
-        dataCat.add(new JSONObject().put("id", categoryId).put("name", categoryName).put("server", serverId).put("channels", channels));
-        JSONObject jCat = new JSONObject().put("status", "success").put("message", "").put("data", dataCat);
 
-
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -282,41 +284,41 @@ public class NotificationTest {
         systemCallback.handleMessage(messageTwo);
         systemCallback.handleMessage(messageThree);
 
-        Assertions.assertEquals(3, NotificationService.getServerNotificationCount(server));
+        Assertions.assertEquals(3, notificationService.getServerNotificationCount(server));
         for (Channel c : server.getChannels()) {
             if (c.getId().equals(channelOneId)) {
-                Assertions.assertEquals(1, NotificationService.getPublisherNotificationCount(c));
+                Assertions.assertEquals(1, notificationService.getPublisherNotificationCount(c));
             }
             if (c.getId().equals(channelTwoId)) {
-                Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(c));
+                Assertions.assertEquals(2, notificationService.getPublisherNotificationCount(c));
             }
         }
 
         RouteArgs routeArgs = new RouteArgs().addArgument(":id", serverId).addArgument(":categoryId", categoryId).addArgument(":channelId", channelOneId);
-        Platform.runLater(() -> Router.routeWithArgs(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgs));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgs));
         WaitForAsyncUtils.waitForFxEvents();
 
-        Assertions.assertEquals(2, NotificationService.getServerNotificationCount(server));
+        Assertions.assertEquals(2, notificationService.getServerNotificationCount(server));
         for (Channel c : server.getChannels()) {
             if (c.getId().equals(channelOneId)) {
-                Assertions.assertEquals(0, NotificationService.getPublisherNotificationCount(c));
+                Assertions.assertEquals(0, notificationService.getPublisherNotificationCount(c));
             }
             if (c.getId().equals(channelTwoId)) {
-                Assertions.assertEquals(2, NotificationService.getPublisherNotificationCount(c));
+                Assertions.assertEquals(2, notificationService.getPublisherNotificationCount(c));
             }
         }
 
         RouteArgs routeArgsChannelTwo = new RouteArgs().addArgument(":id", serverId).addArgument(":categoryId", categoryId).addArgument(":channelId", channelTwoId);
-        Platform.runLater(() -> Router.routeWithArgs(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgsChannelTwo));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgsChannelTwo));
         WaitForAsyncUtils.waitForFxEvents();
 
-        Assertions.assertEquals(0, NotificationService.getServerNotificationCount(server));
+        Assertions.assertEquals(0, notificationService.getServerNotificationCount(server));
         for (Channel c : server.getChannels()) {
             if (c.getId().equals(channelOneId)) {
-                Assertions.assertEquals(0, NotificationService.getPublisherNotificationCount(c));
+                Assertions.assertEquals(0, notificationService.getPublisherNotificationCount(c));
             }
             if (c.getId().equals(channelTwoId)) {
-                Assertions.assertEquals(0, NotificationService.getPublisherNotificationCount(c));
+                Assertions.assertEquals(0, notificationService.getPublisherNotificationCount(c));
             }
         }
 
@@ -324,22 +326,19 @@ public class NotificationTest {
         systemCallback.handleMessage(messageTwo);
         systemCallback.handleMessage(messageThree);
 
-        Assertions.assertEquals(1, NotificationService.getServerNotificationCount(server));
+        Assertions.assertEquals(1, notificationService.getServerNotificationCount(server));
         for (Channel c : server.getChannels()) {
             if (c.getId().equals(channelOneId)) {
-                Assertions.assertEquals(1, NotificationService.getPublisherNotificationCount(c));
+                Assertions.assertEquals(1, notificationService.getPublisherNotificationCount(c));
             }
             if (c.getId().equals(channelTwoId)) {
-                Assertions.assertEquals(0, NotificationService.getPublisherNotificationCount(c));
+                Assertions.assertEquals(0, notificationService.getPublisherNotificationCount(c));
             }
         }
     }
 
     @Test
     public void muteChannelTest(FxRobot robot) {
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
 
         String serverName = "TestServer";
         String serverId = "12345678";
@@ -352,8 +351,9 @@ public class NotificationTest {
         String categoryId = "catId123";
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
+
         Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
 
         String channelId = "chId1234";
@@ -364,8 +364,8 @@ public class NotificationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
-        DatabaseService.removeMutedChannelId(channelId);
-        Assertions.assertFalse(DatabaseService.isChannelMuted(channelId));
+        sessionDatabaseService.removeMutedChannelId(channelId);
+        Assertions.assertFalse(sessionDatabaseService.isChannelMuted(channelId));
 
         robot.clickOn("#channel-container");
         robot.point("#channel-container");
@@ -378,7 +378,7 @@ public class NotificationTest {
         robot.clickOn("#notifications-toggle-button");
         robot.clickOn("#edit-channel-create-button");
 
-        Assertions.assertTrue(DatabaseService.isChannelMuted(channelId));
+        Assertions.assertTrue(sessionDatabaseService.isChannelMuted(channelId));
 
         robot.clickOn("#channel-container");
         robot.point("#channel-container");
@@ -388,15 +388,11 @@ public class NotificationTest {
         robot.clickOn("#notifications-toggle-button");
         robot.clickOn("#edit-channel-create-button");
 
-        Assertions.assertFalse(DatabaseService.isChannelMuted(channelId));
+        Assertions.assertFalse(sessionDatabaseService.isChannelMuted(channelId));
     }
 
     @Test
     public void muteCategoryTest(FxRobot robot) {
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
-
         String serverName = "TestServer";
         String serverId = "12345678";
         Server testServer = new Server().setName(serverName).setId(serverId);
@@ -408,13 +404,17 @@ public class NotificationTest {
         String categoryId = "catId123";
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
-        WaitForAsyncUtils.waitForFxEvents();
-        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
-        DatabaseService.removeMutedCategoryId(categoryId);
-        Assertions.assertFalse(DatabaseService.isCategoryMuted(categoryId));
+        new Category()
+            .setName(categoryName)
+            .setId(categoryId)
+            .setServer(testServer);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        sessionDatabaseService.removeMutedCategoryId(categoryId);
+        Assertions.assertFalse(sessionDatabaseService.isCategoryMuted(categoryId));
 
         robot.clickOn("#" + categoryId + "-ServerCategoryElementLabel");
         robot.point("#edit-category-gear");
@@ -426,7 +426,7 @@ public class NotificationTest {
         robot.clickOn("#notifications-toggle-button");
         robot.clickOn("#save-button");
 
-        Assertions.assertTrue(DatabaseService.isCategoryMuted(categoryId));
+        Assertions.assertTrue(sessionDatabaseService.isCategoryMuted(categoryId));
 
         robot.clickOn("#" + categoryId + "-ServerCategoryElementLabel");
         robot.point("#edit-category-gear");
@@ -437,31 +437,25 @@ public class NotificationTest {
         robot.clickOn("#notifications-toggle-button");
         robot.clickOn("#save-button");
 
-        Assertions.assertFalse(DatabaseService.isCategoryMuted(categoryId));
+        Assertions.assertFalse(sessionDatabaseService.isCategoryMuted(categoryId));
     }
 
     @Test
     public void muteServerTest(FxRobot robot) {
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
-
         String serverName = "TestServer";
         String serverId = "12345678";
         Server testServer = new Server().setName(serverName).setId(serverId);
+
         editor.getOrCreateAccord()
             .getCurrentUser()
             .withAvailableServers(testServer);
 
-        String categoryName = "TestCategory";
-        String categoryId = "catId123";
-
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
-        DatabaseService.removeMutedServerId(serverId);
-        Assertions.assertFalse(DatabaseService.isServerMuted(serverId));
+        sessionDatabaseService.removeMutedServerId(serverId);
+        Assertions.assertFalse(sessionDatabaseService.isServerMuted(serverId));
 
         robot.clickOn("#settings-label");
         robot.clickOn("#edit-menu-item");
@@ -472,7 +466,7 @@ public class NotificationTest {
         robot.clickOn("#notifications-toggle-button");
         robot.clickOn("#save-button");
 
-        Assertions.assertTrue(DatabaseService.isServerMuted(serverId));
+        Assertions.assertTrue(sessionDatabaseService.isServerMuted(serverId));
 
         robot.clickOn("#settings-label");
         robot.clickOn("#edit-menu-item");
@@ -482,15 +476,17 @@ public class NotificationTest {
         robot.clickOn("#notifications-toggle-button");
         robot.clickOn("#save-button");
 
-        Assertions.assertFalse(DatabaseService.isServerMuted(serverId));
+        Assertions.assertFalse(sessionDatabaseService.isServerMuted(serverId));
     }
 
     @AfterEach
     void tear(){
-        restMock = null;
-        webSocketMock = null;
-        res = null;
-        callbackCaptor = null;
+        router = null;
+        webSocketClientFactoryMock = null;
+        sessionDatabaseService = null;
+        notificationService = null;
+        editor = null;
+        currentUser = null;
         stringArgumentCaptor = null;
         wsCallbackArgumentCaptor = null;
         endpointCallbackHashmap = null;

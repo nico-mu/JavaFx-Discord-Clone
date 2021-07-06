@@ -1,14 +1,16 @@
 package de.uniks.stp.serversettings;
 
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.rest.AppRestClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.websocket.WSCallback;
-import de.uniks.stp.network.websocket.WebSocketClient;
+import de.uniks.stp.network.websocket.WebSocketClientFactory;
 import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
@@ -47,11 +49,6 @@ import static org.mockito.Mockito.*;
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(ApplicationExtension.class)
 public class CreateCategoryTest {
-    @Mock
-    private AppRestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
 
     @Mock
     private HttpResponse<JsonNode> res;
@@ -66,18 +63,41 @@ public class CreateCategoryTest {
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
     private HashMap<String, WSCallback> endpointCallbackHashmap;
-    private StageManager app;
+    private AccordApp app;
+    private Router router;
+    private Editor editor;
+    private WebSocketClientFactory webSocketClientFactoryMock;
+    private WebSocketService webSocketService;
+    private SessionRestClient restMock;
+    private ViewLoader viewLoader;
 
     @Start
     public void start(Stage stage) {
+        endpointCallbackHashmap = new HashMap<>();
         // start application
         MockitoAnnotations.initMocks(this);
-        endpointCallbackHashmap = new HashMap<>();
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        editor = appTestComponent.getEditor();
+        viewLoader = appTestComponent.getViewLoader();
+        User currentUser = editor.createCurrentUser("Test", true).setId("123-45");
+        editor.setCurrentUser(currentUser);
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+        app.setSessionComponent(sessionTestComponent);
+
+        webSocketClientFactoryMock = sessionTestComponent.getWebSocketClientFactory();
+        webSocketService = sessionTestComponent.getWebsocketService();
+        restMock = sessionTestComponent.getSessionRestClient();
+        webSocketService.init();
     }
 
     /**
@@ -87,8 +107,6 @@ public class CreateCategoryTest {
     @Test
     public void testCreateCategoryModal(FxRobot robot){
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
         String serverName ="Plattis Server";
         String serverId ="12345678";
@@ -96,7 +114,7 @@ public class CreateCategoryTest {
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         // prepare creating category
@@ -117,7 +135,10 @@ public class CreateCategoryTest {
             .put("name", categoryName)
             .put("server", serverId)
             .put("channels", new JSONArray());
-        JSONObject j = new JSONObject().put("status", "success").put("message", "").put("data", data);
+        JSONObject j = new JSONObject()
+            .put("status", "success")
+            .put("message", "")
+            .put("data", data);
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
 
@@ -144,16 +165,13 @@ public class CreateCategoryTest {
     @Test
     public void testCreateCategoryFailed(FxRobot robot){
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
         String serverName ="Plattis Server";
         String serverId ="12345678";
         Server server = new Server().setName(serverName).setId(serverId);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         // assert correct start situation
@@ -170,7 +188,9 @@ public class CreateCategoryTest {
         robot.write(categoryName);
         robot.clickOn("#create-button");
 
-        JSONObject j = new JSONObject().put("status", "failure").put("message", "something went wrong");
+        JSONObject j = new JSONObject()
+            .put("status", "failure")
+            .put("message", "something went wrong");
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(false);
 
@@ -185,7 +205,7 @@ public class CreateCategoryTest {
         Assertions.assertEquals(0, editor.getServer(serverId).getCategories().size());
 
         Label errorLabel = robot.lookup("#error-message-label").query();
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_CREATE_CATEGORY_FAILED), errorLabel.getText());
+        Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_CREATE_CATEGORY_FAILED), errorLabel.getText());
 
         robot.clickOn("#cancel-button");
     }
@@ -198,18 +218,14 @@ public class CreateCategoryTest {
     public void testCategoryCreatedMessage(FxRobot robot) {
         final String CATEGORY_NAME = "Useful Category";
 
-        // prepare start situation
-        Editor editor = StageManager.getEditor();
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
         String serverName ="Plattis Server";
         String serverId ="12345678";
         Server server = new Server().setName(serverName).setId(serverId);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
-        WebSocketService.addServerWebSocket(serverId);
+        webSocketService.addServerWebSocket(serverId);
 
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", serverId)));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, new RouteArgs().addArgument(":id", serverId)));
         WaitForAsyncUtils.waitForFxEvents();
 
         // assert correct start situation
@@ -217,7 +233,8 @@ public class CreateCategoryTest {
         Assertions.assertEquals(0, editor.getServer(serverId).getCategories().size());
 
         // prepare receiving websocket message
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -253,7 +270,11 @@ public class CreateCategoryTest {
     @AfterEach
     void tear(){
         restMock = null;
-        webSocketMock = null;
+        webSocketClientFactoryMock = null;
+        editor = null;
+        webSocketService = null;
+        router = null;
+        viewLoader = null;
         res = null;
         callbackCaptor = null;
         stringArgumentCaptor = null;

@@ -19,6 +19,7 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import java.util.Objects;
 
 public class EditMessageModal extends AbstractModal {
@@ -41,7 +42,7 @@ public class EditMessageModal extends AbstractModal {
     @AssistedInject
     public EditMessageModal(ViewLoader viewLoader,
                             SessionRestClient restClient,
-                            Stage primaryStage,
+                            @Named("primaryStage") Stage primaryStage,
                             @Assisted Parent root,
                             @Assisted ServerMessage model) {
         super(root, primaryStage);

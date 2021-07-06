@@ -20,6 +20,7 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import java.util.Objects;
 
 public class CreateCategoryModal extends AbstractModal {
@@ -42,7 +43,7 @@ public class CreateCategoryModal extends AbstractModal {
 
     @AssistedInject
     public CreateCategoryModal(ViewLoader viewLoader,
-                               Stage primaryStage,
+                               @Named("primaryStage") Stage primaryStage,
                                SessionRestClient restClient,
                                @Assisted Parent root,
                                @Assisted Server model) {

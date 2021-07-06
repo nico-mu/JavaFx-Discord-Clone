@@ -1,14 +1,11 @@
 package de.uniks.stp.controller;
 
 import com.jfoenix.controls.JFXTextField;
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.jpa.DatabaseService;
-import de.uniks.stp.network.NetworkClientInjector;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.network.rest.AppRestClient;
-import de.uniks.stp.network.UserKeyProvider;
-import de.uniks.stp.network.websocket.WebSocketClient;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
@@ -31,6 +28,10 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import java.util.Objects;
+
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,36 +39,33 @@ import static org.mockito.Mockito.when;
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(ApplicationExtension.class)
 public class LoginTest {
-    @Mock
-    private AppRestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
 
     @Mock
     private HttpResponse<JsonNode> res;
 
     @Captor
     private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
-    private StageManager app;
+    private AccordApp app;
+    private ViewLoader viewLoader;
+    private AppRestClient restMock;
+    private Router router;
 
     @Start
     public void start(Stage stage) {
         // start application
         MockitoAnnotations.initMocks(this);
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
-        DatabaseService.clearAllConversations();
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        restMock = appTestComponent.getAppRestClient();
+        router = appTestComponent.getRouter();
+        viewLoader = appTestComponent.getViewLoader();
     }
 
     private void clearNameField(FxRobot robot) {
         JFXTextField nameField = robot.lookup("#name-field").query();
-        Platform.runLater(() -> {
-            nameField.clear();
-        });
+        Platform.runLater(nameField::clear);
         WaitForAsyncUtils.waitForFxEvents();
     }
 
@@ -79,7 +77,7 @@ public class LoginTest {
         robot.write("Guave");
         robot.clickOn("#login-button");
         Label errorLabel = robot.lookup("#error-message").query();
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_MISSING_FIELDS), errorLabel.getText());
+        Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_MISSING_FIELDS), errorLabel.getText());
     }
 
     @Test
@@ -91,8 +89,7 @@ public class LoginTest {
         robot.clickOn("#password-field");
         robot.write("evauG");
         robot.clickOn("#login-button");
-        JSONObject j = new JSONObject().put("status", "success").put("message", "").put("data", new JSONObject().put("userKey", "123-45"));
-        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.getBody()).thenReturn(new JsonNode(buildSuccessLoginMessage().toString()));
 
         when(res.isSuccess()).thenReturn(true);
 
@@ -104,7 +101,7 @@ public class LoginTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         robot.clickOn("#home-button");
-        Assertions.assertEquals(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, Router.getCurrentRoute());
+        Assertions.assertEquals(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, router.getCurrentRoute());
     }
 
     @Test
@@ -128,9 +125,18 @@ public class LoginTest {
         Label errorLabel = robot.lookup("#error-message").query();
 
         WaitForAsyncUtils.waitForFxEvents();
+        Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_LOGIN_WRONG_CREDENTIALS), errorLabel.getText());
+    }
 
-        Assertions.assertEquals(Constants.ROUTE_LOGIN, Router.getCurrentRoute());
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_LOGIN_WRONG_CREDENTIALS), errorLabel.getText());
+    public JsonObject buildSuccessLoginMessage() {
+        return Json.createObjectBuilder()
+            .add("status", "success")
+            .add("message", "")
+            .add("data", Json.createObjectBuilder()
+                .add("userKey", "123-45")
+                .build()
+            )
+            .build();
     }
 
     @Test
@@ -157,18 +163,9 @@ public class LoginTest {
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
 
-        final String userKey = "123-45";
-        response = new JSONObject()
-            .put("status", "success")
-            .put("message", "")
-            .put("data",
-                new JSONObject()
-                    .put("userKey", userKey)
-            );
-
         WaitForAsyncUtils.waitForFxEvents();
 
-        when(res.getBody()).thenReturn(new JsonNode(response.toString()));
+        when(res.getBody()).thenReturn(new JsonNode(buildSuccessLoginMessage().toString()));
 
         when(res.isSuccess()).thenReturn(true);
 
@@ -176,14 +173,12 @@ public class LoginTest {
 
         callback = callbackCaptor.getValue();
         callback.completed(res);
-
-
         WaitForAsyncUtils.waitForFxEvents();
+
         robot.clickOn("#home-button");
 
-        Assertions.assertEquals(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, Router.getCurrentRoute());
-
-        Assertions.assertEquals(userKey, UserKeyProvider.getUserKey());
+        Assertions.assertEquals(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, router.getCurrentRoute());
+        Assertions.assertTrue(Objects.nonNull(app.getSessionComponent()));
 
         Label usernameLabel = robot.lookup("#username-label").query();
         Assertions.assertEquals(username, usernameLabel.getText());
@@ -196,7 +191,7 @@ public class LoginTest {
         when(res.getBody()).thenReturn(new JsonNode(response.toString()));
 
         robot.clickOn("#logout-button");
-        verify(restMock).sendLogoutRequest(callbackCaptor.capture());
+        verify(app.getSessionComponent().getSessionRestClient()).sendLogoutRequest(callbackCaptor.capture());
 
         callback = callbackCaptor.getValue();
         callback.completed(res);
@@ -209,7 +204,8 @@ public class LoginTest {
     @AfterEach
     void tear(){
         restMock = null;
-        webSocketMock = null;
+        viewLoader = null;
+        router = null;
         res = null;
         callbackCaptor = null;
         Platform.runLater(app::stop);

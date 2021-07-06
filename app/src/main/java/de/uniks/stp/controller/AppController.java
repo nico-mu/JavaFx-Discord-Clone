@@ -15,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Objects;
 
 @AppScope
@@ -31,7 +32,7 @@ public class AppController implements ControllerInterface {
     @Inject
     public AppController(AccordApp app,
                          ViewLoader viewLoader,
-                         Stage primaryStage,
+                         @Named("primaryStage") Stage primaryStage,
                          LoginScreenController.LoginScreenControllerFactory loginScreenControllerFactory,
                          AppDatabaseService databaseService) {
         this.viewLoader = viewLoader;
@@ -65,7 +66,7 @@ public class AppController implements ControllerInterface {
         String subroute = routeInfo.getSubControllerRoute();
 
         if (subroute.equals(Constants.ROUTE_MAIN)) {
-            if(!Objects.nonNull(app.getSessionComponent())) {
+            if(Objects.isNull(app.getSessionComponent())) {
                 return null;
             }
             root = viewLoader.loadView(Views.MAIN_SCREEN);

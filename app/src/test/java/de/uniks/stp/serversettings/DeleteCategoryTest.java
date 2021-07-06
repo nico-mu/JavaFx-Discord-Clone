@@ -1,15 +1,17 @@
 package de.uniks.stp.serversettings;
 
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.rest.AppRestClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.websocket.WSCallback;
-import de.uniks.stp.network.websocket.WebSocketClient;
+import de.uniks.stp.network.websocket.WebSocketClientFactory;
 import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
@@ -49,12 +51,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(ApplicationExtension.class)
 public class DeleteCategoryTest {
     @Mock
-    private AppRestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
-
-    @Mock
     private HttpResponse<JsonNode> res;
 
     @Captor
@@ -67,18 +63,41 @@ public class DeleteCategoryTest {
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
     private HashMap<String, WSCallback> endpointCallbackHashmap;
-    private StageManager app;
+    private AccordApp app;
+    private Router router;
+    private Editor editor;
+    private WebSocketClientFactory webSocketClientFactoryMock;
+    private WebSocketService webSocketService;
+    private SessionRestClient restMock;
+    private ViewLoader viewLoader;
 
     @Start
     public void start(Stage stage) {
+        endpointCallbackHashmap = new HashMap<>();
         // start application
         MockitoAnnotations.initMocks(this);
-        endpointCallbackHashmap = new HashMap<>();
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        editor = appTestComponent.getEditor();
+        viewLoader = appTestComponent.getViewLoader();
+        User currentUser = editor.createCurrentUser("Test", true).setId("123-45");
+        editor.setCurrentUser(currentUser);
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+        app.setSessionComponent(sessionTestComponent);
+
+        webSocketClientFactoryMock = sessionTestComponent.getWebSocketClientFactory();
+        webSocketService = sessionTestComponent.getWebsocketService();
+        restMock = sessionTestComponent.getSessionRestClient();
+        webSocketService.init();
     }
 
     /**
@@ -88,9 +107,6 @@ public class DeleteCategoryTest {
     @Test
     public void testDeleteCategoryModals(FxRobot robot){
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
         String serverName ="Plattis Server";
         String serverId ="12345678";
         String catId = "111";
@@ -98,13 +114,14 @@ public class DeleteCategoryTest {
         Server server = new Server().setName(serverName).setId(serverId);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
-        WebSocketService.addServerWebSocket(serverId);
+        webSocketService.addServerWebSocket(serverId);
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -136,7 +153,7 @@ public class DeleteCategoryTest {
 
         // assert that ConfirmationModal is shown
         Label confiModalTitleLabel = robot.lookup("#title-label").query();
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_DELETE_CATEGORY), confiModalTitleLabel.getText());
+        Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_DELETE_CATEGORY), confiModalTitleLabel.getText());
 
         robot.clickOn("#yes-button");
 
@@ -178,9 +195,6 @@ public class DeleteCategoryTest {
     @Test
     public void testDeleteCategoryFailed(FxRobot robot){
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
         String serverName ="Plattis Server";
         String serverId ="12345678";
         String catId = "111";
@@ -188,13 +202,14 @@ public class DeleteCategoryTest {
         Server server = new Server().setName(serverName).setId(serverId);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
-        WebSocketService.addServerWebSocket(serverId);
+        webSocketService.addServerWebSocket(serverId);
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -226,7 +241,7 @@ public class DeleteCategoryTest {
 
         // assert that ConfirmationModal is shown
         Label confiModalTitleLabel = robot.lookup("#title-label").query();
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_DELETE_CATEGORY), confiModalTitleLabel.getText());
+        Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_DELETE_CATEGORY), confiModalTitleLabel.getText());
 
         robot.clickOn("#yes-button");
 
@@ -255,7 +270,7 @@ public class DeleteCategoryTest {
         modalNameLabel = robot.lookup("#enter-category-name-label").query();
         Assertions.assertEquals("Name", modalNameLabel.getText());
         Label errorLabel = robot.lookup("#error-message-label").query();
-        Assertions.assertEquals(ViewLoader.loadLabel(Constants.LBL_DELETE_CATEGORY_FAILED), errorLabel.getText());
+        Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_DELETE_CATEGORY_FAILED), errorLabel.getText());
 
         robot.clickOn("#cancel-button");
     }
@@ -267,8 +282,6 @@ public class DeleteCategoryTest {
     @Test
     public void testCategoryDeletedMessage(FxRobot robot){
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
 
         String serverName ="Plattis Server";
         String serverId ="12345678";
@@ -277,10 +290,10 @@ public class DeleteCategoryTest {
         Server server = new Server().setName(serverName).setId(serverId);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
-        WebSocketService.addServerWebSocket(serverId);
+        webSocketService.addServerWebSocket(serverId);
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         Category cat = new Category().setId(catId).setName(catName).setServer(server);
@@ -294,7 +307,8 @@ public class DeleteCategoryTest {
         Assertions.assertEquals(catName, ((Text) catLabel.getChildren().get(0)).getText());
 
         // prepare receiving websocket message
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -303,8 +317,6 @@ public class DeleteCategoryTest {
             endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
         }
         WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
-
-
 
         // receive message
         JsonObject jsonObject = Json.createObjectBuilder()
@@ -336,7 +348,11 @@ public class DeleteCategoryTest {
     @AfterEach
     void tear(){
         restMock = null;
-        webSocketMock = null;
+        webSocketClientFactoryMock = null;
+        editor = null;
+        webSocketService = null;
+        router = null;
+        viewLoader = null;
         res = null;
         callbackCaptor = null;
         stringArgumentCaptor = null;
