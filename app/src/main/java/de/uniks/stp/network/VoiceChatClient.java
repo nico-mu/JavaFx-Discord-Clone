@@ -29,10 +29,9 @@ public class VoiceChatClient {
 
     private final User currentUser;
     private final Channel channel;
-    private ExecutorService executorService;
     private final Object audioInLock = new Object();
     private final Object audioOutLock = new Object();
-
+    private ExecutorService executorService;
     private boolean stopping = false;
 
     private DatagramSocket datagramSocket;
@@ -43,33 +42,8 @@ public class VoiceChatClient {
 
     private InetAddress address;
     private List<User> filteredUsers;
-    private PropertyChangeListener currentUserMutePropertyChangeListener = this::onCurrentUserMutePropertyChange;
-    private PropertyChangeListener currentUserAudioOffPropertyChangeListener = this::onCurrentUserAudioOffPropertyChange;
-
-    private void onCurrentUserMutePropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        final boolean isMute = (boolean) propertyChangeEvent.getNewValue();
-        if (isMute && !isAudioInUnavailable()) {
-            audioInDataLine.stop();
-            audioInDataLine.drain();
-        } else {
-            audioInDataLine.start();
-            synchronized (audioInLock) {
-                audioInLock.notify();
-            }
-        }
-    }
-    private void onCurrentUserAudioOffPropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        final boolean isAudioOff = (boolean) propertyChangeEvent.getNewValue();
-        if (isAudioOff && !isAudioOutUnavailable()) {
-            audioOutDataLine.stop();
-            audioOutDataLine.drain();
-        } else {
-            audioOutDataLine.start();
-            synchronized (audioOutLock) {
-                audioOutLock.notify();
-            }
-        }
-    }
+    private final PropertyChangeListener currentUserMutePropertyChangeListener = this::onCurrentUserMutePropertyChange;
+    private final PropertyChangeListener currentUserAudioOffPropertyChangeListener = this::onCurrentUserAudioOffPropertyChange;
 
     public VoiceChatClient(User currentUser, Channel channel) {
         this.channel = channel;
@@ -87,6 +61,32 @@ public class VoiceChatClient {
         );
     }
 
+    private void onCurrentUserMutePropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final boolean isMute = (boolean) propertyChangeEvent.getNewValue();
+        if (isMute && !isAudioInUnavailable()) {
+            audioInDataLine.stop();
+            audioInDataLine.drain();
+        } else {
+            audioInDataLine.start();
+            synchronized (audioInLock) {
+                audioInLock.notify();
+            }
+        }
+    }
+
+    private void onCurrentUserAudioOffPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final boolean isAudioOff = (boolean) propertyChangeEvent.getNewValue();
+        if (isAudioOff && !isAudioOutUnavailable()) {
+            audioOutDataLine.stop();
+            audioOutDataLine.drain();
+        } else {
+            audioOutDataLine.start();
+            synchronized (audioOutLock) {
+                audioOutLock.notify();
+            }
+        }
+    }
+
     private boolean initAudioInDataLine() {
         final DataLine.Info infoIn = new DataLine.Info(TargetDataLine.class, audioFormat);
         if (AudioSystem.isLineSupported(infoIn)) {
@@ -97,7 +97,7 @@ public class VoiceChatClient {
             } catch (LineUnavailableException e) {
                 log.error("Audio input is currently unavailable on this system.");
                 if (Objects.nonNull(audioInDataLine)) {
-                    if(audioInDataLine.isActive()) {
+                    if (audioInDataLine.isActive()) {
                         audioInDataLine.stop();
                     }
                     if (audioInDataLine.isOpen()) {
@@ -124,13 +124,13 @@ public class VoiceChatClient {
             } catch (LineUnavailableException e) {
                 log.error("Audio output is currently unavailable on this system.");
                 if (Objects.nonNull(audioOutDataLine)) {
-                   if(audioOutDataLine.isActive()) {
-                       audioOutDataLine.stop();
-                   }
-                   if (audioOutDataLine.isOpen()) {
-                       audioOutDataLine.close();
-                   }
-                   audioOutDataLine = null;
+                    if (audioOutDataLine.isActive()) {
+                        audioOutDataLine.stop();
+                    }
+                    if (audioOutDataLine.isOpen()) {
+                        audioOutDataLine.close();
+                    }
+                    audioOutDataLine = null;
                 }
                 return false;
             }
