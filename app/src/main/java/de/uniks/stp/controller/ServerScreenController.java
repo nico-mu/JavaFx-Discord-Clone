@@ -19,6 +19,8 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Side;
@@ -26,11 +28,12 @@ import javafx.scene.Parent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import javax.inject.Inject;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Objects;
@@ -52,8 +55,8 @@ public class ServerScreenController implements ControllerInterface {
     private final NotificationService notificationService;
     private final ViewLoader viewLoader;
 
-    private AnchorPane view;
-    private FlowPane serverScreenView;
+    private final VBox view;
+    private HBox serverScreenView;
     private Channel selectedChannel;
     private TextWithEmoteSupport serverName;
 
@@ -66,6 +69,7 @@ public class ServerScreenController implements ControllerInterface {
     private Label settingsGearLabel;
     private ContextMenu settingsContextMenu;
     private TextWithEmoteSupport channelNameLabel;
+    private ChangeListener<Number> viewHeightChangedListener = this::onViewHeightChanged;
 
     @Inject
     ServerCategoryListController.ServerCategoryListControllerFactory serverCategoryListControllerFactory;
@@ -94,7 +98,7 @@ public class ServerScreenController implements ControllerInterface {
                                   Editor editor,
                                   @Assisted  Parent view,
                                   @Assisted Server model) {
-        this.view = (AnchorPane) view;
+        this.view = (VBox) view;
         this.editor = editor;
         this.model = model;
         this.notificationService = notificationService;
@@ -103,7 +107,7 @@ public class ServerScreenController implements ControllerInterface {
 
     @Override
     public void init() {
-        serverScreenView = (FlowPane) viewLoader.loadView(SERVER_SCREEN);
+        serverScreenView = (HBox) viewLoader.loadView(SERVER_SCREEN);
         serverChannelOverview = (VBox) serverScreenView.lookup(SERVER_CHANNEL_OVERVIEW);
         serverChannelContainer = (VBox) serverScreenView.lookup(SERVER_CHANNEL_CONTAINER);
         serverUserListContainer = (FlowPane) serverScreenView.lookup(SERVER_USER_LIST_CONTAINER);
@@ -121,6 +125,9 @@ public class ServerScreenController implements ControllerInterface {
         items.get(0).setOnAction(this::onInviteUserClicked);
         items.get(1).setOnAction(this::onEditServerClicked);
         items.get(2).setOnAction(this::onCreateCategoryClicked);
+
+        serverScreenView.setPrefHeight(view.getHeight());
+        view.heightProperty().addListener(viewHeightChangedListener);
 
         settingsGearLabel.setOnMouseClicked(e -> settingsContextMenu.show(settingsGearLabel, Side.BOTTOM, 0, 0));
 
@@ -227,6 +234,11 @@ public class ServerScreenController implements ControllerInterface {
         for (MenuItem item : settingsContextMenu.getItems()) {
             item.setOnAction(null);
         }
+        view.heightProperty().removeListener(viewHeightChangedListener);
+    }
+
+    private void onViewHeightChanged(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+        serverScreenView.setPrefHeight(newValue.doubleValue());
     }
 
     @AssistedFactory

@@ -12,6 +12,9 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Objects;
@@ -41,7 +44,7 @@ public class MainScreenController implements ControllerInterface {
 
     private AnchorPane navBar;
     private AnchorPane userSettingsPane;
-    private AnchorPane subViewContainer;
+    private VBox subViewContainer;
     private UserInfoController userInfoController;
     private NavBarListController navBarController;
     private ControllerInterface currentController;
@@ -59,7 +62,7 @@ public class MainScreenController implements ControllerInterface {
     public void init() {
         this.navBar = (AnchorPane) view.lookup(NAV_BAR_ID);
         this.userSettingsPane = (AnchorPane) view.lookup(USER_SETTINGS_PANE_ID);
-        this.subViewContainer = (AnchorPane) view.lookup(SUBVIEW_CONTAINER_ID);
+        this.subViewContainer = (VBox) view.lookup(SUBVIEW_CONTAINER_ID);
 
         navBarController = navBarListControllerFactory.create(navBar);
         navBarController.init();

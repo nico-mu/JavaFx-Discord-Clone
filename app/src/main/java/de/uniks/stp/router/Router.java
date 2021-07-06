@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Router {
 
+    public static final String FORCE_RELOAD = "force-reload";
     private final HashMap<String, Class<?>> routeMap;
     private final ConcurrentHashMap<String, ControllerInterface> controllerCache;
     private final AppController appController;
@@ -72,7 +73,7 @@ public class Router {
 
     public void forceReload() {
         shutdownControllers("");
-        route(currentRoute, currentArgs);
+        route(currentRoute, currentArgs.addArgument(FORCE_RELOAD, FORCE_RELOAD));
     }
 
 
@@ -151,10 +152,10 @@ public class Router {
 
         for (int i = 0; i < requirementCount; i++) {
             RouteInfo nextRoute = requirements.pop();
-            ControllerInterface newController = null;
+            ControllerInterface newController;
 
             if (isBaseRoute(nextRoute.getCurrentControllerRoute()) && !controllerCache.containsKey(nextRoute.getSubControllerRoute())) {
-                newController = appController.route(nextRoute);
+                newController = appController.route(nextRoute, args);
             } else {
                 //get controller from cache and use its route method
                 ControllerInterface currentController = controllerCache.get(nextRoute.getCurrentControllerRoute());

@@ -7,7 +7,9 @@ import de.uniks.stp.dagger.scope.AppScope;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.AppDatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
+import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Languages;
 import de.uniks.stp.view.Views;
 import javafx.scene.Parent;
@@ -48,7 +50,7 @@ public class AppController implements ControllerInterface {
         RouteInfo routeInfo = new RouteInfo()
             .setCurrentControllerRoute("")
             .setSubControllerRoute(Constants.ROUTE_LOGIN);
-        route(routeInfo);
+        route(routeInfo, new RouteArgs());
         stage.show();
     }
 
@@ -59,7 +61,7 @@ public class AppController implements ControllerInterface {
         viewLoader.changeLanguage(language);
     }
 
-    public ControllerInterface route(RouteInfo routeInfo) {
+    public ControllerInterface route(RouteInfo routeInfo, RouteArgs args) {
         cleanup();
         Parent root;
         Scene scene;
@@ -74,18 +76,36 @@ public class AppController implements ControllerInterface {
             currentController.init();
             scene = new Scene(root);
             scene.getStylesheets().add(AccordApp.class.getResource("/de/uniks/stp/style/css/component/context-menu.css").toString());
+
+            if(args.getArguments().containsKey(Router.FORCE_RELOAD)) {
+                args.removeArgument(Router.FORCE_RELOAD);
+            }
+            else {
+                stage.setMinWidth(Constants.RES_MIN_MAIN_SCREEN_WIDTH);
+                stage.setMinHeight(Constants.RES_MIN_MAIN_SCREEN_HEIGHT);
+                stage.setWidth(Constants.RES_MAIN_SCREEN_WIDTH);
+                stage.setHeight(Constants.RES_MAIN_SCREEN_HEIGHT);
+            }
+
             stage.setTitle("Accord");
             stage.setScene(scene);
             stage.centerOnScreen();
+
             return currentController;
         } else if (subroute.equals(Constants.ROUTE_LOGIN)) {
             root = viewLoader.loadView(Views.LOGIN_SCREEN);
             currentController = loginScreenControllerFactory.create(root);
             currentController.init();
             scene = new Scene(root);
+
+            stage.setMinWidth(Constants.RES_MIN_LOGIN_SCREEN_WIDTH);
+            stage.setMinHeight(Constants.RES_MIN_LOGIN_SCREEN_HEIGHT);
+            stage.setWidth(Constants.RES_LOGIN_SCREEN_WIDTH);
+            stage.setHeight(Constants.RES_LOGIN_SCREEN_HEIGHT);
             stage.setTitle("Accord");
             stage.setScene(scene);
             stage.centerOnScreen();
+
             return currentController;
         }
         return null;

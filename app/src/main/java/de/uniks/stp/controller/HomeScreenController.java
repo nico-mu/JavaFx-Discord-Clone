@@ -13,10 +13,12 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +34,16 @@ public class HomeScreenController implements ControllerInterface {
     private static final String TOGGLE_ONLINE_BUTTON_ID = "#toggle-online-button";
     private static final String HOME_SCREEN_LABEL_ID = "#home-screen-label";
 
+    private final VBox view;
     private final Editor editor;
     private final Router router;
     private final ViewLoader viewLoader;
 
-    private final AnchorPane view;
     private VBox onlineUsersContainer;
     private VBox directMessagesContainer;
     private JFXButton showOnlineUsersButton;
     private Label homeScreenLabel;
+    private HBox homeScreenView;
 
     private UserListController userListController;
     private DirectMessageListController directMessageListController;
@@ -54,11 +57,12 @@ public class HomeScreenController implements ControllerInterface {
 
     @Inject
     UserListController.UserListControllerFactory userListControllerFactory;
+    private final ChangeListener<Number> viewHeightChangedListener = this::onViewHeightChangeListener;
 
 
     @AssistedInject
     HomeScreenController(Editor editor, Router router, ViewLoader viewLoader, @Assisted Parent view) {
-        this.view = (AnchorPane) view;
+        this.view = (VBox) view;
         this.editor = editor;
         this.router = router;
         this.viewLoader = viewLoader;
@@ -66,7 +70,7 @@ public class HomeScreenController implements ControllerInterface {
 
     @Override
     public void init() {
-        AnchorPane homeScreenView = (AnchorPane) viewLoader.loadView(Views.HOME_SCREEN);
+        homeScreenView = (HBox) viewLoader.loadView(Views.HOME_SCREEN);
         view.getChildren().add(homeScreenView);
 
         showOnlineUsersButton = (JFXButton) homeScreenView.lookup(TOGGLE_ONLINE_BUTTON_ID);
@@ -77,6 +81,8 @@ public class HomeScreenController implements ControllerInterface {
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
         directMessageListController =  directMessageListControllerFactory.create(directMessagesContainer);
         directMessageListController.init();
+        homeScreenView.setPrefHeight(view.getHeight());
+        view.heightProperty().addListener(viewHeightChangedListener);
     }
 
     @Override
@@ -124,7 +130,7 @@ public class HomeScreenController implements ControllerInterface {
         }
         directMessagesContainer.getChildren().clear();
         showOnlineUsersButton.setOnMouseClicked(null);
-
+        homeScreenView.heightProperty().removeListener(viewHeightChangedListener);
     }
 
     private void subviewCleanup() {
@@ -133,6 +139,10 @@ public class HomeScreenController implements ControllerInterface {
 
     private void handleShowOnlineUsersClicked(MouseEvent mouseEvent) {
         router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
+    }
+
+    private void onViewHeightChangeListener(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+        homeScreenView.setPrefHeight(newValue.doubleValue());
     }
 
     @AssistedFactory
