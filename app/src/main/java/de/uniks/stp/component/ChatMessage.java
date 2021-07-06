@@ -147,17 +147,6 @@ public class ChatMessage extends HBox {
         Platform.runLater(() -> {
             WebView webView = new WebView();
             if (content.equals("")) {
-                String media1 = "<head>\n" +
-                    "    <link href=\"http://vjs.zencdn.net/c/video-js.css\" rel=\"stylesheet\">\n" +
-                    "    <script src=\"http://vjs.zencdn.net/c/video.js\"></script>\n" +
-                    "</head>\n" +
-                    "<body overflow=\"hidden\">\n" +
-                    "    <video id=\"video1\" class=\"video-js vjs-default-skin\"\n" +
-                    "        data-setup='{\"controls\" : true, \"autoplay\" : false, \"preload\" : \"auto\"}'>\n" +
-                    "        <source src=\"" + url + "\" type=\"video/mp4\">\n" +
-                    "    </video>\n" +
-                    "</body>";
-                //webView.getEngine().loadContent(media, "text/html");
                 Media media = new Media(url);
                 MediaPlayer mediaPlayer = new MediaPlayer(media);
                 MediaView mediaView = new MediaView();
@@ -172,7 +161,6 @@ public class ChatMessage extends HBox {
                 });
                 textVBox.getChildren().add(mediaView);
                 return;
-                webView.getEngine().loadContent(media, "text/html");
             }else {
                 webView.getEngine().loadContent(content, "text/html");
             }
