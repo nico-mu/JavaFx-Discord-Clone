@@ -181,12 +181,10 @@ public class ChatMessage extends HBox {
     }
 
     public void stop() {
-        List<Node> toRemove = new ArrayList<>();
         for (Node node : textVBox.getChildren()) {
             if (node instanceof WebView) {
                 WebView webView = (WebView) node;
                 webView.getEngine().load(null);
-                toRemove.add(node);
             } else if (node instanceof MediaView) {
                 MediaView mediaView = (MediaView) node;
                 mediaView.getMediaPlayer().stop();
