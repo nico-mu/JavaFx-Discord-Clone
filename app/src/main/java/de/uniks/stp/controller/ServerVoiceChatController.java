@@ -92,7 +92,7 @@ public class ServerVoiceChatController implements ControllerInterface {
 
     private void onUserMutePropertyChange(PropertyChangeEvent propertyChangeEvent) {
         final User user = (User) propertyChangeEvent.getSource();
-        if (!currentUser.equals(user) || !voiceChatClient.isAudioInUnavailable()) {
+        if (!currentUser.equals(user) && !voiceChatClient.isAudioInUnavailable()) {
             boolean isMute = (boolean) propertyChangeEvent.getNewValue();
             final VoiceChatUserEntry voiceChatUserEntry = userVoiceChatUserHashMap.get(user);
 
