@@ -23,6 +23,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 
@@ -154,7 +157,7 @@ public class ChatMessage extends HBox {
         Platform.runLater(() -> {
             WebView webView = new WebView();
             if (content.equals("")) {
-                String media = "<head>\n" +
+                String media1 = "<head>\n" +
                     "    <link href=\"http://vjs.zencdn.net/c/video-js.css\" rel=\"stylesheet\">\n" +
                     "    <script src=\"http://vjs.zencdn.net/c/video.js\"></script>\n" +
                     "</head>\n" +
@@ -164,7 +167,21 @@ public class ChatMessage extends HBox {
                     "        <source src=\"" + url + "\" type=\"video/mp4\">\n" +
                     "    </video>\n" +
                     "</body>";
-                webView.getEngine().loadContent(content, "text/html");
+                //webView.getEngine().loadContent(media, "text/html");
+                Media media = new Media(url);
+                MediaPlayer mediaPlayer = new MediaPlayer(media);
+                MediaView mediaView = new MediaView();
+                mediaView.setMediaPlayer(mediaPlayer);
+                mediaView.setFitHeight(240);
+                mediaView.setOnMouseClicked(event -> {
+                    if (mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+                        mediaPlayer.pause();
+                    } else {
+                        mediaPlayer.play();
+                    }
+                });
+                textVBox.getChildren().add(mediaView);
+                return;
             }else {
                 webView.getEngine().loadContent(content, "text/html");
             }
@@ -190,10 +207,11 @@ public class ChatMessage extends HBox {
                 WebView webView = (WebView) node;
                 webView.getEngine().load(null);
                 toRemove.add(node);
+            } else if (node instanceof MediaView) {
+                MediaView mediaView = (MediaView) node;
+                mediaView.getMediaPlayer().stop();
             }
         }
-        for (Node node : toRemove) {
-            textVBox.getChildren().remove(node);
-        }
+        textVBox.getChildren().clear();
     }
 }

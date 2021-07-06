@@ -45,12 +45,11 @@ public class MediaRequestClient {
         String url = "";
         try {
             html = jsonObject.getString("html");
-        } catch (JSONException e) {
+        } catch (JSONException ignored) {
         }
         try {
             url = jsonObject.getString("url");
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException ignored) {
         }
 
         if (jsonObject.getString("url").contains("giphy")) {
@@ -63,6 +62,7 @@ public class MediaRequestClient {
             if (contentType.startsWith("image")) {
                 loadImage(html, messageNode, url);
             } else {
+                html = "";
                 loadVideo(html, messageNode, url);
             }
         } catch (JSONException e) {
