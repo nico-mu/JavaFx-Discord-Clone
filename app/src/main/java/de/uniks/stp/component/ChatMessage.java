@@ -164,7 +164,7 @@ public class ChatMessage extends HBox {
             }else {
                 webView.getEngine().loadContent(content, "text/html");
             }
-            webView.setMaxHeight(240);
+            webView.setMaxHeight(250);
             webView.setMaxWidth(500);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
             webView.setMouseTransparent(notIntractable);
