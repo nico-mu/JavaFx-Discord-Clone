@@ -45,7 +45,7 @@ public class MediaRequestClient {
         String url = "";
         try {
             html = jsonObject.getString("html");
-        } catch (JSONException ignored) {
+        } catch (JSONException e) {
         }
         try {
             url = jsonObject.getString("url");
@@ -53,8 +53,8 @@ public class MediaRequestClient {
             e.printStackTrace();
         }
 
-        if (jsonObject.getString("url").contains("giphy")) {
-            messageNode.addImage("<body style=\"margin:0\"><img src=\"" + jsonObject.getString("url") + "\" style=\"width:200; height:200\"></body>", url);
+        if (jsonObject.getString("url").contains("giphy") || jsonObject.getString("url").contains("imgur")) {
+            messageNode.addImage("<body style=\"margin:0\"><img src=\"" + jsonObject.getString("url") + "\" style=\"max-height:240; max-width:500\"></body>", url);
             return;
         }
         try {

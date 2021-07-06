@@ -13,14 +13,17 @@ import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -159,10 +162,11 @@ public class ChatMessage extends HBox {
             webView.setMaxWidth(500);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
             webView.setMouseTransparent(notIntractable);
+            webView.addEventFilter(ScrollEvent.SCROLL, Event::consume);
             // disables scrollbars on images and videos:
             webView.getChildrenUnmodifiable().addListener((ListChangeListener<Node>) change -> {
-                Set<Node> deadSeaScrolls = webView.lookupAll(".scroll-bar");
-                for (Node scroll : deadSeaScrolls) {
+                Set<Node> scrollBars = webView.lookupAll(".scroll-bar");
+                for (Node scroll : scrollBars) {
                     scroll.setVisible(false);
                 }
             });
