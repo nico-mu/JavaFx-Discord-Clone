@@ -77,6 +77,9 @@ public class AppController implements ControllerInterface {
             scene = new Scene(root);
             scene.getStylesheets().add(AccordApp.class.getResource("/de/uniks/stp/style/css/component/context-menu.css").toString());
 
+            stage.setTitle("Accord");
+            stage.setScene(scene);
+
             if(args.getArguments().containsKey(Router.FORCE_RELOAD)) {
                 args.removeArgument(Router.FORCE_RELOAD);
             }
@@ -88,9 +91,6 @@ public class AppController implements ControllerInterface {
                 stage.centerOnScreen();
             }
 
-            stage.setTitle("Accord");
-            stage.setScene(scene);
-
             return currentController;
         } else if (subroute.equals(Constants.ROUTE_LOGIN)) {
             root = viewLoader.loadView(Views.LOGIN_SCREEN);
@@ -98,12 +98,13 @@ public class AppController implements ControllerInterface {
             currentController.init();
             scene = new Scene(root);
 
+            stage.setTitle("Accord");
+            stage.setScene(scene);
+
             stage.setMinWidth(Constants.RES_MIN_LOGIN_SCREEN_WIDTH);
             stage.setMinHeight(Constants.RES_MIN_LOGIN_SCREEN_HEIGHT);
             stage.setWidth(Constants.RES_LOGIN_SCREEN_WIDTH);
             stage.setHeight(Constants.RES_LOGIN_SCREEN_HEIGHT);
-            stage.setTitle("Accord");
-            stage.setScene(scene);
             stage.centerOnScreen();
 
             return currentController;

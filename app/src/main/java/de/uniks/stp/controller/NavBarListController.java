@@ -104,7 +104,15 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
             webSocketService.addServerWebSocket(server.getId());  // enables sending & receiving messages
             final NavBarServerElement navBarElement = navBarServerElementFactory.create(server);
             navBarElement.setNotificationCount(notificationService.getServerNotificationCount(server));
-            Platform.runLater(() -> navBarList.addServerElement(server, navBarElement));
+            Platform.runLater(() -> {
+                navBarList.addServerElement(server, navBarElement);
+                if (router.getCurrentArgs().containsKey(":id") && router.getCurrentArgs().containsKey(":channelId")) {
+                    String activeServerId = router.getCurrentArgs().get(":id");
+                    if(activeServerId.equals(server.getId())) {
+                        navBarList.setActiveElement(navBarElement);
+                    }
+                }
+            });
             server.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
         }
     }
@@ -127,6 +135,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     }
 
     protected void callback(HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toPrettyString());
         if (response.isSuccess()) {
             JSONArray jsonArray = response.getBody().getObject().getJSONArray("data");
             for (Object element : jsonArray) {
@@ -138,14 +147,6 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
                 serverAdded(server);
                 restClient.getServerInformation(serverId, serverInformationHandler::handleServerInformationRequest);
                 restClient.getCategories(server.getId(), (msg) -> serverInformationHandler.handleCategories(msg, server));
-            }
-            if (router.getCurrentArgs().containsKey(":id") && router.getCurrentArgs().containsKey(":channelId")) {
-                String activeServerId = router.getCurrentArgs().get(":id");
-                Server server = editor.getServer(activeServerId);
-
-                if(Objects.nonNull(server) && navBarList.containsServer(server)) {
-                    navBarList.setActiveElement(navBarList.getServerElement(server));
-                }
             }
         } else {
             log.error("Response was unsuccessful, error code: " + response.getStatusText());

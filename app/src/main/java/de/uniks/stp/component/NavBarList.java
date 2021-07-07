@@ -25,8 +25,8 @@ public class NavBarList extends ScrollPane {
     private NavBarElement currentActiveElement;
     private NavBarElement previousActiveElement;
     private final ObservableList<Node> elements;
-    private final ConcurrentHashMap<Server, NavBarServerElement> serverElementHashmap = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<User, NavBarUserElement> userElementHashmap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Server, NavBarServerElement> serverElementHashmap;
+    private final ConcurrentHashMap<User, NavBarUserElement> userElementHashmap;
 
     @Inject
     public NavBarList(ViewLoader viewLoader,
@@ -45,6 +45,8 @@ public class NavBarList extends ScrollPane {
 
         this.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        serverElementHashmap = new ConcurrentHashMap<>();
+        userElementHashmap = new ConcurrentHashMap<>();
 
         //add home element
         homeElement = navBarHomeElement;
