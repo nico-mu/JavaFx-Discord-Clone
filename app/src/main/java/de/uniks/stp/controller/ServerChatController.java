@@ -104,10 +104,11 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
             for (Message message : model.getMessages()) {
-                message.listeners().removePropertyChangeListener(Message.PROPERTY_MESSAGE, messagesChangeListener);
+                message.listeners().removePropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);
             }
         }
         chatMessageList.vvalueProperty().removeListener(scrollValueChangedListener);
+        chatMessageInput.setOnMessageSubmit(null);
     }
 
     @Override

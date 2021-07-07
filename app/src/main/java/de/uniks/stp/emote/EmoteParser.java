@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 public class EmoteParser {
     private static final Map<String, String> emoteMapping = new HashMap<>();
+    private static final LinkedList<String> allEmoteNames;
 
     static {
         InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/emote-list.json"));
@@ -34,6 +35,7 @@ public class EmoteParser {
         addEmotesFromJSONArray(jsonObject.getJSONArray("Objects"));
         addEmotesFromJSONArray(jsonObject.getJSONArray("Animals & Nature"));
         addEmotesFromJSONArray(jsonObject.getJSONArray("Flags"));
+        allEmoteNames = new LinkedList<>(emoteMapping.keySet());
     }
 
     public static Map<String, String> getEmoteMapping() {
@@ -49,7 +51,7 @@ public class EmoteParser {
     }
 
     public static List<String> getAllEmoteNames() {
-        return new LinkedList<>(emoteMapping.keySet());
+        return allEmoteNames;
     }
 
     public static LinkedList<EmoteParserResult> parse(String input) {
