@@ -4,8 +4,6 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
-import de.uniks.stp.Editor;
-import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.*;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
@@ -32,7 +30,6 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     private Channel defaultChannel;
     private final Parent view;
-    private final Editor editor;
     private final ServerCategoryList serverCategoryList;
     private final Server model;
     private VBox vBox;
@@ -45,7 +42,6 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     private final NotificationService notificationService;
     private final Router router;
-    private final ViewLoader viewLoader;
 
     PropertyChangeListener categoriesPropertyChangeListener = this::onCategoriesPropertyChanged;
     PropertyChangeListener channelPropertyChangeListener = this::onChannelPropertyChanged;
@@ -53,10 +49,8 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     PropertyChangeListener channelNamePropertyChangeListener = this::onChannelNamePropertyChanged;
 
     @AssistedInject
-    public ServerCategoryListController(Editor editor,
-                                         Router router,
+    public ServerCategoryListController(Router router,
                                          NotificationService notificationService,
-                                         ViewLoader viewLoader,
                                          ServerCategoryList serverCategoryList,
                                          ServerCategoryElement.ServerCategoryElementFactory serverCategoryElementFactory,
                                          ServerVoiceChannelElement.ServerVoiceChannelElementFactory serverVoiceChannelElementFactory,
@@ -64,14 +58,12 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                                          @Assisted Parent view,
                                          @Assisted Server model) {
         this.view = view;
-        this.editor = editor;
         this.model = model;
         this.serverCategoryList = serverCategoryList;
         categoryElementHashMap = new HashMap<>();
         channelElementHashMap = new HashMap<>();
         this.notificationService = notificationService;
         this.router = router;
-        this.viewLoader = viewLoader;
         this.serverCategoryElementFactory = serverCategoryElementFactory;
         this.serverVoiceChannelElementFactory = serverVoiceChannelElementFactory;
         this.serverTextChannelElementFactory = serverTextChannelElementFactory;

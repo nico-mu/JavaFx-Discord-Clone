@@ -85,11 +85,11 @@ public class AppController implements ControllerInterface {
                 stage.setMinHeight(Constants.RES_MIN_MAIN_SCREEN_HEIGHT);
                 stage.setWidth(Constants.RES_MAIN_SCREEN_WIDTH);
                 stage.setHeight(Constants.RES_MAIN_SCREEN_HEIGHT);
+                stage.centerOnScreen();
             }
 
             stage.setTitle("Accord");
             stage.setScene(scene);
-            stage.centerOnScreen();
 
             return currentController;
         } else if (subroute.equals(Constants.ROUTE_LOGIN)) {

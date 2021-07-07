@@ -12,6 +12,7 @@ import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Languages;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
@@ -37,6 +38,7 @@ public class SettingsModal extends AbstractModal {
     private final Router router;
     private final SessionDatabaseService databaseService;
     private final AudioService audioService;
+    private final Stage primaryStage;
 
     @AssistedInject
     public SettingsModal(ViewLoader viewLoader,
@@ -46,6 +48,7 @@ public class SettingsModal extends AbstractModal {
                          AudioService audioService,
                          @Assisted Parent root) {
         super(root, primaryStage);
+        this.primaryStage = primaryStage;
         this.viewLoader = viewLoader;
         this.router = router;
         this.databaseService = databaseService;
@@ -112,6 +115,14 @@ public class SettingsModal extends AbstractModal {
         viewLoader.changeLanguage(newLanguage);
         router.forceReload();
 
+        Platform.runLater(() -> {
+            primaryStage.setWidth(primaryStage.getWidth() + 0.1);
+            if(primaryStage.isMaximized()) {
+                primaryStage.setWidth(Constants.RES_MAIN_SCREEN_WIDTH);
+                primaryStage.setHeight(Constants.RES_MAIN_SCREEN_HEIGHT);
+                primaryStage.centerOnScreen();
+            }
+        });
         databaseService.saveAccordSetting(AccordSettingKey.LANGUAGE, newLanguage.key);
     }
 

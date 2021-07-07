@@ -31,26 +31,18 @@ public class UserListController implements ControllerInterface {
 
     private final Editor editor;
     private final ListComponent<User, UserListEntry> onlineUserList;
-    private final VBox onlineUsersContainer;
-    private final Parent view;
     private final SessionRestClient restClient;
     private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
-    private final ViewLoader viewLoader;
-    private final Router router;
     private final UserListEntry.UserListEntryFactory userListEntryFactory;
 
     @AssistedInject
     public UserListController(Editor editor,
                               SessionRestClient restClient,
                               ViewLoader viewLoader,
-                              Router router,
                               UserListEntry.UserListEntryFactory userListEntryFactory,
                               @Assisted Parent view) {
         this.editor = editor;
-        this.view = view;
-        this.router = router;
-        this.viewLoader = viewLoader;
-        onlineUsersContainer = (VBox) view;
+        VBox onlineUsersContainer = (VBox) view;
         onlineUserList = new ListComponent<>(viewLoader);
         onlineUsersContainer.getChildren().add(onlineUserList);
         this.restClient = restClient;

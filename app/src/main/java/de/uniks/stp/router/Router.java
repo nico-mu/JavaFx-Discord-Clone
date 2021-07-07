@@ -126,7 +126,7 @@ public class Router {
         }
 
         if (controllerCache.containsKey(route)) {
-            if (route.equals(currentRoute) && !currentArgs.compareTo(args)) {
+            if (!currentArgs.compareTo(args)) {
                 ControllerInterface oldController = controllerCache.remove(route);
                 oldController.stop();
             } else {

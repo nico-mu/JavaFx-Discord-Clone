@@ -32,10 +32,6 @@ public class ViewLoader {
         return getParent(alias.path);
     }
 
-    public Parent loadComponent(final Components alias) {
-        return getParent(alias.path);
-    }
-
     public FXMLLoader getFXMLComponentLoader(final Components alias) {
         return new FXMLLoader(alias.path, resourceBundle);
     }
