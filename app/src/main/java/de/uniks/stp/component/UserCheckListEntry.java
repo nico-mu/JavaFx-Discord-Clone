@@ -1,6 +1,9 @@
 package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXCheckBox;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.User;
 import javafx.fxml.FXML;
@@ -15,8 +18,10 @@ public class UserCheckListEntry extends HBox {
     private JFXCheckBox checkbox;
     private final User user;
 
-    public UserCheckListEntry(final User user) {
-        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_CHECK_LIST_ENTRY);
+    @AssistedInject
+    public UserCheckListEntry(ViewLoader viewLoader,
+                              @Assisted final User user) {
+        final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.USER_CHECK_LIST_ENTRY);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -51,5 +56,10 @@ public class UserCheckListEntry extends HBox {
 
     public void setSelected(boolean selected) {
         checkbox.setSelected(selected);
+    }
+
+    @AssistedFactory
+    public interface UserCheckListEntryFactory {
+        UserCheckListEntry create(User user);
     }
 }

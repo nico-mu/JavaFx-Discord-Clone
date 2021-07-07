@@ -13,6 +13,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.function.Consumer;
@@ -23,8 +24,9 @@ public class EmotePicker extends ScrollPane {
 
     private Consumer<String> emoteClickHandler;
 
-    public EmotePicker() {
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.EMOTE_PICKER);
+    @Inject
+    public EmotePicker(ViewLoader viewLoader) {
+        FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.EMOTE_PICKER);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 

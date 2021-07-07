@@ -1,4 +1,4 @@
-package de.uniks.stp.network;
+package de.uniks.stp.network.websocket;
 
 import javax.websocket.ClientEndpointConfig;
 import java.util.ArrayList;

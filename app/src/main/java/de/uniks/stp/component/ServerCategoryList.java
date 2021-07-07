@@ -8,6 +8,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 public class ServerCategoryList extends ScrollPane {
@@ -15,8 +16,9 @@ public class ServerCategoryList extends ScrollPane {
     protected VBox container;
     private ServerChannelElement currentActiveElement;
 
-    public ServerCategoryList() {
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CATEGORY_LIST);
+    @Inject
+    public ServerCategoryList(ViewLoader viewLoader) {
+        FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.SERVER_CATEGORY_LIST);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 

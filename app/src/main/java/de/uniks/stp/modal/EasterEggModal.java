@@ -1,18 +1,23 @@
 package de.uniks.stp.modal;
 
 import com.jfoenix.controls.JFXButton;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.controller.MiniGameController;
 import de.uniks.stp.minigame.GameCommand;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.network.websocket.WebSocketService;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
+
+import javax.inject.Named;
 
 public class EasterEggModal extends AbstractModal {
     public final String ROCK = "rock";
@@ -33,15 +38,25 @@ public class EasterEggModal extends AbstractModal {
     private final JFXButton cancelButton;
 
     private final User opponentUser;
+    private final ViewLoader viewLoader;
+    private final WebSocketService webSocketService;
     private String action;  //saves current selected action of currentUser
     private String opponentAction;  //saves current selected action of opponent
     private boolean revanche = false;  //used to save whether one player already invited the other for a revanche
 
-    public EasterEggModal(Parent root, User opponentUser, EventHandler<ActionEvent> closeHandler) {
-        super(root);
+    @AssistedInject
+    public EasterEggModal(ViewLoader viewLoader,
+                          WebSocketService webSocketService,
+                          @Named("primaryStage") Stage primaryStage,
+                          @Assisted Parent root,
+                          @Assisted User opponentUser,
+                          @Assisted EventHandler<ActionEvent> closeHandler) {
+        super(root, primaryStage);
         this.opponentUser = opponentUser;
+        this.viewLoader = viewLoader;
+        this.webSocketService = webSocketService;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_EASTER_EGG_TITLE));
+        setTitle(viewLoader.loadLabel(Constants.LBL_EASTER_EGG_TITLE));
         actionLabel = (Label) view.lookup(ACTION_LABEL);
         revancheButton = (JFXButton) view.lookup(REVANCHE_BUTTON);
         rockButton = (Button) view.lookup(ROCK_BUTTON);
@@ -64,19 +79,19 @@ public class EasterEggModal extends AbstractModal {
     }
 
     private void onRockButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.CHOOSE_ROCK.command);
+        webSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.CHOOSE_ROCK.command);
         action = ROCK;
         reactToActionSelected();
     }
 
     private void onScissorsButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.CHOOSE_SCISSOR.command);
+        webSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.CHOOSE_SCISSOR.command);
         action = SCISSORS;
         reactToActionSelected();
     }
 
     private void onPaperButtonClicked(ActionEvent actionEvent) {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.CHOOSE_PAPER.command);
+        webSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.CHOOSE_PAPER.command);
         action = PAPER;
         reactToActionSelected();
     }
@@ -118,11 +133,11 @@ public class EasterEggModal extends AbstractModal {
         int result = determineWinner();
         colorOpponentButton(result);
         if (result == 0) {
-            Platform.runLater(() -> actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_RESULT_DRAW)));
+            Platform.runLater(() -> actionLabel.setText(viewLoader.loadLabel(Constants.LBL_RESULT_DRAW)));
         } else if (result == 1) {
-            Platform.runLater(() -> actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_RESULT_WIN)));
+            Platform.runLater(() -> actionLabel.setText(viewLoader.loadLabel(Constants.LBL_RESULT_WIN)));
         } else {
-            Platform.runLater(() -> actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_RESULT_LOSS)));
+            Platform.runLater(() -> actionLabel.setText(viewLoader.loadLabel(Constants.LBL_RESULT_LOSS)));
         }
 
         Platform.runLater(() -> {
@@ -184,13 +199,13 @@ public class EasterEggModal extends AbstractModal {
 
     private void onRevancheButtonClicked(ActionEvent actionEvent) {
         if(revanche){
-            WebSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.REVANCHE.command);
+            webSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.REVANCHE.command);
             playAgain();
         } else{
             revanche = true;
             revancheButton.setVisible(false);
-            WebSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.REVANCHE.command);
-            actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_REVANCHE_WAIT));
+            webSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.REVANCHE.command);
+            actionLabel.setText(viewLoader.loadLabel(Constants.LBL_REVANCHE_WAIT));
         }
     }
 
@@ -199,7 +214,7 @@ public class EasterEggModal extends AbstractModal {
             playAgain();
         } else{
             revanche = true;
-            Platform.runLater(() -> actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_REVANCHE_RESPOND)));
+            Platform.runLater(() -> actionLabel.setText(viewLoader.loadLabel(Constants.LBL_REVANCHE_RESPOND)));
         }
     }
 
@@ -210,7 +225,7 @@ public class EasterEggModal extends AbstractModal {
         revanche = false;
         Platform.runLater(() -> {
             revancheButton.setVisible(false);
-            actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION));
+            actionLabel.setText(viewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION));
             resetButtonColor();
             rockButton.setDisable(false);
             paperButton.setDisable(false);
@@ -222,17 +237,22 @@ public class EasterEggModal extends AbstractModal {
 
     public void opponentLeft(){
         revanche = false;
-        Platform.runLater(() -> actionLabel.setText(ViewLoader.loadLabel(Constants.LBL_GAME_LEFT)));
+        Platform.runLater(() -> actionLabel.setText(viewLoader.loadLabel(Constants.LBL_GAME_LEFT)));
     }
 
     @Override
     public void close() {
-        WebSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.LEAVE.command);
+        webSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.LEAVE.command);
         revancheButton.setOnAction(null);
         rockButton.setOnAction(null);
         scissorsButton.setOnAction(null);
         paperButton.setOnAction(null);
         cancelButton.setOnAction(null);
         super.close();
+    }
+
+    @AssistedFactory
+    public interface EasterEggModalFactory {
+        EasterEggModal create(Parent view, User opponentUser, EventHandler<ActionEvent> closeEventHandler);
     }
 }

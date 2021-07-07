@@ -1,17 +1,21 @@
 package de.uniks.stp.component;
 
+import de.uniks.stp.ViewLoader;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Window;
 
+import javax.inject.Inject;
 import java.util.function.Consumer;
 
 public class EmotePickerPopup extends Popup {
-    private final EmotePicker emotePicker = new EmotePicker();
+    private final EmotePicker emotePicker;
 
-    public EmotePickerPopup() {
+    @Inject
+    public EmotePickerPopup(ViewLoader viewLoader) {
+        emotePicker = new EmotePicker(viewLoader);
         this.setAutoFix(false);
         this.setAutoHide(true);
         this.setHideOnEscape(true);

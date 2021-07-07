@@ -1,9 +1,10 @@
 package de.uniks.stp.component;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
-import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.emote.EmoteRenderer;
 import de.uniks.stp.event.ChannelChangeEvent;
 import de.uniks.stp.modal.EditChannelModal;
 import de.uniks.stp.model.Channel;
@@ -23,36 +24,40 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
 
 public class ServerTextChannelElement extends ServerChannelElement implements NotificationComponentInterface {
 
     @FXML
-    TextWithEmoteSupport channelText;
+    private TextWithEmoteSupport channelText;
 
     @FXML
-    Pane channelElementMarker;
+    private Pane channelElementMarker;
 
     @FXML
-    VBox channelVBox;
+    private VBox channelVBox;
 
     @FXML
-    HBox channelContainer;
+    private HBox channelContainer;
 
     @FXML
-    ImageView editChannel;
+    private ImageView editChannel;
 
-    Channel model;
+    private final Channel model;
 
     private Font font = null;
     private Font boldFont = null;
-    private Editor editor;
+    private final Router router;
+    private final ViewLoader viewLoader;
+    private final EditChannelModal.EditChannelModalFactory editChannelModalFactory;
 
-    public ServerTextChannelElement(Channel model, Editor editor) {
-        this.editor = editor;
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_TEXT_CHANNEL_ELEMENT);
+    @AssistedInject
+    public ServerTextChannelElement(ViewLoader viewLoader,
+                                    Router router,
+                                    EditChannelModal.EditChannelModalFactory editChannelModalFactory,
+                                    @Assisted Channel model) {
+        FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.SERVER_TEXT_CHANNEL_ELEMENT);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -62,6 +67,9 @@ public class ServerTextChannelElement extends ServerChannelElement implements No
             throw new RuntimeException(exception);
         }
         this.model = model;
+        this.router = router;
+        this.viewLoader = viewLoader;
+        this.editChannelModalFactory = editChannelModalFactory;
         // TODO: Long names create problems
         channelText.setText(model.getName());
         channelText.setFont(Font.font(16));
@@ -84,8 +92,8 @@ public class ServerTextChannelElement extends ServerChannelElement implements No
     }
 
     private void onEditChannelClicked(MouseEvent mouseEvent) {
-        Parent editChannelModalView = ViewLoader.loadView(Views.EDIT_CHANNEL_MODAL);
-        EditChannelModal editChannelModal = new EditChannelModal(editChannelModalView, model, editor);
+        Parent editChannelModalView = viewLoader.loadView(Views.EDIT_CHANNEL_MODAL);
+        EditChannelModal editChannelModal = editChannelModalFactory.create(editChannelModalView, model);
         editChannelModal.show();
     }
 
@@ -133,6 +141,11 @@ public class ServerTextChannelElement extends ServerChannelElement implements No
         args.addArgument(":id", model.getCategory().getServer().getId());
         args.addArgument(":categoryId", model.getCategory().getId());
         args.addArgument(":channelId", model.getId());
-        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args);
+        router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args);
+    }
+
+    @AssistedFactory
+    public interface ServerTextChannelElementFactory {
+        ServerTextChannelElement create(Channel model);
     }
 }

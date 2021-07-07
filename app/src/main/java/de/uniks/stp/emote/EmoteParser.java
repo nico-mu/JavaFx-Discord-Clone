@@ -1,13 +1,11 @@
 package de.uniks.stp.emote;
 
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.network.WebSocketService;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -15,14 +13,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class EmoteParser {
-    private static final Map<String, String> emoteMapping = new HashMap<>();;
+    private static final Map<String, String> emoteMapping = new HashMap<>();
 
     static {
         InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/emote-list.json"));
-        String text = new BufferedReader(
-            new InputStreamReader(inputStream, StandardCharsets.UTF_8))
-        .lines()
-            .collect(Collectors.joining("\n"));
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        String text = bufferedReader.lines().collect(Collectors.joining("\n"));
+
+        try {
+            bufferedReader.close();
+            inputStreamReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         JSONObject jsonObject = new JSONObject(text);
         
         addEmotesFromJSONArray(jsonObject.getJSONArray("Smileys & People"));

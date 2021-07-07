@@ -1,13 +1,18 @@
 package de.uniks.stp.controller;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Editor;
+import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.DirectMessageEntry;
 import de.uniks.stp.component.ListComponent;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.notification.NotificationEvent;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.notification.SubscriberInterface;
+import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
@@ -23,12 +28,29 @@ public class DirectMessageListController implements ControllerInterface, Subscri
     private final PropertyChangeListener chatPartnerChangeListener = this::onChatPartnerChanged;
     private final VBox directMessagesContainer;
     private final ListComponent<User, DirectMessageEntry> directMessagePartnerList;
+    private final NotificationService notificationService;
+    private final SessionDatabaseService databaseService;
+    private final ViewLoader viewLoader;
+    private final Router router;
+    private final DirectMessageEntry.DirectMessageEntryFactory directMessageEntryFactory;
 
-    public DirectMessageListController(Parent view, final Editor editor) {
+    @AssistedInject
+    public DirectMessageListController(Editor editor,
+                                       NotificationService notificationService,
+                                       SessionDatabaseService databaseService,
+                                       ViewLoader viewLoader,
+                                       DirectMessageEntry.DirectMessageEntryFactory directMessageEntryFactory,
+                                       Router router,
+                                       @Assisted Parent view) {
         this.editor = editor;
         directMessagesContainer = (VBox) view;
-        directMessagePartnerList = new ListComponent<>();
+        directMessagePartnerList = new ListComponent<>(viewLoader);
         directMessagesContainer.getChildren().add(directMessagePartnerList);
+        this.notificationService = notificationService;
+        this.databaseService = databaseService;
+        this.viewLoader = viewLoader;
+        this.router = router;
+        this.directMessageEntryFactory = directMessageEntryFactory;
     }
 
     @Override
@@ -37,9 +59,9 @@ public class DirectMessageListController implements ControllerInterface, Subscri
         currentUser
             .listeners()
             .addPropertyChangeListener(User.PROPERTY_CHAT_PARTNER, chatPartnerChangeListener);
-        NotificationService.registerUserSubscriber(this);
+        notificationService.registerUserSubscriber(this);
 
-        for (Pair<String, String> chatPartner : DatabaseService.getAllConversationPartnerOf(currentUser.getName())) {
+        for (Pair<String, String> chatPartner : databaseService.getAllConversationPartnerOf(currentUser.getName())) {
             String chatPartnerId = chatPartner.getKey();
             String chatPartnerName = chatPartner.getValue();
             User user = editor.getChatPartnerOfCurrentUserById(chatPartnerId);
@@ -58,7 +80,7 @@ public class DirectMessageListController implements ControllerInterface, Subscri
             .getCurrentUser()
             .listeners()
             .removePropertyChangeListener(User.PROPERTY_CHAT_PARTNER, chatPartnerChangeListener);
-        NotificationService.removeUserSubscriber(this);
+        notificationService.removeUserSubscriber(this);
     }
 
     @Override
@@ -84,11 +106,11 @@ public class DirectMessageListController implements ControllerInterface, Subscri
         }
 
         if(!directMessagePartnerList.contains(otherUser)) {
-            DirectMessageEntry directMessagePartnerEntry = new DirectMessageEntry(otherUser);
+            DirectMessageEntry directMessagePartnerEntry = directMessageEntryFactory.create(otherUser);
 
             Platform.runLater(() -> {
                 directMessagePartnerList.addElement(otherUser, directMessagePartnerEntry);
-                directMessagePartnerEntry.setNotificationCount(NotificationService.getPublisherNotificationCount(otherUser));
+                directMessagePartnerEntry.setNotificationCount(notificationService.getPublisherNotificationCount(otherUser));
             });
         }
     }
@@ -96,5 +118,10 @@ public class DirectMessageListController implements ControllerInterface, Subscri
     private void onChatPartnerChanged(PropertyChangeEvent propertyChangeEvent) {
         User user = (User) propertyChangeEvent.getNewValue();
         addUserToSidebar(user);
+    }
+
+    @AssistedFactory
+    public interface DirectMessageListControllerFactory {
+        DirectMessageListController create(Parent view);
     }
 }

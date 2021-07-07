@@ -1,21 +1,24 @@
 package de.uniks.stp.modal;
 
 import com.jfoenix.controls.JFXButton;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.component.InviteList;
 import de.uniks.stp.component.InviteListEntry;
+import de.uniks.stp.component.ListComponent;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.ServerInvitation;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
@@ -23,9 +26,10 @@ import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class InvitesModal extends AbstractModal {
@@ -36,41 +40,53 @@ public class InvitesModal extends AbstractModal {
     public static final String CANCEL_BUTTON = "#invites-cancel";
     public static final String ERROR_LABEL = "#invites-error";
 
-    private VBox inviteListContainer;
-    private JFXButton createButton;
-    private JFXButton cancelButton;
-    private Label errorLabel;
-    private InviteList inviteList;
+    private final VBox inviteListContainer;
+    private final JFXButton createButton;
+    private final JFXButton cancelButton;
+    private final Label errorLabel;
+    private final ListComponent<ServerInvitation, InviteListEntry> inviteList;
+    private final ViewLoader viewLoader;
+    private final InviteListEntry.InviteListEntryFactory inviteListEntryFactory;
 
-    private RestClient restClient;
-    private Editor editor;
-    private Server server;
-    private HashMap<ServerInvitation, InviteListEntry> inviteListEntryHashMap;
+    private SessionRestClient restClient;
+    private final Editor editor;
+    private final Server server;
+
+    @Inject
+    CreateInviteModal.CreateInviteModalFactory createInviteModalFactory;
 
     PropertyChangeListener serverInvitationListener = this::onServerInvitationsChanged;
 
-    public InvitesModal(Parent root, Server server, Editor editor) {
-        super(root);
-        this.restClient = NetworkClientInjector.getRestClient();
+    @AssistedInject
+    public InvitesModal(Editor editor,
+                        SessionRestClient restClient,
+                        ViewLoader viewLoader,
+                        @Named("primaryStage") Stage primaryStage,
+                        InviteListEntry.InviteListEntryFactory inviteListEntryFactory,
+                        @Assisted Parent root,
+                        @Assisted Server server) {
+        super(root, primaryStage);
         this.editor = editor;
         this.server = server;
-        inviteListEntryHashMap = new HashMap<>();
+        this.restClient = restClient;
+        this.viewLoader = viewLoader;
+        this.inviteListEntryFactory = inviteListEntryFactory;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_INVITATIONS));
+        setTitle(viewLoader.loadLabel(Constants.LBL_INVITATIONS));
         inviteListContainer = (VBox) view.lookup(INVITE_LIST_CONTAINER);
         createButton = (JFXButton) view.lookup(CREATE_BUTTON);
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
         errorLabel = (Label) view.lookup(ERROR_LABEL);
 
-        inviteList = new InviteList();
+        inviteList = new ListComponent<>(viewLoader);
         inviteList.setMaxHeight(inviteListContainer.getMaxHeight());
         inviteListContainer.getChildren().add(inviteList);
 
-        createButton.setOnAction(this::onCreatButtonClicked);
+        createButton.setOnAction(this::onCreateButtonClicked);
         cancelButton.setOnAction(this::onCancelButtonClicked);
         cancelButton.setCancelButton(true);  // use Escape in order to press button
 
-        server.listeners().addPropertyChangeListener(Server.PROPERTY_INVITATIONS, this::onServerInvitationsChanged);
+        server.listeners().addPropertyChangeListener(Server.PROPERTY_INVITATIONS, serverInvitationListener);
         for (ServerInvitation serverInvitation : server.getInvitations()) {
             invitationAdded(serverInvitation);
         }
@@ -109,23 +125,21 @@ public class InvitesModal extends AbstractModal {
 
     private void invitationRemoved(ServerInvitation oldValue) {
         if (Objects.nonNull(oldValue)) {
-            InviteListEntry inviteListEntry = inviteListEntryHashMap.remove(oldValue);
-            Platform.runLater(() -> inviteList.removeInviteListEntry(inviteListEntry));
+            Platform.runLater(() -> inviteList.removeElement(oldValue));
         }
     }
 
     private void invitationAdded(ServerInvitation newValue) {
         if (Objects.nonNull(newValue)) {
-            InviteListEntry inviteListEntry = new InviteListEntry(newValue, this);
-            Platform.runLater(() -> inviteList.addInviteListEntry(inviteListEntry));
-            inviteListEntryHashMap.put(newValue, inviteListEntry);
+            InviteListEntry inviteListEntry = inviteListEntryFactory.create(newValue, this);
+            Platform.runLater(() -> inviteList.addElement(newValue, inviteListEntry));
         }
     }
 
-    private void onCreatButtonClicked(ActionEvent actionEvent) {
+    private void onCreateButtonClicked(ActionEvent actionEvent) {
         setErrorMessage(null);
-        Parent createInviteModalView = ViewLoader.loadView(Views.CREATE_INVITE_MODAL);
-        CreateInviteModal createInviteModal = new CreateInviteModal(createInviteModalView, server, editor);
+        Parent createInviteModalView = viewLoader.loadView(Views.CREATE_INVITE_MODAL);
+        CreateInviteModal createInviteModal = createInviteModalFactory.create(createInviteModalView, server);
         createInviteModal.show();
     }
 
@@ -136,7 +150,7 @@ public class InvitesModal extends AbstractModal {
             });
             return;
         }
-        String message = ViewLoader.loadLabel(label);
+        String message = viewLoader.loadLabel(label);
         Platform.runLater(() -> {
             errorLabel.setText(message);
         });
@@ -173,7 +187,12 @@ public class InvitesModal extends AbstractModal {
     public void close() {
         createButton.setOnAction(null);
         cancelButton.setOnAction(null);
-        server.listeners().removePropertyChangeListener(Server.PROPERTY_INVITATIONS, this::onServerInvitationsChanged);
+        server.listeners().removePropertyChangeListener(Server.PROPERTY_INVITATIONS, serverInvitationListener);
         super.close();
+    }
+
+    @AssistedFactory
+    public interface InvitesModalFactory {
+        InvitesModal create(Parent view, Server server);
     }
 }

@@ -1,7 +1,9 @@
 package de.uniks.stp.controller;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
-import de.uniks.stp.Editor;
 import de.uniks.stp.component.*;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
@@ -33,12 +35,18 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     private Channel defaultChannel;
     private final Parent view;
-    private final Editor editor;
     private final ServerCategoryList serverCategoryList;
     private final Server model;
     private VBox vBox;
     private final HashMap<Category, ServerCategoryElement> categoryElementHashMap;
     private final HashMap<Channel, ServerChannelElement> channelElementHashMap;
+    private final ServerCategoryElement.ServerCategoryElementFactory serverCategoryElementFactory;
+    private final ServerVoiceChannelElement.ServerVoiceChannelElementFactory serverVoiceChannelElementFactory;
+    private final ServerTextChannelElement.ServerTextChannelElementFactory serverTextChannelElementFactory;
+
+
+    private final NotificationService notificationService;
+    private final Router router;
 
     PropertyChangeListener categoriesPropertyChangeListener = this::onCategoriesPropertyChanged;
     PropertyChangeListener channelPropertyChangeListener = this::onChannelPropertyChanged;
@@ -46,14 +54,26 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     PropertyChangeListener channelNamePropertyChangeListener = this::onChannelNamePropertyChanged;
     private final PropertyChangeListener audioMembersPropertyChangeListener = this::onAudioMembersPropertyChange;
 
-    public ServerCategoryListController(Parent view, Editor editor, Server model) {
+    @AssistedInject
+    public ServerCategoryListController(Router router,
+                                         NotificationService notificationService,
+                                         ServerCategoryList serverCategoryList,
+                                         ServerCategoryElement.ServerCategoryElementFactory serverCategoryElementFactory,
+                                         ServerVoiceChannelElement.ServerVoiceChannelElementFactory serverVoiceChannelElementFactory,
+                                         ServerTextChannelElement.ServerTextChannelElementFactory serverTextChannelElementFactory,
+                                         @Assisted Parent view,
+                                         @Assisted Server model) {
         this.view = view;
-        this.editor = editor;
         this.model = model;
-        this.serverCategoryList = new ServerCategoryList();
+        this.serverCategoryList = serverCategoryList;
         categoryElementHashMap = new HashMap<>();
         channelElementHashMap = new HashMap<>();
-        NotificationService.registerChannelSubscriber(this);
+        this.notificationService = notificationService;
+        this.router = router;
+        this.serverCategoryElementFactory = serverCategoryElementFactory;
+        this.serverVoiceChannelElementFactory = serverVoiceChannelElementFactory;
+        this.serverTextChannelElementFactory = serverTextChannelElementFactory;
+        notificationService.registerChannelSubscriber(this);
     }
 
     @Override
@@ -86,14 +106,14 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     private void categoryRemoved(final Category category) {
         if (Objects.nonNull(category) && categoryElementHashMap.containsKey(category)) {
             for(Channel channel: category.getChannels()){
-                NotificationService.removePublisher(channel);
+                notificationService.removePublisher(channel);
             }
 
-            HashMap<String, String> currentArgs = Router.getCurrentArgs();
+            HashMap<String, String> currentArgs = router.getCurrentArgs();
             // in case a channel of the deleted category is currently shown: reload server
             if(currentArgs.containsKey(":categoryId") && currentArgs.get(":categoryId").equals(category.getId())){
                 RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
-                Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+                Platform.runLater(()-> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
             }
             //else: remove category element in list
             else{
@@ -108,10 +128,22 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     private void categoryAdded(final Category category) {
         if (Objects.nonNull(category) && !categoryElementHashMap.containsKey(category)) {
             category.listeners().addPropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
-            final ServerCategoryElement serverCategoryElement = new ServerCategoryElement(category);
+            final ServerCategoryElement serverCategoryElement = serverCategoryElementFactory.create(category);
             categoryElementHashMap.put(category, serverCategoryElement);
             Platform.runLater(() -> serverCategoryList.addElement(serverCategoryElement));
             category.listeners().addPropertyChangeListener(Category.PROPERTY_NAME, categoryNamePropertyChangeListener);
+        }
+    }
+
+    private void goToDefaultChannel() {
+        if(channelElementHashMap.containsKey(defaultChannel) && !router.getCurrentArgs().containsKey(":channelId")) {
+            goToChannel(defaultChannel);
+
+            RouteArgs args = new RouteArgs();
+            args.addArgument(":id", defaultChannel.getCategory().getServer().getId());
+            args.addArgument(":categoryId", defaultChannel.getCategory().getId());
+            args.addArgument(":channelId", defaultChannel.getId());
+            Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
         }
     }
 
@@ -119,7 +151,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         if(channelElementHashMap.containsKey(channel)) {
             ServerChannelElement element = channelElementHashMap.get(channel);
             serverCategoryList.setActiveElement(element);
-            NotificationService.consume(channel);
+            notificationService.consume(channel);
         }
     }
 
@@ -153,15 +185,15 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     private void channelRemoved(final Category category, final Channel channel) {
         if (Objects.nonNull(category) && Objects.nonNull(channel) && channelElementHashMap.containsKey(channel)) {
-            NotificationService.removePublisher(channel);
+            notificationService.removePublisher(channel);
 
-            HashMap<String, String> currentArgs = Router.getCurrentArgs();
+            HashMap<String, String> currentArgs = router.getCurrentArgs();
             // in case the deleted channel is currently shown: reload server
             if(currentArgs.containsKey(":categoryId") && currentArgs.containsKey(":categoryId")
                     && currentArgs.get(":categoryId").equals(category.getId())
                     && currentArgs.get(":channelId").equals(channel.getId())){
                 RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
-                Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+                Platform.runLater(()-> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
             }
             // else: remove channel element in list
             else{
@@ -208,7 +240,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
                     serverChannelElement.setNotificationCount(NotificationService.getPublisherNotificationCount(channel));
                 }
             });
-            HashMap<String, String> currentRouteArgs = Router.getCurrentArgs();
+            HashMap<String, String> currentRouteArgs = router.getCurrentArgs();
             // show ServerChatView of first loaded channel
             if (Objects.isNull(defaultChannel)) {
                 defaultChannel = channel;
@@ -246,7 +278,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         }
         channelElementHashMap.clear();
         categoryElementHashMap.clear();
-        NotificationService.removeChannelSubscriber(this);
+        notificationService.removeChannelSubscriber(this);
     }
 
     @Override
@@ -260,5 +292,10 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     @Override
     public void onUserNotificationEvent(NotificationEvent event) {
 
+    }
+
+    @AssistedFactory
+    public interface ServerCategoryListControllerFactory {
+        ServerCategoryListController create(Parent view, Server server);
     }
 }

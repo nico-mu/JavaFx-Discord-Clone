@@ -1,5 +1,8 @@
 package de.uniks.stp.controller;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.annotation.Route;
@@ -7,24 +10,38 @@ import de.uniks.stp.model.Server;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
-import de.uniks.stp.router.Router;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN)
 public class MainScreenController implements ControllerInterface {
-    private static final Logger log = LoggerFactory.getLogger(MainScreenController.class);
 
-    private final String NAV_BAR_ID = "#nav-bar";
-    private final String USER_SETTINGS_PANE_ID = "#user-settings-pane";
-    private final String SUBVIEW_CONTAINER_ID = "#subview-container";
+    private static final String NAV_BAR_ID = "#nav-bar";
+    private static final String USER_SETTINGS_PANE_ID = "#user-settings-pane";
+    private static final String SUBVIEW_CONTAINER_ID = "#subview-container";
+
     private final Parent view;
     private final Editor editor;
+    private final NotificationService notificationService;
+
+    @Inject
+    HomeScreenController.HomeScreenControllerFactory homeScreenControllerFactory;
+
+    @Inject
+    ServerScreenController.ServerScreenControllerFactory serverScreenControllerFactory;
+
+    @Inject
+    NavBarListController.NavBarListControllerFactory navBarListControllerFactory;
+
+    @Inject
+    UserInfoController.UserInfoControllerFactory userInfoControllerFactory;
+
     private AnchorPane navBar;
     private AnchorPane userSettingsPane;
     private VBox subViewContainer;
@@ -32,9 +49,13 @@ public class MainScreenController implements ControllerInterface {
     private NavBarListController navBarController;
     private ControllerInterface currentController;
 
-    public MainScreenController(Parent view, Editor editor) {
+    @AssistedInject
+    public MainScreenController(NotificationService notificationService,
+                         Editor editor,
+                         @Assisted Parent view) {
         this.view = view;
         this.editor = editor;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -43,30 +64,31 @@ public class MainScreenController implements ControllerInterface {
         this.userSettingsPane = (AnchorPane) view.lookup(USER_SETTINGS_PANE_ID);
         this.subViewContainer = (VBox) view.lookup(SUBVIEW_CONTAINER_ID);
 
-        navBarController = new NavBarListController(navBar, editor);
+        navBarController = navBarListControllerFactory.create(navBar);
         navBarController.init();
-        userInfoController = new UserInfoController(this.userSettingsPane, this.editor);
+        userInfoController = userInfoControllerFactory.create(this.userSettingsPane);
         userInfoController.init();
 
-        NotificationService.invokeUserNotifications();
+        notificationService.invokeUserNotifications();
     }
 
     @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
+    public ControllerInterface route(RouteInfo routeInfo, RouteArgs args) {
         cleanup();
         String subroute = routeInfo.getSubControllerRoute();
         if (subroute.equals(Constants.ROUTE_HOME)) {
-            currentController = new HomeScreenController(this.subViewContainer, this.editor);
+            currentController = homeScreenControllerFactory.create(this.subViewContainer);
             currentController.init();
-            Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
+            return currentController;
         } else if (subroute.equals(Constants.ROUTE_SERVER)) {
             Server server = editor.getServer(args.getArguments().get(":id"));
             if (Objects.nonNull(server)) {
-                currentController = new ServerScreenController(this.subViewContainer, this.editor, server);
+                currentController = serverScreenControllerFactory.create(this.subViewContainer, server);
                 currentController.init();
-                Router.addToControllerCache(routeInfo.getFullRoute(), currentController);
+                return currentController;
             }
         }
+        return null;
     }
 
     private void cleanup() {
@@ -82,5 +104,10 @@ public class MainScreenController implements ControllerInterface {
         if (Objects.nonNull(currentController)) {
             currentController.stop();
         }
+    }
+
+    @AssistedFactory
+    public interface MainScreenControllerFactory {
+        MainScreenController create(Parent view);
     }
 }

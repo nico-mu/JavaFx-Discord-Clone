@@ -5,7 +5,7 @@
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wd-launch-1" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="de.uniks.stp.*" />
+        <option name="PATTERN" value="de.uniks.stp.controller.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

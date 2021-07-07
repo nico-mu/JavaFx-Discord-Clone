@@ -2,20 +2,24 @@ package de.uniks.stp.modal;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.ServerMessage;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import java.util.Objects;
 
 public class EditMessageModal extends AbstractModal {
@@ -32,12 +36,21 @@ public class EditMessageModal extends AbstractModal {
     private final ServerMessage model;
 
     private final Logger log = LoggerFactory.getLogger(EditMessageModal.class);
+    private final SessionRestClient restClient;
+    private final ViewLoader viewLoader;
 
-    public EditMessageModal(Parent root, ServerMessage model) {
-        super(root);
+    @AssistedInject
+    public EditMessageModal(ViewLoader viewLoader,
+                            SessionRestClient restClient,
+                            @Named("primaryStage") Stage primaryStage,
+                            @Assisted Parent root,
+                            @Assisted ServerMessage model) {
+        super(root, primaryStage);
         this.model = model;
+        this.restClient = restClient;
+        this.viewLoader = viewLoader;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_MESSAGE));
+        setTitle(viewLoader.loadLabel(Constants.LBL_EDIT_MESSAGE));
 
         saveButton = (JFXButton) view.lookup(EDIT_MESSAGE_BUTTON);
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
@@ -69,7 +82,6 @@ public class EditMessageModal extends AbstractModal {
             String channelId = model.getChannel().getId();
             String messageId = model.getId();
 
-            RestClient restClient = NetworkClientInjector.getRestClient();
             restClient.updateMessage(serverId, categoryId, channelId, messageId, text, this::handleEditMessageResponse);
         } else {
             setErrorMessage(Constants.LBL_NO_CHANGES);
@@ -100,9 +112,14 @@ public class EditMessageModal extends AbstractModal {
             });
             return;
         }
-        String message = ViewLoader.loadLabel(label);
+        String message = viewLoader.loadLabel(label);
         Platform.runLater(() -> {
             errorLabel.setText(message);
         });
+    }
+
+    @AssistedFactory
+    public interface EditMessageModalFactory {
+        EditMessageModal create(Parent view, ServerMessage message);
     }
 }

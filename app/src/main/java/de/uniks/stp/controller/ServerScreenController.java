@@ -1,5 +1,8 @@
 package de.uniks.stp.controller;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
@@ -14,9 +17,10 @@ import de.uniks.stp.model.Server;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
-import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Side;
@@ -29,6 +33,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -47,13 +53,17 @@ public class ServerScreenController implements ControllerInterface {
     private static final String SERVER_USER_LIST_CONTAINER = "#server-user-list-container";
     private static final String SETTINGS_LABEL = "#settings-label";
     private static final String CHANNEL_NAME_LABEL = "#channel-name-label";
+
     private final Editor editor;
     private final Server model;
+    private final NotificationService notificationService;
+    private final ViewLoader viewLoader;
+
     private final VBox view;
     private HBox serverScreenView;
     private Channel selectedChannel;
     private TextWithEmoteSupport serverName;
-    PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
+
     private VBox serverChannelOverview;
     private ServerCategoryListController categoryListController;
     private VBox serverChannelContainer;
@@ -63,17 +73,45 @@ public class ServerScreenController implements ControllerInterface {
     private Label settingsGearLabel;
     private ContextMenu settingsContextMenu;
     private TextWithEmoteSupport channelNameLabel;
-    private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
+    private ChangeListener<Number> viewHeightChangedListener = this::onViewHeightChanged;
 
-    public ServerScreenController(Parent view, Editor editor, Server model) {
+    @Inject
+    ServerCategoryListController.ServerCategoryListControllerFactory serverCategoryListControllerFactory;
+
+    @Inject
+    ServerChatController.ServerChatControllerFactory serverChatControllerFactory;
+
+    @Inject
+    ServerUserListController.ServerUserListControllerFactory serverUserListControllerFactory;
+
+    @Inject
+    InvitesModal.InvitesModalFactory invitesModalFactory;
+
+    @Inject
+    ServerSettingsModal.ServerSettingsModalFactory serverSettingsModalFactory;
+
+    @Inject
+    CreateCategoryModal.CreateCategoryModalFactory categoryModalFactory;
+
+    private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
+    PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
+
+    @AssistedInject
+    public ServerScreenController(ViewLoader viewLoader,
+                                  NotificationService notificationService,
+                                  Editor editor,
+                                  @Assisted  Parent view,
+                                  @Assisted Server model) {
         this.view = (VBox) view;
         this.editor = editor;
         this.model = model;
+        this.notificationService = notificationService;
+        this.viewLoader = viewLoader;
     }
 
     @Override
     public void init() {
-        serverScreenView = (HBox) ViewLoader.loadView(SERVER_SCREEN);
+        serverScreenView = (HBox) viewLoader.loadView(SERVER_SCREEN);
         serverChannelOverview = (VBox) serverScreenView.lookup(SERVER_CHANNEL_OVERVIEW);
         serverChannelContainer = (VBox) serverScreenView.lookup(SERVER_CHANNEL_CONTAINER);
         serverUserListContainer = (FlowPane) serverScreenView.lookup(SERVER_USER_LIST_CONTAINER);
@@ -93,23 +131,21 @@ public class ServerScreenController implements ControllerInterface {
         items.get(2).setOnAction(this::onCreateCategoryClicked);
 
         serverScreenView.setPrefHeight(view.getHeight());
-        view.heightProperty().addListener(((observable, oldValue, newValue) -> {
-            serverScreenView.setPrefHeight((double) newValue);
-        }));
+        view.heightProperty().addListener(viewHeightChangedListener);
 
         settingsGearLabel.setOnMouseClicked(e -> settingsContextMenu.show(settingsGearLabel, Side.BOTTOM, 0, 0));
 
-        categoryListController = new ServerCategoryListController(serverChannelOverview, editor, model);
+        categoryListController = serverCategoryListControllerFactory.create(serverChannelOverview, model);
         categoryListController.init();
 
-        serverUserListController = new ServerUserListController(serverUserListContainer, editor, model);
+        serverUserListController = serverUserListControllerFactory.create(serverUserListContainer, model);
         serverUserListController.init();
 
         model.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
     }
 
     @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
+    public ControllerInterface route(RouteInfo routeInfo, RouteArgs args) {
         subviewCleanup();
         if (routeInfo.getSubControllerRoute().equals(Constants.ROUTE_CHANNEL)) {
             final Channel channel = selectAndGetChannel(args.getArguments());
@@ -123,12 +159,14 @@ public class ServerScreenController implements ControllerInterface {
                     break;
                 default:
                     log.error("Could not create a Controller for channelType: {}", channelType);
-                    return;
+                    return null;
             }
-            NotificationService.consume(channel);
+            notificationService.consume(channel);
+            serverChannelController = serverChatControllerFactory.create(serverChannelContainer, channel);
             serverChannelController.init();
-            Router.addToControllerCache(routeInfo.getFullRoute(), serverChannelController);
+            return serverChannelController;
         }
+        return null;
     }
 
     private void subviewCleanup() {
@@ -175,24 +213,24 @@ public class ServerScreenController implements ControllerInterface {
     }
 
     private void onInviteUserClicked(ActionEvent actionEvent) {
-        Parent invitesModalView = ViewLoader.loadView(Views.INVITES_MODAL);
-        InvitesModal invitesModal = new InvitesModal(invitesModalView, model, editor);
+        Parent invitesModalView = viewLoader.loadView(Views.INVITES_MODAL);
+        InvitesModal invitesModal = invitesModalFactory.create(invitesModalView, model);
         invitesModal.show();
     }
 
     private void onEditServerClicked(ActionEvent actionEvent) {
-        Parent serverSettingsModalView = ViewLoader.loadView(Views.SERVER_SETTINGS_MODAL);
+        Parent serverSettingsModalView = viewLoader.loadView(Views.SERVER_SETTINGS_MODAL);
         boolean owner = false;
         if (Objects.nonNull(model.getOwner())) {
             owner = editor.getOrCreateAccord().getCurrentUser().getId().equals(model.getOwner().getId());
         }
-        ServerSettingsModal serverSettingsModal = new ServerSettingsModal(serverSettingsModalView, model, owner);
+        ServerSettingsModal serverSettingsModal = serverSettingsModalFactory.create(serverSettingsModalView, model, owner);
         serverSettingsModal.show();
     }
 
     private void onCreateCategoryClicked(ActionEvent actionEvent) {
-        Parent createCategoryModalView = ViewLoader.loadView(Views.CREATE_CATEGORY_MODAL);
-        CreateCategoryModal createCategoryModal = new CreateCategoryModal(createCategoryModalView, model, editor);
+        Parent createCategoryModalView = viewLoader.loadView(Views.CREATE_CATEGORY_MODAL);
+        CreateCategoryModal createCategoryModal = categoryModalFactory.create(createCategoryModalView, model);
         createCategoryModal.show();
     }
 
@@ -217,5 +255,15 @@ public class ServerScreenController implements ControllerInterface {
         for (MenuItem item : settingsContextMenu.getItems()) {
             item.setOnAction(null);
         }
+        view.heightProperty().removeListener(viewHeightChangedListener);
+    }
+
+    private void onViewHeightChanged(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+        serverScreenView.setPrefHeight(newValue.doubleValue());
+    }
+
+    @AssistedFactory
+    public interface ServerScreenControllerFactory {
+        ServerScreenController create(Parent view, Server server);
     }
 }

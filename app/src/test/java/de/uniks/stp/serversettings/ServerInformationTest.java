@@ -1,18 +1,16 @@
 package de.uniks.stp.serversettings;
 
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
-import de.uniks.stp.component.ServerCategoryElement;
-import de.uniks.stp.component.TextWithEmoteSupport;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.WSCallback;
-import de.uniks.stp.network.WebSocketClient;
+import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -36,8 +34,6 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,39 +44,46 @@ import static org.mockito.Mockito.when;
 @ExtendWith(ApplicationExtension.class)
 public class ServerInformationTest {
     @Mock
-    private RestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
-
-    @Mock
     private HttpResponse<JsonNode> res;
 
     @Captor
     private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
 
-    private StageManager app;
+    private AccordApp app;
+    private Router router;
+    private Editor editor;
+    private SessionRestClient restMock;
+    private User currentUser;
 
     @Start
     public void start(Stage stage) {
         // start application
         MockitoAnnotations.initMocks(this);
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        editor = appTestComponent.getEditor();
+        currentUser = editor.createCurrentUser("Test", true).setId("123-45");
+        editor.setCurrentUser(currentUser);
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+        app.setSessionComponent(sessionTestComponent);
+
+        WebSocketService webSocketService = sessionTestComponent.getWebsocketService();
+        restMock = sessionTestComponent.getSessionRestClient();
+        webSocketService.init();
     }
 
     @Test
     public void serverInformationTest(FxRobot robot) {
-        Editor editor = StageManager.getEditor();
-
-        String userId = "1";
-        String userName = "TestUser1";
-        User currentUser = new User().setName(userName).setId(userId);
-        editor.getOrCreateAccord().setCurrentUser(currentUser).setUserKey("123-45");
-        Platform.runLater(()-> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
+        Platform.runLater(()-> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS));
         WaitForAsyncUtils.waitForFxEvents();
 
         //getServers Response
@@ -112,8 +115,8 @@ public class ServerInformationTest {
                     .put(category2Id))
                 .put("members", new JSONArray()
                     .put(new JSONObject()
-                        .put("id", userId)
-                        .put("name", userName)
+                        .put("id", currentUser.getId())
+                        .put("name", currentUser.getName())
                         .put("online", true))
                     .put(new JSONObject()
                         .put("id", serverOwnerId)
@@ -187,7 +190,7 @@ public class ServerInformationTest {
                     .put("category", category1Id)
                     .put("members", new JSONArray())
                     .put("audioMembers", new JSONArray()
-                        .put(userId))));
+                        .put(currentUser.getId()))));
         when(res.getBody()).thenReturn(new JsonNode(category1Channels.toString()));
         when(res.isSuccess()).thenReturn(true);
         verify(restMock).getChannels(eq(server1Id), eq(category1Id), callbackCaptor.capture());
@@ -208,7 +211,7 @@ public class ServerInformationTest {
                     .put("privileged", true)
                     .put("category", category2Id)
                     .put("members", new JSONArray()
-                        .put(userId))
+                        .put(currentUser.getId()))
                     .put("audioMembers", new JSONArray())));
         when(res.getBody()).thenReturn(new JsonNode(category2Channels.toString()));
         when(res.isSuccess()).thenReturn(true);
@@ -231,7 +234,7 @@ public class ServerInformationTest {
         Assertions.assertEquals(voiceChannelId, voiceChannel.getId());
         Assertions.assertEquals("audio", voiceChannel.getType());
         Assertions.assertEquals(1, voiceChannel.getAudioMembers().size());
-        Assertions.assertEquals(userId, voiceChannel.getAudioMembers().get(0).getId());
+        Assertions.assertEquals(currentUser.getId(), voiceChannel.getAudioMembers().get(0).getId());
 
         //Check category2 channel
         Assertions.assertEquals(1, category2.getChannels().size());
@@ -240,7 +243,7 @@ public class ServerInformationTest {
         Assertions.assertEquals(privilegedChannelId, privilegedChannel.getId());
         Assertions.assertEquals("text", privilegedChannel.getType());
         Assertions.assertEquals(1, privilegedChannel.getChannelMembers().size());
-        Assertions.assertEquals(userId, privilegedChannel.getChannelMembers().get(0).getId());
+        Assertions.assertEquals(currentUser.getId(), privilegedChannel.getChannelMembers().get(0).getId());
 
         //Check view
         robot.clickOn("#" + server.getId()+"-navBarElement");
@@ -254,7 +257,9 @@ public class ServerInformationTest {
     @AfterEach
     void tear() {
         restMock = null;
-        webSocketMock = null;
+        router = null;
+        editor = null;
+        currentUser = null;
         res = null;
         callbackCaptor = null;
         Platform.runLater(app::stop);

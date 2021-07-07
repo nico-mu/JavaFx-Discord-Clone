@@ -4,17 +4,19 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.UserCheckList;
 import de.uniks.stp.component.UserCheckListEntry;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -22,17 +24,20 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Objects;
 
 public class EditChannelModal extends AbstractModal {
-    private static final Logger log = LoggerFactory.getLogger(AddChannelModal.class);
+    private static final Logger log = LoggerFactory.getLogger(CreateChannelModal.class);
 
     public static final String EDIT_CHANNEL_NAME_TEXTFIELD = "#edit-channel-name-textfield";
     public static final String NOTIFICATION_CONTAINER = "#notification-anchorpane";
@@ -46,32 +51,49 @@ public class EditChannelModal extends AbstractModal {
     public static final String EDIT_CHANNEL_ERROR_LABEL = "#edit-channel-error";
     public static final String EDIT_CHANNEL_DELETE_BUTTON = "#delete-channel";
 
-    private JFXTextField channelName;
-    private AnchorPane notificationAnchorPane;
-    private JFXToggleButton notificationsToggleButton;
-    private Label notificationsLabel;
-    private JFXCheckBox privileged;
-    private JFXTextField filter;
-    private HBox userCheckListContainer;
-    private UserCheckList selectUserList;
-    private JFXButton editButton;
-    private JFXButton cancelButton;
-    private Label errorLabel;
-    private JFXButton deleteButton;
-    private Category category;
-    private Channel channel;
-    private RestClient restClient;
-    private ConfirmationModal confirmationModal;
-    private Editor editor;
+    private final JFXTextField channelName;
+    private final AnchorPane notificationAnchorPane;
+    private final JFXToggleButton notificationsToggleButton;
+    private final Label notificationsLabel;
+    private final JFXCheckBox privileged;
+    private final JFXTextField filter;
+    private final HBox userCheckListContainer;
+    private final UserCheckList selectUserList;
+    private final JFXButton editButton;
+    private final JFXButton cancelButton;
+    private final Label errorLabel;
+    private final JFXButton deleteButton;
+    private final Category category;
+    private final Channel channel;
 
-    public EditChannelModal(Parent root, Channel channel, Editor editor) {
-        super(root);
+    private final SessionDatabaseService databaseService;
+    private final ViewLoader viewLoader;
+    private ConfirmationModal confirmationModal;
+    private final Editor editor;
+    private final SessionRestClient restClient;
+
+    @Inject
+    ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
+
+    @AssistedInject
+    public EditChannelModal(Editor editor,
+                            SessionRestClient restClient,
+                            SessionDatabaseService databaseService,
+                            ViewLoader viewLoader,
+                            @Named("primaryStage") Stage primaryStage,
+                            UserCheckList userCheckList,
+                            UserCheckListEntry.UserCheckListEntryFactory userCheckListEntryFactory,
+                            @Assisted Parent root,
+                            @Assisted Channel channel) {
+        super(root, primaryStage);
         this.editor = editor;
         this.category = channel.getCategory();
         this.channel = channel;
-        this.restClient = NetworkClientInjector.getRestClient();
+        this.restClient = restClient;
+        this.databaseService = databaseService;
+        this.viewLoader = viewLoader;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_CHANNEL));
+        setTitle(viewLoader.loadLabel(Constants.LBL_EDIT_CHANNEL));
         channelName = (JFXTextField) view.lookup(EDIT_CHANNEL_NAME_TEXTFIELD);
         notificationAnchorPane = (AnchorPane)  view.lookup(NOTIFICATION_CONTAINER);
         notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);
@@ -84,7 +106,7 @@ public class EditChannelModal extends AbstractModal {
         errorLabel = (Label) view.lookup(EDIT_CHANNEL_ERROR_LABEL);
         deleteButton = (JFXButton) view.lookup(EDIT_CHANNEL_DELETE_BUTTON);
 
-        boolean muted = DatabaseService.isChannelMuted(channel.getId());
+        boolean muted = databaseService.isChannelMuted(channel.getId());
         boolean voice = channel.getType().equals("audio");
         if(voice) {
             notificationAnchorPane.getChildren().clear();
@@ -94,13 +116,13 @@ public class EditChannelModal extends AbstractModal {
         notificationsToggleButton.setVisible(!voice);
         notificationsLabel.setVisible(!voice);
         notificationsToggleButton.setSelected(!muted);
-        notificationsLabel.setText(ViewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
+        notificationsLabel.setText(viewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
         notificationsToggleButton.selectedProperty().addListener(((observable, oldValue, newValue) -> {
-            notificationsLabel.setText(ViewLoader.loadLabel(!notificationsToggleButton.isSelected() ? Constants.LBL_OFF : Constants.LBL_ON));
+            notificationsLabel.setText(viewLoader.loadLabel(!notificationsToggleButton.isSelected() ? Constants.LBL_OFF : Constants.LBL_ON));
         }));
         privileged.setSelected(channel.isPrivileged());
 
-        selectUserList = new UserCheckList();
+        selectUserList = userCheckList;
         selectUserList.setMaxHeight(userCheckListContainer.getMaxHeight());
         selectUserList.setDisable(true);
         userCheckListContainer.getChildren().add(selectUserList);
@@ -127,7 +149,7 @@ public class EditChannelModal extends AbstractModal {
             if(user.getName().equals(editor.getOrCreateAccord().getCurrentUser().getName())) {
                 continue;
             }
-            UserCheckListEntry userCheckListEntry = new UserCheckListEntry(user);
+            UserCheckListEntry userCheckListEntry = userCheckListEntryFactory.create(user);
             if(memberNames.contains(user.getName())) {
                 userCheckListEntry.setSelected(true);
             }
@@ -136,8 +158,8 @@ public class EditChannelModal extends AbstractModal {
     }
 
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
-        Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
-        confirmationModal = new ConfirmationModal(confirmationModalView,
+        Parent confirmationModalView = viewLoader.loadView(Views.CONFIRMATION_MODAL);
+        confirmationModal = confirmationModalFactory.create(confirmationModalView,
             Constants.LBL_DELETE_CHANNEL,
             Constants.LBL_CONFIRM_DELETE_CHANNEL,
             this::onYesButtonClicked,
@@ -190,9 +212,9 @@ public class EditChannelModal extends AbstractModal {
 
         boolean muted = !notificationsToggleButton.isSelected();
         if(muted) {
-            DatabaseService.addMutedChannelId(channelId);
+            databaseService.addMutedChannelId(channelId);
         }else {
-            DatabaseService.removeMutedChannelId(channelId);
+            databaseService.removeMutedChannelId(channelId);
         }
 
         ArrayList<String> privilegedUserIds = selectUserList.getSelectedUserIds();
@@ -216,7 +238,7 @@ public class EditChannelModal extends AbstractModal {
             });
             return;
         }
-        String message = ViewLoader.loadLabel(label);
+        String message = viewLoader.loadLabel(label);
         Platform.runLater(() -> {
             errorLabel.setText(message);
         });
@@ -267,5 +289,10 @@ public class EditChannelModal extends AbstractModal {
         editButton.setOnAction(null);
         cancelButton.setOnAction(null);
         super.close();
+    }
+
+    @AssistedFactory
+    public interface EditChannelModalFactory {
+        EditChannelModal create(Parent view, Channel channel);
     }
 }

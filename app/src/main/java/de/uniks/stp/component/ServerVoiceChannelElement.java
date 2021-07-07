@@ -1,5 +1,8 @@
 package de.uniks.stp.component;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
@@ -22,34 +25,44 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class ServerVoiceChannelElement extends ServerChannelElement {
 
     @FXML
-    TextWithEmoteSupport channelText;
+    private TextWithEmoteSupport channelText;
 
     @FXML
-    Pane channelElementMarker;
+    private Pane channelElementMarker;
 
     @FXML
-    HBox channelContainer;
+    private HBox channelContainer;
 
     @FXML
-    ImageView editChannel;
+    private ImageView editChannel;
 
     @FXML
-    VBox audioMemberContainer;
+    private VBox audioMemberContainer;
 
-    Channel model;
+    private Channel model;
+    private HashMap<String, UserListEntry> userListEntryHashMap;
+    private final ViewLoader viewLoader;
+    private final EditChannelModal.EditChannelModalFactory editChannelModalFactory;
     private Editor editor;
     private final ListComponent<User, VoiceUserListEntry> voiceUserListComponent;
 
-    public ServerVoiceChannelElement(Channel model, Editor editor) {
-        this.editor = editor;
+    @AssistedInject
+    public ServerVoiceChannelElement(ViewLoader viewLoader,
+                                     EditChannelModal.EditChannelModalFactory editChannelModalFactory,
+                                     UserListEntry.UserListEntryFactory userListEntryFactory,
+                                     @Assisted Channel model) {
         this.model = model;
+        userListEntryHashMap = new HashMap<>();
+        this.viewLoader = viewLoader;
+        this.editChannelModalFactory = editChannelModalFactory;
 
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_VOICE_CHANNEL_ELEMENT);
+        FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.SERVER_VOICE_CHANNEL_ELEMENT);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -102,8 +115,8 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
     }
 
     private void onEditChannelClicked(MouseEvent mouseEvent) {
-        Parent editChannelModalView = ViewLoader.loadView(Views.EDIT_CHANNEL_MODAL);
-        EditChannelModal editChannelModal = new EditChannelModal(editChannelModalView, model, editor);
+        Parent editChannelModalView = viewLoader.loadView(Views.EDIT_CHANNEL_MODAL);
+        EditChannelModal editChannelModal = editChannelModalFactory.create(editChannelModalView, model);
         editChannelModal.show();
     }
 
@@ -140,5 +153,10 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
 
     @Override
     public void setNotificationCount(int notifications) {
+    }
+
+    @AssistedFactory
+    public interface ServerVoiceChannelElementFactory {
+        ServerVoiceChannelElement create(Channel model);
     }
 }

@@ -30,8 +30,6 @@ public class EmoteRendererTest {
 
         renderResult = renderer.render("Hello :grinning_face: World:grinning_fac::grinning_face_with_smiling_eyes:");
 
-        System.out.println(renderResult);
-
         Assertions.assertEquals(4, renderResult.size());
         Assertions.assertEquals("Hello ", ((Text) renderResult.get(0)).getText());
         Assertions.assertEquals(EmoteParser.getEmoteMapping().get("grinning_face"), ((Text) renderResult.get(1)).getText());

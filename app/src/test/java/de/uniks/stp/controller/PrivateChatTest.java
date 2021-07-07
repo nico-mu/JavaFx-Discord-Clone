@@ -1,15 +1,15 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.WSCallback;
-import de.uniks.stp.network.WebSocketClient;
+import de.uniks.stp.network.websocket.WSCallback;
+import de.uniks.stp.network.websocket.WebSocketClientFactory;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
@@ -39,11 +38,6 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(ApplicationExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class PrivateChatTest {
-    @Mock
-    private RestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
 
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
@@ -52,18 +46,39 @@ public class PrivateChatTest {
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
     private HashMap<String, WSCallback> endpointCallbackHashmap;
-    private StageManager app;
+
+    private AccordApp app;
+    private Router router;
+    private Editor editor;
+    private User currentUser;
+    private WebSocketClientFactory webSocketClientFactoryMock;
+    private SessionDatabaseService sessionDatabaseService;
 
     @Start
     public void start(Stage stage) {
+        endpointCallbackHashmap = new HashMap<>();
         // start application
         MockitoAnnotations.initMocks(this);
-        endpointCallbackHashmap = new HashMap<>();
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        editor = appTestComponent.getEditor();
+        currentUser = editor.createCurrentUser(generateRandomString(), true).setId(generateRandomString());
+        editor.setCurrentUser(currentUser);
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+        app.setSessionComponent(sessionTestComponent);
+
+        webSocketClientFactoryMock = sessionTestComponent.getWebSocketClientFactory();
+        sessionDatabaseService = sessionTestComponent.getSessionDatabaseService();
+        sessionTestComponent.getWebsocketService().init();
     }
 
     private String generateRandomString() {
@@ -72,20 +87,17 @@ public class PrivateChatTest {
 
     @Test
     public void testPrivateMessage(FxRobot robot) {
-        Editor editor = StageManager.getEditor();
-
-        User currentUser = new User().setName(generateRandomString()).setId(generateRandomString());
         User otherUser = new User().setName(generateRandomString()).setId(generateRandomString());
 
         editor.getOrCreateAccord()
-            .setCurrentUser(currentUser)
-            .setUserKey(generateRandomString())
             .withOtherUsers(otherUser);
 
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME));
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(webSocketMock, times(2)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(2))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
         for (int i = 0; i < endpoints.size(); i++) {
@@ -93,7 +105,7 @@ public class PrivateChatTest {
         }
         WSCallback currentUserCallback = endpointCallbackHashmap.get(Constants.WS_USER_PATH + currentUser.getName());
 
-        DatabaseService.clearAllConversations();
+        sessionDatabaseService.clearAllConversations();
 
         JsonObject message = Json.createObjectBuilder()
             .add("channel", "private")
@@ -112,7 +124,7 @@ public class PrivateChatTest {
             .build();
         currentUserCallback.handleMessage(message);
 
-        List<DirectMessageDTO> directMessages = DatabaseService.getConversation(currentUser.getName(), otherUser.getName());
+        List<DirectMessageDTO> directMessages = sessionDatabaseService.getConversation(currentUser.getName(), otherUser.getName());
         Assertions.assertEquals(2, directMessages.size());
 
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getChatPartner().size());
@@ -122,8 +134,11 @@ public class PrivateChatTest {
 
     @AfterEach
     void tear(){
-        restMock = null;
-        webSocketMock = null;
+        webSocketClientFactoryMock = null;
+        sessionDatabaseService = null;
+        editor = null;
+        router = null;
+        currentUser = null;
         stringArgumentCaptor = null;
         wsCallbackArgumentCaptor = null;
         endpointCallbackHashmap = null;
