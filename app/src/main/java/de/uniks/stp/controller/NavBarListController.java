@@ -131,7 +131,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
                 notificationService.removePublisher(channel);
             }
         }
-        server.listeners().addPropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
+        server.listeners().removePropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
     }
 
     protected void callback(HttpResponse<JsonNode> response) {
