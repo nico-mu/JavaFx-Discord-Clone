@@ -1,6 +1,9 @@
 package de.uniks.stp.controller;
 
 import com.jfoenix.controls.JFXButton;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
@@ -10,6 +13,8 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -18,6 +23,7 @@ import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME)
@@ -30,22 +36,41 @@ public class HomeScreenController implements ControllerInterface {
 
     private final VBox view;
     private final Editor editor;
+    private final Router router;
+    private final ViewLoader viewLoader;
+
     private VBox onlineUsersContainer;
     private VBox directMessagesContainer;
     private JFXButton showOnlineUsersButton;
     private Label homeScreenLabel;
+    private HBox homeScreenView;
+
     private UserListController userListController;
     private DirectMessageListController directMessageListController;
     private PrivateChatController privateChatController;
 
-    HomeScreenController(Parent view, Editor editor) {
+    @Inject
+    DirectMessageListController.DirectMessageListControllerFactory directMessageListControllerFactory;
+
+    @Inject
+    PrivateChatController.PrivateChatControllerFactory privateChatControllerFactory;
+
+    @Inject
+    UserListController.UserListControllerFactory userListControllerFactory;
+    private final ChangeListener<Number> viewHeightChangedListener = this::onViewHeightChangeListener;
+
+
+    @AssistedInject
+    HomeScreenController(Editor editor, Router router, ViewLoader viewLoader, @Assisted Parent view) {
         this.view = (VBox) view;
         this.editor = editor;
+        this.router = router;
+        this.viewLoader = viewLoader;
     }
 
     @Override
     public void init() {
-        HBox homeScreenView = (HBox) ViewLoader.loadView(Views.HOME_SCREEN);
+        homeScreenView = (HBox) viewLoader.loadView(Views.HOME_SCREEN);
         view.getChildren().add(homeScreenView);
 
         showOnlineUsersButton = (JFXButton) homeScreenView.lookup(TOGGLE_ONLINE_BUTTON_ID);
@@ -54,16 +79,14 @@ public class HomeScreenController implements ControllerInterface {
         homeScreenLabel = (Label) homeScreenView.lookup(HOME_SCREEN_LABEL_ID);
 
         showOnlineUsersButton.setOnMouseClicked(this::handleShowOnlineUsersClicked);
-        directMessageListController = new DirectMessageListController(directMessagesContainer, editor);
+        directMessageListController =  directMessageListControllerFactory.create(directMessagesContainer);
         directMessageListController.init();
         homeScreenView.setPrefHeight(view.getHeight());
-        view.heightProperty().addListener(((observable, oldValue, newValue) -> {
-            homeScreenView.setPrefHeight((double) newValue);
-        }));
+        view.heightProperty().addListener(viewHeightChangedListener);
     }
 
     @Override
-    public void route(RouteInfo routeInfo, RouteArgs args) {
+    public ControllerInterface route(RouteInfo routeInfo, RouteArgs args) {
         String subRoute = routeInfo.getSubControllerRoute();
         subviewCleanup();
         if (subRoute.equals(Constants.ROUTE_PRIVATE_CHAT)) {
@@ -76,20 +99,21 @@ public class HomeScreenController implements ControllerInterface {
                     user = editor.getOrCreateChatPartnerOfCurrentUser(otherUser.getId(), otherUser.getName());
                 } else {
                     log.error("No user can be selected.");
-                    return;
+                    return null;
                 }
             }
             directMessageListController.addUserToSidebar(user);
-            privateChatController = new PrivateChatController(view, editor, user);
+            privateChatController = privateChatControllerFactory.create(view, user);
             privateChatController.init();
-            Router.addToControllerCache(routeInfo.getFullRoute(), privateChatController);
+            return privateChatController;
 
         } else if (subRoute.equals(Constants.ROUTE_LIST_ONLINE_USERS)) {
-            userListController = new UserListController(onlineUsersContainer, editor);
+            userListController = userListControllerFactory.create(onlineUsersContainer);
             userListController.init();
-            Router.addToControllerCache(routeInfo.getFullRoute(), userListController);
-            homeScreenLabel.setText(ViewLoader.loadLabel(Constants.LBL_ONLINE_USERS));
+            homeScreenLabel.setText(viewLoader.loadLabel(Constants.LBL_ONLINE_USERS));
+            return userListController;
         }
+        return null;
     }
 
     @Override
@@ -106,7 +130,7 @@ public class HomeScreenController implements ControllerInterface {
         }
         directMessagesContainer.getChildren().clear();
         showOnlineUsersButton.setOnMouseClicked(null);
-
+        homeScreenView.heightProperty().removeListener(viewHeightChangedListener);
     }
 
     private void subviewCleanup() {
@@ -114,6 +138,15 @@ public class HomeScreenController implements ControllerInterface {
     }
 
     private void handleShowOnlineUsersClicked(MouseEvent mouseEvent) {
-        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
+        router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS);
+    }
+
+    private void onViewHeightChangeListener(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+        homeScreenView.setPrefHeight(newValue.doubleValue());
+    }
+
+    @AssistedFactory
+    public interface HomeScreenControllerFactory {
+        HomeScreenController create(Parent view);
     }
 }

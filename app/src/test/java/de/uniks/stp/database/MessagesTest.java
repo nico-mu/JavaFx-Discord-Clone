@@ -1,20 +1,29 @@
 package de.uniks.stp.database;
 
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.AccordApp;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.DaggerAppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.jpa.model.DirectMessageDTO;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
-import de.uniks.stp.router.Router;
+import javafx.stage.Stage;
 import javafx.util.Pair;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public class MessagesTest {
+    private SessionDatabaseService sessionDatabaseService;
+
     private void sendMessage(User from, User to) {
-        DatabaseService.saveDirectMessage((DirectMessage) new DirectMessage()
+        sessionDatabaseService.saveDirectMessage((DirectMessage) new DirectMessage()
             .setReceiver(to)
             .setSender(from)
             .setTimestamp(new Date().getTime())
@@ -24,42 +33,55 @@ public class MessagesTest {
 
     @Test
     public void testDirectMessagesDatabaseService() {
-        DatabaseService.init(false);
+        AppTestComponent appTestComponent = DaggerAppTestComponent
+            .builder()
+            .application(Mockito.mock(AccordApp.class))
+            .primaryStage(Mockito.mock(Stage.class))
+            .build();
 
         User currentUser = new User().setName("test-user1").setId("test-user1-id");
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+
+        sessionDatabaseService = sessionTestComponent.getSessionDatabaseService();
+
         User friend1 = new User().setName("test-user2").setId("test-user2-id");
         User friend2 = new User().setName("test-user3").setId("test-user3-id");
 
-        DatabaseService.clearAllConversations();
+        sessionDatabaseService.clearAllConversations();
 
         sendMessage(currentUser, friend1);
         sendMessage(friend1, currentUser);
         sendMessage(friend1, currentUser);
 
-        List<DirectMessageDTO> directMessages = DatabaseService.getConversation(currentUser.getName(), friend1.getName());
-        List<Pair<String, String>> directMessageReceiver = DatabaseService.getAllConversationPartnerOf(currentUser.getName());
+        List<DirectMessageDTO> directMessages = sessionDatabaseService.getConversation(currentUser.getName(), friend1.getName());
+        List<Pair<String, String>> directMessageReceiver = sessionDatabaseService.getAllConversationPartnerOf(currentUser.getName());
         Assertions.assertEquals(3, directMessages.size());
         Assertions.assertEquals(1, directMessageReceiver.size());
 
         sendMessage(friend2, currentUser);
 
-        directMessages = DatabaseService.getConversation(currentUser.getName(), friend1.getName());
-        directMessageReceiver = DatabaseService.getAllConversationPartnerOf(currentUser.getName());
+        directMessages = sessionDatabaseService.getConversation(currentUser.getName(), friend1.getName());
+        directMessageReceiver = sessionDatabaseService.getAllConversationPartnerOf(currentUser.getName());
         Assertions.assertEquals(3, directMessages.size());
         Assertions.assertEquals(2, directMessageReceiver.size());
 
         sendMessage(friend2, currentUser);
         sendMessage(currentUser, friend2);
 
-        directMessages = DatabaseService.getConversation(currentUser.getName(), friend2.getName());
-        directMessageReceiver = DatabaseService.getAllConversationPartnerOf(currentUser.getName());
+        directMessages = sessionDatabaseService.getConversation(currentUser.getName(), friend2.getName());
+        directMessageReceiver = sessionDatabaseService.getAllConversationPartnerOf(currentUser.getName());
         Assertions.assertEquals(3, directMessages.size());
         Assertions.assertEquals(2, directMessageReceiver.size());
 
-        DatabaseService.clearConversation(currentUser.getName(), friend2.getName());
+        sessionDatabaseService.clearConversation(currentUser.getName(), friend2.getName());
 
-        directMessages = DatabaseService.getConversation(currentUser.getName(), friend2.getName());
-        directMessageReceiver = DatabaseService.getAllConversationPartnerOf(currentUser.getName());
+        directMessages = sessionDatabaseService.getConversation(currentUser.getName(), friend2.getName());
+        directMessageReceiver = sessionDatabaseService.getAllConversationPartnerOf(currentUser.getName());
         Assertions.assertEquals(0, directMessages.size());
         Assertions.assertEquals(1, directMessageReceiver.size());
 
@@ -68,8 +90,8 @@ public class MessagesTest {
         currentUser = friend1;
         friend1 = temp;
 
-        directMessages = DatabaseService.getConversation(currentUser.getName(), friend2.getName());
-        directMessageReceiver = DatabaseService.getAllConversationPartnerOf(currentUser.getName());
+        directMessages = sessionDatabaseService.getConversation(currentUser.getName(), friend2.getName());
+        directMessageReceiver = sessionDatabaseService.getAllConversationPartnerOf(currentUser.getName());
         Assertions.assertEquals(0, directMessages.size());
         Assertions.assertEquals(1, directMessageReceiver.size());
 
@@ -78,12 +100,16 @@ public class MessagesTest {
         sendMessage(friend1, currentUser);
         sendMessage(friend2, currentUser);
 
-        directMessages = DatabaseService.getConversation(currentUser.getName(), friend2.getName());
-        directMessageReceiver = DatabaseService.getAllConversationPartnerOf(currentUser.getName());
-        System.out.println(directMessageReceiver);
+        directMessages = sessionDatabaseService.getConversation(currentUser.getName(), friend2.getName());
+        directMessageReceiver = sessionDatabaseService.getAllConversationPartnerOf(currentUser.getName());
         Assertions.assertEquals(2, directMessages.size());
         Assertions.assertEquals(2, directMessageReceiver.size());
 
-        DatabaseService.clearAllConversations();
+        sessionDatabaseService.clearAllConversations();
+    }
+
+    @AfterEach
+    void tear(){
+        sessionDatabaseService = null;
     }
 }

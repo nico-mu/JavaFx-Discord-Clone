@@ -1,26 +1,32 @@
 package de.uniks.stp.serversettings;
 
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.ViewLoader;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.*;
+import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.network.websocket.WSCallback;
+import de.uniks.stp.network.websocket.WebSocketClientFactory;
+import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
-import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -44,12 +50,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(ApplicationExtension.class)
 public class CreateChannelTest {
     @Mock
-    private RestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
-
-    @Mock
     private HttpResponse<JsonNode> res;
 
     @Captor
@@ -63,28 +63,44 @@ public class CreateChannelTest {
 
     private HashMap<String, WSCallback> endpointCallbackHashmap;
 
-    private StageManager app;
+    private AccordApp app;
+    private Router router;
+    private Editor editor;
+    private WebSocketClientFactory webSocketClientFactoryMock;
+    private WebSocketService webSocketService;
+    private SessionRestClient restMock;
 
     @Start
     public void start(Stage stage) {
+        endpointCallbackHashmap = new HashMap<>();
         // start application
         MockitoAnnotations.initMocks(this);
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        endpointCallbackHashmap = new HashMap<>();
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
-        DatabaseService.clearAllConversations();
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        editor = appTestComponent.getEditor();
+        User currentUser = editor.createCurrentUser("TestUser1", true).setId("1");
+        editor.setCurrentUser(currentUser);
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+        app.setSessionComponent(sessionTestComponent);
+
+        webSocketClientFactoryMock = sessionTestComponent.getWebSocketClientFactory();
+        webSocketService = sessionTestComponent.getWebsocketService();
+        restMock = sessionTestComponent.getSessionRestClient();
+        webSocketService.init();
     }
 
     @Test
     public void createChannelFailed(FxRobot robot) {
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
         String serverName = "TestServer";
         String serverId = "12345678";
         Server testServer = new Server().setName(serverName).setId(serverId);
@@ -93,7 +109,7 @@ public class CreateChannelTest {
             .withAvailableServers(testServer);
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         String categoryName = "TestCategory";
@@ -111,12 +127,15 @@ public class CreateChannelTest {
         robot.clickOn("#add-channel-plus");
         robot.clickOn("#add-channel-create-button");
 
-        JSONObject j = new JSONObject().put("status", "failure").put("message", "Missing name")
+        JSONObject j = new JSONObject()
+            .put("status", "failure")
+            .put("message", "Missing name")
             .put("data", new JSONObject());
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(false);
 
-        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(""), eq("text"), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
+        verify(restMock)
+            .createChannel(eq(serverId), eq(categoryId), eq(""), eq("text"), eq(false), eq(new ArrayList<>()), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
@@ -138,7 +157,8 @@ public class CreateChannelTest {
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(false);
 
-        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("text"), eq(true), eq(new ArrayList<String>()), callbackCaptor.capture());
+        verify(restMock)
+            .createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("text"), eq(true), eq(new ArrayList<>()), callbackCaptor.capture());
         callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
@@ -153,10 +173,6 @@ public class CreateChannelTest {
     @Test
     public void createNotPrivilegedChannel(FxRobot robot) {
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
         String serverName = "TestServer";
         String serverId = "12345678";
         Server testServer = new Server().setName(serverName).setId(serverId);
@@ -168,7 +184,7 @@ public class CreateChannelTest {
         String categoryId = "catId123";
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
@@ -194,14 +210,16 @@ public class CreateChannelTest {
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
 
-        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("text"), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
+        verify(restMock)
+            .createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("text"), eq(false), eq(new ArrayList<>()), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
 
-        WebSocketService.addServerWebSocket(serverId);
+        webSocketService.addServerWebSocket(serverId);
 
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -236,10 +254,6 @@ public class CreateChannelTest {
     @Test
     public void createPrivilegedChannel(FxRobot robot) {
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("TestUser1").setId("1")).setUserKey("123-45");
-
         String serverName = "TestServer";
         String serverId = "12345678";
         Server testServer = new Server().setName(serverName).setId(serverId);
@@ -254,7 +268,7 @@ public class CreateChannelTest {
         String categoryId = "catId123";
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
         Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
 
@@ -311,9 +325,10 @@ public class CreateChannelTest {
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
 
-        WebSocketService.addServerWebSocket(serverId);
+        webSocketService.addServerWebSocket(serverId);
 
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -349,10 +364,6 @@ public class CreateChannelTest {
     @Test
     public void createAudioChannel(FxRobot robot) {
         // prepare start situation
-        Editor editor = StageManager.getEditor();
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Test")).setUserKey("123-45");
-
         String serverName = "TestServer";
         String serverId = "12345678";
         Server testServer = new Server().setName(serverName).setId(serverId);
@@ -366,7 +377,7 @@ public class CreateChannelTest {
         String categoryId = "catId123";
 
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
@@ -393,14 +404,15 @@ public class CreateChannelTest {
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
 
-        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("audio"), eq(false), eq(new ArrayList<String>()), callbackCaptor.capture());
+        verify(restMock).createChannel(eq(serverId), eq(categoryId), eq(channelName), eq("audio"), eq(false), eq(new ArrayList<>()), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
 
-        WebSocketService.addServerWebSocket(serverId);
+        webSocketService.addServerWebSocket(serverId);
 
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -428,7 +440,7 @@ public class CreateChannelTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
-        Assertions.assertTrue(editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getType().equals("audio"));
+        Assertions.assertEquals("audio", editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getType());
         Assertions.assertEquals(channelName, editor.getServer(serverId).getCategories().get(0).getChannels().get(0).getName());
         robot.clickOn("#logout-button");
     }
@@ -436,7 +448,10 @@ public class CreateChannelTest {
     @AfterEach
      void tear(){
         restMock = null;
-        webSocketMock = null;
+        webSocketClientFactoryMock = null;
+        editor = null;
+        webSocketService = null;
+        router = null;
         res = null;
         callbackCaptor = null;
         stringArgumentCaptor = null;

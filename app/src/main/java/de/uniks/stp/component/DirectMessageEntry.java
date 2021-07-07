@@ -1,5 +1,8 @@
 package de.uniks.stp.component;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.User;
@@ -19,16 +22,22 @@ import java.io.IOException;
 
 public class DirectMessageEntry extends HBox implements NotificationComponentInterface {
 
+
     @FXML
     private TextWithEmoteSupport userNameText;
 
     private final User user;
     private Font font = null;
     private Font boldFont = null;
+    private final Router router;
 
-    public DirectMessageEntry(final User user) {
+    @AssistedInject
+    public DirectMessageEntry(ViewLoader viewLoader,
+                              Router router,
+                              @Assisted final User user) {
         this.user = user;
-        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.DIRECT_MESSAGE_LIST_ENTRY);
+        this.router = router;
+        final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.DIRECT_MESSAGE_LIST_ENTRY);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -57,7 +66,7 @@ public class DirectMessageEntry extends HBox implements NotificationComponentInt
 
     private void handleClick(MouseEvent mouseEvent) {
         RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, user.getId());
-        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args);
+        router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args);
     }
 
     public void setUserName(final String userName) {
@@ -78,5 +87,10 @@ public class DirectMessageEntry extends HBox implements NotificationComponentInt
                 userNameText.setFont(font);
             }
         });
+    }
+
+    @AssistedFactory
+    public interface DirectMessageEntryFactory {
+        DirectMessageEntry create(User user);
     }
 }

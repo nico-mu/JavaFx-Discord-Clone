@@ -1,5 +1,9 @@
 package de.uniks.stp.component;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
+import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.DeleteMessageModal;
 import de.uniks.stp.modal.EditMessageModal;
@@ -21,7 +25,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.io.IOException;
-import java.util.Locale;
+import java.util.Date;
 
 public class ChatMessage extends HBox {
 
@@ -43,11 +47,20 @@ public class ChatMessage extends HBox {
     @FXML
     private ImageView deleteMessage;
 
-    private Message model;
+    private final Message model;
+    private final ViewLoader viewLoader;
+    private final DeleteMessageModal.DeleteMessageModalFactory deleteMessageModalFactory;
+    private final EditMessageModal.EditMessageModalFactory editMessageModalFactory;
+    private final JoinServerButton.JoinServerButtonFactory joinServerButtonFactory;
 
-    public ChatMessage(Message message, String language, boolean editable) {
-        this.model = message;
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
+    @AssistedInject
+    public ChatMessage(ViewLoader viewLoader,
+                       DeleteMessageModal.DeleteMessageModalFactory deleteMessageModalFactory,
+                       EditMessageModal.EditMessageModalFactory editMessageModalFactory,
+                       JoinServerButton.JoinServerButtonFactory joinServerButtonFactory,
+                       @Assisted Message message,
+                       @Assisted boolean editable) {
+        FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -57,7 +70,13 @@ public class ChatMessage extends HBox {
             throw new RuntimeException(exception);
         }
 
-        timestampText.setText(DateUtil.formatTime(message.getTimestamp(), Locale.forLanguageTag(language)));
+        this.model = message;
+        this.viewLoader = viewLoader;
+        this.deleteMessageModalFactory = deleteMessageModalFactory;
+        this.editMessageModalFactory = editMessageModalFactory;
+        this.joinServerButtonFactory = joinServerButtonFactory;
+
+        timestampText.setText(getTimestampText());
         nameText.setText(message.getSender().getName());
         messageText.setText(message.getMessage());
 
@@ -76,8 +95,31 @@ public class ChatMessage extends HBox {
         deleteMessage.setVisible(false);
     }
 
+    private String getTimestampText() {
+        long timestamp = model.getTimestamp();
+        Date date = new Date();
+        date.setTime(timestamp);
+        String dateString = DateUtil.formatTimeWithLocale(timestamp, viewLoader.getCurrentLocale());
+        StringBuilder builder = new StringBuilder();
+
+        if (DateUtil.isToday(date)) {
+            return builder
+                .append(viewLoader.loadLabel(Constants.LBL_TIME_FORMATTING_TODAY))
+                .append(", ")
+                .append(dateString)
+                .toString();
+        } else if (DateUtil.isYesterday(date)) {
+            return builder
+                .append(viewLoader.loadLabel(Constants.LBL_TIME_FORMATTING_YESTERDAY))
+                .append(", ")
+                .append(dateString)
+                .toString();
+        }
+        return dateString;
+    }
+
     public void addJoinButtonButton(InviteInfo inviteInfo, EventHandler<ActionEvent> onButtonPressed){
-        JoinServerButton button = new JoinServerButton(inviteInfo, onButtonPressed);
+        JoinServerButton button = joinServerButtonFactory.create(inviteInfo, onButtonPressed);
         Platform.runLater(()-> textVBox.getChildren().add(button));
     }
 
@@ -96,12 +138,17 @@ public class ChatMessage extends HBox {
     }
 
     private void onMessageEdited(MouseEvent mouseEvent) {
-        Parent editMessageModalView = ViewLoader.loadView(Views.EDIT_MESSAGE_MODAL);
-        EditMessageModal editMessageModal = new EditMessageModal(editMessageModalView, (ServerMessage) model);
+        Parent editMessageModalView = viewLoader.loadView(Views.EDIT_MESSAGE_MODAL);
+        EditMessageModal editMessageModal = editMessageModalFactory.create(editMessageModalView, (ServerMessage) model);
         editMessageModal.show();
     }
 
     private void onMessageDelete(MouseEvent mouseEvent) {
-        DeleteMessageModal deleteMessageModal = new DeleteMessageModal((ServerMessage) model);
+        deleteMessageModalFactory.create((ServerMessage) model);
+    }
+
+    @AssistedFactory
+    public interface ChatMessageFactory {
+        ChatMessage create(Message message, boolean editable);
     }
 }

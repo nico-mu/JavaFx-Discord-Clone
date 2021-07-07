@@ -1,6 +1,8 @@
 package de.uniks.stp.controller;
 
-import de.uniks.stp.Editor;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.component.ServerUserListEntry;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
@@ -24,15 +26,18 @@ public class ServerUserListController implements ControllerInterface {
 
     private final HashMap<User, ServerUserListEntry> serverUserListEntryHashMap = new HashMap<>();
     private final Parent view;
-    private final Editor editor;
+    private final ServerUserListEntry.ServerUserListEntryFactory serverUserListEntryFactory;
     private final Server model;
     private VBox onlineUserList;
     private VBox offlineUserList;
 
-    public ServerUserListController(Parent view, Editor editor, Server model) {
+    @AssistedInject
+    public ServerUserListController(ServerUserListEntry.ServerUserListEntryFactory serverUserListEntryFactory,
+                                    @Assisted Parent view,
+                                    @Assisted Server model) {
         this.view = view;
-        this.editor = editor;
         this.model = model;
+        this.serverUserListEntryFactory = serverUserListEntryFactory;
     }
 
     public void init() {
@@ -95,14 +100,14 @@ public class ServerUserListController implements ControllerInterface {
 
     private void offlineUser(User user) {
         removeUser(user);
-        ServerUserListEntry serverUserListEntry = new ServerUserListEntry(user);
+        ServerUserListEntry serverUserListEntry = serverUserListEntryFactory.create(user);
         serverUserListEntryHashMap.put(user, serverUserListEntry);
         Platform.runLater(() -> offlineUserList.getChildren().add(serverUserListEntry));
     }
 
     private void onlineUser(User user) {
         removeUser(user);
-        ServerUserListEntry serverUserListEntry = new ServerUserListEntry(user);
+        ServerUserListEntry serverUserListEntry = serverUserListEntryFactory.create(user);
         serverUserListEntryHashMap.put(user, serverUserListEntry);
         Platform.runLater(() -> onlineUserList.getChildren().add(serverUserListEntry));
     }
@@ -115,5 +120,10 @@ public class ServerUserListController implements ControllerInterface {
         serverUserListEntryHashMap.clear();
         onlineUserList.getChildren().clear();
         offlineUserList.getChildren().clear();
+    }
+
+    @AssistedFactory
+    public interface ServerUserListControllerFactory {
+        ServerUserListController create(Parent view, Server server);
     }
 }

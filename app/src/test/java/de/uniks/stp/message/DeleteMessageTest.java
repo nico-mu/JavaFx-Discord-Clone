@@ -1,14 +1,15 @@
 package de.uniks.stp.message;
 
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
 import de.uniks.stp.model.*;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.WSCallback;
-import de.uniks.stp.network.WebSocketClient;
+import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.network.websocket.WSCallback;
+import de.uniks.stp.network.websocket.WebSocketClientFactory;
+import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
@@ -46,12 +47,6 @@ import static org.mockito.Mockito.*;
 public class DeleteMessageTest {
 
     @Mock
-    private RestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
-
-    @Mock
     private HttpResponse<JsonNode> res;
 
     @Captor
@@ -64,30 +59,51 @@ public class DeleteMessageTest {
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
     private HashMap<String, WSCallback> endpointCallbackHashmap;
-    private StageManager app;
+    private AccordApp app;
+    private Router router;
+    private Editor editor;
+    private User currentUser;
+    private NotificationService notificationService;
+    private WebSocketClientFactory webSocketClientFactoryMock;
+    private SessionRestClient restMock;
+    private WebSocketService webSocketService;
 
     @Start
     public void start(Stage stage) {
-        // start application
-        MockitoAnnotations.initMocks(this);
         endpointCallbackHashmap = new HashMap<>();
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        MockitoAnnotations.initMocks(this);
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
-        DatabaseService.clearAllConversations();
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        editor = appTestComponent.getEditor();
+        currentUser = editor.createCurrentUser("Test", true).setId("123-45");
+        editor.setCurrentUser(currentUser);
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+        app.setSessionComponent(sessionTestComponent);
+
+        notificationService = sessionTestComponent.getNotificationService();
+        webSocketClientFactoryMock = sessionTestComponent.getWebSocketClientFactory();
+        restMock = sessionTestComponent.getSessionRestClient();
+        webSocketService = sessionTestComponent.getWebsocketService();
+        webSocketService.init();
     }
 
     @Test
     public void testDeleteMessage(FxRobot robot) {
-        Editor editor = StageManager.getEditor();
-
-        final User currentUser = new User().setName("Test").setId("123-45");
         final User userOne = new User().setName("userOne").setId("111-11");
         final User userTwo = new User().setName("userTwo").setId("222-22");
-        NotificationService.register(userOne);
-        NotificationService.register(userTwo);
+
+        notificationService.register(userOne);
+        notificationService.register(userTwo);
+
         final String serverName = "Test";
         final String serverId = "1";
         final String categoryName = "Cat";
@@ -96,36 +112,38 @@ public class DeleteMessageTest {
         final String userKey = "123-45";
 
         editor.getOrCreateAccord()
-            .setCurrentUser(currentUser)
-            .setUserKey(userKey);
-
-        editor.getOrCreateAccord()
             .withOtherUsers(userOne);
 
         editor.getOrCreateAccord()
             .withOtherUsers(userTwo);
-
-
-        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
-        WaitForAsyncUtils.waitForFxEvents();
 
         Server server = editor.getOrCreateServer(serverId, serverName);
         Category category = editor.getOrCreateCategory(categoryId, categoryName, server);
         Channel channel = editor.getOrCreateChannel(channelOneId, "ChannelOne", "text", category);
         server.withCategories(category);
         server.withChannels(channel);
-        NotificationService.register(channel);
+
+        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        webSocketService.addServerWebSocket(serverId);
+        notificationService.register(channel);
 
         currentUser.withAvailableServers(server);
         userOne.withAvailableServers(server);
         userTwo.withAvailableServers(server);
 
-        RouteArgs routeArgs = new RouteArgs().addArgument(":id", serverId).addArgument(":categoryId", categoryId).addArgument(":channelId", channelOneId);
-        Platform.runLater(() -> Router.routeWithArgs(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgs));
+        RouteArgs routeArgs = new RouteArgs()
+            .addArgument(":id", serverId)
+            .addArgument(":categoryId", categoryId)
+            .addArgument(":channelId", channelOneId);
+
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, routeArgs));
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
 
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
@@ -133,7 +151,8 @@ public class DeleteMessageTest {
         for (int i = 0; i < endpoints.size(); i++) {
             endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
         }
-        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + server.getId());
+        WSCallback systemCallback = endpointCallbackHashmap
+            .get(Constants.WS_USER_PATH + currentUser.getName() + Constants.WS_SERVER_CHAT_PATH + server.getId());
 
         JsonObject messageOne = Json.createObjectBuilder()
             .add("id", 1)
@@ -196,7 +215,15 @@ public class DeleteMessageTest {
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
 
-        JsonObject jsonObject = Json.createObjectBuilder().add("action", "messageDeleted").add("data", Json.createObjectBuilder().add("id", messageId).add("category", categoryId).add("channel", channelOneId).add("userKey", userKey).build()).build();
+        JsonObject jsonObject = Json.createObjectBuilder()
+            .add("action", "messageDeleted")
+            .add("data", Json.createObjectBuilder()
+                .add("id", messageId)
+                .add("category", categoryId)
+                .add("channel", channelOneId)
+                .add("userKey", userKey)
+                .build())
+            .build();
 
         systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
         systemCallback.handleMessage(jsonObject);
@@ -208,11 +235,16 @@ public class DeleteMessageTest {
     @AfterEach
     void tear() {
         restMock = null;
-        webSocketMock = null;
+        webSocketClientFactoryMock = null;
+        router = null;
+        editor = null;
+        currentUser = null;
+        notificationService = null;
         res = null;
         callbackCaptor = null;
         stringArgumentCaptor = null;
         wsCallbackArgumentCaptor = null;
+        webSocketService = null;
         endpointCallbackHashmap = null;
         Platform.runLater(app::stop);
         WaitForAsyncUtils.waitForFxEvents();

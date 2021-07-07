@@ -1,8 +1,5 @@
 package de.uniks.stp.util;
 
-import de.uniks.stp.Constants;
-import de.uniks.stp.ViewLoader;
-
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -39,16 +36,9 @@ public class DateUtil {
         return isSameDay(date, cal.getTime());
     }
 
-    public static String formatTime(long time, Locale locale) {
+    public static String formatTimeWithLocale(long time, Locale locale) {
         Date date = new Date();
         date.setTime(time);
-
-        if (DateUtil.isToday(date)) {
-            return ViewLoader.loadLabel(Constants.LBL_TIME_FORMATTING_TODAY) + ", " + DateFormat.getTimeInstance(DateFormat.SHORT, locale).format(date);
-        } else if (DateUtil.isYesterday(date)) {
-            return ViewLoader.loadLabel(Constants.LBL_TIME_FORMATTING_YESTERDAY) + ", " + DateFormat.getTimeInstance(DateFormat.SHORT, locale).format(date);
-        }
-
         return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, locale).format(date);
     }
 }

@@ -1,21 +1,18 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
 import de.uniks.stp.component.ChatMessage;
 import de.uniks.stp.component.ListComponent;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
 import de.uniks.stp.model.*;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.WebSocketClient;
-import de.uniks.stp.network.WebSocketService;
+import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -48,40 +45,48 @@ import static org.mockito.Mockito.*;
 @ExtendWith(ApplicationExtension.class)
 public class LoadOldMessagesTest {
     @Mock
-    private RestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
-
-    @Mock
     private HttpResponse<JsonNode> res;
 
     @Captor
     private ArgumentCaptor<Callback<JsonNode>> callbackCaptor;
-    private StageManager app;
 
     private static int idCounter = 0;
+
+    private AccordApp app;
+    private Router router;
+    private Editor editor;
+    private SessionRestClient restMock;
 
     @Start
     public void start(Stage stage) {
         // start application
         MockitoAnnotations.initMocks(this);
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        StageManager.setBackupMode(false);
-        app = new StageManager();
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        editor = appTestComponent.getEditor();
+        User currentUser = editor.createCurrentUser("Platti", true).setId("1-1");
+        editor.setCurrentUser(currentUser);
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+        app.setSessionComponent(sessionTestComponent);
+
+        restMock = sessionTestComponent.getSessionRestClient();
     }
 
     @Test
     public void testLoadAllOldServerMessages(FxRobot robot) {
         // prepare start situation
-        Editor editor = StageManager.getEditor();
         long timeStart = new Date().getTime();
         String userNameOne = "Bob";
         String userNameTwo = "Eve";
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Platti").setId("1-1")).setUserKey("123-45");
 
         String serverId ="12345678";
         User userOne = new User().setName(userNameOne).setId("1");
@@ -90,10 +95,8 @@ public class LoadOldMessagesTest {
         Server server = new Server().setName("Plattis Server").setId(serverId).withUsers(userOne, userTwo);
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
 
-        WebSocketService.addServerWebSocket(serverId);
-
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         String categoryId = "4321";
@@ -154,12 +157,9 @@ public class LoadOldMessagesTest {
     @Test
     public void testLoadSomeOldServerMessages(FxRobot robot) {
         // prepare start situation
-        Editor editor = StageManager.getEditor();
         long timeStart = new Date().getTime();
         String userNameOne = "Eve";
         String userNameTwo = "Bob";
-
-        editor.getOrCreateAccord().setCurrentUser(new User().setName("Platti").setId("1-1")).setUserKey("123-45");
 
         String serverId ="12345678";
         User user = new User().setName(userNameOne).setId("1");
@@ -168,10 +168,8 @@ public class LoadOldMessagesTest {
         editor.getOrCreateAccord().getCurrentUser().withAvailableServers(server);
         editor.getOrCreateAccord().withOtherUsers(user, userTwo);
 
-        WebSocketService.addServerWebSocket(serverId);
-
         RouteArgs args = new RouteArgs().addArgument(":id", serverId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         String categoryId = "4321";
@@ -224,9 +222,10 @@ public class LoadOldMessagesTest {
     @AfterEach
     void tear(){
         restMock = null;
-        webSocketMock = null;
         res = null;
         callbackCaptor = null;
+        editor = null;
+        router = null;
         Platform.runLater(app::stop);
         WaitForAsyncUtils.waitForFxEvents();
         app = null;

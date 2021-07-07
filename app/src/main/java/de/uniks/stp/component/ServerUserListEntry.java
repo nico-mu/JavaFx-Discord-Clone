@@ -1,5 +1,8 @@
 package de.uniks.stp.component;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.User;
 import javafx.fxml.FXML;
@@ -15,8 +18,10 @@ public class ServerUserListEntry extends HBox {
 
     private User user;
 
-    public ServerUserListEntry(final User user) {
-        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
+    @AssistedInject
+    public ServerUserListEntry(ViewLoader viewLoader,
+                               @Assisted final User user) {
+        final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -35,4 +40,8 @@ public class ServerUserListEntry extends HBox {
         userNameLabel.setText(userName);
     }
 
+    @AssistedFactory
+    public interface ServerUserListEntryFactory {
+        ServerUserListEntry create(User user);
+    }
 }

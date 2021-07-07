@@ -3,7 +3,6 @@ package de.uniks.stp.component;
 import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
-import de.uniks.stp.emote.EmoteTextArea;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,6 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.function.Consumer;
 
@@ -33,8 +33,9 @@ public class ChatMessageInput extends HBox {
     private final EmoteTextArea emoteTextArea;
     private Consumer<String> submitListener;
 
-    public ChatMessageInput() {
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE_INPUT);
+    @Inject
+    public ChatMessageInput(ViewLoader viewLoader) {
+        FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE_INPUT);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
         this.setId("chat-view-input");
@@ -45,8 +46,8 @@ public class ChatMessageInput extends HBox {
             throw new RuntimeException(exception);
         }
 
-        emotePickerButton = new EmotePickerButton();
-        emoteTextArea = new EmoteTextArea();
+        emotePickerButton = new EmotePickerButton(viewLoader);
+        emoteTextArea = new EmoteTextArea(viewLoader);
         emoteTextArea.setOnKeyPressed(this::checkForEnter);
 
         VirtualizedScrollPane<EmoteTextArea> scroll = new VirtualizedScrollPane<>(emoteTextArea);
