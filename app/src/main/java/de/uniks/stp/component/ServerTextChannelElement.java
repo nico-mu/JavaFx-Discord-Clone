@@ -3,12 +3,9 @@ package de.uniks.stp.component;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
-import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.event.ChannelChangeEvent;
 import de.uniks.stp.modal.EditChannelModal;
 import de.uniks.stp.model.Channel;
-import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
@@ -136,12 +133,7 @@ public class ServerTextChannelElement extends ServerChannelElement implements No
     }
 
     private void onMouseClicked(MouseEvent mouseEvent) {
-        this.fireEvent(new ChannelChangeEvent(this));
-        RouteArgs args = new RouteArgs();
-        args.addArgument(":id", model.getCategory().getServer().getId());
-        args.addArgument(":categoryId", model.getCategory().getId());
-        args.addArgument(":channelId", model.getId());
-        router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args);
+        super.onMouseClicked(model, router);
     }
 
     @AssistedFactory

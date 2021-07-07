@@ -1,14 +1,18 @@
 package de.uniks.stp.controller;
 
+import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.StageManager;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.dagger.components.test.AppTestComponent;
+import de.uniks.stp.dagger.components.test.SessionTestComponent;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.*;
+import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.network.websocket.WSCallback;
+import de.uniks.stp.network.websocket.WebSocketClientFactory;
+import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
@@ -46,15 +50,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(ApplicationExtension.class)
 public class ServerVoiceChannelTest {
     @Mock
-    private RestClient restMock;
-
-    @Mock
-    private WebSocketClient webSocketMock;
-
-    @Mock
-    private VoiceChatClient voiceChatClientMock;
-
-    @Mock
     private HttpResponse<JsonNode> res;
 
     @Captor
@@ -67,23 +62,42 @@ public class ServerVoiceChannelTest {
     private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
 
     private HashMap<String, WSCallback> endpointCallbackHashmap;
-
-    private StageManager app;
     private Editor editor;
+    private AccordApp app;
+    private Router router;
+    private User currentUser;
+    private WebSocketClientFactory webSocketClientFactoryMock;
+    private WebSocketService webSocketService;
+
+    private SessionRestClient restMock;
 
     @Start
     public void start(Stage stage) {
         // start application
-        MockitoAnnotations.initMocks(this);
-        NetworkClientInjector.setRestClient(restMock);
-        NetworkClientInjector.setWebSocketClient(webSocketMock);
-        NetworkClientInjector.setVoiceChatClient(voiceChatClientMock);
-        StageManager.setBackupMode(false);
         endpointCallbackHashmap = new HashMap<>();
-        app = new StageManager();
+        MockitoAnnotations.initMocks(this);
+        app = new AccordApp();
+        app.setTestMode(true);
         app.start(stage);
-        editor = StageManager.getEditor();
-        DatabaseService.clearAllConversations();
+
+        AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
+        router = appTestComponent.getRouter();
+        editor = appTestComponent.getEditor();
+        currentUser = editor.createCurrentUser("Test", true).setId("123-45");
+        editor.setCurrentUser(currentUser);
+
+        SessionTestComponent sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("123-45")
+            .build();
+        app.setSessionComponent(sessionTestComponent);
+
+        webSocketClientFactoryMock = sessionTestComponent.getWebSocketClientFactory();
+        webSocketService = sessionTestComponent.getWebsocketService();
+        webSocketService.init();
+
+        restMock = sessionTestComponent.getSessionRestClient();
     }
 
     @Test
@@ -91,23 +105,22 @@ public class ServerVoiceChannelTest {
         final String serverId = UUID.randomUUID().toString();
         final String categoryId = UUID.randomUUID().toString();
         final String channelId = UUID.randomUUID().toString();
-        final String currentUserId = UUID.randomUUID().toString();
-        final Channel channel = initAndEnterVoiceChannel(currentUserId, serverId, categoryId, channelId);
+        final Channel channel = initAndEnterVoiceChannel(serverId, categoryId, channelId);
 
-        WebSocketService.addServerWebSocket(serverId);
+        webSocketService.addServerWebSocket(serverId);
 
         JsonObject jsonObject = Json.createObjectBuilder()
             .add("action", "audioJoined")
             .add("data",
                 Json.createObjectBuilder()
-                    .add("id", currentUserId)
+                    .add("id", currentUser.getId())
                     .add("category", categoryId)
                     .add("channel", channelId)
                     .build()
             )
             .build();
 
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4)).create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
 
@@ -140,29 +153,25 @@ public class ServerVoiceChannelTest {
         Assertions.assertEquals(1, voiceChannelUserCount);
     }
 
-    private Channel initAndEnterVoiceChannel(String currentUserId, String serverId, String categoryId, String channelId) {
-        final Channel channel = initServerWithVoiceChannel(currentUserId, serverId, categoryId, channelId);
+    private Channel initAndEnterVoiceChannel(String serverId, String categoryId, String channelId) {
+        final Channel channel = initServerWithVoiceChannel(serverId, categoryId, channelId);
 
         final RouteArgs args = new RouteArgs()
             .addArgument(":id", serverId)
             .addArgument(":categoryId", categoryId)
             .addArgument(":channelId", channelId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         return channel;
     }
 
-    private Channel initServerWithVoiceChannel(String currentUserId, String serverId, String categoryId, String channelId) {
-        final Server server = new Server().setId(serverId).setName("Audio");
+    private Channel initServerWithVoiceChannel(String serverId, String categoryId, String channelId) {
+        final Server server = editor.getOrCreateServer(serverId).setName("Audio");
         final Category category = new Category().setId(categoryId).setName("Placeholder").setServer(server);
-        final Channel channel = new Channel().setName("a1").setType("audio").setId(channelId)
-            .setCategory(category).setServer(server);
-        editor.getOrCreateAccord().setCurrentUser(
-            new User().setName("Test").setId(currentUserId).withAvailableServers(server)
-        ).setUserKey(currentUserId);
 
-        return channel;
+        return new Channel().setName("a1").setType("audio").setId(channelId)
+            .setCategory(category).setServer(server);
     }
 
     @Test
@@ -170,9 +179,8 @@ public class ServerVoiceChannelTest {
         final String serverId = UUID.randomUUID().toString();
         final String categoryId = UUID.randomUUID().toString();
         final String channelId = UUID.randomUUID().toString();
-        final String currentUserId = UUID.randomUUID().toString();
         final String otherUserId = UUID.randomUUID().toString();
-        final Channel channel = initServerWithVoiceChannel(currentUserId, serverId, categoryId, channelId);
+        final Channel channel = initServerWithVoiceChannel(serverId, categoryId, channelId);
         final User otherUser = new User().setName("other").setId(otherUserId).withAvailableServers(channel.getServer());
         channel.withAudioMembers(editor.getOrCreateAccord().getCurrentUser(), otherUser);
 
@@ -180,7 +188,7 @@ public class ServerVoiceChannelTest {
             .addArgument(":id", serverId)
             .addArgument(":categoryId", categoryId)
             .addArgument(":channelId", channelId);
-        Platform.runLater(() -> Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
         WaitForAsyncUtils.waitForFxEvents();
 
         Parent voiceChannelUsersContainer = robot.lookup(ServerVoiceChatController.VOICE_CHANNEL_USER_CONTAINER_ID).query();
@@ -188,7 +196,7 @@ public class ServerVoiceChannelTest {
         Assertions.assertEquals(2, voiceChannelUserCount);
 
 
-        WebSocketService.addServerWebSocket(serverId);
+        webSocketService.addServerWebSocket(serverId);
 
         JsonObject jsonObject = Json.createObjectBuilder()
             .add("action", "audioLeft")
@@ -201,7 +209,7 @@ public class ServerVoiceChannelTest {
             )
             .build();
 
-        verify(webSocketMock, times(4)).inject(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+        verify(webSocketClientFactoryMock, times(4)).create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
         List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
         List<String> endpoints = stringArgumentCaptor.getAllValues();
 
@@ -221,7 +229,10 @@ public class ServerVoiceChannelTest {
     @AfterEach
     void tear() {
         restMock = null;
-        webSocketMock = null;
+        webSocketService = null;
+        webSocketClientFactoryMock = null;
+        currentUser = null;
+        router = null;
         res = null;
         callbackCaptor = null;
         stringArgumentCaptor = null;

@@ -1,6 +1,9 @@
 package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.User;
 import javafx.fxml.FXML;
@@ -15,8 +18,8 @@ import java.io.IOException;
 
 public class VoiceChatUserEntry extends VBox {
 
-    private static final Image initAudioInputImg = ViewLoader.loadImage("microphone.png");
-    private static final Image otherAudioInputImg = ViewLoader.loadImage("microphone-mute.png");
+    private final Image initAudioInputImg;
+    private final Image otherAudioInputImg;
     private final User user;
     @FXML
     private Label userNameLabel;
@@ -25,8 +28,12 @@ public class VoiceChatUserEntry extends VBox {
     private final ImageView userMuteImgView;
     private boolean userMute = false;
 
-    public VoiceChatUserEntry(final User user) {
-        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.VOICE_CHAT_USER);
+    @AssistedInject
+    public VoiceChatUserEntry(@Assisted final User user, ViewLoader viewLoader) {
+        initAudioInputImg = viewLoader.loadImage("microphone.png");
+        otherAudioInputImg = viewLoader.loadImage("microphone-mute.png");
+
+        final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.VOICE_CHAT_USER);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
         this.setId(user.getId() + "-VoiceChatUser");
@@ -63,5 +70,10 @@ public class VoiceChatUserEntry extends VBox {
             }
             userMuteImgView.setImage(nextImg);
         }
+    }
+
+    @AssistedFactory
+    public interface VoiceChatUserEntryFactory {
+        VoiceChatUserEntry create(User user);
     }
 }

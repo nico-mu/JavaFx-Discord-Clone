@@ -56,13 +56,13 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     @AssistedInject
     public ServerCategoryListController(Router router,
-                                         NotificationService notificationService,
-                                         ServerCategoryList serverCategoryList,
-                                         ServerCategoryElement.ServerCategoryElementFactory serverCategoryElementFactory,
-                                         ServerVoiceChannelElement.ServerVoiceChannelElementFactory serverVoiceChannelElementFactory,
-                                         ServerTextChannelElement.ServerTextChannelElementFactory serverTextChannelElementFactory,
-                                         @Assisted Parent view,
-                                         @Assisted Server model) {
+                                        NotificationService notificationService,
+                                        ServerCategoryList serverCategoryList,
+                                        ServerCategoryElement.ServerCategoryElementFactory serverCategoryElementFactory,
+                                        ServerVoiceChannelElement.ServerVoiceChannelElementFactory serverVoiceChannelElementFactory,
+                                        ServerTextChannelElement.ServerTextChannelElementFactory serverTextChannelElementFactory,
+                                        @Assisted Parent view,
+                                        @Assisted Server model) {
         this.view = view;
         this.model = model;
         this.serverCategoryList = serverCategoryList;
@@ -84,9 +84,9 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
         model.listeners().addPropertyChangeListener(PROPERTY_CATEGORIES, categoriesPropertyChangeListener);
 
-        for(Category category : model.getCategories()) {
+        for (Category category : model.getCategories()) {
             categoryAdded(category);
-            for(Channel channel : category.getChannels()) {
+            for (Channel channel : category.getChannels()) {
                 channelAdded(category, channel);
             }
         }
@@ -105,18 +105,18 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     private void categoryRemoved(final Category category) {
         if (Objects.nonNull(category) && categoryElementHashMap.containsKey(category)) {
-            for(Channel channel: category.getChannels()){
+            for (Channel channel : category.getChannels()) {
                 notificationService.removePublisher(channel);
             }
 
             HashMap<String, String> currentArgs = router.getCurrentArgs();
             // in case a channel of the deleted category is currently shown: reload server
-            if(currentArgs.containsKey(":categoryId") && currentArgs.get(":categoryId").equals(category.getId())){
+            if (currentArgs.containsKey(":categoryId") && currentArgs.get(":categoryId").equals(category.getId())) {
                 RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
-                Platform.runLater(()-> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+                Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
             }
             //else: remove category element in list
-            else{
+            else {
                 category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
                 final ServerCategoryElement serverCategoryElement = categoryElementHashMap.remove(category);
                 Platform.runLater(() -> serverCategoryList.removeElement(serverCategoryElement));
@@ -136,7 +136,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     }
 
     private void goToDefaultChannel() {
-        if(channelElementHashMap.containsKey(defaultChannel) && !router.getCurrentArgs().containsKey(":channelId")) {
+        if (channelElementHashMap.containsKey(defaultChannel) && !router.getCurrentArgs().containsKey(":channelId")) {
             goToChannel(defaultChannel);
 
             RouteArgs args = new RouteArgs();
@@ -148,7 +148,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     }
 
     private void goToChannel(Channel channel) {
-        if(channelElementHashMap.containsKey(channel)) {
+        if (channelElementHashMap.containsKey(channel)) {
             ServerChannelElement element = channelElementHashMap.get(channel);
             serverCategoryList.setActiveElement(element);
             notificationService.consume(channel);
@@ -189,14 +189,14 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
             HashMap<String, String> currentArgs = router.getCurrentArgs();
             // in case the deleted channel is currently shown: reload server
-            if(currentArgs.containsKey(":categoryId") && currentArgs.containsKey(":categoryId")
-                    && currentArgs.get(":categoryId").equals(category.getId())
-                    && currentArgs.get(":channelId").equals(channel.getId())){
+            if (currentArgs.containsKey(":categoryId") && currentArgs.containsKey(":categoryId")
+                && currentArgs.get(":categoryId").equals(category.getId())
+                && currentArgs.get(":channelId").equals(channel.getId())) {
                 RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
-                Platform.runLater(()-> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+                Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
             }
             // else: remove channel element in list
-            else{
+            else {
                 final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
                 final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
                 Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
@@ -220,24 +220,24 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             ServerChannelElement serverChannelElement;
             switch (channelType) {
                 case "text":
-                    serverChannelElement = new ServerTextChannelElement(channel, editor);
+                    serverChannelElement = serverTextChannelElementFactory.create(channel);
                     break;
                 case "audio":
-                    serverChannelElement = new ServerVoiceChannelElement(channel, editor);
+                    serverChannelElement = serverVoiceChannelElementFactory.create(channel);
                     channelPropertyChangeListeners.addPropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
                     break;
                 default:
                     log.error("Could not create a channel of the type: {}", channelType);
                     return;
             }
-            NotificationService.register(channel);
+            notificationService.register(channel);
             channelPropertyChangeListeners.addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             channelElementHashMap.put(channel, serverChannelElement);
             final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             Platform.runLater(() -> {
                 serverCategoryElement.addChannelElement(serverChannelElement);
                 if ("text".equals(channelType)) {
-                    serverChannelElement.setNotificationCount(NotificationService.getPublisherNotificationCount(channel));
+                    serverChannelElement.setNotificationCount(notificationService.getPublisherNotificationCount(channel));
                 }
             });
             HashMap<String, String> currentRouteArgs = router.getCurrentArgs();
@@ -245,7 +245,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             if (Objects.isNull(defaultChannel)) {
                 defaultChannel = channel;
             }
-            if(currentRouteArgs.containsKey(":channelId") && currentRouteArgs.get(":channelId").equals(channel.getId())) {
+            if (currentRouteArgs.containsKey(":channelId") && currentRouteArgs.get(":channelId").equals(channel.getId())) {
                 goToChannel(channel);
             }
         }

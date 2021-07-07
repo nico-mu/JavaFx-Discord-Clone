@@ -3,14 +3,10 @@ package de.uniks.stp.component;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
-import de.uniks.stp.Constants;
-import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.event.ChannelChangeEvent;
 import de.uniks.stp.modal.EditChannelModal;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
-import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
@@ -25,7 +21,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class ServerVoiceChannelElement extends ServerChannelElement {
@@ -45,22 +40,24 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
     @FXML
     private VBox audioMemberContainer;
 
-    private Channel model;
-    private HashMap<String, UserListEntry> userListEntryHashMap;
+    private final Channel model;
     private final ViewLoader viewLoader;
     private final EditChannelModal.EditChannelModalFactory editChannelModalFactory;
-    private Editor editor;
-    private final ListComponent<User, VoiceUserListEntry> voiceUserListComponent;
+    private final ListComponent<User, UserListEntry> voiceUserListComponent;
+    private final UserListEntry.UserListEntryFactory userListEntryFactory;
+    private final Router router;
 
     @AssistedInject
     public ServerVoiceChannelElement(ViewLoader viewLoader,
+                                     Router router,
                                      EditChannelModal.EditChannelModalFactory editChannelModalFactory,
                                      UserListEntry.UserListEntryFactory userListEntryFactory,
                                      @Assisted Channel model) {
         this.model = model;
-        userListEntryHashMap = new HashMap<>();
         this.viewLoader = viewLoader;
         this.editChannelModalFactory = editChannelModalFactory;
+        this.userListEntryFactory = userListEntryFactory;
+        this.router = router;
 
         FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.SERVER_VOICE_CHANNEL_ELEMENT);
         fxmlLoader.setRoot(this);
@@ -71,7 +68,7 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-        voiceUserListComponent = new ListComponent<>();
+        voiceUserListComponent = new ListComponent<>(viewLoader);
         audioMemberContainer.getChildren().add(voiceUserListComponent);
 
         channelText.setText(model.getName());
@@ -108,7 +105,7 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
     public void addAudioUser(final User user) {
         if (Objects.nonNull(user)) {
             Platform.runLater(() -> {
-                voiceUserListComponent.addElement(user, new VoiceUserListEntry(user));
+                voiceUserListComponent.addElement(user, userListEntryFactory.create(user));
                 resizeAudioMemberContainer();
             });
         }
@@ -143,12 +140,7 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
     }
 
     private void onMouseClicked(MouseEvent mouseEvent) {
-        this.fireEvent(new ChannelChangeEvent(this));
-        RouteArgs args = new RouteArgs();
-        args.addArgument(":id", model.getCategory().getServer().getId());
-        args.addArgument(":categoryId", model.getCategory().getId());
-        args.addArgument(":channelId", model.getId());
-        Router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args);
+        super.onMouseClicked(model, router);
     }
 
     @Override

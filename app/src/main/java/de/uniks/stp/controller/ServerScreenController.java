@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -82,6 +81,9 @@ public class ServerScreenController implements ControllerInterface {
     ServerChatController.ServerChatControllerFactory serverChatControllerFactory;
 
     @Inject
+    ServerVoiceChatController.ServerVoiceChatControllerFactory serverVoiceChatControllerFactory;
+
+    @Inject
     ServerUserListController.ServerUserListControllerFactory serverUserListControllerFactory;
 
     @Inject
@@ -100,7 +102,7 @@ public class ServerScreenController implements ControllerInterface {
     public ServerScreenController(ViewLoader viewLoader,
                                   NotificationService notificationService,
                                   Editor editor,
-                                  @Assisted  Parent view,
+                                  @Assisted Parent view,
                                   @Assisted Server model) {
         this.view = (VBox) view;
         this.editor = editor;
@@ -152,17 +154,16 @@ public class ServerScreenController implements ControllerInterface {
             final String channelType = channel.getType();
             switch (channelType) {
                 case "text":
-                    serverChannelController = new ServerChatController(serverChannelContainer, editor, channel);
+                    serverChannelController = serverChatControllerFactory.create(serverChannelContainer, channel);
                     break;
                 case "audio":
-                    serverChannelController = new ServerVoiceChatController(serverChannelContainer, editor, channel);
+                    serverChannelController = serverVoiceChatControllerFactory.create(serverChannelContainer, channel);
                     break;
                 default:
                     log.error("Could not create a Controller for channelType: {}", channelType);
                     return null;
             }
             notificationService.consume(channel);
-            serverChannelController = serverChatControllerFactory.create(serverChannelContainer, channel);
             serverChannelController.init();
             return serverChannelController;
         }

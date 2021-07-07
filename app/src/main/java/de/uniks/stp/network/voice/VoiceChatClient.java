@@ -1,4 +1,4 @@
-package de.uniks.stp.network;
+package de.uniks.stp.network.voice;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.model.Channel;
@@ -45,7 +45,7 @@ public class VoiceChatClient {
     private final PropertyChangeListener currentUserMutePropertyChangeListener = this::onCurrentUserMutePropertyChange;
     private final PropertyChangeListener currentUserAudioOffPropertyChangeListener = this::onCurrentUserAudioOffPropertyChange;
 
-    public VoiceChatClient(User currentUser, Channel channel) {
+    public VoiceChatClient(Channel channel, User currentUser) {
         this.channel = channel;
         this.currentUser = currentUser;
         withFilteredUsers(currentUser);
