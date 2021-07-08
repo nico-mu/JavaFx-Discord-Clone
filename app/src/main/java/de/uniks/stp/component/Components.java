@@ -5,6 +5,7 @@ import java.net.URL;
 public enum Components {
     USER_LIST("UserList.fxml"),
     USER_LIST_ENTRY("UserListEntry.fxml"),
+    VOICE_USER_LIST_ENTRY("VoiceUserListEntry.fxml"),
     NAV_BAR_ELEMENT("NavBarElement.fxml"),
     NAV_BAR_LIST("NavBarList.fxml"),
     CHAT_MESSAGE_INPUT("ChatMessageInput.fxml"),
@@ -19,7 +20,8 @@ public enum Components {
     INVITE_LIST_ENTRY("InviteListEntry.fxml"),
     JOIN_SERVER_BUTTON("JoinServerButton.fxml"),
     DIRECT_MESSAGE_LIST_ENTRY("DirectMessageListEntry.fxml"),
-    LIST_COMPONENT("ListComponent.fxml");
+    LIST_COMPONENT("ListComponent.fxml"),
+    VOICE_CHAT_USER("VoiceChatUserEntry.fxml");
 
     public final URL path;
 

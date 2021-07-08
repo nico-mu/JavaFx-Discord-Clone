@@ -31,17 +31,20 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 import java.util.Objects;
 
 import static de.uniks.stp.view.Views.SERVER_SCREEN;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER)
 public class ServerScreenController implements ControllerInterface {
+    private static final Logger log = LoggerFactory.getLogger(ServerScreenController.class);
 
     private static final String SERVER_NAME_ID = "#server-name";
     private static final String SERVER_CHANNEL_OVERVIEW = "#server-channel-overview";
@@ -78,6 +81,9 @@ public class ServerScreenController implements ControllerInterface {
     ServerChatController.ServerChatControllerFactory serverChatControllerFactory;
 
     @Inject
+    ServerVoiceChatController.ServerVoiceChatControllerFactory serverVoiceChatControllerFactory;
+
+    @Inject
     ServerUserListController.ServerUserListControllerFactory serverUserListControllerFactory;
 
     @Inject
@@ -96,7 +102,7 @@ public class ServerScreenController implements ControllerInterface {
     public ServerScreenController(ViewLoader viewLoader,
                                   NotificationService notificationService,
                                   Editor editor,
-                                  @Assisted  Parent view,
+                                  @Assisted Parent view,
                                   @Assisted Server model) {
         this.view = (VBox) view;
         this.editor = editor;
@@ -144,12 +150,20 @@ public class ServerScreenController implements ControllerInterface {
     public ControllerInterface route(RouteInfo routeInfo, RouteArgs args) {
         subviewCleanup();
         if (routeInfo.getSubControllerRoute().equals(Constants.ROUTE_CHANNEL)) {
-            final String serverId = args.getArguments().get(":id");
-            final String categoryId = args.getArguments().get(":categoryId");
-            final String channelId = args.getArguments().get(":channelId");
-            final Channel channel = selectAndGetChannel(serverId, categoryId, channelId);
+            final Channel channel = selectAndGetChannel(args.getArguments());
+            final String channelType = channel.getType();
+            switch (channelType) {
+                case "text":
+                    serverChannelController = serverChatControllerFactory.create(serverChannelContainer, channel);
+                    break;
+                case "audio":
+                    serverChannelController = serverVoiceChatControllerFactory.create(serverChannelContainer, channel);
+                    break;
+                default:
+                    log.error("Could not create a Controller for channelType: {}", channelType);
+                    return null;
+            }
             notificationService.consume(channel);
-            serverChannelController = serverChatControllerFactory.create(serverChannelContainer, channel);
             serverChannelController.init();
             return serverChannelController;
         }
@@ -158,6 +172,14 @@ public class ServerScreenController implements ControllerInterface {
 
     private void subviewCleanup() {
         serverChannelContainer.getChildren().clear();
+    }
+
+
+    private Channel selectAndGetChannel(final HashMap<String, String> args) {
+        final String serverId = args.get(":id");
+        final String categoryId = args.get(":categoryId");
+        final String channelId = args.get(":channelId");
+        return selectAndGetChannel(serverId, categoryId, channelId);
     }
 
     private Channel selectAndGetChannel(final String serverId, final String categoryId, final String channelId) {

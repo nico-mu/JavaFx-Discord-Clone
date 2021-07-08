@@ -7,11 +7,11 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.EditChannelModal;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
+import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -21,7 +21,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Objects;
 
 public class ServerVoiceChannelElement extends ServerChannelElement {
 
@@ -40,20 +40,24 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
     @FXML
     private VBox audioMemberContainer;
 
-    private Channel model;
-    private HashMap<String, UserListEntry> userListEntryHashMap;
+    private final Channel model;
     private final ViewLoader viewLoader;
     private final EditChannelModal.EditChannelModalFactory editChannelModalFactory;
+    private final ListComponent<User, UserListEntry> voiceUserListComponent;
+    private final UserListEntry.UserListEntryFactory userListEntryFactory;
+    private final Router router;
 
     @AssistedInject
     public ServerVoiceChannelElement(ViewLoader viewLoader,
+                                     Router router,
                                      EditChannelModal.EditChannelModalFactory editChannelModalFactory,
                                      UserListEntry.UserListEntryFactory userListEntryFactory,
                                      @Assisted Channel model) {
         this.model = model;
-        userListEntryHashMap = new HashMap<>();
         this.viewLoader = viewLoader;
         this.editChannelModalFactory = editChannelModalFactory;
+        this.userListEntryFactory = userListEntryFactory;
+        this.router = router;
 
         FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.SERVER_VOICE_CHANNEL_ELEMENT);
         fxmlLoader.setRoot(this);
@@ -64,6 +68,9 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
+        voiceUserListComponent = new ListComponent<>(viewLoader);
+        audioMemberContainer.getChildren().add(voiceUserListComponent);
+
         channelText.setText(model.getName());
         channelText.setFont(Font.font(16));
         channelContainer.setOnMouseClicked(this::onMouseClicked);
@@ -73,13 +80,34 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
 
         editChannel.setOnMouseClicked(this::onEditChannelClicked);
 
-        channelText.setId(model.getId() + "-ChannelElementText");
-        for(User user : model.getAudioMembers()) {
-            UserListEntry userListEntry = userListEntryFactory.create(user);
-            userListEntry.setOnMouseClicked(null);
-            userListEntry.setPadding(new Insets(0,0,0,12));
-            userListEntryHashMap.put(user.getId(), userListEntry);
-            audioMemberContainer.getChildren().add(userListEntry);
+        channelText.setId(model.getId() + "-ChannelElementVoice");
+
+        model.getAudioMembers().forEach(this::addAudioUser);
+    }
+
+    public void removeAudioUser(final User user) {
+        if (Objects.nonNull(user)) {
+            Platform.runLater(() -> {
+                voiceUserListComponent.removeElement(user);
+                resizeAudioMemberContainer();
+            });
+        }
+    }
+
+    private void resizeAudioMemberContainer() {
+        int size = model.getAudioMembers().size();
+        if (size > 5) {
+            size = 5;
+        }
+        audioMemberContainer.setMinHeight(size * 30d);
+    }
+
+    public void addAudioUser(final User user) {
+        if (Objects.nonNull(user)) {
+            Platform.runLater(() -> {
+                voiceUserListComponent.addElement(user, userListEntryFactory.create(user));
+                resizeAudioMemberContainer();
+            });
         }
     }
 
@@ -112,7 +140,7 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
     }
 
     private void onMouseClicked(MouseEvent mouseEvent) {
-        //TODO join voice channel
+        super.onMouseClicked(model, router);
     }
 
     @Override

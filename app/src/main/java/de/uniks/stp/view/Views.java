@@ -19,6 +19,7 @@ public enum Views {
     EDIT_CATEGORY_MODAL("EditCategoryModal.fxml"),
     EDIT_CHANNEL_MODAL("EditChannelModal.fxml"),
     CONFIRMATION_MODAL("ConfirmationModal.fxml"),
+    SERVER_VOICE_CHAT_SCREEN("ServerVoiceChatScreen.fxml"),
     EDIT_MESSAGE_MODAL("EditMessageModal.fxml"),
     EASTER_EGG_MODAL("EasterEggModal.fxml");
 

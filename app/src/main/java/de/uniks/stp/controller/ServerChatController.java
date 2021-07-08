@@ -83,8 +83,8 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         serverChatView = (VBox) viewLoader.loadView(Views.SERVER_CHAT_SCREEN);
         view.getChildren().add(serverChatView);
 
-        loadOldMessagesBox = (HBox) view.lookup(LOAD_OLD_MESSAGES_BOX);
-        serverChatVBox = (VBox) view.lookup(SERVER_CHAT_VBOX);
+        loadOldMessagesBox = (HBox) serverChatView.lookup(LOAD_OLD_MESSAGES_BOX);
+        serverChatVBox = (VBox) serverChatView.lookup(SERVER_CHAT_VBOX);
 
         //add chatMessageList
         serverChatVBox.getChildren().add(chatMessageList);

@@ -1,6 +1,7 @@
 package de.uniks.stp.network.rest;
 
 import de.uniks.stp.Constants;
+import de.uniks.stp.model.Channel;
 import kong.unirest.Callback;
 import kong.unirest.HttpRequest;
 import kong.unirest.JsonNode;
@@ -61,7 +62,7 @@ public class SessionRestClient extends AppRestClient {
         sendRequest(request, callback);
     }
 
-    public void getChannels(String serverId, String categoryId,  Callback<JsonNode> callback) {
+    public void getChannels(String serverId, String categoryId, Callback<JsonNode> callback) {
         String requestPath = Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH;
         HttpRequest<?> request = instance.get(requestPath);
         sendRequest(request, callback);
@@ -89,16 +90,17 @@ public class SessionRestClient extends AppRestClient {
 
     /**
      * Gets the last 50 messages of given channel after given timestamp
+     *
      * @param serverId
      * @param categoryId
      * @param channelId
-     * @param timestamp Only messages older than this timestamp will be returned
+     * @param timestamp  Only messages older than this timestamp will be returned
      * @param callback
      */
     public void getServerChannelMessages(String serverId, String categoryId, String channelId, long timestamp, Callback<JsonNode> callback) {
         String requestPath = Constants.REST_SERVER_PATH + "/" + serverId
             + Constants.REST_CATEGORY_PATH + "/" + categoryId
-            + Constants.REST_CHANNEL_PATH+ "/" + channelId
+            + Constants.REST_CHANNEL_PATH + "/" + channelId
             + Constants.REST_MESSAGES_PATH + Constants.REST_TIMESTAMP_PATH + timestamp;
         HttpRequest<?> request = instance.get(requestPath);
         sendRequest(request, callback);
@@ -106,7 +108,7 @@ public class SessionRestClient extends AppRestClient {
 
     public void createChannel(String serverId, String categoryId, String channelName, String type, Boolean privileged, ArrayList<String> members, Callback<JsonNode> callback) {
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-        for(String userId : members){
+        for (String userId : members) {
             arrayBuilder.add(userId);
         }
         HttpRequest<?> req = instance.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH)
@@ -146,7 +148,7 @@ public class SessionRestClient extends AppRestClient {
 
     public void editTextChannel(String serverId, String categoryId, String channelId, String channelName, Boolean privileged, ArrayList<String> members, Callback<JsonNode> callback) {
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-        for(String userId : members){
+        for (String userId : members) {
             arrayBuilder.add(userId);
         }
         HttpRequest<?> req = instance.put(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH + "/" + channelId)
@@ -162,8 +164,26 @@ public class SessionRestClient extends AppRestClient {
         sendRequest(req, callback);
     }
 
-    public void leaveServer(String serverId,  Callback<JsonNode> callback) {
+    public void leaveServer(String serverId, Callback<JsonNode> callback) {
         HttpRequest<?> req = instance.post(Constants.REST_SERVER_PATH + "/" + serverId + "/leave");
+        sendRequest(req, callback);
+    }
+
+    public void joinAudioChannel(Channel model, Callback<JsonNode> callback) {
+        final String serverId = model.getServer().getId();
+        final String catId = model.getCategory().getId();
+        final String chanId = model.getId();
+
+        final HttpRequest<?> req = instance.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + catId + Constants.REST_CHANNEL_PATH + "/" + chanId + "/join");
+        sendRequest(req, callback);
+    }
+
+    public void leaveAudioChannel(Channel model, Callback<JsonNode> callback) {
+        final String serverId = model.getServer().getId();
+        final String catId = model.getCategory().getId();
+        final String chanId = model.getId();
+
+        final HttpRequest<?> req = instance.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + catId + Constants.REST_CHANNEL_PATH + "/" + chanId + "/leave");
         sendRequest(req, callback);
     }
 

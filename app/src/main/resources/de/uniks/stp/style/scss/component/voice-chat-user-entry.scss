@@ -1,0 +1,15 @@
+@import "../base";
+
+.audio-user-container {
+  -fx-border-color: $box-border;
+  //-fx-background-color: $box-fill;
+}
+
+.user-name-lbl {
+  -fx-font-size: 16px;
+  -fx-text-fill: $primary-text-fill;
+}
+
+.audio-input-btn {
+
+}

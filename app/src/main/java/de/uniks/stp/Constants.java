@@ -97,6 +97,17 @@ public class Constants {
     public static final String WS_SERVER_SYSTEM_PATH = "?serverId=";
     public static final String WS_SERVER_CHAT_PATH = "&serverId=";
 
+    // Audiostream UDP
+    public static final String AUDIOSTREAM_BASE_URL = "cranberry.uniks.de";
+    public static final int AUDIOSTREAM_PORT = 33100;
+    public static final float AUDIOSTREAM_SAMPLE_RATE = 48000f;
+    public static final int AUDIOSTREAM_SAMPLE_SIZE_BITS = 16;
+    public static final boolean AUDIOSTREAM_SIGNED = true;
+    public static final boolean AUDIOSTREAM_BIG_ENDIAN = false;
+    public static final int AUDIOSTREAM_CHANNEL = 1;
+    public static final int AUDIOSTREAM_METADATA_BUFFER_SIZE = 255;
+    public static final int AUDIOSTREAM_AUDIO_BUFFER_SIZE = 1024;
+
     //route names
     public static final String ROUTE_LOGIN = "/login";
     public static final String ROUTE_MAIN = "/main";

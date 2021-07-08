@@ -8,6 +8,7 @@ import de.uniks.stp.component.*;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
+import de.uniks.stp.model.User;
 import de.uniks.stp.notification.NotificationEvent;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.notification.SubscriberInterface;
@@ -16,9 +17,12 @@ import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -27,6 +31,7 @@ import static de.uniks.stp.model.Server.PROPERTY_CATEGORIES;
 
 
 public class ServerCategoryListController implements ControllerInterface, SubscriberInterface {
+    private static final Logger log = LoggerFactory.getLogger(ServerCategoryListController.class);
 
     private Channel defaultChannel;
     private final Parent view;
@@ -47,16 +52,17 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     PropertyChangeListener channelPropertyChangeListener = this::onChannelPropertyChanged;
     PropertyChangeListener categoryNamePropertyChangeListener = this::onCatNamePropertyChanged;
     PropertyChangeListener channelNamePropertyChangeListener = this::onChannelNamePropertyChanged;
+    private final PropertyChangeListener audioMembersPropertyChangeListener = this::onAudioMembersPropertyChange;
 
     @AssistedInject
     public ServerCategoryListController(Router router,
-                                         NotificationService notificationService,
-                                         ServerCategoryList serverCategoryList,
-                                         ServerCategoryElement.ServerCategoryElementFactory serverCategoryElementFactory,
-                                         ServerVoiceChannelElement.ServerVoiceChannelElementFactory serverVoiceChannelElementFactory,
-                                         ServerTextChannelElement.ServerTextChannelElementFactory serverTextChannelElementFactory,
-                                         @Assisted Parent view,
-                                         @Assisted Server model) {
+                                        NotificationService notificationService,
+                                        ServerCategoryList serverCategoryList,
+                                        ServerCategoryElement.ServerCategoryElementFactory serverCategoryElementFactory,
+                                        ServerVoiceChannelElement.ServerVoiceChannelElementFactory serverVoiceChannelElementFactory,
+                                        ServerTextChannelElement.ServerTextChannelElementFactory serverTextChannelElementFactory,
+                                        @Assisted Parent view,
+                                        @Assisted Server model) {
         this.view = view;
         this.model = model;
         this.serverCategoryList = serverCategoryList;
@@ -78,13 +84,12 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
         model.listeners().addPropertyChangeListener(PROPERTY_CATEGORIES, categoriesPropertyChangeListener);
 
-        for(Category category : model.getCategories()) {
+        for (Category category : model.getCategories()) {
             categoryAdded(category);
-            for(Channel channel : category.getChannels()) {
+            for (Channel channel : category.getChannels()) {
                 channelAdded(category, channel);
             }
         }
-        goToDefaultChannel();
     }
 
     private void onCategoriesPropertyChanged(PropertyChangeEvent propertyChangeEvent) {
@@ -100,18 +105,18 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
     private void categoryRemoved(final Category category) {
         if (Objects.nonNull(category) && categoryElementHashMap.containsKey(category)) {
-            for(Channel channel: category.getChannels()){
+            for (Channel channel : category.getChannels()) {
                 notificationService.removePublisher(channel);
             }
 
             HashMap<String, String> currentArgs = router.getCurrentArgs();
             // in case a channel of the deleted category is currently shown: reload server
-            if(currentArgs.containsKey(":categoryId") && currentArgs.get(":categoryId").equals(category.getId())){
+            if (currentArgs.containsKey(":categoryId") && currentArgs.get(":categoryId").equals(category.getId())) {
                 RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
-                Platform.runLater(()-> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+                Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
             }
             //else: remove category element in list
-            else{
+            else {
                 category.listeners().removePropertyChangeListener(PROPERTY_CHANNELS, channelPropertyChangeListener);
                 final ServerCategoryElement serverCategoryElement = categoryElementHashMap.remove(category);
                 Platform.runLater(() -> serverCategoryList.removeElement(serverCategoryElement));
@@ -131,7 +136,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     }
 
     private void goToDefaultChannel() {
-        if(channelElementHashMap.containsKey(defaultChannel) && !router.getCurrentArgs().containsKey(":channelId")) {
+        if (channelElementHashMap.containsKey(defaultChannel) && !router.getCurrentArgs().containsKey(":channelId")) {
             goToChannel(defaultChannel);
 
             RouteArgs args = new RouteArgs();
@@ -143,7 +148,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
     }
 
     private void goToChannel(Channel channel) {
-        if(channelElementHashMap.containsKey(channel)) {
+        if (channelElementHashMap.containsKey(channel)) {
             ServerChannelElement element = channelElementHashMap.get(channel);
             serverCategoryList.setActiveElement(element);
             notificationService.consume(channel);
@@ -184,42 +189,54 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
 
             HashMap<String, String> currentArgs = router.getCurrentArgs();
             // in case the deleted channel is currently shown: reload server
-            if(currentArgs.containsKey(":categoryId") && currentArgs.containsKey(":categoryId")
-                    && currentArgs.get(":categoryId").equals(category.getId())
-                    && currentArgs.get(":channelId").equals(channel.getId())){
+            if (currentArgs.containsKey(":categoryId") && currentArgs.containsKey(":categoryId")
+                && currentArgs.get(":categoryId").equals(category.getId())
+                && currentArgs.get(":channelId").equals(channel.getId())) {
                 RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
-                Platform.runLater(()-> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+                Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
             }
             // else: remove channel element in list
-            else{
+            else {
                 final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
                 final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
                 Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
                 channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
+                removePropertyChangeListenerIfAudio(channel);
             }
+        }
+    }
+
+    private void removePropertyChangeListenerIfAudio(Channel channel) {
+        if ("audio".equals(channel.getType())) {
+            channel.listeners().removePropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
         }
     }
 
     private void channelAdded(final Category category, final Channel channel) {
         if (Objects.nonNull(category) && Objects.nonNull(channel) && Objects.nonNull(channel.getName()) &&
             !channelElementHashMap.containsKey(channel) && categoryElementHashMap.containsKey(category)) {
-            final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
-            boolean voice = channel.getType().equals("audio");
-            final ServerChannelElement serverChannelElement;
-
-            if(voice) {
-                serverChannelElement = serverVoiceChannelElementFactory.create(channel);
+            PropertyChangeSupport channelPropertyChangeListeners = channel.listeners();
+            final String channelType = channel.getType();
+            ServerChannelElement serverChannelElement;
+            switch (channelType) {
+                case "text":
+                    serverChannelElement = serverTextChannelElementFactory.create(channel);
+                    break;
+                case "audio":
+                    serverChannelElement = serverVoiceChannelElementFactory.create(channel);
+                    channelPropertyChangeListeners.addPropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
+                    break;
+                default:
+                    log.error("Could not create a channel of the type: {}", channelType);
+                    return;
             }
-            else {
-                serverChannelElement = serverTextChannelElementFactory.create(channel);
-            }
-
             notificationService.register(channel);
-            channel.listeners().addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
+            channelPropertyChangeListeners.addPropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
             channelElementHashMap.put(channel, serverChannelElement);
+            final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
             Platform.runLater(() -> {
                 serverCategoryElement.addChannelElement(serverChannelElement);
-                if (serverChannelElement.getChannelTextId().equals(channel.getId() + "-ChannelElementText")) {
+                if ("text".equals(channelType)) {
                     serverChannelElement.setNotificationCount(notificationService.getPublisherNotificationCount(channel));
                 }
             });
@@ -227,13 +244,23 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
             // show ServerChatView of first loaded channel
             if (Objects.isNull(defaultChannel)) {
                 defaultChannel = channel;
-                if (!currentRouteArgs.containsKey(":channelId")) {
-                    goToDefaultChannel();
-                }
             }
-            if(currentRouteArgs.containsKey(":channelId") && currentRouteArgs.get(":channelId").equals(channel.getId())) {
+            if (currentRouteArgs.containsKey(":channelId") && currentRouteArgs.get(":channelId").equals(channel.getId())) {
                 goToChannel(channel);
             }
+        }
+    }
+
+    private void onAudioMembersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final User oldValue = (User) propertyChangeEvent.getOldValue();
+        final User newValue = (User) propertyChangeEvent.getNewValue();
+        final Channel source = (Channel) propertyChangeEvent.getSource();
+        final ServerVoiceChannelElement serverChannelElement = (ServerVoiceChannelElement) channelElementHashMap.get(source);
+
+        if (Objects.isNull(oldValue)) {
+            serverChannelElement.addAudioUser(newValue);
+        } else if (Objects.isNull(newValue)) {
+            serverChannelElement.removeAudioUser(oldValue);
         }
     }
 
@@ -247,6 +274,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         }
         for (Channel channel : model.getChannels()) {
             channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
+            removePropertyChangeListenerIfAudio(channel);
         }
         channelElementHashMap.clear();
         categoryElementHashMap.clear();
