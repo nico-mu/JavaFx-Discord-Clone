@@ -1,15 +1,25 @@
 package de.uniks.stp.modal;
 
 import com.jfoenix.controls.JFXButton;
-import de.uniks.stp.*;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
+import de.uniks.stp.AudioService;
+import de.uniks.stp.Constants;
+import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.KeyBasedComboBox;
+import de.uniks.stp.jpa.AccordSettingKey;
+import de.uniks.stp.jpa.SessionDatabaseService;
+import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Languages;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import javax.inject.Named;
 import java.util.HashMap;
 import java.util.MissingResourceException;
 
@@ -23,27 +33,41 @@ public class SettingsModal extends AbstractModal {
     private final JFXButton cancelButton;
     private final KeyBasedComboBox languageComboBox;
     private final KeyBasedComboBox notificationComboBox;
-    private final Editor editor;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
+    private final ViewLoader viewLoader;
+    private final Router router;
+    private final SessionDatabaseService databaseService;
+    private final AudioService audioService;
+    private final Stage primaryStage;
 
-    public SettingsModal(Parent root, Editor editor) {
-        super(root);
+    @AssistedInject
+    public SettingsModal(ViewLoader viewLoader,
+                         Router router,
+                         @Named("primaryStage") Stage primaryStage,
+                         SessionDatabaseService databaseService,
+                         AudioService audioService,
+                         @Assisted Parent root) {
+        super(root, primaryStage);
+        this.primaryStage = primaryStage;
+        this.viewLoader = viewLoader;
+        this.router = router;
+        this.databaseService = databaseService;
+        this.audioService = audioService;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE_TITLE));
+        setTitle(viewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE_TITLE));
 
-        this.editor = editor;
         applyButton = (JFXButton) view.lookup(SETTINGS_APPLY_BUTTON);
         cancelButton = (JFXButton) view.lookup(SETTINGS_CANCEL_BUTTON);
 
         languageComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_LANGUAGE);
 
         languageComboBox.addOptions(getLanguages());
-        languageComboBox.setSelection(editor.getOrCreateAccord().getLanguage());
+        languageComboBox.setSelection(viewLoader.getCurrentLocale().getLanguage());
 
         notificationComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_NOTIFICATION_SOUND);
 
         notificationComboBox.addOptions(getNotificationSounds());
-        notificationComboBox.setSelection(AudioService.getNotificationSoundFileName());
+        notificationComboBox.setSelection(audioService.getNotificationSoundFileName());
 
         applyButton.setOnAction(this::onApplyButtonClicked);
         applyButton.setDefaultButton(true);  // use Enter in order to press button
@@ -57,7 +81,7 @@ public class SettingsModal extends AbstractModal {
             String labelName = Constants.LANG_LABEL_PREFIX + language.key.toUpperCase();
 
             try {
-                String label = ViewLoader.loadLabel(labelName);
+                String label = viewLoader.loadLabel(labelName);
                 languageMap.put(language.key, label);
             }
             catch (MissingResourceException ex) {
@@ -69,8 +93,8 @@ public class SettingsModal extends AbstractModal {
 
     public HashMap<String, String> getNotificationSounds() {
         HashMap<String, String> notificationSoundMap = new HashMap<>();
-        for (String path : AudioService.getNotificationSoundPaths()) {
-            String fileName = AudioService.pathToFileName(path);
+        for (String path : audioService.getNotificationSoundPaths()) {
+            String fileName = audioService.pathToFileName(path);
             notificationSoundMap.put(fileName, fileName.substring(0, fileName.lastIndexOf('.')));
         }
         return notificationSoundMap;
@@ -81,9 +105,25 @@ public class SettingsModal extends AbstractModal {
     }
 
     private void onApplyButtonClicked(ActionEvent actionEvent) {
-        editor.getOrCreateAccord().setLanguage(languageComboBox.getSelection());
-        StageManager.getAudioService().setNotificationSoundFile(notificationComboBox.getSelection());
+        changeLanguage(languageComboBox.getSelection());
+        audioService.setNotificationSoundFile(notificationComboBox.getSelection());
         this.close();
+    }
+
+    private void changeLanguage(String newLanguageString) {
+        final Languages newLanguage = Languages.fromKeyOrDefault(newLanguageString);
+        viewLoader.changeLanguage(newLanguage);
+        router.forceReload();
+
+        Platform.runLater(() -> {
+            primaryStage.setWidth(primaryStage.getWidth() + 0.1);
+            if(primaryStage.isMaximized()) {
+                primaryStage.setWidth(Constants.RES_MAIN_SCREEN_WIDTH);
+                primaryStage.setHeight(Constants.RES_MAIN_SCREEN_HEIGHT);
+                primaryStage.centerOnScreen();
+            }
+        });
+        databaseService.saveAccordSetting(AccordSettingKey.LANGUAGE, newLanguage.key);
     }
 
     @Override
@@ -91,5 +131,10 @@ public class SettingsModal extends AbstractModal {
         applyButton.setOnAction(null);
         cancelButton.setOnAction(null);
         super.close();
+    }
+
+    @AssistedFactory
+    public interface SettingsModalFactory {
+        SettingsModal create(Parent view);
     }
 }

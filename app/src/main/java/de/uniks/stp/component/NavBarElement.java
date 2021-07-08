@@ -5,6 +5,7 @@ import de.uniks.stp.event.NavBarElementChangeEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -30,8 +31,11 @@ abstract public class NavBarElement extends HBox {
     @FXML
     protected Circle circle;
 
-    public NavBarElement() {
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.NAV_BAR_ELEMENT);
+    protected final ViewLoader viewLoader;
+
+    public NavBarElement(ViewLoader viewLoader) {
+        this.viewLoader = viewLoader;
+        FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.NAV_BAR_ELEMENT);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -42,6 +46,10 @@ abstract public class NavBarElement extends HBox {
         }
 
         navBarElement.setOnMouseClicked(this::onMouseClicked);
+    }
+
+    public void installTooltip(String text) {
+        Tooltip.install(navBarElement, new Tooltip(text));
     }
 
     protected void onMouseClicked(MouseEvent mouseEvent) {

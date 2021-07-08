@@ -1,7 +1,10 @@
 package de.uniks.stp.component;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.modal.AddChannelModal;
+import de.uniks.stp.modal.CreateChannelModal;
 import de.uniks.stp.modal.EditCategoryModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.view.Views;
@@ -19,28 +22,39 @@ import java.io.IOException;
 public class ServerCategoryElement extends VBox {
 
     @FXML
-    ImageView categoryHeadArrow;
+    private ImageView categoryHeadArrow;
 
     @FXML
-    TextWithEmoteSupport categoryHeadLabel;
+    private TextWithEmoteSupport categoryHeadLabel;
 
     @FXML
-    HBox categoryHeadPane;
+    private HBox categoryHeadPane;
 
     @FXML
-    ImageView addServerPlus;
+    private ImageView addServerPlus;
 
     @FXML
-    ImageView editCatGear;
+    private ImageView editCatGear;
 
     @FXML
-    VBox categoryChannelList;
-    boolean channelListCollapsed = false;
-    Category model;
+    private VBox categoryChannelList;
 
-    public ServerCategoryElement(Category model) {
+    private boolean channelListCollapsed = false;
+    private final Category model;
+    private final ViewLoader viewLoader;
+    private final CreateChannelModal.CreateChannelModalFactory createChannelModalFactory;
+    private final EditCategoryModal.EditCategoryModalFactory editCategoryModalFactory;
+
+    @AssistedInject
+    public ServerCategoryElement(ViewLoader viewLoader,
+                                 CreateChannelModal.CreateChannelModalFactory createChannelModalFactory,
+                                 EditCategoryModal.EditCategoryModalFactory editCategoryModalFactory,
+                                 @Assisted Category model) {
         this.model = model;
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.SERVER_CATEGORY_ELEMENT);
+        this.viewLoader = viewLoader;
+        this.createChannelModalFactory = createChannelModalFactory;
+        this.editCategoryModalFactory = editCategoryModalFactory;
+        FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.SERVER_CATEGORY_ELEMENT);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -75,25 +89,25 @@ public class ServerCategoryElement extends VBox {
     }
 
     private void onAddServerPlusClicked(MouseEvent mouseEvent) {
-        Parent addChannelModalView = ViewLoader.loadView(Views.ADD_CHANNEL_MODAL);
-        AddChannelModal addChannelModal = new AddChannelModal(addChannelModalView, model);
+        Parent addChannelModalView = viewLoader.loadView(Views.ADD_CHANNEL_MODAL);
+        CreateChannelModal addChannelModal = createChannelModalFactory.create(addChannelModalView, model);
         addChannelModal.show();
     }
 
     private void onEditCatGearClicked(MouseEvent mouseEvent) {
-        Parent editChannelModelView = ViewLoader.loadView(Views.EDIT_CATEGORY_MODAL);
-        EditCategoryModal editChannelModal = new EditCategoryModal(editChannelModelView, model);
+        Parent editChannelModelView = viewLoader.loadView(Views.EDIT_CATEGORY_MODAL);
+        EditCategoryModal editChannelModal = editCategoryModalFactory.create(editChannelModelView, model);
         editChannelModal.show();
     }
 
     private void onCategoryArrowClicked(MouseEvent mouseEvent) {
         channelListCollapsed = !channelListCollapsed;
         if (channelListCollapsed) {
-            categoryHeadArrow.setImage(ViewLoader.loadImage("right-arrow.png"));
+            categoryHeadArrow.setImage(viewLoader.loadImage("right-arrow.png"));
             categoryChannelList.setVisible(false);
             categoryChannelList.setManaged(false);
         } else {
-            categoryHeadArrow.setImage(ViewLoader.loadImage("down-arrow.png"));
+            categoryHeadArrow.setImage(viewLoader.loadImage("down-arrow.png"));
             categoryChannelList.setVisible(true);
             categoryChannelList.setManaged(true);
         }
@@ -111,6 +125,11 @@ public class ServerCategoryElement extends VBox {
         Platform.runLater(() -> {
             categoryHeadLabel.setText(text);
         });
+    }
+
+    @AssistedFactory
+    public interface ServerCategoryElementFactory {
+        ServerCategoryElement create(Category model);
     }
 }
 

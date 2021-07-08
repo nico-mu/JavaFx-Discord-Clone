@@ -1,6 +1,9 @@
 package de.uniks.stp.component;
 
 import com.jfoenix.controls.JFXButton;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.util.InviteInfo;
 import javafx.event.ActionEvent;
@@ -15,8 +18,11 @@ public class JoinServerButton extends HBox {
     @FXML
     private JFXButton joinServerButton;
 
-    public JoinServerButton(InviteInfo inviteInfo, EventHandler<ActionEvent> handleButtonPressed) {
-        FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.JOIN_SERVER_BUTTON);
+    @AssistedInject
+    public JoinServerButton(ViewLoader viewLoader,
+                            @Assisted InviteInfo inviteInfo,
+                            @Assisted EventHandler<ActionEvent> handleButtonPressed) {
+        FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.JOIN_SERVER_BUTTON);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -29,5 +35,10 @@ public class JoinServerButton extends HBox {
         joinServerButton.setId(inviteInfo.getServerId() + "-" + inviteInfo.getInviteId());
         joinServerButton.setUserData(inviteInfo);
         joinServerButton.setOnAction(handleButtonPressed);
+    }
+
+    @AssistedFactory
+    public interface JoinServerButtonFactory {
+        JoinServerButton create(InviteInfo inviteInfo, EventHandler<ActionEvent> handleButtonPressed);
     }
 }

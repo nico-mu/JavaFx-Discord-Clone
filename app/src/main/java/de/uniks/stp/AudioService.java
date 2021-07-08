@@ -1,47 +1,34 @@
 package de.uniks.stp;
 
 import de.uniks.stp.jpa.AccordSettingKey;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.jpa.AppDatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
-import de.uniks.stp.model.Accord;
 import de.uniks.stp.notification.NotificationSound;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class AudioService {
-    private static final String DEFAULT_SOUND_FILE = "gaming-lock.wav";
-    private static Media notificationSoundFile;
-    private static String notificationSoundFileName;
-    private static final String headlessCheck = System.getProperty("testfx.headless");
-    private final PropertyChangeListener notificationSoundPropertyChangeListener = this::onNotificationSoundPropertyChange;
-    private final Editor editor;
+    private final String DEFAULT_SOUND_FILE = "gaming-lock.wav";
+    private final AppDatabaseService databaseService;
+    private Media notificationSoundFile;
+    private String notificationSoundFileName;
+    private final String headlessCheck = System.getProperty("testfx.headless");
 
 
-    public AudioService(Editor editor) {
-        this.editor = editor;
-        this.editor.getOrCreateAccord().listeners().addPropertyChangeListener(Accord.PROPERTY_NOTIFICATION_SOUND, notificationSoundPropertyChangeListener);
-        AccordSettingDTO settingsDTO = DatabaseService.getAccordSetting(AccordSettingKey.NOTIFICATION_SOUND);
+    public AudioService(AppDatabaseService databaseService) {
+        this.databaseService = databaseService;
+        AccordSettingDTO settingsDTO = databaseService.getAccordSetting(AccordSettingKey.NOTIFICATION_SOUND);
         if (Objects.nonNull(settingsDTO)) {
             setNotificationSoundFile(settingsDTO.getValue());
         } else {
             setNotificationSoundFile(DEFAULT_SOUND_FILE);
         }
-    }
-
-    public void stop() {
-        this.editor.getOrCreateAccord().listeners().removePropertyChangeListener(Accord.PROPERTY_NOTIFICATION_SOUND, notificationSoundPropertyChangeListener);
     }
 
     /**
@@ -55,7 +42,8 @@ public class AudioService {
         String path = getNotificationSoundPath(name);
         notificationSoundFileName = pathToFileName(path);
         notificationSoundFile = new Media(path);
-        editor.getOrCreateAccord().setNotificationSound(notificationSoundFileName);
+        databaseService.saveAccordSetting(AccordSettingKey.NOTIFICATION_SOUND,
+            NotificationSound.fromKeyOrDefault(notificationSoundFileName).key);
     }
 
     /**
@@ -63,14 +51,14 @@ public class AudioService {
      * @param path path to a file
      * @return file name
      */
-    public static String pathToFileName(String path) {
+    public String pathToFileName(String path) {
         return Objects.requireNonNull(path).substring(path.lastIndexOf('/') + 1);
     }
 
     /**
      * Plays the set notification sound file
      */
-    public static void playNotificationSound() {
+    public void playNotificationSound() {
         if (Objects.nonNull(headlessCheck) && headlessCheck.equals("true")) {
             return;
         }
@@ -83,7 +71,7 @@ public class AudioService {
      * @param name file name
      * @return path of the file
      */
-    public static String getNotificationSoundPath(String name) {
+    public String getNotificationSoundPath(String name) {
         URL resPath = AudioService.class.getResource("audio/notification/" + name);
         if (Objects.isNull(resPath)) {
             return null;
@@ -100,7 +88,7 @@ public class AudioService {
      * Get the path of all files located in the resources bundles under audio/notification/.
      * @return list of all file paths
      */
-    public static List<String> getNotificationSoundPaths() {
+    public List<String> getNotificationSoundPaths() {
         List<String> paths = new ArrayList<>();
         for (NotificationSound sound : NotificationSound.values()) {
             paths.add(getNotificationSoundPath(sound.key));
@@ -108,12 +96,7 @@ public class AudioService {
         return paths;
     }
 
-    public static String getNotificationSoundFileName() {
+    public String getNotificationSoundFileName() {
         return notificationSoundFileName;
-    }
-
-    private void onNotificationSoundPropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        final String newNotificationSound = (String) propertyChangeEvent.getNewValue();
-        DatabaseService.saveAccordSetting(AccordSettingKey.NOTIFICATION_SOUND, NotificationSound.fromKeyOrDefault(newNotificationSound).key);
     }
 }

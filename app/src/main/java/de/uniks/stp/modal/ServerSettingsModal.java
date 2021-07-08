@@ -4,24 +4,28 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.jpa.DatabaseService;
+import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.Server;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.notification.NotificationService;
+import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Objects;
 
 public class ServerSettingsModal extends AbstractModal {
@@ -44,16 +48,32 @@ public class ServerSettingsModal extends AbstractModal {
     private final JFXButton deleteButton;
 
     private final Server model;
+    private final ViewLoader viewLoader;
+    private final SessionDatabaseService databaseService;
+    private final SessionRestClient restClient;
     private ConfirmationModal confirmationModal;
     private static final Logger log = LoggerFactory.getLogger(ServerSettingsModal.class);
     private final boolean owner;
 
-    public ServerSettingsModal(Parent root, Server model, boolean owner) {
-        super(root);
+    @Inject
+    ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
+
+    @AssistedInject
+    public ServerSettingsModal(SessionDatabaseService databaseService,
+                               ViewLoader viewLoader,
+                               @Named("primaryStage") Stage primaryStage,
+                               SessionRestClient restClient,
+                               @Assisted Parent root,
+                               @Assisted Server model,
+                               @Assisted boolean owner) {
+        super(root, primaryStage);
         this.model = model;
         this.owner = owner;
+        this.viewLoader = viewLoader;
+        this.databaseService = databaseService;
+        this.restClient = restClient;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_EDIT_SERVER_TITLE));
+        setTitle(viewLoader.loadLabel(Constants.LBL_EDIT_SERVER_TITLE));
 
         servernameTextField = (JFXTextField) view.lookup(SERVERNAME_TEXT_FIELD);
         notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);
@@ -64,11 +84,11 @@ public class ServerSettingsModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
         deleteButton = (JFXButton) view.lookup(DELETE_BUTTON);
 
-        boolean muted = DatabaseService.isServerMuted(model.getId());
+        boolean muted = databaseService.isServerMuted(model.getId());
         notificationsToggleButton.setSelected(!muted);
-        notificationsLabel.setText(ViewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
+        notificationsLabel.setText(viewLoader.loadLabel(muted ? Constants.LBL_OFF : Constants.LBL_ON));
         notificationsToggleButton.selectedProperty().addListener(((observable, oldValue, newValue) -> {
-            notificationsLabel.setText(ViewLoader.loadLabel(!notificationsToggleButton.isSelected() ? Constants.LBL_OFF : Constants.LBL_ON));
+            notificationsLabel.setText(viewLoader.loadLabel(!notificationsToggleButton.isSelected() ? Constants.LBL_OFF : Constants.LBL_ON));
         }));
 
         servernameTextField.setText(model.getName());
@@ -79,7 +99,7 @@ public class ServerSettingsModal extends AbstractModal {
         cancelButton.setCancelButton(true);  // use Escape in order to press button
 
         if (!this.owner) {
-            deleteButton.setText(ViewLoader.loadLabel(Constants.LBL_LEAVE_SERVER));
+            deleteButton.setText(viewLoader.loadLabel(Constants.LBL_LEAVE_SERVER));
             deleteButton.setOnAction(this::onLeaveButtonClicked);
         } else {
             deleteButton.setOnAction(this::onDeleteButtonClicked);
@@ -114,16 +134,15 @@ public class ServerSettingsModal extends AbstractModal {
 
             boolean muted = !notificationsToggleButton.isSelected();
             if(muted) {
-                DatabaseService.addMutedServerId(model.getId());
+                databaseService.addMutedServerId(model.getId());
             }else  {
-                DatabaseService.removeMutedServerId(model.getId());
+                databaseService.removeMutedServerId(model.getId());
             }
 
             if(servernameTextField.getText().equals(model.getName())) {
                 this.close();
                 return;
             }
-            RestClient restClient = NetworkClientInjector.getRestClient();
             restClient.renameServer(model.getId(), name, this::handleRenameServerResponse);
         }
         else{
@@ -140,8 +159,8 @@ public class ServerSettingsModal extends AbstractModal {
      * @param actionEvent
      */
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
-        Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
-        confirmationModal = new ConfirmationModal(confirmationModalView,
+        Parent confirmationModalView = viewLoader.loadView(Views.CONFIRMATION_MODAL);
+        confirmationModal = confirmationModalFactory.create(confirmationModalView,
             Constants.LBL_DELETE_SERVER,
             Constants.LBL_CONFIRM_DELETE_SERVER,
             this::onYesDeleteButtonClicked,
@@ -160,7 +179,6 @@ public class ServerSettingsModal extends AbstractModal {
      */
     private void onYesDeleteButtonClicked(ActionEvent actionEvent) {
         closeConfirmationModel();
-        RestClient restClient = NetworkClientInjector.getRestClient();
         restClient.deleteServer(model.getId(), this::handleDeleteServerResponse);
     }
 
@@ -176,8 +194,8 @@ public class ServerSettingsModal extends AbstractModal {
     }
 
     private void onLeaveButtonClicked(ActionEvent actionEvent) {
-        Parent confirmationModalView = ViewLoader.loadView(Views.CONFIRMATION_MODAL);
-        confirmationModal = new ConfirmationModal(confirmationModalView,
+        Parent confirmationModalView = viewLoader.loadView(Views.CONFIRMATION_MODAL);
+        confirmationModal = confirmationModalFactory.create(confirmationModalView,
             Constants.LBL_LEAVE_SERVER,
             Constants.LBL_CONFIRM_LEAVE_SERVER,
             this::onYesLeaveButtonClicked,
@@ -203,7 +221,6 @@ public class ServerSettingsModal extends AbstractModal {
 
     private void onYesLeaveButtonClicked(ActionEvent actionEvent) {
         closeConfirmationModel();
-        RestClient restClient = NetworkClientInjector.getRestClient();
         restClient.leaveServer(model.getId(), this::handleLeaveServerResponse);
     }
 
@@ -292,9 +309,14 @@ public class ServerSettingsModal extends AbstractModal {
             });
             return;
         }
-        String message = ViewLoader.loadLabel(label);
+        String message = viewLoader.loadLabel(label);
         Platform.runLater(() -> {
             errorLabel.setText(message);
         });
+    }
+
+    @AssistedFactory
+    public interface ServerSettingsModalFactory {
+        ServerSettingsModal create(Parent view, Server server, boolean owner);
     }
 }

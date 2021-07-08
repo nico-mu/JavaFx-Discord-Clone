@@ -1,5 +1,8 @@
 package de.uniks.stp.controller;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
 import de.uniks.stp.minigame.GameCommand;
@@ -12,8 +15,8 @@ import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
@@ -21,14 +24,19 @@ import java.util.Scanner;
 import java.util.function.BiConsumer;
 
 public class MiniGameController implements ControllerInterface {
-    private static final Logger log = LoggerFactory.getLogger(ServerChatController.class);
     private final GameInvitation invitation = new GameInvitation();
     private final HashMap<String, BiConsumer<String, Long>> incomingCommandHandler = new HashMap<>();
+    private final ViewLoader viewLoader;
     private EasterEggModal easterEggModal;
     private final User chatPartner;
 
-    public MiniGameController(User chatPartner) {
+    @Inject
+    EasterEggModal.EasterEggModalFactory easterEggModalFactory;
+
+    @AssistedInject
+    public MiniGameController(ViewLoader viewLoader, @Assisted User chatPartner) {
         this.chatPartner = chatPartner;
+        this.viewLoader = viewLoader;
     }
 
     @Override
@@ -53,8 +61,8 @@ public class MiniGameController implements ControllerInterface {
     private void showEasterEgg() {
         closeEasterEggModal(null);
         Platform.runLater(() -> {
-            Parent easterEggModalView = ViewLoader.loadView(Views.EASTER_EGG_MODAL);
-            easterEggModal = new EasterEggModal(easterEggModalView,
+            Parent easterEggModalView = viewLoader.loadView(Views.EASTER_EGG_MODAL);
+            easterEggModal = easterEggModalFactory.create(easterEggModalView,
                 chatPartner,
                 this::closeEasterEggModal);
             easterEggModal.show();
@@ -129,5 +137,10 @@ public class MiniGameController implements ControllerInterface {
         } else {
             invitation.setState(GameInvitationState.SENT).setCreationTime(new Date().getTime());
         }
+    }
+
+    @AssistedFactory
+    public interface MiniGameControllerFactory {
+        MiniGameController create(User chatPartner);
     }
 }

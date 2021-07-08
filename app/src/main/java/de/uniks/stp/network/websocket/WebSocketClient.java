@@ -1,16 +1,15 @@
-package de.uniks.stp.network;
+package de.uniks.stp.network.websocket;
 
 import de.uniks.stp.Constants;
 import de.uniks.stp.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import javax.json.JsonObject;
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -27,12 +26,12 @@ public class WebSocketClient extends Endpoint {
      * @param endpoint URI with connection adress
      * @param callback method to call when message is received
      */
-    public WebSocketClient(String endpoint, WSCallback callback) {
+    public WebSocketClient(@Named("userKey") String userKey, String endpoint, WSCallback callback) {
         this.noopTimer = new Timer();
 
         try {
             ClientEndpointConfig clientConfig = ClientEndpointConfig.Builder.create()
-                .configurator(new CustomWebSocketConfigurator(UserKeyProvider.getUserKey()))
+                .configurator(new CustomWebSocketConfigurator(userKey))
                 .build();
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -49,10 +48,6 @@ public class WebSocketClient extends Endpoint {
         } catch (Exception e) {
             log.error("Error during establishing websocket connection:", e);
         }
-    }
-
-    public void inject(String endpoint, WSCallback callback) {
-        //needed for testing purposes
     }
 
     /**

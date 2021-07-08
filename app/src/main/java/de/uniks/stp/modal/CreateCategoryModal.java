@@ -3,24 +3,28 @@ package de.uniks.stp.modal;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextField;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
-import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Server;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
+import de.uniks.stp.network.rest.SessionRestClient;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import java.util.Objects;
 
 public class CreateCategoryModal extends AbstractModal {
+    private static final Logger log = LoggerFactory.getLogger(CreateCategoryModal.class);
     public static final String CATEGORY_NAME_TEXT_FIELD = "#category-name-text-field";
     public static final String SPINNER = "#spinner";
     public static final String ERROR_MESSAGE_LABEL = "#error-message-label";
@@ -34,15 +38,21 @@ public class CreateCategoryModal extends AbstractModal {
     private final JFXButton cancelButton;
 
     private final Server model;
-    private static final Logger log = LoggerFactory.getLogger(CreateCategoryModal.class);
-    private Editor editor;
+    private final ViewLoader viewLoader;
+    private final SessionRestClient restClient;
 
-    public CreateCategoryModal(Parent root, Server model, Editor editor) {
-        super(root);
+    @AssistedInject
+    public CreateCategoryModal(ViewLoader viewLoader,
+                               @Named("primaryStage") Stage primaryStage,
+                               SessionRestClient restClient,
+                               @Assisted Parent root,
+                               @Assisted Server model) {
+        super(root, primaryStage);
         this.model = model;
-        this.editor = editor;
+        this.viewLoader = viewLoader;
+        this.restClient = restClient;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_CREATE_CATEGORY_TITLE));
+        setTitle(viewLoader.loadLabel(Constants.LBL_CREATE_CATEGORY_TITLE));
 
         categoryNameTextField = (JFXTextField) view.lookup(CATEGORY_NAME_TEXT_FIELD);
         errorLabel = (Label) view.lookup(ERROR_MESSAGE_LABEL);
@@ -82,7 +92,6 @@ public class CreateCategoryModal extends AbstractModal {
             cancelButton.setDisable(true);
             spinner.setVisible(true);
 
-            RestClient restClient = NetworkClientInjector.getRestClient();
             restClient.createCategory(model.getId(), name, this::handleCreateCategoryResponse);
         } else {
             setErrorMessage(Constants.LBL_MISSING_NAME);
@@ -91,10 +100,6 @@ public class CreateCategoryModal extends AbstractModal {
 
     private void onCancelButtonClicked(ActionEvent actionEvent) {
         this.close();
-    }
-
-    private void onDeleteButtonClicked(ActionEvent actionEvent) {
-        // ToDo
     }
 
     /**
@@ -133,9 +138,14 @@ public class CreateCategoryModal extends AbstractModal {
             });
             return;
         }
-        String message = ViewLoader.loadLabel(label);
+        String message = viewLoader.loadLabel(label);
         Platform.runLater(() -> {
             errorLabel.setText(message);
         });
+    }
+
+    @AssistedFactory
+    public interface CreateCategoryModalFactory {
+        CreateCategoryModal create(Parent view, Server server);
     }
 }

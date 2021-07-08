@@ -27,8 +27,8 @@ public class ListComponent<Model, Element extends Node> extends ScrollPane {
         this.setVvalue(1.0d);
     }
 
-    public ListComponent() {
-        final FXMLLoader fxmlLoader = ViewLoader.getFXMLComponentLoader(Components.LIST_COMPONENT);
+    public ListComponent(ViewLoader viewLoader) {
+        final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.LIST_COMPONENT);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -42,8 +42,8 @@ public class ListComponent<Model, Element extends Node> extends ScrollPane {
         setFitToWidth(true);
     }
 
-    public ListComponent(String id) {
-        this();
+    public ListComponent(ViewLoader viewLoader, String id) {
+        this(viewLoader);
         this.setId(id);
     }
 

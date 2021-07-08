@@ -1,13 +1,17 @@
 package de.uniks.stp.jpa;
 
-import de.uniks.stp.jpa.model.*;
+import de.uniks.stp.jpa.model.DirectMessageDTO;
+import de.uniks.stp.jpa.model.MutedCategoryDTO;
+import de.uniks.stp.jpa.model.MutedChannelDTO;
+import de.uniks.stp.jpa.model.MutedServerDTO;
 import de.uniks.stp.model.DirectMessage;
+import de.uniks.stp.model.User;
 import javafx.util.Pair;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
@@ -17,66 +21,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-public class DatabaseService {
-    private static EntityManagerFactory entityManagerFactory;
+public class SessionDatabaseService extends AppDatabaseService {
 
-    public static void init(boolean backup) {
-        if (Objects.isNull(entityManagerFactory)) {
-            entityManagerFactory = Persistence.createEntityManagerFactory("de.uniks.stp.jpa");
-        }
+    private User currentUser;
 
-        if(backup) {
-            createBackup();
-        }
+    @Inject
+    public SessionDatabaseService(@Named("currentUser") User currentUser) {
+        super(false);
+        this.currentUser = currentUser;
     }
 
-    private static void createBackup() {
-        final EntityManager entityManager = entityManagerFactory.createEntityManager();
-        final EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-
-        entityManager.createNativeQuery("BACKUP TO './db/backup_accord.zip';").executeUpdate();
-
-        transaction.commit();
-        entityManager.close();
-    }
-
-    /**
-     * Stops the service. You must call init() before it can be used again
-     */
-    public static void stop() {
-        if (Objects.nonNull(entityManagerFactory)) {
-            entityManagerFactory.close();
-            entityManagerFactory = null;
-        }
-    }
-
-    public static void saveAccordSetting(final AccordSettingKey key, final String value) {
-        final EntityManager entityManager = entityManagerFactory.createEntityManager();
-        final EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-
-        entityManager.merge(
-            new AccordSettingDTO().setKey(key).setValue(value)
-        );
-
-        transaction.commit();
-        entityManager.close();
-    }
-
-    public static AccordSettingDTO getAccordSetting(final AccordSettingKey key) {
-        final EntityManager entityManager = entityManagerFactory.createEntityManager();
-        final EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-
-        final AccordSettingDTO result = entityManager.find(AccordSettingDTO.class, key);
-
-        transaction.commit();
-        entityManager.close();
-        return result;
-    }
-
-    public static void saveDirectMessage(final DirectMessage message) {
+    public void saveDirectMessage(final DirectMessage message) {
         final EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
@@ -95,7 +50,7 @@ public class DatabaseService {
         entityManager.close();
     }
 
-    public static List<DirectMessageDTO> getConversation(String currentUserName, String receiverName) {
+    public final List<DirectMessageDTO> getConversation(String currentUserName, String receiverName) {
         Objects.requireNonNull(currentUserName);
         Objects.requireNonNull(receiverName);
 
@@ -136,7 +91,7 @@ public class DatabaseService {
         return directMessageDTOList;
     }
 
-    public static void clearConversation(String currentUserName, String receiverName) {
+    public void clearConversation(String currentUserName, String receiverName) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -164,7 +119,7 @@ public class DatabaseService {
         entityManager.close();
     }
 
-    public static void clearAllConversations() {
+    public void clearAllConversations() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -178,7 +133,7 @@ public class DatabaseService {
         entityManager.close();
     }
 
-    public static List<Pair<String, String>> getAllConversationPartnerOf(String currentUserName) {
+    public final List<Pair<String, String>> getAllConversationPartnerOf(String currentUserName) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -219,7 +174,7 @@ public class DatabaseService {
         return chatPartnerList;
     }
 
-    public static void addMutedChannelId(String channelId) {
+    public void addMutedChannelId(String channelId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -231,7 +186,7 @@ public class DatabaseService {
         entityManager.close();
     }
 
-    public static void removeMutedChannelId(String channelId) {
+    public void removeMutedChannelId(String channelId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -247,7 +202,7 @@ public class DatabaseService {
         entityManager.close();
     }
 
-    public static boolean isChannelMuted(String channelId) {
+    public boolean isChannelMuted(String channelId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -258,13 +213,10 @@ public class DatabaseService {
         transaction.commit();
         entityManager.close();
 
-        if(Objects.nonNull(result)) {
-            return true;
-        }
-        return false;
+        return Objects.nonNull(result);
     }
 
-    public static void addMutedCategoryId(String categoryId) {
+    public void addMutedCategoryId(String categoryId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -276,7 +228,7 @@ public class DatabaseService {
         entityManager.close();
     }
 
-    public static void removeMutedCategoryId(String categoryId) {
+    public void removeMutedCategoryId(String categoryId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -292,7 +244,7 @@ public class DatabaseService {
         entityManager.close();
     }
 
-    public static boolean isCategoryMuted(String categoryId) {
+    public boolean isCategoryMuted(String categoryId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -303,13 +255,10 @@ public class DatabaseService {
         transaction.commit();
         entityManager.close();
 
-        if(Objects.nonNull(result)) {
-            return true;
-        }
-        return false;
+        return Objects.nonNull(result);
     }
 
-    public static void addMutedServerId(String serverId) {
+    public void addMutedServerId(String serverId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -321,7 +270,7 @@ public class DatabaseService {
         entityManager.close();
     }
 
-    public static void removeMutedServerId(String serverId) {
+    public void removeMutedServerId(String serverId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -337,7 +286,7 @@ public class DatabaseService {
         entityManager.close();
     }
 
-    public static boolean isServerMuted(String serverId) {
+    public boolean isServerMuted(String serverId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -348,9 +297,6 @@ public class DatabaseService {
         transaction.commit();
         entityManager.close();
 
-        if(Objects.nonNull(result)) {
-            return true;
-        }
-        return false;
+        return Objects.nonNull(result);
     }
 }

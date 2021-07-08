@@ -1,10 +1,7 @@
 package de.uniks.stp.util;
 
-import de.uniks.stp.component.ChatMessage;
-import de.uniks.stp.model.Message;
-import de.uniks.stp.network.MediaRequestClient;
-import de.uniks.stp.network.NetworkClientInjector;
-
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,13 +13,7 @@ public class UrlUtil {
         return new ArrayList<>(Arrays.asList(Pattern.compile("(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]").matcher(string).results().map(MatchResult::group).toArray(String[]::new)));
     }
 
-    public static void addMedia(Message message, ChatMessage messageNode) {
-        MediaRequestClient mediaRequestClient = NetworkClientInjector.getMediaRequestClient();
-        for (String url : extractURLs(message.getMessage())) {
-            if (!url.contains("https")) {
-                url = url.replace("http", "https");
-            }
-            mediaRequestClient.getMediaInformation("https://iframe.ly/api/iframely?url=" + url + "&api_key=914710cf5b1fd52a6d415c&html5=1&ssl=1&maxheight=240", (msg) -> mediaRequestClient.handleMediaInformation(msg, messageNode));
-        }
+    public static String encodeURL(String url) {
+        return URLEncoder.encode(url, StandardCharsets.UTF_8);
     }
 }

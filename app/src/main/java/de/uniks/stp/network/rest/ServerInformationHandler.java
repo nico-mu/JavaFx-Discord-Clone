@@ -1,4 +1,4 @@
-package de.uniks.stp.network;
+package de.uniks.stp.network.rest;
 
 import de.uniks.stp.Editor;
 import de.uniks.stp.model.Category;
@@ -11,16 +11,22 @@ import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class ServerInformationHandler {
     private final Editor editor;
-    private final RestClient restClient;
+    private final SessionRestClient restClient;
+    private final NotificationService notificationService;
 
-    public ServerInformationHandler(Editor editor) {
+    @Inject
+    public ServerInformationHandler(Editor editor,
+                                    SessionRestClient restClient,
+                                    NotificationService notificationService) {
         this.editor = editor;
-        this.restClient = NetworkClientInjector.getRestClient();
+        this.restClient = restClient;
+        this.notificationService = notificationService;
     }
 
     public void handleServerInformationRequest(HttpResponse<JsonNode> response) {
@@ -100,7 +106,7 @@ public class ServerInformationHandler {
                         channelModel.withAudioMembers(user);
                     }
                 }
-                NotificationService.register(channelModel);
+                notificationService.register(channelModel);
             }
         } else {
             //TODO: show error message

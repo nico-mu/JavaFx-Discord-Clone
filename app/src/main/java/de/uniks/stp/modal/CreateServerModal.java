@@ -3,26 +3,30 @@ package de.uniks.stp.modal;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextField;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Server;
-import de.uniks.stp.network.NetworkClientInjector;
-import de.uniks.stp.network.RestClient;
-import de.uniks.stp.network.ServerInformationHandler;
+import de.uniks.stp.network.rest.ServerInformationHandler;
+import de.uniks.stp.network.rest.SessionRestClient;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import java.util.Objects;
 
-public class AddServerModal extends AbstractModal {
+public class CreateServerModal extends AbstractModal {
     public static final String ADD_SERVER_CREATE_BUTTON = "#add-server-create-button";
     public static final String ADD_SERVER_CANCEL_BUTTON = "#add-server-cancel-button";
     public static final String ADD_SERVER_TEXT_FIELD_SERVERNAME = "#servername-text-field";
@@ -35,18 +39,26 @@ public class AddServerModal extends AbstractModal {
     private final JFXTextField servernameTextField;
     private final Label errorLabel;
     private final JFXSpinner spinner;
-    private final RestClient restClient;
+    private final SessionRestClient restClient;
     private final ServerInformationHandler serverInformationHandler;
 
-    private static final Logger log = LoggerFactory.getLogger(AddServerModal.class);
+    private static final Logger log = LoggerFactory.getLogger(CreateServerModal.class);
+    private final ViewLoader viewLoader;
 
-    public AddServerModal(Parent root, Editor editor) {
-        super(root);
+    @AssistedInject
+    public CreateServerModal(Editor editor,
+                             SessionRestClient restClient,
+                             @Named("primaryStage") Stage primaryStage,
+                             ServerInformationHandler informationHandler,
+                             ViewLoader viewLoader,
+                             @Assisted Parent root) {
+        super(root, primaryStage);
         this.editor = editor;
-        restClient = NetworkClientInjector.getRestClient();
-        serverInformationHandler = new ServerInformationHandler(editor);
+        this.restClient = restClient;
+        this.viewLoader = viewLoader;
+        this.serverInformationHandler = informationHandler;
 
-        setTitle(ViewLoader.loadLabel(Constants.LBL_ADD_SERVER_TITLE));
+        setTitle(viewLoader.loadLabel(Constants.LBL_ADD_SERVER_TITLE));
 
         createButton = (JFXButton) view.lookup(ADD_SERVER_CREATE_BUTTON);
         cancelButton = (JFXButton) view.lookup(ADD_SERVER_CANCEL_BUTTON);
@@ -85,7 +97,6 @@ public class AddServerModal extends AbstractModal {
             cancelButton.setDisable(true);
             spinner.setVisible(true);
 
-            RestClient restClient = NetworkClientInjector.getRestClient();
             restClient.createServer(name, this::handleCreateServerResponse);
         }
         else{
@@ -138,9 +149,14 @@ public class AddServerModal extends AbstractModal {
             });
             return;
         }
-        String message = ViewLoader.loadLabel(label);
+        String message = viewLoader.loadLabel(label);
         Platform.runLater(() -> {
             errorLabel.setText(message);
         });
+    }
+
+    @AssistedFactory
+    public interface CreateServerModalFactory {
+        CreateServerModal create(Parent view);
     }
 }
