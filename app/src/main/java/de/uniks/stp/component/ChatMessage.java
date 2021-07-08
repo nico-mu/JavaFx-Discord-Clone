@@ -163,7 +163,7 @@ public class ChatMessage extends HBox {
     }
 
     public void addVideo(String content, String url) {
-        loadContent(content, false, url);
+        // loadContent(content, false, url); video support
     }
 
     public void addImage(String content, String url) {
@@ -173,24 +173,9 @@ public class ChatMessage extends HBox {
     private void loadContent(String content, boolean notIntractable, String url) {
         Platform.runLater(() -> {
             WebView webView = new WebView();
-            if (content.equals("")) {
-                Media media = new Media(url);
-                MediaPlayer mediaPlayer = new MediaPlayer(media);
-                MediaView mediaView = new MediaView();
-                mediaView.setMediaPlayer(mediaPlayer);
-                mediaView.setFitHeight(240);
-                mediaView.setOnMouseClicked(event -> {
-                    if (mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
-                        mediaPlayer.pause();
-                    } else {
-                        mediaPlayer.play();
-                    }
-                });
-                textVBox.getChildren().add(mediaView);
-                return;
-            }else {
-                webView.getEngine().loadContent(content, "text/html");
-            }
+
+            webView.getEngine().loadContent(content, "text/html");
+
             webView.setMaxHeight(250);
             webView.setMaxWidth(500);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
