@@ -24,16 +24,16 @@ public class MediaRequestClient {
     }
 
     public void stop() {
-        executor.shutdown();
+        executor.shutdownNow();
         instance.shutDown();
     }
 
     public void loadImage(String content, ChatMessage messageNode, String url) {
-        executor.submit(() -> messageNode.addImage(content, url));
+        executor.execute(() -> messageNode.addImage(content, url));
     }
 
     public void loadVideo(String content, ChatMessage messageNode, String url) {
-        executor.submit(() -> messageNode.addVideo(content, url));
+        executor.execute(() -> messageNode.addVideo(content, url));
     }
 
     public void getMediaInformation(String url, Callback<JsonNode> callback) {

@@ -8,6 +8,7 @@ import de.uniks.stp.dagger.modules.session.SessionNetworkModule;
 import de.uniks.stp.dagger.scope.SessionScope;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.rest.MediaRequestClient;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.websocket.WebSocketService;
 
@@ -22,6 +23,7 @@ public interface SessionComponent {
     WebSocketService getWebsocketService();
     SessionDatabaseService getSessionDatabaseService();
     SessionRestClient getSessionRestClient();
+    MediaRequestClient getMediaRequestClient();
 
     @Subcomponent.Builder
     interface Builder {

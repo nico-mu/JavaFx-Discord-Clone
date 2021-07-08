@@ -6,6 +6,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.dagger.scope.SessionScope;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.network.rest.HttpRequestInterceptor;
+import de.uniks.stp.network.rest.MediaRequestClient;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.websocket.WebSocketClientFactory;
 import de.uniks.stp.network.websocket.WebSocketFactory;
@@ -42,5 +43,11 @@ public class SessionNetworkModule {
     @SessionScope
     WebSocketClientFactory provideWebSocketClientFactory(@Named("userKey") String userKey) {
         return new WebSocketFactory(userKey);
+    }
+
+    @Provides
+    @SessionScope
+    MediaRequestClient provideMediaRequestClient() {
+        return new MediaRequestClient();
     }
 }
