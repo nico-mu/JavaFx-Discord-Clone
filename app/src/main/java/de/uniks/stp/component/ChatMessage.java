@@ -163,7 +163,7 @@ public class ChatMessage extends HBox {
     }
 
     public void addVideo(String content, String url) {
-        // loadContent(content, false, url); video support
+        loadContent(content, false, url);
     }
 
     public void addImage(String content, String url) {
