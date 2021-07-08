@@ -205,7 +205,7 @@ public class VoiceChatClient {
 
     private void recordAndSendAudio() {
         if (isAudioInUnavailable()) {
-            log.error("Audio recording not startet. The dataLine is not set up properly.");
+            log.error("Audio recording not started. The dataLine is not set up properly.");
             return;
         }
 
