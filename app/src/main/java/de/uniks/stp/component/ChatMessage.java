@@ -162,18 +162,6 @@ public class ChatMessage extends HBox {
         deleteMessageModalFactory.create((ServerMessage) model);
     }
 
-    public void addSpinner() {
-        Platform.runLater(() -> {
-            VBox vBox = new VBox();
-            vBox.setPrefHeight(100);
-            vBox.setPrefWidth(100);
-            vBox.setAlignment(Pos.CENTER);
-            JFXSpinner spinner = new JFXSpinner();
-            vBox.getChildren().add(spinner);
-            textVBox.getChildren().add(vBox);
-        });
-    }
-
     public void addVideo(String content, String url) {
         loadContent(content, false, url);
     }
