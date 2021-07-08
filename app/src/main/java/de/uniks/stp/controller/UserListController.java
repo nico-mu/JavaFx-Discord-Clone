@@ -100,7 +100,7 @@ public class UserListController implements ControllerInterface {
     @Override
     public void stop() {
         final Accord accord = editor.getOrCreateAccord();
-        accord.listeners().removePropertyChangeListener(availableUsersPropertyChangeListener);
+        accord.listeners().removePropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
     }
 
     @AssistedFactory

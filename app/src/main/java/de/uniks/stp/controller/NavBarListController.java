@@ -171,7 +171,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         editor.getOrCreateAccord()
             .getCurrentUser()
             .listeners()
-            .removePropertyChangeListener(availableServersPropertyChangeListener);
+            .removePropertyChangeListener(User.PROPERTY_AVAILABLE_SERVERS, availableServersPropertyChangeListener);
 
         for (Server availableServer : editor.getAvailableServers()) {
             availableServer.listeners().removePropertyChangeListener(Server.PROPERTY_NAME, serverNamePropertyChangeListener);
