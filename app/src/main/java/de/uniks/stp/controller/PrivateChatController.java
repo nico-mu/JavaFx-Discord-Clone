@@ -121,6 +121,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
             user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
             user.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
         }
+        mediaRequestClient.stop();
     }
 
     @Override
@@ -154,6 +155,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
         if (Objects.nonNull(info) && Objects.isNull(editor.getServer(info.getServerId()))) {
             messageNode.addJoinButtonButton(info, this::joinServer);
         }
+        mediaRequestClient.addMedia(message, messageNode);
 
         return messageNode;
     }

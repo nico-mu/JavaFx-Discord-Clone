@@ -114,6 +114,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
             }
         }
         chatMessageList.vvalueProperty().removeListener(scrollValueChangedListener);
+        mediaRequestClient.stop();
     }
 
     @Override
