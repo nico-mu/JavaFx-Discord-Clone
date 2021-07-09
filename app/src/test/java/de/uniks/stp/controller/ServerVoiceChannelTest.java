@@ -244,6 +244,36 @@ public class ServerVoiceChannelTest {
             .addArgument(":channelId", channelId);
         Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
         WaitForAsyncUtils.waitForFxEvents();
+      
+        JSONObject response = new JSONObject()
+            .put("status", "success")
+            .put("message", "Successfully joined audio channel, please open an UDP connection to ")
+            .put("data", new JSONObject());
+
+        verify(restMock).joinAudioChannel(eq(channel), callbackCaptor.capture());
+        when(res.getBody()).thenReturn(new JsonNode(response.toString()));
+        when(res.isSuccess()).thenReturn(true);
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+      
+        channel.withAudioMembers(otherUser);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        final boolean mute = otherUser.isMute();
+        final JFXButton muteOtherUserButton = robot.lookup("#" + otherUserId + "-MuteVoiceChatUserBtn").query();
+        robot.clickOn(muteOtherUserButton);
+        Assertions.assertEquals(!mute, otherUser.isMute());
+
+        robot.clickOn(muteOtherUserButton);
+        Assertions.assertEquals(mute, otherUser.isMute());
+    }
+  
+    @Test
+    public void testMuteVoiceChannel(FxRobot robot) {
+        final String serverId = UUID.randomUUID().toString();
+        final String categoryId = UUID.randomUUID().toString();
+        final String channelId = UUID.randomUUID().toString();
+        final Channel channel = initAndEnterVoiceChannel(serverId, categoryId, channelId);
 
         JSONObject response = new JSONObject()
             .put("status", "success")
@@ -255,17 +285,39 @@ public class ServerVoiceChannelTest {
         when(res.isSuccess()).thenReturn(true);
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
-        
-        channel.withAudioMembers(otherUser);
-        WaitForAsyncUtils.waitForFxEvents();
 
-        final boolean mute = otherUser.isMute();
-        final JFXButton muteOtherUserButton = robot.lookup("#" + otherUserId + "-MuteVoiceChatUserBtn").query();
-        robot.clickOn(muteOtherUserButton);
-        Assertions.assertEquals(!mute, otherUser.isMute());
+        boolean audioOff = currentUser.isAudioOff();
+        robot.clickOn(ServerVoiceChatController.AUDIO_OUTPUT_BTN_ID);
+        Assertions.assertEquals(!audioOff, currentUser.isAudioOff());
 
-        robot.clickOn(muteOtherUserButton);
-        Assertions.assertEquals(mute, otherUser.isMute());
+        robot.clickOn(ServerVoiceChatController.AUDIO_OUTPUT_BTN_ID);
+        Assertions.assertEquals(audioOff, currentUser.isAudioOff());
+    }
+  
+    @Test
+    public void testMuteOwnVoice(FxRobot robot) {
+        final String serverId = UUID.randomUUID().toString();
+        final String categoryId = UUID.randomUUID().toString();
+        final String channelId = UUID.randomUUID().toString();
+        final Channel channel = initAndEnterVoiceChannel(serverId, categoryId, channelId);
+
+        JSONObject response = new JSONObject()
+            .put("status", "success")
+            .put("message", "Successfully joined audio channel, please open an UDP connection to ")
+            .put("data", new JSONObject());
+
+        verify(restMock).joinAudioChannel(eq(channel), callbackCaptor.capture());
+        when(res.getBody()).thenReturn(new JsonNode(response.toString()));
+        when(res.isSuccess()).thenReturn(true);
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+      
+        boolean mute = currentUser.isMute();
+        robot.clickOn(ServerVoiceChatController.AUDIO_INPUT_BTN_ID);
+        Assertions.assertEquals(!mute, currentUser.isMute());
+
+        robot.clickOn(ServerVoiceChatController.AUDIO_INPUT_BTN_ID);
+        Assertions.assertEquals(mute, currentUser.isMute());
     }
 
     @AfterEach
