@@ -5,13 +5,18 @@ import dagger.Provides;
 import de.uniks.stp.Editor;
 import de.uniks.stp.dagger.scope.SessionScope;
 import de.uniks.stp.jpa.SessionDatabaseService;
+import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.HttpRequestInterceptor;
 import de.uniks.stp.network.rest.MediaRequestClient;
 import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.network.voice.VoiceChatClient;
+import de.uniks.stp.network.voice.VoiceChatClientFactory;
+import de.uniks.stp.network.voice.VoiceChatClientFactoryImpl;
 import de.uniks.stp.network.websocket.WebSocketClientFactory;
 import de.uniks.stp.network.websocket.WebSocketFactory;
 import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
+import org.mockito.Mockito;
 
 import javax.inject.Named;
 
@@ -49,5 +54,11 @@ public class SessionNetworkModule {
     @SessionScope
     MediaRequestClient provideMediaRequestClient() {
         return new MediaRequestClient();
+    }
+
+    @Provides
+    @SessionScope
+    VoiceChatClientFactory provideVoiceChatClientFactory(@Named("currentUser") User currentUser) {
+        return new VoiceChatClientFactoryImpl(currentUser);
     }
 }

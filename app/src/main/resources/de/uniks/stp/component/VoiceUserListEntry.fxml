@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<fx:root xmlns:fx="http://javafx.com/fxml/1" maxWidth="450.0"
+         styleClass="voice-user-name-container" stylesheets="@../style/css/component/voice-user-list.css" type="HBox"
+         xmlns="http://javafx.com/javafx/11.0.1">
+    <Label id="voice-user-list-entry-label" fx:id="voiceUserNameLabel" styleClass="voice-user-name"/>
+    <padding>
+        <Insets left="12.0"/>
+    </padding>
+</fx:root>

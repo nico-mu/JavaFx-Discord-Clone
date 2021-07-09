@@ -1,0 +1,11 @@
+@import "../base";
+
+.voice-user-name {
+  -fx-font-size: 16px;
+  -fx-text-fill: $primary-text-fill;
+}
+
+.voice-user-name-container:hover {
+  -fx-background-color: $hover-background-color;
+  -fx-background-radius: 8px;
+}

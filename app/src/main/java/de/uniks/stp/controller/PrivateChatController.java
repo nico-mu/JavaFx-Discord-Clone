@@ -121,6 +121,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
             user.listeners().removePropertyChangeListener(User.PROPERTY_PRIVATE_CHAT_MESSAGES, messagesChangeListener);
             user.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
         }
+        chatMessageInput.setOnMessageSubmit(null);
     }
 
     @Override

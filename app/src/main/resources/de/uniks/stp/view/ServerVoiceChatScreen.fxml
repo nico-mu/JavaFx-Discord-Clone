@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+      stylesheets="@../style/css/view/server-voice-chat.css" xmlns="http://javafx.com/javafx/11.0.1">
+    <ScrollPane id="voice-channel-user-scroll-container" fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="container" VBox.vgrow="ALWAYS">
+        <FlowPane id="voice-channel-user-container" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+    </ScrollPane>
+    <Pane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="5.0" styleClass="mid-pane" />
+    <HBox alignment="CENTER" spacing="50.0">
+        <JFXButton id="audio-output-btn" mnemonicParsing="false">
+            <graphic>
+                <ImageView fitHeight="50.0" fitWidth="50.0">
+                    <Image url="@../img/volume.png" />
+                </ImageView>
+            </graphic>
+        </JFXButton>
+        <JFXButton id="hang-up-btn" mnemonicParsing="false">
+            <graphic>
+                <ImageView fitHeight="50.0" fitWidth="50.0">
+                    <Image url="@../img/hang.png" />
+                </ImageView>
+            </graphic>
+        </JFXButton>
+        <JFXButton id="audio-input-btn" mnemonicParsing="false">
+            <graphic>
+                <ImageView fitHeight="50.0" fitWidth="50.0">
+                    <Image url="@../img/microphone.png" />
+                </ImageView>
+            </graphic>
+        </JFXButton>
+        <padding>
+            <Insets top="3.0" />
+        </padding>
+    </HBox>
+</VBox>

@@ -421,13 +421,32 @@ public class WebSocketService {
                     server = editor.getServer(serverId);
                     editor.getOrCreateServerMember(userId, userName, server).setStatus(status);
                     break;
-
+                case "audioJoined":
+                    userId = data.getString("id");
+                    categoryId = data.getString("category");
+                    channelId = data.getString("channel");
+                    server = editor.getServer(serverId);
+                    Category category = editor.getCategory(categoryId, server);
+                    channel = editor.getChannel(channelId, category);
+                    user = editor.getServerMemberById(userId, server);
+                    channel.withAudioMembers(user);
+                    break;
+                case "audioLeft":
+                    userId = data.getString("id");
+                    categoryId = data.getString("category");
+                    channelId = data.getString("channel");
+                    server = editor.getServer(serverId);
+                    category = editor.getCategory(categoryId, server);
+                    channel = editor.getChannel(channelId, category);
+                    user = editor.getServerMemberById(userId, server);
+                    channel.withoutAudioMembers(user);
+                    break;
                 case "messageUpdated":
                     String messageId = data.getString("id");
                     categoryId = data.getString("category");
                     channelId = data.getString("channel");
                     String message = data.getString("text");
-                    Category category = editor.getCategory(categoryId);
+                    category = editor.getCategory(categoryId);
                     channel = editor.getChannel(channelId, category);
                     editor.getOrCreateServerMessage(messageId, channel).setMessage(message);
                     break;

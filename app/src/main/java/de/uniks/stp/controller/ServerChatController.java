@@ -86,8 +86,8 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         serverChatView = (VBox) viewLoader.loadView(Views.SERVER_CHAT_SCREEN);
         view.getChildren().add(serverChatView);
 
-        loadOldMessagesBox = (HBox) view.lookup(LOAD_OLD_MESSAGES_BOX);
-        serverChatVBox = (VBox) view.lookup(SERVER_CHAT_VBOX);
+        loadOldMessagesBox = (HBox) serverChatView.lookup(LOAD_OLD_MESSAGES_BOX);
+        serverChatVBox = (VBox) serverChatView.lookup(SERVER_CHAT_VBOX);
 
         //add chatMessageList
         serverChatVBox.getChildren().add(chatMessageList);
@@ -107,13 +107,14 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
             for (Message message : model.getMessages()) {
-                message.listeners().removePropertyChangeListener(Message.PROPERTY_MESSAGE, messagesChangeListener);
+                message.listeners().removePropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);
             }
             for (ChatMessage chatMessage : chatMessageList.getElements()) {
                 chatMessage.cleanUp();
             }
         }
         chatMessageList.vvalueProperty().removeListener(scrollValueChangedListener);
+        chatMessageInput.setOnMessageSubmit(null);
     }
 
     @Override

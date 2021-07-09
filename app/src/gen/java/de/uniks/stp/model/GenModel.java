@@ -27,6 +27,8 @@ public class GenModel implements ClassModelDecorator {
         String name;
         String password;
         boolean status;
+        boolean mute;
+        boolean audioOff;
 
         @Link("currentUser")
         Accord accord;

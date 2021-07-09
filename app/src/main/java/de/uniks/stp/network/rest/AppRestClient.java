@@ -15,7 +15,7 @@ public class AppRestClient {
 
     @Inject
     public AppRestClient() {
-        executorService = Executors.newCachedThreadPool();
+        executorService = Executors.newFixedThreadPool(6);
         instance = new UnirestInstance(new Config());
         instance.config()
             .defaultBaseUrl(Constants.REST_SERVER_BASE_URL);
