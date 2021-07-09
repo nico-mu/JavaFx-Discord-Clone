@@ -135,18 +135,6 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         }
     }
 
-    private void goToDefaultChannel() {
-        if (channelElementHashMap.containsKey(defaultChannel) && !router.getCurrentArgs().containsKey(":channelId")) {
-            goToChannel(defaultChannel);
-
-            RouteArgs args = new RouteArgs();
-            args.addArgument(":id", defaultChannel.getCategory().getServer().getId());
-            args.addArgument(":categoryId", defaultChannel.getCategory().getId());
-            args.addArgument(":channelId", defaultChannel.getId());
-            Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
-        }
-    }
-
     private void goToChannel(Channel channel) {
         if (channelElementHashMap.containsKey(channel)) {
             ServerChannelElement element = channelElementHashMap.get(channel);
