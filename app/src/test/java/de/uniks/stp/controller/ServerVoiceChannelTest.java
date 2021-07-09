@@ -182,7 +182,7 @@ public class ServerVoiceChannelTest {
         final String otherUserId = UUID.randomUUID().toString();
         final Channel channel = initServerWithVoiceChannel(serverId, categoryId, channelId);
         final User otherUser = new User().setName("other").setId(otherUserId).withAvailableServers(channel.getServer());
-        channel.withAudioMembers(editor.getOrCreateAccord().getCurrentUser(), otherUser);
+        channel.withAudioMembers(currentUser, otherUser);
 
         final RouteArgs args = new RouteArgs()
             .addArgument(":id", serverId)
