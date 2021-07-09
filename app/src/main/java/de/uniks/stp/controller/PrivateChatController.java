@@ -15,6 +15,7 @@ import de.uniks.stp.minigame.GameInvitation;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.rest.MediaRequestClient;
 import de.uniks.stp.network.rest.ServerInformationHandler;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.websocket.WebSocketService;
@@ -70,11 +71,12 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
                                  ViewLoader viewLoader,
                                  ServerInformationHandler serverInformationHandler,
                                  SessionRestClient restClient,
+                                 MediaRequestClient mediaRequestClient,
                                  ChatMessageInput chatMessageInput,
                                  ChatMessage.ChatMessageFactory chatMessageFactory,
                                  @Assisted Parent view,
                                  @Assisted User user) {
-        super(editor, serverInformationHandler, restClient, chatMessageInput, viewLoader);
+        super(editor, serverInformationHandler, restClient, mediaRequestClient, chatMessageInput, viewLoader);
         this.view = view;
         this.user = user;
         this.notificationService = notificationService;
@@ -153,6 +155,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
         if (Objects.nonNull(info) && Objects.isNull(editor.getServer(info.getServerId()))) {
             messageNode.addJoinButtonButton(info, this::joinServer);
         }
+        mediaRequestClient.addMedia(message, messageNode);
 
         return messageNode;
     }

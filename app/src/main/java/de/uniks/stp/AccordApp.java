@@ -48,6 +48,7 @@ public class AccordApp extends Application {
                 sessionComponent.getSessionRestClient().stop();
                 sessionComponent.getWebsocketService().stop();
                 sessionComponent.getSessionDatabaseService().stop();
+                sessionComponent.getMediaRequestClient().stop();
                 sessionComponent = null;
             }
             appComponent.getAppRestClient().stop();

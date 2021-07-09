@@ -1,5 +1,7 @@
 package de.uniks.stp.component;
 
+import com.jfoenix.controls.JFXSpinner;
+import com.sun.javafx.webkit.Accessor;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -13,19 +15,29 @@ import de.uniks.stp.util.DateUtil;
 import de.uniks.stp.util.InviteInfo;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
+import javafx.scene.web.WebView;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Set;
 
 public class ChatMessage extends HBox {
 
@@ -124,7 +136,10 @@ public class ChatMessage extends HBox {
     }
 
     public void setMessageText(String newText) {
-        Platform.runLater(() -> messageText.setText(newText));
+        Platform.runLater(() -> {
+            messageText.setText(newText);
+            textVBox.getChildren().removeIf(node -> node instanceof WebView);
+        });
     }
 
     private void onMouseExited(MouseEvent mouseEvent) {
@@ -147,8 +162,51 @@ public class ChatMessage extends HBox {
         deleteMessageModalFactory.create((ServerMessage) model);
     }
 
+    public void addVideo(String content, String url) {
+        loadContent(content, false, url);
+    }
+
+    public void addImage(String content, String url) {
+        loadContent(content, true, url);
+    }
+
+    private void loadContent(String content, boolean notIntractable, String url) {
+        Platform.runLater(() -> {
+            WebView webView = new WebView();
+
+            webView.getEngine().loadContent(content, "text/html");
+
+            webView.setMaxHeight(250);
+            webView.setMaxWidth(500);
+            Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);
+            webView.setMouseTransparent(notIntractable);
+            webView.addEventFilter(ScrollEvent.SCROLL, Event::consume);
+            // disables scrollbars on images and videos:
+            webView.getChildrenUnmodifiable().addListener((ListChangeListener<Node>) change -> {
+                Set<Node> scrollBars = webView.lookupAll(".scroll-bar");
+                for (Node scroll : scrollBars) {
+                    scroll.setVisible(false);
+                }
+            });
+            textVBox.getChildren().add(webView);
+        });
+    }
+
     @AssistedFactory
     public interface ChatMessageFactory {
         ChatMessage create(Message message, boolean editable);
+    }
+
+    public void cleanUp() {
+        for (Node node : textVBox.getChildren()) {
+            if (node instanceof WebView) {
+                WebView webView = (WebView) node;
+                webView.getEngine().load(null);
+            } else if (node instanceof MediaView) {
+                MediaView mediaView = (MediaView) node;
+                mediaView.getMediaPlayer().stop();
+            }
+        }
+        textVBox.getChildren().clear();
     }
 }

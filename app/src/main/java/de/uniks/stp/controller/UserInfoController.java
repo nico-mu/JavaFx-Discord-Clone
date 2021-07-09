@@ -97,6 +97,7 @@ public class UserInfoController implements ControllerInterface {
             app.getSessionComponent().getWebsocketService().stop();
             app.getSessionComponent().getSessionDatabaseService().stop();
             app.getSessionComponent().getSessionRestClient().stop();
+            app.getSessionComponent().getMediaRequestClient().stop();
             app.setSessionComponent(null);
         });
     }

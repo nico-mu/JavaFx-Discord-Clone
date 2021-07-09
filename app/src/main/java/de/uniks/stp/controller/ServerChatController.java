@@ -13,11 +13,13 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.rest.MediaRequestClient;
 import de.uniks.stp.network.rest.ServerInformationHandler;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.util.InviteInfo;
 import de.uniks.stp.util.MessageUtil;
+import de.uniks.stp.util.UrlUtil;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -65,11 +67,12 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
                                 ViewLoader viewLoader,
                                 ServerInformationHandler serverInformationHandler,
                                 SessionRestClient restClient,
+                                MediaRequestClient mediaRequestClient,
                                 ChatMessageInput chatMessageInput,
                                 ChatMessage.ChatMessageFactory chatMessageFactory,
                                 @Assisted VBox view,
                                 @Assisted Channel model) {
-        super(editor, serverInformationHandler, restClient, chatMessageInput, viewLoader);
+        super(editor, serverInformationHandler, restClient, mediaRequestClient, chatMessageInput, viewLoader);
         this.view = view;
         this.model = model;
         canLoadOldMessages = true;
@@ -106,6 +109,9 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
             for (Message message : model.getMessages()) {
                 message.listeners().removePropertyChangeListener(Message.PROPERTY_MESSAGE, messageTextChangeListener);
             }
+            for (ChatMessage chatMessage : chatMessageList.getElements()) {
+                chatMessage.cleanUp();
+            }
         }
         chatMessageList.vvalueProperty().removeListener(scrollValueChangedListener);
         chatMessageInput.setOnMessageSubmit(null);
@@ -128,6 +134,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     protected ChatMessage parseMessage(Message message) {
         ChatMessage messageNode = chatMessageFactory.create(message,
             message.getSender().getId().equals(editor.getOrCreateAccord().getCurrentUser().getId()));
+        mediaRequestClient.addMedia(message, messageNode);
 
         if (!message.getSender().getName().equals(currentUser.getName())) {
             InviteInfo info = MessageUtil.getInviteInfo(message.getMessage());
@@ -186,6 +193,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
     private void onMessageTextChange(PropertyChangeEvent propertyChangeEvent) {
         ServerMessage message = (ServerMessage) propertyChangeEvent.getSource();
         chatMessageList.getElement(message).setMessageText(message.getMessage());
+        mediaRequestClient.addMedia(message, chatMessageList.getElement(message));
     }
 
     /**

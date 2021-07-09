@@ -8,6 +8,7 @@ import de.uniks.stp.component.ChatMessageInput;
 import de.uniks.stp.component.ListComponent;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.rest.MediaRequestClient;
 import de.uniks.stp.network.rest.ServerInformationHandler;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.util.InviteInfo;
@@ -29,16 +30,19 @@ abstract public class ChatController<T> {
     protected ServerInformationHandler serverInformationHandler;
     protected SessionRestClient restClient;
     protected ViewLoader viewLoader;
+    protected MediaRequestClient mediaRequestClient;
 
     public ChatController(Editor editor,
                           ServerInformationHandler informationHandler,
                           SessionRestClient restClient,
+                          MediaRequestClient mediaRequestClient,
                           ChatMessageInput chatMessageInput,
                           ViewLoader viewLoader) {
         this.editor = editor;
         this.viewLoader = viewLoader;
         this.serverInformationHandler = informationHandler;
         this.restClient = restClient;
+        this.mediaRequestClient = mediaRequestClient;
         currentUser = editor.getOrCreateAccord().getCurrentUser();
         this.chatMessageInput = chatMessageInput;
         chatMessageList = new ListComponent<>(viewLoader, "message-list");

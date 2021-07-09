@@ -6,6 +6,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.dagger.scope.SessionScope;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.network.rest.HttpRequestInterceptor;
+import de.uniks.stp.network.rest.MediaRequestClient;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.voice.VoiceChatClientFactory;
 import de.uniks.stp.network.voice.test.VoiceChatClientTestFactory;
@@ -50,6 +51,12 @@ public class SessionTestNetworkModule {
     @SessionScope
     WebSocketClientFactory provideWebSocketClientFactory() {
         return Mockito.spy(new WebSocketClientTestFactory());
+    }
+
+    @Provides
+    @SessionScope
+    MediaRequestClient provideMediaRequestClient() {
+        return Mockito.mock(MediaRequestClient.class);
     }
 
     @Provides
