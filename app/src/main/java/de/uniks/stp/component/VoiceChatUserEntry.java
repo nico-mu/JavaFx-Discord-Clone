@@ -48,6 +48,7 @@ public class VoiceChatUserEntry extends VBox {
         setUserName(user.getName());
         setMute(user.isMute());
         muteAudioButton.setOnMouseClicked(this::handleMuteAudioButtonClick);
+        muteAudioButton.setId(user.getId() + "-MuteVoiceChatUserBtn");
     }
 
     private void handleMuteAudioButtonClick(MouseEvent mouseEvent) {
