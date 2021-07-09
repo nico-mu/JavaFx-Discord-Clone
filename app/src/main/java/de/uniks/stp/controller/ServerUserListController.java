@@ -115,7 +115,7 @@ public class ServerUserListController implements ControllerInterface {
     public void stop() {
         model.listeners().removePropertyChangeListener(Server.PROPERTY_USERS, availableUsersPropertyChangeListener);
         for (User user : model.getUsers()) {
-            user.listeners().removePropertyChangeListener(userStatusPropertyChangeListener);
+            user.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, userStatusPropertyChangeListener);
         }
         serverUserListEntryHashMap.clear();
         onlineUserList.getChildren().clear();
