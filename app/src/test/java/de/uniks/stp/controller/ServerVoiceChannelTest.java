@@ -1,5 +1,6 @@
 package de.uniks.stp.controller;
 
+import com.jfoenix.controls.JFXButton;
 import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
@@ -182,7 +183,7 @@ public class ServerVoiceChannelTest {
         final String otherUserId = UUID.randomUUID().toString();
         final Channel channel = initServerWithVoiceChannel(serverId, categoryId, channelId);
         final User otherUser = new User().setName("other").setId(otherUserId).withAvailableServers(channel.getServer());
-        channel.withAudioMembers(editor.getOrCreateAccord().getCurrentUser(), otherUser);
+        channel.withAudioMembers(currentUser, otherUser);
 
         final RouteArgs args = new RouteArgs()
             .addArgument(":id", serverId)
@@ -227,6 +228,47 @@ public class ServerVoiceChannelTest {
     }
 
     @Test
+    public void testMuteOtherUserInVoiceChannel(FxRobot robot) {
+        final String serverId = UUID.randomUUID().toString();
+        final String categoryId = UUID.randomUUID().toString();
+        final String channelId = UUID.randomUUID().toString();
+        final String otherUserId = UUID.randomUUID().toString();
+        final Channel channel = initServerWithVoiceChannel(serverId, categoryId, channelId);
+        final User otherUser = new User().setName("other").setId(otherUserId).withAvailableServers(channel.getServer());
+        channel.withAudioMembers(currentUser);
+
+
+        final RouteArgs args = new RouteArgs()
+            .addArgument(":id", serverId)
+            .addArgument(":categoryId", categoryId)
+            .addArgument(":channelId", channelId);
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL, args));
+        WaitForAsyncUtils.waitForFxEvents();
+      
+        JSONObject response = new JSONObject()
+            .put("status", "success")
+            .put("message", "Successfully joined audio channel, please open an UDP connection to ")
+            .put("data", new JSONObject());
+
+        verify(restMock).joinAudioChannel(eq(channel), callbackCaptor.capture());
+        when(res.getBody()).thenReturn(new JsonNode(response.toString()));
+        when(res.isSuccess()).thenReturn(true);
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+      
+        channel.withAudioMembers(otherUser);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        final boolean mute = otherUser.isMute();
+        final JFXButton muteOtherUserButton = robot.lookup("#" + otherUserId + "-MuteVoiceChatUserBtn").query();
+        robot.clickOn(muteOtherUserButton);
+        Assertions.assertEquals(!mute, otherUser.isMute());
+
+        robot.clickOn(muteOtherUserButton);
+        Assertions.assertEquals(mute, otherUser.isMute());
+    }
+  
+    @Test
     public void testMuteVoiceChannel(FxRobot robot) {
         final String serverId = UUID.randomUUID().toString();
         final String categoryId = UUID.randomUUID().toString();
@@ -269,7 +311,7 @@ public class ServerVoiceChannelTest {
         when(res.isSuccess()).thenReturn(true);
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
-  
+      
         boolean mute = currentUser.isMute();
         robot.clickOn(ServerVoiceChatController.AUDIO_INPUT_BTN_ID);
         Assertions.assertEquals(!mute, currentUser.isMute());
