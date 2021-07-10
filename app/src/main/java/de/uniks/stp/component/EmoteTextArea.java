@@ -73,6 +73,9 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
     }
 
     public String getStringContent() {
+        if (hasPlaceholder.get()) {
+            return "";
+        }
         EditableStyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> content = getContent();
         LiveList<Paragraph<ParStyle, Either<String, LinkedImage>, TextStyle>> paragraphs = content.getParagraphs();
         StringBuilder sb = new StringBuilder();
@@ -99,6 +102,14 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
     public void enable() {
         clear();
         setDisable(false);
+    }
+
+    public AtomicBoolean hasPlaceholder() {
+        return hasPlaceholder;
+    }
+
+    public void setHasPlaceholder(boolean hasPlaceholder) {
+        this.hasPlaceholder.set(hasPlaceholder);
     }
 
     private void configurePlaceholder() {

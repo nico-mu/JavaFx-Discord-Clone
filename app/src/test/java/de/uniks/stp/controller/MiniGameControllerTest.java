@@ -135,6 +135,7 @@ public class MiniGameControllerTest {
             messageInput.clear();
             messageInput.appendText(GameCommand.PLAY.command);
         });
+        messageInput.setHasPlaceholder(false);
         robot.clickOn("#chatViewSubmitButton");
         WaitForAsyncUtils.waitForFxEvents();
 
