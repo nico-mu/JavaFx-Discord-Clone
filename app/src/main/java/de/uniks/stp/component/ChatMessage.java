@@ -172,10 +172,18 @@ public class ChatMessage extends HBox {
 
     private void loadContent(String content, boolean notIntractable, String url) {
         Platform.runLater(() -> {
+
             WebView webView = new WebView();
-
-            webView.getEngine().loadContent(content, "text/html");
-
+            if (content.isEmpty()) {
+                if (url.isEmpty()) {
+                    return;
+                }
+                webView.getEngine().loadContent("<video width=\"320\" height=\"240\" controls >\n" +
+                    "  <source src=\"" + url + "\" type=\"video/mp4\">\n" +
+                    "</video>", "text/html");
+            } else {
+                webView.getEngine().loadContent(content, "text/html");
+            }
             webView.setMaxHeight(250);
             webView.setMaxWidth(500);
             Accessor.getPageFor(webView.getEngine()).setBackgroundColor(0);

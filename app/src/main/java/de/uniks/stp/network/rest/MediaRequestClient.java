@@ -61,11 +61,12 @@ public class MediaRequestClient {
             String contentType = file.getString("type");
             if (contentType.startsWith("image")) {
                 loadImage(html, messageNode, url);
-            } else {
+            } else if (contentType.equals("video/mp4")){
                 html = "";
                 loadVideo(html, messageNode, url);
             }
         } catch (JSONException e) {
+            url = "";
             loadVideo(html, messageNode, url);
         }
     }
