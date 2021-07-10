@@ -63,7 +63,7 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
             ReadOnlyStyledDocument.fromSegment(Either.right(new RealLinkedImage(emoteName)),
                 ParStyle.EMPTY, TextStyle.EMPTY, this.getSegOps());
 
-        if (hasPlaceholder.get() && getStringContent().equals(placeholderText)) {
+        if (hasPlaceholder.get() && getStringContent().isEmpty()) {
             deleteText(0, placeholderText.length());
             hasPlaceholder.set(false);
             insert(0, ros);
@@ -102,10 +102,7 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
     public void enable() {
         clear();
         setDisable(false);
-    }
-
-    public AtomicBoolean hasPlaceholder() {
-        return hasPlaceholder;
+        appendText(placeholderText);
     }
 
     public void setHasPlaceholder(boolean hasPlaceholder) {
