@@ -73,6 +73,9 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
     }
 
     public String getStringContent() {
+        if (hasPlaceholder.get()) {
+            return "";
+        }
         EditableStyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> content = getContent();
         LiveList<Paragraph<ParStyle, Either<String, LinkedImage>, TextStyle>> paragraphs = content.getParagraphs();
         StringBuilder sb = new StringBuilder();

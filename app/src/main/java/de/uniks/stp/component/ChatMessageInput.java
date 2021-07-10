@@ -105,9 +105,6 @@ public class ChatMessageInput extends HBox {
      * @param mouseEvent
      */
     private void onSubmitClicked(MouseEvent mouseEvent) {
-        if (emoteTextArea.hasPlaceholder().get()) {
-            return;
-        }
         String message = EmoteParser.toUnicodeString(emoteTextArea.getStringContent());
 
         if (message.isEmpty()) {
