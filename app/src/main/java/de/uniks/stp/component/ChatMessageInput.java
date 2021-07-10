@@ -57,9 +57,11 @@ public class ChatMessageInput extends HBox {
             for (int i = 0; i < emoteTextArea.getParagraphs().size(); i++) {
                 lines += emoteTextArea.getParagraphLinesCount(i);
             }
-            chatViewMessageInput.setMaxHeight(lines * 15 + 25);
-            chatViewMessageInput.setPrefHeight(lines * 15 + 25);
-            root.setPrefHeight(lines * 15 + 25);
+            int lineHeight = 15;
+            int padding = 25;
+            chatViewMessageInput.setMaxHeight(lines * lineHeight + padding);
+            chatViewMessageInput.setPrefHeight(lines * lineHeight + padding);
+            root.setPrefHeight(lines * lineHeight + padding);
         }));
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         chatViewSubmitButton.setOnMouseClicked(this::onSubmitClicked);
