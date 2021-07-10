@@ -172,6 +172,22 @@ public class ChatMessage extends HBox {
 
     private void loadContent(String content, boolean notIntractable, String url) {
         Platform.runLater(() -> {
+            if (content.isEmpty()) {
+                Media media = new Media(url);
+                MediaPlayer mediaPlayer = new MediaPlayer(media);
+                MediaView mediaView = new MediaView();
+                mediaView.setMediaPlayer(mediaPlayer);
+                mediaView.setFitHeight(240);
+                mediaView.setOnMouseClicked(event -> {
+                    if(mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+                        mediaPlayer.pause();
+                    }else {
+                        mediaPlayer.play();
+                    }
+                });
+                textVBox.getChildren().add(mediaView);
+                return;
+            }
             WebView webView = new WebView();
 
             webView.getEngine().loadContent(content, "text/html");
