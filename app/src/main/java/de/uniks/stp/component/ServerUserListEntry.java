@@ -6,6 +6,8 @@ import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.event.NavBarHomeElementActiveEvent;
+import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
@@ -23,12 +25,14 @@ public class ServerUserListEntry extends HBox {
 
     private User user;
     private final Router router;
-    Editor editor;
+    private final Editor editor;
+    private final SessionDatabaseService databaseService;
 
     @AssistedInject
     public ServerUserListEntry(ViewLoader viewLoader,
                                Router router,
                                Editor editor,
+                               SessionDatabaseService databaseService,
                                @Assisted final User user) {
         final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
         fxmlLoader.setRoot(this);
@@ -43,6 +47,7 @@ public class ServerUserListEntry extends HBox {
         this.user = user;
         this.router = router;
         this.editor = editor;
+        this.databaseService = databaseService;
 
         setUserName(user.getName());
         this.setOnMouseClicked(this::handleClick);
@@ -58,9 +63,14 @@ public class ServerUserListEntry extends HBox {
     }
 
     private void handleClick(MouseEvent mouseEvent) {
-        if (user.getId().equals(editor.getOrCreateAccord().getCurrentUser().getId())) {
+        User currentUser = editor.getOrCreateAccord().getCurrentUser();
+        if (user.getId().equals(currentUser.getId())) {
             return;
         }
+        if (databaseService.getConversation(currentUser.getName(), user.getName()).isEmpty()) {
+            return;
+        }
+        //TODO set Home Element active
         RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, user.getId());
         router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args);
     }
