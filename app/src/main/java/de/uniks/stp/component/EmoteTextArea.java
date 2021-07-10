@@ -101,6 +101,10 @@ public class EmoteTextArea extends GenericStyledArea<ParStyle, Either<String, Li
         setDisable(false);
     }
 
+    public AtomicBoolean hasPlaceholder() {
+        return hasPlaceholder;
+    }
+
     private void configurePlaceholder() {
         insertPlaceholder();
         ReadOnlyStyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> ros =
