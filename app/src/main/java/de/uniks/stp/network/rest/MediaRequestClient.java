@@ -66,6 +66,7 @@ public class MediaRequestClient {
                 loadVideo(html, messageNode, url);
             }
         } catch (JSONException e) {
+            url = "";
             loadVideo(html, messageNode, url);
         }
     }

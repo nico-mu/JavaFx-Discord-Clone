@@ -175,6 +175,9 @@ public class ChatMessage extends HBox {
 
             WebView webView = new WebView();
             if (content.isEmpty()) {
+                if (url.isEmpty()) {
+                    return;
+                }
                 webView.getEngine().loadContent("<video width=\"320\" height=\"240\" controls >\n" +
                     "  <source src=\"" + url + "\" type=\"video/mp4\">\n" +
                     "</video>", "text/html");
