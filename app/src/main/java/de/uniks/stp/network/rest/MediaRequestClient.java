@@ -54,6 +54,10 @@ public class MediaRequestClient {
         }
         try {
             url = jsonObject.getString("url");
+            if (url.endsWith(".gif") || url.endsWith(".jpg") || url.endsWith(".png") || url.endsWith(".jpeg")) {
+                loadImage(html, messageNode, url);
+                return;
+            }
         } catch (JSONException ignored) {
         }
         try {
