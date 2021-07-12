@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NavBarList extends ScrollPane {
@@ -148,5 +149,12 @@ public class NavBarList extends ScrollPane {
         userElementHashmap.clear();
     }
 
+    public NavBarElement getElement(Server server) {
+        if (Objects.isNull(server)) {
+            return homeElement;
+        } else {
+            return serverElementHashmap.get(server);
+        }
+    }
 }
 

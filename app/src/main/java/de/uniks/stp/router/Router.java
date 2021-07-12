@@ -2,6 +2,8 @@ package de.uniks.stp.router;
 
 import de.uniks.stp.controller.AppController;
 import de.uniks.stp.controller.ControllerInterface;
+import de.uniks.stp.controller.MainScreenController;
+import de.uniks.stp.controller.NavBarListController;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -123,6 +125,15 @@ public class Router {
     private void routeWithArgs(String route, RouteArgs args) {
         if (!routeMap.containsKey(route)) {
             throw new RuntimeException("Unknown route " + route);
+        }
+        MainScreenController mainScreenController = (MainScreenController) controllerCache.get("/main");
+        if (Objects.nonNull(mainScreenController)) {
+            NavBarListController navBarListController = mainScreenController.getNavBarListController();
+            String id = "home";
+            if (route.contains("/server")) {
+                id = args.getArguments().get(":id");
+            }
+            navBarListController.setActiveElement(id);
         }
 
         if (controllerCache.containsKey(route)) {

@@ -229,4 +229,9 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     public interface NavBarListControllerFactory {
         NavBarListController create(Parent view);
     }
+
+    public void setActiveElement(String id) {
+        Server server = editor.getServer(id);
+        navBarList.setActiveElement(navBarList.getElement(server));
+    }
 }

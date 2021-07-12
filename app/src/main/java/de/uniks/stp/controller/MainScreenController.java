@@ -110,4 +110,8 @@ public class MainScreenController implements ControllerInterface {
     public interface MainScreenControllerFactory {
         MainScreenController create(Parent view);
     }
+
+    public NavBarListController getNavBarListController() {
+        return this.navBarController;
+    }
 }
