@@ -77,6 +77,7 @@ public class MainScreenController implements ControllerInterface {
         cleanup();
         String subroute = routeInfo.getSubControllerRoute();
         if (subroute.equals(Constants.ROUTE_HOME)) {
+            navBarController.setHomeElementActive();
             currentController = homeScreenControllerFactory.create(this.subViewContainer);
             currentController.init();
             return currentController;
@@ -109,9 +110,5 @@ public class MainScreenController implements ControllerInterface {
     @AssistedFactory
     public interface MainScreenControllerFactory {
         MainScreenController create(Parent view);
-    }
-
-    public NavBarListController getNavBarListController() {
-        return this.navBarController;
     }
 }

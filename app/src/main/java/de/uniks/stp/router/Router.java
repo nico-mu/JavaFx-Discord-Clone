@@ -126,15 +126,6 @@ public class Router {
         if (!routeMap.containsKey(route)) {
             throw new RuntimeException("Unknown route " + route);
         }
-        MainScreenController mainScreenController = (MainScreenController) controllerCache.get("/main");
-        if (Objects.nonNull(mainScreenController)) {
-            NavBarListController navBarListController = mainScreenController.getNavBarListController();
-            String id = "home";
-            if (route.contains("/server")) {
-                id = args.getArguments().get(":id");
-            }
-            navBarListController.setActiveElement(id);
-        }
 
         if (controllerCache.containsKey(route)) {
             if (!currentArgs.compareTo(args)) {

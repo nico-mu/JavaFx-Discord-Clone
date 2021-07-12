@@ -25,13 +25,11 @@ public class ServerUserListEntry extends HBox {
     private User user;
     private final Router router;
     private final Editor editor;
-    private final SessionDatabaseService databaseService;
 
     @AssistedInject
     public ServerUserListEntry(ViewLoader viewLoader,
                                Router router,
                                Editor editor,
-                               SessionDatabaseService databaseService,
                                @Assisted final User user) {
         final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
         fxmlLoader.setRoot(this);
@@ -47,7 +45,6 @@ public class ServerUserListEntry extends HBox {
         this.user = user;
         this.router = router;
         this.editor = editor;
-        this.databaseService = databaseService;
 
         setUserName(user.getName());
         this.setOnMouseClicked(this::handleClick);
@@ -67,7 +64,6 @@ public class ServerUserListEntry extends HBox {
         if (user.getId().equals(currentUser.getId())) {
             return;
         }
-        editor.getOrCreateChatPartnerOfCurrentUser(user.getId(), user.getName());
         RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, user.getId());
         router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args);
     }

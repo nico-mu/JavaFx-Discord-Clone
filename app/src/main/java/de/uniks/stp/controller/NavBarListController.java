@@ -231,11 +231,7 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
         NavBarListController create(Parent view);
     }
 
-    public void setActiveElement(String id) {
-        Server server = editor.getServer(id);
-        NavBarElement newActiveElement = navBarList.getElement(server);
-        if (Objects.nonNull(newActiveElement)) {
-            navBarList.setActiveElement(newActiveElement);
-        }
+    public void setHomeElementActive() {
+        navBarList.setHomeElementActive();
     }
 }

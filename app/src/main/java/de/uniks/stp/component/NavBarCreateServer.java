@@ -28,7 +28,7 @@ public class NavBarCreateServer extends NavBarElement {
 
     @Override
     protected void onMouseClicked(MouseEvent mouseEvent) {
-        this.fireEvent(new NavBarElementChangeEvent(this));
+        super.onMouseClicked(mouseEvent);
         Parent addServerModalView = viewLoader.loadView(Views.ADD_SERVER_MODAL);
         CreateServerModal addServerModal = createServerModalFactory.create(addServerModalView);
         addServerModal.showAndWait();
