@@ -1,8 +1,6 @@
 package de.uniks.stp.component;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.NavBarCreateServerClosedEvent;
-import de.uniks.stp.event.NavBarElementChangeEvent;
-import de.uniks.stp.event.NavBarHomeElementActiveEvent;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import javafx.collections.ObservableList;
@@ -57,18 +55,8 @@ public class NavBarList extends ScrollPane {
         //add create server button
         elements.add(navBarCreateServer);
 
-        this.addEventFilter(NavBarElementChangeEvent.NAV_BAR_ELEMENT_CHANGE, event -> {
-            setActiveElement(event.getParam());
-            event.consume();
-        });
-
         this.addEventFilter(NavBarCreateServerClosedEvent.NAV_BAR_CREATE_SERVER_CLOSED, event -> {
             setActiveElement(previousActiveElement);
-            event.consume();
-        });
-
-        this.addEventFilter(NavBarHomeElementActiveEvent.NAV_BAR_HOME_ELEMENT_ACTIVE, event -> {
-            setActiveElement(homeElement);
             event.consume();
         });
     }
