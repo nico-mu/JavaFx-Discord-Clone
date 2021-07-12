@@ -60,7 +60,7 @@ public class ServerUserListNavigationTest {
     }
 
     @Test
-    public void createPrivilegedChannel(FxRobot robot) {
+    public void routToPrivateChatTest(FxRobot robot) {
         // prepare start situation
         String serverName = "TestServer";
         String serverId = "12345678";
