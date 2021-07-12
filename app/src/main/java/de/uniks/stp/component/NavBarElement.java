@@ -1,7 +1,6 @@
 package de.uniks.stp.component;
 
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.event.NavBarElementChangeEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -52,9 +51,7 @@ abstract public class NavBarElement extends HBox {
         Tooltip.install(navBarElement, new Tooltip(text));
     }
 
-    protected void onMouseClicked(MouseEvent mouseEvent) {
-        this.fireEvent(new NavBarElementChangeEvent(this));
-    }
+    protected void onMouseClicked(MouseEvent mouseEvent) {}
 
     public void setActive(boolean active) {
         navBarElementMarker.setVisible(active);

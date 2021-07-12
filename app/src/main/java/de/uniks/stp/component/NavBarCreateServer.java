@@ -3,6 +3,7 @@ package de.uniks.stp.component;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.NavBarCreateServerClosedEvent;
+import de.uniks.stp.event.NavBarElementChangeEvent;
 import de.uniks.stp.modal.CreateServerModal;
 import de.uniks.stp.view.Views;
 import javafx.scene.Parent;
@@ -27,7 +28,7 @@ public class NavBarCreateServer extends NavBarElement {
 
     @Override
     protected void onMouseClicked(MouseEvent mouseEvent) {
-        super.onMouseClicked(mouseEvent);
+        this.fireEvent(new NavBarElementChangeEvent(this));
         Parent addServerModalView = viewLoader.loadView(Views.ADD_SERVER_MODAL);
         CreateServerModal addServerModal = createServerModalFactory.create(addServerModalView);
         addServerModal.showAndWait();
