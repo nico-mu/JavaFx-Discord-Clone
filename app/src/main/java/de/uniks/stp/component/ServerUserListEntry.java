@@ -68,7 +68,7 @@ public class ServerUserListEntry extends HBox {
             return;
         }
         if (databaseService.getConversation(currentUser.getName(), user.getName()).isEmpty()) {
-            return;
+            editor.getOrCreateChatPartnerOfCurrentUser(user.getId(), user.getName());
         }
         //TODO set Home Element active
         RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, user.getId());
