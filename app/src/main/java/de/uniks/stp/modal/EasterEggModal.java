@@ -22,7 +22,7 @@ import javax.inject.Named;
 public class EasterEggModal extends AbstractModal {
     public final String ROCK = "rock";
     public final String PAPER = "paper";
-    public final String SCISSORS = "scissor";
+    public final String SCISSORS = "scissors";
     public final String ACTION_LABEL = "#action-label";
     public final String REVANCHE_BUTTON = "#revanche-button";
     public final String ROCK_BUTTON = "#rock-button";
