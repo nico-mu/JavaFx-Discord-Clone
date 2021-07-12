@@ -67,10 +67,7 @@ public class ServerUserListEntry extends HBox {
         if (user.getId().equals(currentUser.getId())) {
             return;
         }
-        if (databaseService.getConversation(currentUser.getName(), user.getName()).isEmpty()) {
-            editor.getOrCreateChatPartnerOfCurrentUser(user.getId(), user.getName());
-        }
-        //TODO set Home Element active
+        editor.getOrCreateChatPartnerOfCurrentUser(user.getId(), user.getName());
         RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, user.getId());
         router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args);
     }
