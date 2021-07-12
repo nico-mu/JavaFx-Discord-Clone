@@ -3,11 +3,17 @@ package de.uniks.stp.component;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import de.uniks.stp.Constants;
+import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
+import de.uniks.stp.router.RouteArgs;
+import de.uniks.stp.router.Router;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
 import java.io.IOException;
@@ -17,13 +23,18 @@ public class ServerUserListEntry extends HBox {
     private Label userNameLabel;
 
     private User user;
+    private final Router router;
+    private final Editor editor;
 
     @AssistedInject
     public ServerUserListEntry(ViewLoader viewLoader,
+                               Router router,
+                               Editor editor,
                                @Assisted final User user) {
         final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.USER_LIST_ENTRY);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+        this.setId(user.getId() + "-ServerUserListEntry");
 
         try {
             fxmlLoader.load();
@@ -32,8 +43,11 @@ public class ServerUserListEntry extends HBox {
         }
 
         this.user = user;
+        this.router = router;
+        this.editor = editor;
 
         setUserName(user.getName());
+        this.setOnMouseClicked(this::handleClick);
     }
 
     public void setUserName(final String userName) {
@@ -43,5 +57,15 @@ public class ServerUserListEntry extends HBox {
     @AssistedFactory
     public interface ServerUserListEntryFactory {
         ServerUserListEntry create(User user);
+    }
+
+    private void handleClick(MouseEvent mouseEvent) {
+        User currentUser = editor.getOrCreateAccord().getCurrentUser();
+        if (user.getId().equals(currentUser.getId())) {
+            return;
+        }
+        editor.getOrCreateChatPartnerOfCurrentUser(user.getId(), user.getName());
+        RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, user.getId());
+        router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args);
     }
 }

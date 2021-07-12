@@ -1,4 +1,5 @@
 package de.uniks.stp.component;
+
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.NavBarCreateServerClosedEvent;
 import de.uniks.stp.event.NavBarElementChangeEvent;
@@ -147,6 +148,5 @@ public class NavBarList extends ScrollPane {
         serverElementHashmap.clear();
         userElementHashmap.clear();
     }
-
 }
 

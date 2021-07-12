@@ -229,4 +229,8 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     public interface NavBarListControllerFactory {
         NavBarListController create(Parent view);
     }
+
+    public void setHomeElementActive() {
+        navBarList.setHomeElementActive();
+    }
 }

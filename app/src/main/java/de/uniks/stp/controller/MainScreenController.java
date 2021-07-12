@@ -77,6 +77,7 @@ public class MainScreenController implements ControllerInterface {
         cleanup();
         String subroute = routeInfo.getSubControllerRoute();
         if (subroute.equals(Constants.ROUTE_HOME)) {
+            navBarController.setHomeElementActive();
             currentController = homeScreenControllerFactory.create(this.subViewContainer);
             currentController.init();
             return currentController;

@@ -5,7 +5,6 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
-import de.uniks.stp.event.NavBarHomeElementActiveEvent;
 import de.uniks.stp.model.User;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
@@ -33,7 +32,6 @@ public class NavBarUserElement extends NavBarNotificationElement {
         super.onMouseClicked(mouseEvent);
         RouteArgs args = new RouteArgs().addArgument(Constants.ROUTE_PRIVATE_CHAT_ARGS, user.getId());
         router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, args);
-        this.fireEvent(new NavBarHomeElementActiveEvent());
     }
 
     @AssistedFactory
