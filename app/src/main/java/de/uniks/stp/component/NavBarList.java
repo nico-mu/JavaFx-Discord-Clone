@@ -15,7 +15,6 @@ import javafx.scene.layout.VBox;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NavBarList extends ScrollPane {

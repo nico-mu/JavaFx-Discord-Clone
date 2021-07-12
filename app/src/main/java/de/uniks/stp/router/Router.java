@@ -2,8 +2,6 @@ package de.uniks.stp.router;
 
 import de.uniks.stp.controller.AppController;
 import de.uniks.stp.controller.ControllerInterface;
-import de.uniks.stp.controller.MainScreenController;
-import de.uniks.stp.controller.NavBarListController;
 
 import javax.inject.Inject;
 import java.util.*;

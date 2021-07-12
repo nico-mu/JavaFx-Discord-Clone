@@ -3,7 +3,6 @@ package de.uniks.stp.component;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.event.NavBarCreateServerClosedEvent;
-import de.uniks.stp.event.NavBarElementChangeEvent;
 import de.uniks.stp.modal.CreateServerModal;
 import de.uniks.stp.view.Views;
 import javafx.scene.Parent;

@@ -5,7 +5,6 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.component.NavBarElement;
 import de.uniks.stp.component.NavBarList;
 import de.uniks.stp.component.NavBarServerElement;
 import de.uniks.stp.component.NavBarUserElement;
