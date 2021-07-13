@@ -12,12 +12,24 @@ public class MutedServerDTO {
     @Column(name = "SERVER_ID", nullable = false, unique = true)
     private String serverId;
 
+    @Column(name = "USERNAME", updatable = false)
+    private String username;
+
     public String getServerId() {
         return serverId;
     }
 
     public MutedServerDTO setServerId(String serverId) {
         this.serverId = serverId;
+        return this;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public MutedServerDTO setUsername(String userName) {
+        this.username = userName;
         return this;
     }
 }

@@ -12,12 +12,24 @@ public class MutedCategoryDTO {
     @Column(name = "CATEGORY_ID", nullable = false, unique = true)
     private String categoryId;
 
+    @Column(name = "USERNAME", updatable = false)
+    private String username;
+
     public String getCategoryId() {
         return categoryId;
     }
 
     public MutedCategoryDTO setCategoryId(String categoryId) {
         this.categoryId = categoryId;
+        return this;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public MutedCategoryDTO setUsername(String userName) {
+        this.username = userName;
         return this;
     }
 }

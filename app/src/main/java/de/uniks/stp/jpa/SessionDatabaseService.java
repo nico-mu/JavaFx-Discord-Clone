@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
@@ -23,7 +24,7 @@ import java.util.Objects;
 
 public class SessionDatabaseService extends AppDatabaseService {
 
-    private User currentUser;
+    private final User currentUser;
 
     @Inject
     public SessionDatabaseService(@Named("currentUser") User currentUser) {
@@ -50,8 +51,7 @@ public class SessionDatabaseService extends AppDatabaseService {
         entityManager.close();
     }
 
-    public final List<DirectMessageDTO> getConversation(String currentUserName, String receiverName) {
-        Objects.requireNonNull(currentUserName);
+    public final List<DirectMessageDTO> getConversation(String receiverName) {
         Objects.requireNonNull(receiverName);
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -69,10 +69,10 @@ public class SessionDatabaseService extends AppDatabaseService {
             criteriaBuilder.or(
                 criteriaBuilder.and(
                     criteriaBuilder.equal(root.get("receiverName"), receiverName),
-                    criteriaBuilder.equal(root.get("senderName"), currentUserName)
+                    criteriaBuilder.equal(root.get("senderName"), currentUser.getName())
                 ),
                 criteriaBuilder.and(
-                    criteriaBuilder.equal(root.get("receiverName"), currentUserName),
+                    criteriaBuilder.equal(root.get("receiverName"), currentUser.getName()),
                     criteriaBuilder.equal(root.get("senderName"), receiverName)
                 )
             )
@@ -91,7 +91,7 @@ public class SessionDatabaseService extends AppDatabaseService {
         return directMessageDTOList;
     }
 
-    public void clearConversation(String currentUserName, String receiverName) {
+    public void clearConversation(String receiverName) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -105,10 +105,10 @@ public class SessionDatabaseService extends AppDatabaseService {
             criteriaBuilder.or(
                 criteriaBuilder.and(
                     criteriaBuilder.equal(root.get("receiverName"), receiverName),
-                    criteriaBuilder.equal(root.get("senderName"), currentUserName)
+                    criteriaBuilder.equal(root.get("senderName"), currentUser.getName())
                 ),
                 criteriaBuilder.and(
-                    criteriaBuilder.equal(root.get("receiverName"), currentUserName),
+                    criteriaBuilder.equal(root.get("receiverName"), currentUser.getName()),
                     criteriaBuilder.equal(root.get("senderName"), receiverName)
                 )
             )
@@ -133,7 +133,7 @@ public class SessionDatabaseService extends AppDatabaseService {
         entityManager.close();
     }
 
-    public final List<Pair<String, String>> getAllConversationPartnerOf(String currentUserName) {
+    public final List<Pair<String, String>> getAllConversationPartners() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
@@ -147,10 +147,10 @@ public class SessionDatabaseService extends AppDatabaseService {
 
         query.where(
             criteriaBuilder.or(
-                criteriaBuilder.equal(root.get("receiverName"), currentUserName),
-                criteriaBuilder.equal(root.get("senderName"), currentUserName)));
+                criteriaBuilder.equal(root.get("receiverName"), currentUser.getName()),
+                criteriaBuilder.equal(root.get("senderName"), currentUser.getName())));
         query.distinct(true);
-        List<?> resultList = entityManager.createQuery(query).getResultList();;
+        List<?> resultList = entityManager.createQuery(query).getResultList();
 
         transaction.commit();
         entityManager.close();
@@ -160,7 +160,7 @@ public class SessionDatabaseService extends AppDatabaseService {
 
             Pair<String, String> chatPartner;
 
-            if (msg.getReceiverName().equals(currentUserName)) {
+            if (msg.getReceiverName().equals(currentUser.getName())) {
                 chatPartner = new Pair<>(msg.getSender(), msg.getSenderName());
             } else {
                 chatPartner = new Pair<>(msg.getReceiver(), msg.getReceiverName());
@@ -180,7 +180,7 @@ public class SessionDatabaseService extends AppDatabaseService {
 
         transaction.begin();
 
-        entityManager.merge(new MutedChannelDTO().setChannelId(channelId));
+        entityManager.merge(new MutedChannelDTO().setChannelId(channelId).setUsername(currentUser.getName()));
 
         transaction.commit();
         entityManager.close();
@@ -192,10 +192,26 @@ public class SessionDatabaseService extends AppDatabaseService {
 
         transaction.begin();
 
-        MutedChannelDTO mutedChannelDTO = entityManager.find(MutedChannelDTO.class, channelId);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<MutedChannelDTO> query = criteriaBuilder.createQuery(MutedChannelDTO.class);
+        Root<MutedChannelDTO> root = query.from(MutedChannelDTO.class);
 
-        if(Objects.nonNull(mutedChannelDTO)) {
-            entityManager.remove(mutedChannelDTO);
+        query.where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("channelId"), channelId),
+                criteriaBuilder.equal(root.get("username"), currentUser.getName())
+            )
+        );
+
+        MutedChannelDTO result = null;
+
+        try {
+            result = entityManager.createQuery(query).getSingleResult();
+        }
+        catch (NoResultException ignored) {}
+
+        if(Objects.nonNull(result)) {
+            entityManager.remove(result);
         }
 
         transaction.commit();
@@ -208,7 +224,23 @@ public class SessionDatabaseService extends AppDatabaseService {
 
         transaction.begin();
 
-        MutedChannelDTO result = entityManager.find(MutedChannelDTO.class, channelId);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<MutedChannelDTO> query = criteriaBuilder.createQuery(MutedChannelDTO.class);
+        Root<MutedChannelDTO> root = query.from(MutedChannelDTO.class);
+
+        query.where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("channelId"), channelId),
+                criteriaBuilder.equal(root.get("username"), currentUser.getName())
+            )
+        );
+
+        MutedChannelDTO result = null;
+
+        try {
+            result = entityManager.createQuery(query).getSingleResult();
+        }
+        catch (NoResultException ignored) {}
 
         transaction.commit();
         entityManager.close();
@@ -222,7 +254,7 @@ public class SessionDatabaseService extends AppDatabaseService {
 
         transaction.begin();
 
-        entityManager.merge(new MutedCategoryDTO().setCategoryId(categoryId));
+        entityManager.merge(new MutedCategoryDTO().setCategoryId(categoryId).setUsername(currentUser.getName()));
 
         transaction.commit();
         entityManager.close();
@@ -234,10 +266,26 @@ public class SessionDatabaseService extends AppDatabaseService {
 
         transaction.begin();
 
-        MutedCategoryDTO mutedCategoryDTO = entityManager.find(MutedCategoryDTO.class, categoryId);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<MutedCategoryDTO> query = criteriaBuilder.createQuery(MutedCategoryDTO.class);
+        Root<MutedCategoryDTO> root = query.from(MutedCategoryDTO.class);
 
-        if(Objects.nonNull(mutedCategoryDTO)) {
-            entityManager.remove(mutedCategoryDTO);
+        query.where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("categoryId"), categoryId),
+                criteriaBuilder.equal(root.get("username"), currentUser.getName())
+            )
+        );
+
+        MutedCategoryDTO result = null;
+
+        try {
+            result = entityManager.createQuery(query).getSingleResult();
+        }
+        catch (NoResultException ignored) {}
+
+        if(Objects.nonNull(result)) {
+            entityManager.remove(result);
         }
 
         transaction.commit();
@@ -250,7 +298,23 @@ public class SessionDatabaseService extends AppDatabaseService {
 
         transaction.begin();
 
-        MutedCategoryDTO result = entityManager.find(MutedCategoryDTO.class, categoryId);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<MutedCategoryDTO> query = criteriaBuilder.createQuery(MutedCategoryDTO.class);
+        Root<MutedCategoryDTO> root = query.from(MutedCategoryDTO.class);
+
+        query.where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("categoryId"), categoryId),
+                criteriaBuilder.equal(root.get("username"), currentUser.getName())
+            )
+        );
+
+        MutedCategoryDTO result = null;
+
+        try {
+            result = entityManager.createQuery(query).getSingleResult();
+        }
+        catch (NoResultException ignored) {}
 
         transaction.commit();
         entityManager.close();
@@ -264,7 +328,7 @@ public class SessionDatabaseService extends AppDatabaseService {
 
         transaction.begin();
 
-        entityManager.merge(new MutedServerDTO().setServerId(serverId));
+        entityManager.merge(new MutedServerDTO().setServerId(serverId).setUsername(currentUser.getName()));
 
         transaction.commit();
         entityManager.close();
@@ -276,10 +340,26 @@ public class SessionDatabaseService extends AppDatabaseService {
 
         transaction.begin();
 
-        MutedServerDTO mutedServerDTO = entityManager.find(MutedServerDTO.class, serverId);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<MutedServerDTO> query = criteriaBuilder.createQuery(MutedServerDTO.class);
+        Root<MutedServerDTO> root = query.from(MutedServerDTO.class);
 
-        if(Objects.nonNull(mutedServerDTO)) {
-            entityManager.remove(mutedServerDTO);
+        query.where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("serverId"), serverId),
+                criteriaBuilder.equal(root.get("username"), currentUser.getName())
+            )
+        );
+
+        MutedServerDTO result = null;
+
+        try {
+            result = entityManager.createQuery(query).getSingleResult();
+        }
+        catch (NoResultException ignored) {}
+
+        if(Objects.nonNull(result)) {
+            entityManager.remove(result);
         }
 
         transaction.commit();
@@ -292,7 +372,23 @@ public class SessionDatabaseService extends AppDatabaseService {
 
         transaction.begin();
 
-        MutedServerDTO result = entityManager.find(MutedServerDTO.class, serverId);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<MutedServerDTO> query = criteriaBuilder.createQuery(MutedServerDTO.class);
+        Root<MutedServerDTO> root = query.from(MutedServerDTO.class);
+
+        query.where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("serverId"), serverId),
+                criteriaBuilder.equal(root.get("username"), currentUser.getName())
+            )
+        );
+
+        MutedServerDTO result = null;
+
+        try {
+            result = entityManager.createQuery(query).getSingleResult();
+        }
+        catch (NoResultException ignored) {}
 
         transaction.commit();
         entityManager.close();
