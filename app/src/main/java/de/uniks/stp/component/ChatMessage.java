@@ -210,9 +210,6 @@ public class ChatMessage extends HBox {
             if (node instanceof WebView) {
                 WebView webView = (WebView) node;
                 webView.getEngine().load(null);
-            } else if (node instanceof MediaView) {
-                MediaView mediaView = (MediaView) node;
-                mediaView.getMediaPlayer().stop();
             }
         }
         textVBox.getChildren().clear();
