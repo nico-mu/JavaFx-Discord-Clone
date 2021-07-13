@@ -45,6 +45,7 @@ public class SessionDatabaseService extends AppDatabaseService {
                 .setSenderName(message.getSender().getName())
                 .setTimestamp(new Date(message.getTimestamp()))
                 .setMessage(message.getMessage())
+                .setOwnerName(currentUser.getName())
         );
 
         transaction.commit();
@@ -57,8 +58,6 @@ public class SessionDatabaseService extends AppDatabaseService {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
-        List<DirectMessageDTO> directMessageDTOList = new LinkedList<>();
-
         transaction.begin();
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -66,29 +65,29 @@ public class SessionDatabaseService extends AppDatabaseService {
         Root<DirectMessageDTO> root = query.from(DirectMessageDTO.class);
 
         query.where(
-            criteriaBuilder.or(
-                criteriaBuilder.and(
-                    criteriaBuilder.equal(root.get("receiverName"), receiverName),
-                    criteriaBuilder.equal(root.get("senderName"), currentUser.getName())
+            criteriaBuilder.and(
+                criteriaBuilder.or(
+                    criteriaBuilder.and(
+                        criteriaBuilder.equal(root.get("receiverName"), receiverName),
+                        criteriaBuilder.equal(root.get("senderName"), currentUser.getName())
+                    ),
+                    criteriaBuilder.and(
+                        criteriaBuilder.equal(root.get("receiverName"), currentUser.getName()),
+                        criteriaBuilder.equal(root.get("senderName"), receiverName)
+                    )
                 ),
-                criteriaBuilder.and(
-                    criteriaBuilder.equal(root.get("receiverName"), currentUser.getName()),
-                    criteriaBuilder.equal(root.get("senderName"), receiverName)
-                )
+                criteriaBuilder.equal(root.get("ownerName"), currentUser.getName())
             )
+
         );
         query.distinct(true);
         query.orderBy(criteriaBuilder.asc(root.get("timestamp")));
-        List<?> resultList = entityManager.createQuery(query).getResultList();
+        List<DirectMessageDTO> resultList = entityManager.createQuery(query).getResultList();
 
         transaction.commit();
         entityManager.close();
 
-        for (Object message : resultList) {
-            directMessageDTOList.add((DirectMessageDTO) message);
-        }
-
-        return directMessageDTOList;
+        return resultList;
     }
 
     public void clearConversation(String receiverName) {
@@ -102,16 +101,20 @@ public class SessionDatabaseService extends AppDatabaseService {
         Root<DirectMessageDTO> root = criteriaDelete.from(DirectMessageDTO.class);
 
         criteriaDelete.where(
-            criteriaBuilder.or(
-                criteriaBuilder.and(
-                    criteriaBuilder.equal(root.get("receiverName"), receiverName),
-                    criteriaBuilder.equal(root.get("senderName"), currentUser.getName())
+            criteriaBuilder.and(
+                criteriaBuilder.or(
+                    criteriaBuilder.and(
+                        criteriaBuilder.equal(root.get("receiverName"), receiverName),
+                        criteriaBuilder.equal(root.get("senderName"), currentUser.getName())
+                    ),
+                    criteriaBuilder.and(
+                        criteriaBuilder.equal(root.get("receiverName"), currentUser.getName()),
+                        criteriaBuilder.equal(root.get("senderName"), receiverName)
+                    )
                 ),
-                criteriaBuilder.and(
-                    criteriaBuilder.equal(root.get("receiverName"), currentUser.getName()),
-                    criteriaBuilder.equal(root.get("senderName"), receiverName)
-                )
+                criteriaBuilder.equal(root.get("ownerName"), currentUser.getName())
             )
+
         );
         entityManager.createQuery(criteriaDelete).executeUpdate();
 
@@ -146,18 +149,21 @@ public class SessionDatabaseService extends AppDatabaseService {
         Root<DirectMessageDTO> root = query.from(DirectMessageDTO.class);
 
         query.where(
-            criteriaBuilder.or(
-                criteriaBuilder.equal(root.get("receiverName"), currentUser.getName()),
-                criteriaBuilder.equal(root.get("senderName"), currentUser.getName())));
+            criteriaBuilder.and(
+                criteriaBuilder.or(
+                    criteriaBuilder.equal(root.get("receiverName"), currentUser.getName()),
+                    criteriaBuilder.equal(root.get("senderName"), currentUser.getName())
+                ),
+                criteriaBuilder.equal(root.get("ownerName"), currentUser.getName())
+            )
+        );
         query.distinct(true);
-        List<?> resultList = entityManager.createQuery(query).getResultList();
+        List<DirectMessageDTO> resultList = entityManager.createQuery(query).getResultList();
 
         transaction.commit();
         entityManager.close();
 
-        for (Object o : resultList) {
-            DirectMessageDTO msg = (DirectMessageDTO) o;
-
+        for (DirectMessageDTO msg: resultList) {
             Pair<String, String> chatPartner;
 
             if (msg.getReceiverName().equals(currentUser.getName())) {

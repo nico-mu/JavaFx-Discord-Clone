@@ -34,6 +34,14 @@ public class MessageDTO {
     @Temporal(TemporalType.TIMESTAMP)
     private Date timestamp;
 
+    @Column(name = "OWNER_NAME", updatable = false)
+    private String ownerName;
+
+    public MessageDTO setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+        return this;
+    }
+
     public UUID getId() {
         return id;
     }
