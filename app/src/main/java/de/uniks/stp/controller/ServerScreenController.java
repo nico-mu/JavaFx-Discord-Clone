@@ -55,7 +55,6 @@ public class ServerScreenController implements ControllerInterface {
 
     private final Editor editor;
     private final Server model;
-    private final NotificationService notificationService;
     private final ViewLoader viewLoader;
 
     private final VBox view;
@@ -100,14 +99,12 @@ public class ServerScreenController implements ControllerInterface {
 
     @AssistedInject
     public ServerScreenController(ViewLoader viewLoader,
-                                  NotificationService notificationService,
                                   Editor editor,
                                   @Assisted Parent view,
                                   @Assisted Server model) {
         this.view = (VBox) view;
         this.editor = editor;
         this.model = model;
-        this.notificationService = notificationService;
         this.viewLoader = viewLoader;
     }
 
