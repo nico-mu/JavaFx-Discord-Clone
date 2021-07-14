@@ -88,12 +88,20 @@ public class MessagesTest {
         // Simulate that current user logs out and friend1 logs in, so friend1 is the new current user
         User temp = currentUser;
         currentUser = friend1;
+
+        sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("678-90")
+            .build();
+        sessionDatabaseService = sessionTestComponent.getSessionDatabaseService();
+
         friend1 = temp;
 
         directMessages = sessionDatabaseService.getConversation(friend2.getName());
         directMessageReceiver = sessionDatabaseService.getAllConversationPartners();
         Assertions.assertEquals(0, directMessages.size());
-        Assertions.assertEquals(1, directMessageReceiver.size());
+        Assertions.assertEquals(0, directMessageReceiver.size());
 
         sendMessage(currentUser, friend2);
         sendMessage(currentUser, friend1);
