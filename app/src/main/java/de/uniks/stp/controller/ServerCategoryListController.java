@@ -92,6 +92,10 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         }
     }
 
+    public void setNoElementActive() {
+        this.serverCategoryList.setNoElementActive();
+    }
+
     private void onCategoriesPropertyChanged(PropertyChangeEvent propertyChangeEvent) {
         final Category oldValue = (Category) propertyChangeEvent.getOldValue();
         final Category newValue = (Category) propertyChangeEvent.getNewValue();
@@ -135,7 +139,7 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         }
     }
 
-    private void goToChannel(Channel channel) {
+    public void goToChannel(Channel channel) {
         if (channelElementHashMap.containsKey(channel)) {
             ServerChannelElement element = channelElementHashMap.get(channel);
             serverCategoryList.setActiveElement(element);

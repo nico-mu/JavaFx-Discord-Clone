@@ -10,6 +10,7 @@ import javafx.scene.layout.VBox;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Objects;
 
 public class ServerCategoryList extends ScrollPane {
     @FXML
@@ -46,6 +47,13 @@ public class ServerCategoryList extends ScrollPane {
             }
             element.setActive(true);
             currentActiveElement = element;
+        }
+    }
+
+    public void setNoElementActive() {
+        if(Objects.nonNull(currentActiveElement)) {
+            currentActiveElement.setActive(false);
+            currentActiveElement = null;
         }
     }
 

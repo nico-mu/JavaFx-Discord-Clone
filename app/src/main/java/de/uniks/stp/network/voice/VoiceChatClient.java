@@ -242,11 +242,6 @@ public class VoiceChatClient {
         }
     }
 
-
-    public void inject() {
-        //needed for testing purposes
-    }
-
     public void stop() {
         stopping = true;
         synchronized (audioInLock) {
@@ -260,29 +255,26 @@ public class VoiceChatClient {
         currentUser.listeners().removePropertyChangeListener(User.PROPERTY_MUTE, currentUserMutePropertyChangeListener);
         currentUser.listeners().removePropertyChangeListener(User.PROPERTY_AUDIO_OFF, currentUserAudioOffPropertyChangeListener);
 
-        if (Objects.nonNull(executorService)) {
-            executorService.shutdown();
-            executorService = null;
-        }
 
-        if (Objects.nonNull(audioInDataLine)) {
-            audioInDataLine.stop();
-            audioInDataLine.drain();
-            audioInDataLine.close();
-            audioInDataLine = null;
-        }
-        if (Objects.nonNull(audioOutDataLine)) {
-            audioOutDataLine.stop();
-            audioOutDataLine.drain();
-            audioOutDataLine.close();
-            audioOutDataLine = null;
-        }
+        executorService.shutdown();
+        executorService = null;
 
-        if (Objects.nonNull(datagramSocket)) {
-            datagramSocket.disconnect();
-            datagramSocket.close();
-            datagramSocket = null;
-        }
+
+        audioInDataLine.stop();
+        audioInDataLine.drain();
+        audioInDataLine.close();
+        audioInDataLine = null;
+
+
+        audioOutDataLine.stop();
+        audioOutDataLine.drain();
+        audioOutDataLine.close();
+        audioOutDataLine = null;
+
+
+        datagramSocket.disconnect();
+        datagramSocket.close();
+        datagramSocket = null;
     }
 
     public VoiceChatClient withFilteredUsers(User value) {

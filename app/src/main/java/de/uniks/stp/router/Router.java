@@ -33,7 +33,7 @@ public class Router {
         return currentArgs.getArguments();
     }
 
-    public String compareRoutes(String newRoute, String oldRoute) {
+    private String compareRoutes(String newRoute, String oldRoute) {
         StringBuilder intersection = new StringBuilder();
         int compareLength = Math.min(oldRoute.length(), newRoute.length());
 
@@ -47,10 +47,25 @@ public class Router {
         return intersection.toString();
     }
 
-    public void shutdownControllers(String neededRoute) {
+    private String getRouteStringWithArgs(String routeString, RouteArgs args) {
+        HashMap<String, String> argMap = args.getArguments();
+        String result = routeString;
+        for (String argName : argMap.keySet()) {
+            result = result.replace(argName, argMap.get(argName));
+        }
+        return result;
+    }
+
+    private boolean compareRoutesWithArgs(String newRoute, String oldRoute, RouteArgs newArgs, RouteArgs oldArgs) {
+        return getRouteStringWithArgs(newRoute, newArgs).equals(getRouteStringWithArgs(oldRoute, oldArgs));
+    }
+
+    private void shutdownControllers(String neededRoute, RouteArgs args) {
         List<String> keysToRemove = new ArrayList<>();
         for (String routeName : controllerCache.keySet()) {
-            if (routeName.contains(neededRoute) && routeName.length() > neededRoute.length()) {
+            if (routeName.contains(neededRoute) && routeName.length() > neededRoute.length()
+                || routeName.equals(neededRoute) && routeContainsArgs(neededRoute)
+                && !compareRoutesWithArgs(neededRoute, routeName, args, currentArgs)) {
                 keysToRemove.add(routeName);
             }
         }
@@ -72,7 +87,7 @@ public class Router {
     }
 
     public void forceReload() {
-        shutdownControllers("");
+        shutdownControllers("", new RouteArgs());
         route(currentRoute, currentArgs.addArgument(FORCE_RELOAD, FORCE_RELOAD));
     }
 
@@ -84,7 +99,7 @@ public class Router {
         StringBuilder currentRelativeRoute = new StringBuilder();
         RouteInfo info = new RouteInfo();
 
-        while (remainingRoute.length() != 0) {
+        while (remainingRoute.length() != 0 && !controllerCache.containsKey(remainingRoute)) {
 
             int index = remainingRoute.lastIndexOf('/');
             if (index == -1) {
@@ -104,10 +119,6 @@ public class Router {
 
             requirements.push(info.setCurrentControllerRoute(remainingRoute));
             info = new RouteInfo();
-
-            if (controllerCache.containsKey(remainingRoute)) {
-                break;
-            }
         }
         return requirements;
     }
@@ -125,15 +136,6 @@ public class Router {
             throw new RuntimeException("Unknown route " + route);
         }
 
-        if (controllerCache.containsKey(route)) {
-            if (!currentArgs.compareTo(args)) {
-                ControllerInterface oldController = controllerCache.remove(route);
-                oldController.stop();
-            } else {
-                return;
-            }
-        }
-
         //check required args
         if (routeContainsArgs(route) && !checkRequiredArgs(route, args)) {
             throw new RuntimeException("Missing argument for route " + route);
@@ -142,7 +144,7 @@ public class Router {
         //shutdown controllers that are not needed for the new route
         if (currentRoute != null) {
             String intersection = compareRoutes(route, currentRoute);
-            shutdownControllers(intersection);
+            shutdownControllers(intersection, args);
         }
 
         currentRoute = route;

@@ -18,7 +18,7 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract public class ChatController<T> {
+abstract public class ChatController<T> extends BaseController {
 
     private static final Logger log = LoggerFactory.getLogger(ChatController.class);
     protected final Editor editor;
