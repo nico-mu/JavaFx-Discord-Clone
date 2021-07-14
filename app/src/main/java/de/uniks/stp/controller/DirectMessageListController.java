@@ -61,7 +61,7 @@ public class DirectMessageListController implements ControllerInterface, Subscri
             .addPropertyChangeListener(User.PROPERTY_CHAT_PARTNER, chatPartnerChangeListener);
         notificationService.registerUserSubscriber(this);
 
-        for (Pair<String, String> chatPartner : databaseService.getAllConversationPartnerOf(currentUser.getName())) {
+        for (Pair<String, String> chatPartner : databaseService.getAllConversationPartners()) {
             String chatPartnerId = chatPartner.getKey();
             String chatPartnerName = chatPartner.getValue();
             User user = editor.getChatPartnerOfCurrentUserById(chatPartnerId);

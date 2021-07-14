@@ -124,7 +124,7 @@ public class PrivateChatTest {
             .build();
         currentUserCallback.handleMessage(message);
 
-        List<DirectMessageDTO> directMessages = sessionDatabaseService.getConversation(currentUser.getName(), otherUser.getName());
+        List<DirectMessageDTO> directMessages = sessionDatabaseService.getConversation(otherUser.getName());
         Assertions.assertEquals(2, directMessages.size());
 
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getChatPartner().size());

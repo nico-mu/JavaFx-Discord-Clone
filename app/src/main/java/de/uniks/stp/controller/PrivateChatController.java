@@ -161,7 +161,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
     }
 
     protected void loadMessages() {
-        List<DirectMessageDTO> directMessages = databaseService.getConversation(currentUser.getName(), user.getName());
+        List<DirectMessageDTO> directMessages = databaseService.getConversation(user.getName());
         for (DirectMessageDTO directMessageDTO : directMessages) {
             DirectMessage message = (DirectMessage) new DirectMessage()
                 .setMessage(directMessageDTO.getMessage())

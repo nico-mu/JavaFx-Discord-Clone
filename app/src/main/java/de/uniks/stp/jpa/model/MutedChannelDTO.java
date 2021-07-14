@@ -12,12 +12,24 @@ public class MutedChannelDTO {
     @Column(name = "CHANNEL_ID", nullable = false, unique = true)
     private String channelId;
 
+    @Column(name = "USERNAME", updatable = false)
+    private String username;
+
     public String getChannelId() {
         return channelId;
     }
 
     public MutedChannelDTO setChannelId(String channelId) {
         this.channelId = channelId;
+        return this;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public MutedChannelDTO setUsername(String userName) {
+        this.username = userName;
         return this;
     }
 }

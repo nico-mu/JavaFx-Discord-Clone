@@ -58,50 +58,58 @@ public class MessagesTest {
         sendMessage(friend1, currentUser);
         sendMessage(friend1, currentUser);
 
-        List<DirectMessageDTO> directMessages = sessionDatabaseService.getConversation(currentUser.getName(), friend1.getName());
-        List<Pair<String, String>> directMessageReceiver = sessionDatabaseService.getAllConversationPartnerOf(currentUser.getName());
+        List<DirectMessageDTO> directMessages = sessionDatabaseService.getConversation(friend1.getName());
+        List<Pair<String, String>> directMessageReceiver = sessionDatabaseService.getAllConversationPartners();
         Assertions.assertEquals(3, directMessages.size());
         Assertions.assertEquals(1, directMessageReceiver.size());
 
         sendMessage(friend2, currentUser);
 
-        directMessages = sessionDatabaseService.getConversation(currentUser.getName(), friend1.getName());
-        directMessageReceiver = sessionDatabaseService.getAllConversationPartnerOf(currentUser.getName());
+        directMessages = sessionDatabaseService.getConversation(friend1.getName());
+        directMessageReceiver = sessionDatabaseService.getAllConversationPartners();
         Assertions.assertEquals(3, directMessages.size());
         Assertions.assertEquals(2, directMessageReceiver.size());
 
         sendMessage(friend2, currentUser);
         sendMessage(currentUser, friend2);
 
-        directMessages = sessionDatabaseService.getConversation(currentUser.getName(), friend2.getName());
-        directMessageReceiver = sessionDatabaseService.getAllConversationPartnerOf(currentUser.getName());
+        directMessages = sessionDatabaseService.getConversation(friend2.getName());
+        directMessageReceiver = sessionDatabaseService.getAllConversationPartners();
         Assertions.assertEquals(3, directMessages.size());
         Assertions.assertEquals(2, directMessageReceiver.size());
 
-        sessionDatabaseService.clearConversation(currentUser.getName(), friend2.getName());
+        sessionDatabaseService.clearConversation(friend2.getName());
 
-        directMessages = sessionDatabaseService.getConversation(currentUser.getName(), friend2.getName());
-        directMessageReceiver = sessionDatabaseService.getAllConversationPartnerOf(currentUser.getName());
+        directMessages = sessionDatabaseService.getConversation( friend2.getName());
+        directMessageReceiver = sessionDatabaseService.getAllConversationPartners();
         Assertions.assertEquals(0, directMessages.size());
         Assertions.assertEquals(1, directMessageReceiver.size());
 
         // Simulate that current user logs out and friend1 logs in, so friend1 is the new current user
         User temp = currentUser;
         currentUser = friend1;
+
+        sessionTestComponent = appTestComponent
+            .sessionTestComponentBuilder()
+            .currentUser(currentUser)
+            .userKey("678-90")
+            .build();
+        sessionDatabaseService = sessionTestComponent.getSessionDatabaseService();
+
         friend1 = temp;
 
-        directMessages = sessionDatabaseService.getConversation(currentUser.getName(), friend2.getName());
-        directMessageReceiver = sessionDatabaseService.getAllConversationPartnerOf(currentUser.getName());
+        directMessages = sessionDatabaseService.getConversation(friend2.getName());
+        directMessageReceiver = sessionDatabaseService.getAllConversationPartners();
         Assertions.assertEquals(0, directMessages.size());
-        Assertions.assertEquals(1, directMessageReceiver.size());
+        Assertions.assertEquals(0, directMessageReceiver.size());
 
         sendMessage(currentUser, friend2);
         sendMessage(currentUser, friend1);
         sendMessage(friend1, currentUser);
         sendMessage(friend2, currentUser);
 
-        directMessages = sessionDatabaseService.getConversation(currentUser.getName(), friend2.getName());
-        directMessageReceiver = sessionDatabaseService.getAllConversationPartnerOf(currentUser.getName());
+        directMessages = sessionDatabaseService.getConversation(friend2.getName());
+        directMessageReceiver = sessionDatabaseService.getAllConversationPartners();
         Assertions.assertEquals(2, directMessages.size());
         Assertions.assertEquals(2, directMessageReceiver.size());
 
