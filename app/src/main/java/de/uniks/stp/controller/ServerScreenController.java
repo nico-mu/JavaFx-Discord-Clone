@@ -55,7 +55,6 @@ public class ServerScreenController implements ControllerInterface {
 
     private final Editor editor;
     private final Server model;
-    private final NotificationService notificationService;
     private final ViewLoader viewLoader;
 
     private final VBox view;
@@ -66,7 +65,7 @@ public class ServerScreenController implements ControllerInterface {
     private VBox serverChannelOverview;
     private ServerCategoryListController categoryListController;
     private VBox serverChannelContainer;
-    private ControllerInterface serverChannelController;
+    private BaseController serverChannelController;
     private ServerUserListController serverUserListController;
     private FlowPane serverUserListContainer;
     private Label settingsGearLabel;
@@ -100,14 +99,12 @@ public class ServerScreenController implements ControllerInterface {
 
     @AssistedInject
     public ServerScreenController(ViewLoader viewLoader,
-                                  NotificationService notificationService,
                                   Editor editor,
                                   @Assisted Parent view,
                                   @Assisted Server model) {
         this.view = (VBox) view;
         this.editor = editor;
         this.model = model;
-        this.notificationService = notificationService;
         this.viewLoader = viewLoader;
     }
 
@@ -163,15 +160,23 @@ public class ServerScreenController implements ControllerInterface {
                     log.error("Could not create a Controller for channelType: {}", channelType);
                     return null;
             }
-            notificationService.consume(channel);
             serverChannelController.init();
+            serverChannelController.setOnStop(this::onChannelControllerStopped);
+            categoryListController.goToChannel(channel);
             return serverChannelController;
         }
         return null;
     }
 
+    private void onChannelControllerStopped() {
+        categoryListController.setNoElementActive();
+        subviewCleanup();
+        serverChannelController = null;
+    }
+
     private void subviewCleanup() {
         serverChannelContainer.getChildren().clear();
+        channelNameLabel.setText("");
     }
 
 

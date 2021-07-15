@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
-public class ServerVoiceChatController implements ControllerInterface {
+public class ServerVoiceChatController extends BaseController implements ControllerInterface {
     private VoiceChatUserEntry.VoiceChatUserEntryFactory voiceChatUserEntryFactory;
     private VoiceChatClientFactory voiceChatClientFactory;
 
@@ -251,6 +251,7 @@ public class ServerVoiceChatController implements ControllerInterface {
     @Override
     public void stop() {
         log.debug("stop() called");
+        super.stop();
 
         voiceChatClient.stop();
 

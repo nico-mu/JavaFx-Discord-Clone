@@ -104,6 +104,7 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
 
     @Override
     public void stop() {
+        super.stop();
         if (Objects.nonNull(model)) {
             model.listeners().removePropertyChangeListener(Channel.PROPERTY_MESSAGES, messagesChangeListener);
             for (Message message : model.getMessages()) {
