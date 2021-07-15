@@ -45,8 +45,8 @@
       </VBox>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="120.0">
          <children>
-            <JFXButton id="add-channel-create-button" styleClass="add-channel-create-button" text="%LBL_CREATE" />
-            <JFXButton id="add-channel-cancel-button" styleClass="add-channel-cancel-button" text="%LBL_CANCEL" />
+            <JFXButton id="add-channel-create-button" prefHeight="30.0" prefWidth="140.0" styleClass="add-channel-create-button" text="%LBL_CREATE" />
+            <JFXButton id="add-channel-cancel-button" prefHeight="30.0" prefWidth="140.0" styleClass="add-channel-cancel-button" text="%LBL_CANCEL" />
          </children>
       </HBox>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">

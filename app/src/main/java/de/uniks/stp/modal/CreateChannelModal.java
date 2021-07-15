@@ -84,6 +84,7 @@ public class CreateChannelModal extends AbstractModal {
         createButton.setOnAction(this::onCreatButtonClicked);
         cancelButton.setOnAction(this::onCancelButtonClicked);
         cancelButton.setCancelButton(true);  // use Escape in order to press button
+        createButton.setDefaultButton(true); // use Enter in order to press button
         filter.textProperty().addListener(((observable, oldValue, newValue) -> {
             filterUsers(newValue);
         }));
