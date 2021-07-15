@@ -27,6 +27,7 @@ public class Constants {
     public static final String LBL_LOGIN_FAILED = "LBL_LOGIN_FAILED";
     public static final String LBL_LOGIN_WRONG_CREDENTIALS = "LBL_LOGIN_WRONG_CREDENTIALS";
     public static final String LBL_MISSING_FIELDS = "LBL_MISSING_FIELDS";
+    public static final String LBL_FORBIDDEN_CHARS = "LBL_FORBIDDEN_CHARS";
     public static final String LBL_HOME = "LBL_HOME";
     public static final String LBL_CREATE_SERVER = "LBL_CREATE_SERVER";
     public static final String LBL_ADD_SERVER_TITLE = "LBL_ADD_SERVER_TITLE";
