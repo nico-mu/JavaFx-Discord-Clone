@@ -14,6 +14,7 @@ import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.voice.VoiceChatClient;
 import de.uniks.stp.network.voice.VoiceChatClientFactory;
+import de.uniks.stp.network.voice.VoiceChatService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Views;
@@ -32,13 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Objects;
 
 @Route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER + Constants.ROUTE_CHANNEL)
 public class ServerVoiceChatController extends BaseController implements ControllerInterface {
+    private final VoiceChatService voiceChatService;
     private VoiceChatUserEntry.VoiceChatUserEntryFactory voiceChatUserEntryFactory;
     private VoiceChatClientFactory voiceChatClientFactory;
 
@@ -82,7 +82,8 @@ public class ServerVoiceChatController extends BaseController implements Control
                                      Router router,
                                      SessionRestClient restClient,
                                      VoiceChatUserEntry.VoiceChatUserEntryFactory voiceChatUserEntryFactory,
-                                     VoiceChatClientFactory voiceChatClientFactory) {
+                                     VoiceChatClientFactory voiceChatClientFactory,
+                                     VoiceChatService voiceChatService) {
         this.view = view;
         this.model = model;
         this.viewLoader = viewLoader;
@@ -90,6 +91,7 @@ public class ServerVoiceChatController extends BaseController implements Control
         this.restClient = restClient;
         this.voiceChatUserEntryFactory = voiceChatUserEntryFactory;
         this.voiceChatClientFactory = voiceChatClientFactory;
+        this.voiceChatService = voiceChatService;
         currentUser = editor.getOrCreateAccord().getCurrentUser();
     }
 
@@ -163,7 +165,7 @@ public class ServerVoiceChatController extends BaseController implements Control
                 voiceChatClient.withoutFilteredUsers(user);
             }
             voiceChatUserEntry.setMute(isMute);
-        } else if (!voiceChatClient.isAudioInUnavailable()) {
+        } else if (voiceChatService.isAudioInAvailable()) {
             // Current user and audioIn available, ignores change if audioIn is unavailable
             voiceChatUserEntry.setMute(isMute);
         }
@@ -200,7 +202,7 @@ public class ServerVoiceChatController extends BaseController implements Control
 
     private void onAudioOutputButtonClick(MouseEvent mouseEvent) {
         log.debug("AudioOutput Button clicked");
-        if (!voiceChatClient.isAudioOutUnavailable()) {
+        if (voiceChatService.isAudioOutAvailable()) {
             final boolean audioOutMute = currentUser.isAudioOff();
             currentUser.setAudioOff(!audioOutMute);
         }
@@ -214,7 +216,7 @@ public class ServerVoiceChatController extends BaseController implements Control
 
     private void onAudioInputButtonClick(MouseEvent mouseEvent) {
         log.debug("AudioInput Button clicked");
-        if (!voiceChatClient.isAudioInUnavailable()) {
+        if (voiceChatService.isAudioInAvailable()) {
             final boolean audioInMute = currentUser.isMute();
             currentUser.setMute(!audioInMute);
         }
@@ -226,11 +228,7 @@ public class ServerVoiceChatController extends BaseController implements Control
             if (Objects.isNull(voiceChatClient)) {
                 voiceChatClient = voiceChatClientFactory.create(model);
             }
-            try {
-                voiceChatClient.init();
-            } catch (UnknownHostException | SocketException e) {
-                log.error("Connecting to the DatagramSocket failed.", e);
-            }
+            voiceChatClient.init();
         } else {
             final String status = response.getBody().getObject().getString("status");
             final String message = response.getBody().getObject().getString("message");
