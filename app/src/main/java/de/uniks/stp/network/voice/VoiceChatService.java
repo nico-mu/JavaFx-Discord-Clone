@@ -1,12 +1,14 @@
 package de.uniks.stp.network.voice;
 
 import de.uniks.stp.Constants;
+import de.uniks.stp.model.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class VoiceChatService {
     private static final Logger log = LoggerFactory.getLogger(VoiceChatClient.class);
@@ -22,30 +24,60 @@ public class VoiceChatService {
         );
     }
 
+    private final VoiceChatClientFactory voiceChatClientFactory;
+
+    private Mixer selectedMicrophone;
+    private Mixer selectedSpeaker;
+
     private final List<Mixer> availableSpeakers = new ArrayList<>();
     private final List<Mixer> availableMicrophones = new ArrayList<>();
+    private VoiceChatClient voiceChatClient;
 
 
-    public VoiceChatService() {
+    public VoiceChatService(VoiceChatClientFactory voiceChatClientFactory) {
+        this.voiceChatClientFactory = voiceChatClientFactory;
         for (final Mixer.Info info : AudioSystem.getMixerInfo()) {
             final Mixer mixer = AudioSystem.getMixer(info);
-            if (mixer.isLineSupported(Port.Info.SPEAKER)) {
+            final DataLine.Info audioOut = new DataLine.Info(SourceDataLine.class, audioFormat);
+            if (mixer.isLineSupported(audioOut)) {
                 availableSpeakers.add(mixer);
-                log.debug("Found speaker: {}", mixer.getMixerInfo().getDescription());
+                log.debug("Found speaker: {}", mixer.getMixerInfo());
             }
-            if (mixer.isLineSupported(Port.Info.MICROPHONE)) {
+            final DataLine.Info audioIn = new DataLine.Info(TargetDataLine.class, audioFormat);
+            if (mixer.isLineSupported(audioIn)) {
                 availableMicrophones.add(mixer);
-                log.debug("Found microphone: {}", mixer.getMixerInfo().getDescription());
+                log.debug("Found microphone: {}", mixer.getMixerInfo());
             }
         }
-
+        if (isMicrophoneAvailable()) {
+            // TODO: TG21-187 select Input Device
+            selectedMicrophone = availableMicrophones.get(0);
+        }
+        if (isSpeakerAvailable()) {
+            // TODO: TG21-188 select Output Device
+            selectedSpeaker = availableSpeakers.get(0);
+        }
     }
 
-    public boolean isAudioOutAvailable() {
+    public boolean isSpeakerAvailable() {
         return !availableSpeakers.isEmpty();
     }
 
-    public boolean isAudioInAvailable() {
+    public boolean isMicrophoneAvailable() {
         return !availableMicrophones.isEmpty();
+    }
+
+    public void addVoiceChatClient(Channel model) {
+        if (Objects.nonNull(voiceChatClient)) {
+            voiceChatClient.stop();
+        }
+        voiceChatClient = voiceChatClientFactory.create(model, selectedSpeaker, selectedMicrophone);
+        voiceChatClient.init();
+    }
+
+    public void removeVoiceChatClient(Channel model) {
+        if (Objects.nonNull(voiceChatClient)) {
+            voiceChatClient.stop();
+        }
     }
 }

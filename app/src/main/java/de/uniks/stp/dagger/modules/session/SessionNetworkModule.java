@@ -9,15 +9,12 @@ import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.HttpRequestInterceptor;
 import de.uniks.stp.network.rest.MediaRequestClient;
 import de.uniks.stp.network.rest.SessionRestClient;
-import de.uniks.stp.network.voice.VoiceChatClient;
 import de.uniks.stp.network.voice.VoiceChatClientFactory;
 import de.uniks.stp.network.voice.VoiceChatClientFactoryImpl;
-import de.uniks.stp.network.voice.VoiceChatService;
 import de.uniks.stp.network.websocket.WebSocketClientFactory;
 import de.uniks.stp.network.websocket.WebSocketFactory;
 import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.notification.NotificationService;
-import org.mockito.Mockito;
 
 import javax.inject.Named;
 
@@ -39,9 +36,9 @@ public class SessionNetworkModule {
     @Provides
     @SessionScope
     WebSocketService provideWebsocketService(Editor editor,
-                                                    NotificationService notificationService,
-                                                    WebSocketClientFactory webSocketClientFactory,
-                                                    SessionDatabaseService databaseService) {
+                                             NotificationService notificationService,
+                                             WebSocketClientFactory webSocketClientFactory,
+                                             SessionDatabaseService databaseService) {
         return new WebSocketService(editor, notificationService, webSocketClientFactory, databaseService);
     }
 
@@ -59,7 +56,7 @@ public class SessionNetworkModule {
 
     @Provides
     @SessionScope
-    VoiceChatClientFactory provideVoiceChatClientFactory(@Named("currentUser") User currentUser, VoiceChatService voiceChatService) {
-        return new VoiceChatClientFactoryImpl(currentUser, voiceChatService);
+    VoiceChatClientFactory provideVoiceChatClientFactory(@Named("currentUser") User currentUser) {
+        return new VoiceChatClientFactoryImpl(currentUser);
     }
 }

@@ -9,6 +9,7 @@ import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.ServerInformationHandler;
 import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.network.voice.VoiceChatClientFactory;
 import de.uniks.stp.network.voice.VoiceChatService;
 import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.Router;
@@ -34,8 +35,8 @@ public class SessionModule {
 
     @Provides
     @SessionScope
-    static VoiceChatService provideSessionVoiceChatService() {
-        return new VoiceChatService();
+    static VoiceChatService provideSessionVoiceChatService(VoiceChatClientFactory voiceChatClientFactory) {
+        return new VoiceChatService(voiceChatClientFactory);
     }
 
     @Provides

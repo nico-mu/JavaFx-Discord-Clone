@@ -12,8 +12,6 @@ import de.uniks.stp.component.VoiceChatUserEntry;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.SessionRestClient;
-import de.uniks.stp.network.voice.VoiceChatClient;
-import de.uniks.stp.network.voice.VoiceChatClientFactory;
 import de.uniks.stp.network.voice.VoiceChatService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
@@ -40,7 +38,6 @@ import java.util.Objects;
 public class ServerVoiceChatController extends BaseController implements ControllerInterface {
     private final VoiceChatService voiceChatService;
     private VoiceChatUserEntry.VoiceChatUserEntryFactory voiceChatUserEntryFactory;
-    private VoiceChatClientFactory voiceChatClientFactory;
 
     public static final String VOICE_CHANNEL_USER_CONTAINER_ID = "#voice-channel-user-container";
     public static final String VOICE_CHANNEL_USER_SCROLL_CONTAINER_ID = "#voice-channel-user-scroll-container";
@@ -72,8 +69,6 @@ public class ServerVoiceChatController extends BaseController implements Control
     private final PropertyChangeListener audioOffPropertyChangeListener = this::onAudioOffPropertyChange;
     private final PropertyChangeListener currentUserMutePropertyChangeListener = this::onCurrentUserMutePropertyChange;
 
-    private VoiceChatClient voiceChatClient;
-
     @AssistedInject
     public ServerVoiceChatController(@Assisted VBox view,
                                      @Assisted Channel model,
@@ -82,7 +77,6 @@ public class ServerVoiceChatController extends BaseController implements Control
                                      Router router,
                                      SessionRestClient restClient,
                                      VoiceChatUserEntry.VoiceChatUserEntryFactory voiceChatUserEntryFactory,
-                                     VoiceChatClientFactory voiceChatClientFactory,
                                      VoiceChatService voiceChatService) {
         this.view = view;
         this.model = model;
@@ -90,7 +84,6 @@ public class ServerVoiceChatController extends BaseController implements Control
         this.router = router;
         this.restClient = restClient;
         this.voiceChatUserEntryFactory = voiceChatUserEntryFactory;
-        this.voiceChatClientFactory = voiceChatClientFactory;
         this.voiceChatService = voiceChatService;
         currentUser = editor.getOrCreateAccord().getCurrentUser();
     }
@@ -112,10 +105,12 @@ public class ServerVoiceChatController extends BaseController implements Control
         hangUpButton = (JFXButton) serverVoiceChatView.lookup(HANG_UP_BTN_ID);
 
         audioInputImgView = (ImageView) audioInputButton.getGraphic();
-        audioInputImgView.setImage(initAudioInputImg);
+        final Image currentInput = currentUser.isMute() ? otherAudioInputImg : initAudioInputImg;
+        audioInputImgView.setImage(currentInput);
 
         audioOutputImgView = (ImageView) audioOutputButton.getGraphic();
-        audioOutputImgView.setImage(initAudioOutputImg);
+        final Image currentOutput = currentUser.isAudioOff() ? otherAudioOutputImg : initAudioOutputImg;
+        audioOutputImgView.setImage(currentOutput);
 
         audioInputButton.setOnMouseClicked(this::onAudioInputButtonClick);
         audioOutputButton.setOnMouseClicked(this::onAudioOutputButtonClick);
@@ -159,13 +154,8 @@ public class ServerVoiceChatController extends BaseController implements Control
         boolean isMute = (boolean) propertyChangeEvent.getNewValue();
         final VoiceChatUserEntry voiceChatUserEntry = userVoiceChatUserHashMap.get(user);
         if (!currentUser.equals(user)) {
-            if (isMute) {
-                voiceChatClient.withFilteredUsers(user);
-            } else {
-                voiceChatClient.withoutFilteredUsers(user);
-            }
             voiceChatUserEntry.setMute(isMute);
-        } else if (voiceChatService.isAudioInAvailable()) {
+        } else if (voiceChatService.isMicrophoneAvailable()) {
             // Current user and audioIn available, ignores change if audioIn is unavailable
             voiceChatUserEntry.setMute(isMute);
         }
@@ -202,7 +192,7 @@ public class ServerVoiceChatController extends BaseController implements Control
 
     private void onAudioOutputButtonClick(MouseEvent mouseEvent) {
         log.debug("AudioOutput Button clicked");
-        if (voiceChatService.isAudioOutAvailable()) {
+        if (voiceChatService.isSpeakerAvailable()) {
             final boolean audioOutMute = currentUser.isAudioOff();
             currentUser.setAudioOff(!audioOutMute);
         }
@@ -216,7 +206,7 @@ public class ServerVoiceChatController extends BaseController implements Control
 
     private void onAudioInputButtonClick(MouseEvent mouseEvent) {
         log.debug("AudioInput Button clicked");
-        if (voiceChatService.isAudioInAvailable()) {
+        if (voiceChatService.isMicrophoneAvailable()) {
             final boolean audioInMute = currentUser.isMute();
             currentUser.setMute(!audioInMute);
         }
@@ -225,10 +215,7 @@ public class ServerVoiceChatController extends BaseController implements Control
     private void joinAudioChannelCallback(HttpResponse<JsonNode> response) {
         if (response.isSuccess()) {
             // Join UDP-Voicestream
-            if (Objects.isNull(voiceChatClient)) {
-                voiceChatClient = voiceChatClientFactory.create(model);
-            }
-            voiceChatClient.init();
+            voiceChatService.addVoiceChatClient(model);
         } else {
             final String status = response.getBody().getObject().getString("status");
             final String message = response.getBody().getObject().getString("message");
@@ -251,7 +238,7 @@ public class ServerVoiceChatController extends BaseController implements Control
         log.debug("stop() called");
         super.stop();
 
-        voiceChatClient.stop();
+        voiceChatService.removeVoiceChatClient(model);
 
         restClient.leaveAudioChannel(this.model, this::leaveAudioChannelCallback);
 
