@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 public class LoginScreenController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(LoginScreenController.class);
 
-    private static final String USERNAME_PATTERN = "[a-zA-Z0-9.:!?,;_-]+";
+    private static final String USERNAME_PATTERN = "[a-zA-Z0-9.:!?,; _-]+";
     private static final Pattern pattern = Pattern.compile(USERNAME_PATTERN);
 
     private final Parent view;
