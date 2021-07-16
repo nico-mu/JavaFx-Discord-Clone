@@ -38,6 +38,9 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
     private ImageView editChannel;
 
     @FXML
+    private HBox voiceChannelHBox;
+
+    @FXML
     private VBox audioMemberContainer;
 
     private final Channel model;
@@ -73,7 +76,7 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
 
         channelText.setText(model.getName());
         channelText.setFont(Font.font(16));
-        channelContainer.setOnMouseClicked(this::onMouseClicked);
+        voiceChannelHBox.setOnMouseClicked(this::onMouseClicked);
 
         channelContainer.setOnMouseEntered(this::onChannelMouseEntered);
         channelContainer.setOnMouseExited(this::onChannelMouseExited);
