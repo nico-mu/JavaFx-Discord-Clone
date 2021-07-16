@@ -22,7 +22,6 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONObject;
@@ -30,10 +29,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 @Route(Constants.ROUTE_LOGIN)
 public class LoginScreenController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(LoginScreenController.class);
+
+    private static final String USERNAME_PATTERN = "[a-zA-Z0-9.:!?,; _-]+";
+    private static final Pattern pattern = Pattern.compile(USERNAME_PATTERN);
 
     private final Parent view;
     private final Editor editor;
@@ -180,11 +183,12 @@ public class LoginScreenController implements ControllerInterface {
             setErrorMessage(Constants.LBL_MISSING_FIELDS);
             return;
         }
-
-        // prepare for and send register request
-        setErrorMessage(null);
-        disableUserInput();
-        restClient.register(name, password, this::handleRegisterResponse);
+        if(isInputValid()) {
+            // prepare for and send register request
+            setErrorMessage(null);
+            disableUserInput();
+            restClient.register(name, password, this::handleRegisterResponse);
+        }
     }
 
     /**
@@ -199,12 +203,13 @@ public class LoginScreenController implements ControllerInterface {
             setErrorMessage(Constants.LBL_MISSING_FIELDS);
             return;
         }
-
-        // prepare for and send login request
-        setErrorMessage(null);
-        disableUserInput();
-        tempUserLogin = false;
-        restClient.login(name, password, this::handleLoginResponse);
+        if (isInputValid()) {
+            // prepare for and send login request
+            setErrorMessage(null);
+            disableUserInput();
+            tempUserLogin = false;
+            restClient.login(name, password, this::handleLoginResponse);
+        }
     }
 
     /**
@@ -314,6 +319,14 @@ public class LoginScreenController implements ControllerInterface {
                 setErrorMessage(Constants.LBL_LOGIN_FAILED);
             }
         }
+    }
+
+    private boolean isInputValid() {
+        if (!(pattern.matcher(name).matches() && pattern.matcher(password).matches())) {
+            setErrorMessage(Constants.LBL_FORBIDDEN_CHARS);
+            return false;
+        }
+        return true;
     }
 
     @AssistedFactory
