@@ -12,42 +12,44 @@ import javax.json.stream.JsonParsingException;
 import javax.sound.sampled.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class VoiceChatClient {
     private static final Logger log = LoggerFactory.getLogger(VoiceChatClient.class);
     private static final AudioFormat audioFormat = getAudioFormat();
+    private final Object audioInLock = new Object();
+    private final Object audioOutLock = new Object();
+    private final Mixer speaker;
+    private final Mixer microphone;
+    private final Map<String, SourceDataLine> userSourceDataLineMap = new HashMap<>();
 
     private final User currentUser;
     private final Channel channel;
-    private final Object audioInLock = new Object();
-    private final Object audioOutLock = new Object();
-    private ExecutorService executorService;
-    private boolean stopping = false;
-
-    private DatagramSocket datagramSocket;
-
-    private TargetDataLine audioInDataLine;
-
-    private SourceDataLine audioOutDataLine;
-
-    private InetAddress address;
-    private List<User> filteredUsers;
     private final PropertyChangeListener currentUserMutePropertyChangeListener = this::onCurrentUserMutePropertyChange;
     private final PropertyChangeListener currentUserAudioOffPropertyChangeListener = this::onCurrentUserAudioOffPropertyChange;
-
-    public VoiceChatClient(Channel channel, User currentUser) {
+    private final PropertyChangeListener audioMembersPropertyChangeListener = this::onAudioMembersPropertyChange;
+    private boolean running;
+    private InetAddress address;
+    private List<User> filteredUsers = new ArrayList<>();
+    private final PropertyChangeListener userMutePropertyChangeListener = this::onUserMutePropertyChange;
+    private DatagramSocket datagramSocket;
+    private TargetDataLine audioInDataLine;
+    private ExecutorService executorService;
+    public VoiceChatClient(Channel channel,
+                           User currentUser,
+                           Mixer speaker,
+                           Mixer microphone) {
         this.channel = channel;
         this.currentUser = currentUser;
+        this.speaker = speaker;
+        this.microphone = microphone;
         withFilteredUsers(currentUser);
     }
 
@@ -61,118 +63,42 @@ public class VoiceChatClient {
         );
     }
 
-    private void onCurrentUserMutePropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        final boolean isMute = (boolean) propertyChangeEvent.getNewValue();
-        if (isMute && !isAudioInUnavailable()) {
-            audioInDataLine.stop();
-            audioInDataLine.drain();
-        } else {
-            audioInDataLine.start();
-            synchronized (audioInLock) {
-                audioInLock.notify();
-            }
+    public void init() {
+        try {
+            initMicrophone();
+        } catch (LineUnavailableException e) {
+            log.error("The microphone could not be initialized", e);
         }
-    }
 
-    private void onCurrentUserAudioOffPropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        final boolean isAudioOff = (boolean) propertyChangeEvent.getNewValue();
-        if (isAudioOff && !isAudioOutUnavailable()) {
-            audioOutDataLine.stop();
-            audioOutDataLine.drain();
-        } else {
-            audioOutDataLine.start();
-            synchronized (audioOutLock) {
-                audioOutLock.notify();
-            }
+        try {
+            address = InetAddress.getByName(Constants.AUDIOSTREAM_BASE_URL);
+        } catch (UnknownHostException e) {
+            log.error("Host could not be resolved", e);
         }
-    }
 
-    private boolean initAudioInDataLine() {
-        final DataLine.Info infoIn = new DataLine.Info(TargetDataLine.class, audioFormat);
-        if (AudioSystem.isLineSupported(infoIn)) {
-            try {
-                audioInDataLine = (TargetDataLine) AudioSystem.getLine(infoIn);
-                audioInDataLine.open(audioFormat);
-                audioInDataLine.start();
-            } catch (LineUnavailableException e) {
-                log.error("Audio input is currently unavailable on this system.");
-                if (Objects.nonNull(audioInDataLine)) {
-                    if (audioInDataLine.isActive()) {
-                        audioInDataLine.stop();
-                    }
-                    if (audioInDataLine.isOpen()) {
-                        audioInDataLine.close();
-                    }
-                    audioInDataLine = null;
-                }
-                return false;
-            }
-        } else {
-            log.error("Audio input is not supported on this system.");
-            return false;
+        try {
+            datagramSocket = new DatagramSocket();
+            datagramSocket.connect(address, Constants.AUDIOSTREAM_PORT);
+        } catch (SocketException e) {
+            log.error("The socket could not be set up", e);
         }
-        return true;
-    }
 
-    private boolean initAudioOutDataLine() {
-        final DataLine.Info infoOut = new DataLine.Info(SourceDataLine.class, audioFormat);
-        if (AudioSystem.isLineSupported(infoOut)) {
-            try {
-                audioOutDataLine = (SourceDataLine) AudioSystem.getLine(infoOut);
-                audioOutDataLine.open(audioFormat);
-                audioOutDataLine.start();
-            } catch (LineUnavailableException e) {
-                log.error("Audio output is currently unavailable on this system.");
-                if (Objects.nonNull(audioOutDataLine)) {
-                    if (audioOutDataLine.isActive()) {
-                        audioOutDataLine.stop();
-                    }
-                    if (audioOutDataLine.isOpen()) {
-                        audioOutDataLine.close();
-                    }
-                    audioOutDataLine = null;
-                }
-                return false;
-            }
-        } else {
-            log.error("Audio output is not supported on this system.");
-            return false;
-        }
-        return true;
-    }
+        final List<User> audioMembers = channel.getAudioMembers();
+        audioMembers.forEach(this::userJoined);
+        channel.listeners().addPropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
 
-    public boolean isAudioOutUnavailable() {
-        return Objects.isNull(audioOutDataLine);
-    }
+        final PropertyChangeSupport currentUserListeners = currentUser.listeners();
+        currentUserListeners.addPropertyChangeListener(User.PROPERTY_MUTE, currentUserMutePropertyChangeListener);
+        currentUserListeners.addPropertyChangeListener(User.PROPERTY_AUDIO_OFF, currentUserAudioOffPropertyChangeListener);
 
-    public boolean isAudioInUnavailable() {
-        return Objects.isNull(audioInDataLine);
-    }
-
-    public void init() throws UnknownHostException, SocketException {
-        address = InetAddress.getByName(Constants.AUDIOSTREAM_BASE_URL);
-        datagramSocket = new DatagramSocket();
+        running = true;
         executorService = Executors.newCachedThreadPool();
-
-        currentUser.listeners().addPropertyChangeListener(User.PROPERTY_MUTE, currentUserMutePropertyChangeListener);
-        currentUser.listeners().addPropertyChangeListener(User.PROPERTY_AUDIO_OFF, currentUserAudioOffPropertyChangeListener);
-
-        currentUser.setAudioOff(!initAudioOutDataLine());
-        currentUser.setMute(!initAudioInDataLine());
-
-        datagramSocket.connect(address, Constants.AUDIOSTREAM_PORT);
-
         executorService.execute(this::receiveAndPlayAudio);
         executorService.execute(this::recordAndSendAudio);
     }
 
     private void receiveAndPlayAudio() {
-        if (isAudioOutUnavailable()) {
-            log.error("Audio playback not started. The dataLine is not set up properly.");
-            return;
-        }
-
-        while (!stopping) {
+        while (running) {
             if (currentUser.isAudioOff()) {
                 try {
                     synchronized (audioOutLock) {
@@ -192,23 +118,19 @@ public class VoiceChatClient {
                 System.arraycopy(audioBuf, 0, metadataBuf, 0, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE);
                 final String metadataString = new String(metadataBuf, StandardCharsets.UTF_8).replaceAll("\0+$", "");
                 final JsonObject metadataJson = Json.createReader(new StringReader(metadataString)).readObject();
-                final String username = metadataJson.getString("name");
-                if (Objects.nonNull(username) && filteredUsers.stream().map(User::getName).noneMatch(username::equals)) {
+                final String userName = metadataJson.getString("name");
+                final SourceDataLine audioOutDataLine = userSourceDataLineMap.get(userName);
+                if (Objects.nonNull(userName) && Objects.nonNull(audioOutDataLine) && filteredUsers.stream().map(User::getName).noneMatch(userName::equals)) {
                     audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
                 }
+            } catch (SocketException | JsonParsingException ignored) {
             } catch (IOException e) {
                 log.error("Failed to receive an audio packet.", e);
-            } catch (JsonParsingException ignored) {
             }
         }
     }
 
     private void recordAndSendAudio() {
-        if (isAudioInUnavailable()) {
-            log.error("Audio recording not started. The dataLine is not set up properly.");
-            return;
-        }
-
         final JsonObject metadataObject = Json.createObjectBuilder()
             .add("channel", channel.getId())
             .add("name", currentUser.getName())
@@ -221,7 +143,7 @@ public class VoiceChatClient {
         byte[] audioBuf = new byte[Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE + Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE];
         System.arraycopy(metadataBytes, 0, audioBuf, 0, metadataBytes.length);
 
-        while (!stopping) {
+        while (running) {
             if (currentUser.isMute()) {
                 try {
                     synchronized (audioInLock) {
@@ -233,7 +155,7 @@ public class VoiceChatClient {
                 continue;
             }
             audioInDataLine.read(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
-            final DatagramPacket audioInDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length);
+            final DatagramPacket audioInDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length, address, Constants.AUDIOSTREAM_PORT);
             try {
                 datagramSocket.send(audioInDatagramPacket);
             } catch (IOException e) {
@@ -242,39 +164,130 @@ public class VoiceChatClient {
         }
     }
 
+    private void userJoined(User user) {
+        final String userName = user.getName();
+        try {
+            final DataLine.Info infoOut = new DataLine.Info(SourceDataLine.class, audioFormat);
+
+            final SourceDataLine audioOutDataLine = (SourceDataLine) speaker.getLine(infoOut);
+            userSourceDataLineMap.put(userName, audioOutDataLine);
+
+            audioOutDataLine.open(audioFormat);
+            audioOutDataLine.start();
+            user.listeners().addPropertyChangeListener(User.PROPERTY_MUTE, userMutePropertyChangeListener);
+        } catch (LineUnavailableException e) {
+            log.error("Failed to get line for user {}. Cleaning up..", userName);
+            final SourceDataLine audioOutDataLine = userSourceDataLineMap.remove(user.getName());
+            if (Objects.nonNull(audioOutDataLine)) {
+                audioOutDataLine.stop();
+                audioOutDataLine.close();
+            }
+        }
+    }
+
+    private void userLeft(User user) {
+        final SourceDataLine audioOutDataLine = userSourceDataLineMap.remove(user.getName());
+        user.listeners().removePropertyChangeListener(User.PROPERTY_MUTE, userMutePropertyChangeListener);
+
+        if (Objects.nonNull(audioOutDataLine)) {
+            audioOutDataLine.stop();
+            audioOutDataLine.drain();
+            audioOutDataLine.close();
+        }
+    }
+
+    private void onAudioMembersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final User oldValue = (User) propertyChangeEvent.getOldValue();
+        final User newValue = (User) propertyChangeEvent.getNewValue();
+
+        if (Objects.isNull(oldValue)) {
+            userJoined(newValue);
+        } else if (Objects.isNull(newValue)) {
+            userLeft(oldValue);
+        }
+    }
+
+    private void onCurrentUserMutePropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final boolean isMute = (boolean) propertyChangeEvent.getNewValue();
+        if (isMute) {
+            audioInDataLine.stop();
+            audioInDataLine.drain();
+        } else {
+            audioInDataLine.start();
+            synchronized (audioInLock) {
+                audioInLock.notifyAll();
+            }
+        }
+    }
+
+    private void onCurrentUserAudioOffPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final boolean isAudioOff = (boolean) propertyChangeEvent.getNewValue();
+        if (isAudioOff) {
+            userSourceDataLineMap.forEach((s, sourceDataLine) -> {
+                sourceDataLine.stop();
+                sourceDataLine.drain();
+            });
+        } else {
+            userSourceDataLineMap.forEach((s, sourceDataLine) -> sourceDataLine.start());
+            synchronized (audioOutLock) {
+                audioOutLock.notifyAll();
+            }
+        }
+    }
+
+    private void onUserMutePropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        final User user = (User) propertyChangeEvent.getSource();
+        if (!currentUser.equals(user)) {
+            boolean isMute = (boolean) propertyChangeEvent.getNewValue();
+            if (isMute) {
+                withFilteredUsers(user);
+            } else {
+                withoutFilteredUsers(user);
+            }
+        }
+    }
+
+    private void initMicrophone() throws LineUnavailableException {
+        final DataLine.Info infoIn = new DataLine.Info(TargetDataLine.class, audioFormat);
+
+        audioInDataLine = (TargetDataLine) microphone.getLine(infoIn);
+        audioInDataLine.open(audioFormat);
+        audioInDataLine.start();
+    }
+
     public void stop() {
-        stopping = true;
+        running = false;
+
         synchronized (audioInLock) {
             audioInLock.notifyAll();
         }
         synchronized (audioOutLock) {
             audioOutLock.notifyAll();
         }
-        // Threads in ExecutorService will terminate now
 
-        currentUser.listeners().removePropertyChangeListener(User.PROPERTY_MUTE, currentUserMutePropertyChangeListener);
-        currentUser.listeners().removePropertyChangeListener(User.PROPERTY_AUDIO_OFF, currentUserAudioOffPropertyChangeListener);
+        if (Objects.nonNull(audioInDataLine)) {
+            audioInDataLine.stop();
+            audioInDataLine.drain();
+            audioInDataLine.close();
+        }
 
+        final PropertyChangeSupport currentUserListeners = currentUser.listeners();
+        currentUserListeners.removePropertyChangeListener(User.PROPERTY_MUTE, currentUserMutePropertyChangeListener);
+        currentUserListeners.removePropertyChangeListener(User.PROPERTY_AUDIO_OFF, currentUserAudioOffPropertyChangeListener);
 
-        executorService.shutdown();
-        executorService = null;
+        channel.getAudioMembers().forEach(user -> {
+            userLeft(user);
+            withoutFilteredUsers(user);
+        });
+        channel.listeners().removePropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
 
+        if (Objects.nonNull(executorService)) {
+            executorService.shutdown();
+        }
 
-        audioInDataLine.stop();
-        audioInDataLine.drain();
-        audioInDataLine.close();
-        audioInDataLine = null;
-
-
-        audioOutDataLine.stop();
-        audioOutDataLine.drain();
-        audioOutDataLine.close();
-        audioOutDataLine = null;
-
-
-        datagramSocket.disconnect();
-        datagramSocket.close();
-        datagramSocket = null;
+        if (Objects.nonNull(datagramSocket)) {
+            datagramSocket.close();
+        }
     }
 
     public VoiceChatClient withFilteredUsers(User value) {
@@ -287,37 +300,9 @@ public class VoiceChatClient {
         return this;
     }
 
-    public VoiceChatClient withFilteredUsers(User... value) {
-        for (final User item : value) {
-            this.withFilteredUsers(item);
-        }
-        return this;
-    }
-
-    public VoiceChatClient withFilteredUsers(Collection<? extends User> value) {
-        for (final User item : value) {
-            this.withFilteredUsers(item);
-        }
-        return this;
-    }
-
     public VoiceChatClient withoutFilteredUsers(User value) {
         if (this.filteredUsers != null) {
             this.filteredUsers.remove(value);
-        }
-        return this;
-    }
-
-    public VoiceChatClient withoutFilteredUsers(User... value) {
-        for (final User item : value) {
-            this.withoutFilteredUsers(item);
-        }
-        return this;
-    }
-
-    public VoiceChatClient withoutFilteredUsers(Collection<? extends User> value) {
-        for (final User item : value) {
-            this.withoutFilteredUsers(item);
         }
         return this;
     }

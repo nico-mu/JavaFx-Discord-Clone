@@ -99,10 +99,10 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
 
     private void resizeAudioMemberContainer() {
         int size = model.getAudioMembers().size();
-        if (size > 5) {
-            size = 5;
+        if (size > 3) {
+            size = 3;
         }
-        audioMemberContainer.setMinHeight(size * 30d);
+        audioMemberContainer.setMinHeight(size * 35d);
     }
 
     public void addAudioUser(final User user) {
