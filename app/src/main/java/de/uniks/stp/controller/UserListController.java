@@ -9,11 +9,11 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.annotation.Route;
 import de.uniks.stp.component.ListComponent;
+import de.uniks.stp.component.PrivateChatNavUserListEntry;
 import de.uniks.stp.component.UserListEntry;
 import de.uniks.stp.model.Accord;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.SessionRestClient;
-import de.uniks.stp.router.Router;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
@@ -33,20 +33,20 @@ public class UserListController implements ControllerInterface {
     private final ListComponent<User, UserListEntry> onlineUserList;
     private final SessionRestClient restClient;
     private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
-    private final UserListEntry.UserListEntryFactory userListEntryFactory;
+    private final PrivateChatNavUserListEntry.PrivateChatNavUserListEntryFactory privateChatNavUserListEntryFactory;
 
     @AssistedInject
     public UserListController(Editor editor,
                               SessionRestClient restClient,
                               ViewLoader viewLoader,
-                              UserListEntry.UserListEntryFactory userListEntryFactory,
+                              PrivateChatNavUserListEntry.PrivateChatNavUserListEntryFactory privateChatNavUserListEntryFactory,
                               @Assisted Parent view) {
         this.editor = editor;
         VBox onlineUsersContainer = (VBox) view;
         onlineUserList = new ListComponent<>(viewLoader);
         onlineUsersContainer.getChildren().add(onlineUserList);
         this.restClient = restClient;
-        this.userListEntryFactory = userListEntryFactory;
+        this.privateChatNavUserListEntryFactory = privateChatNavUserListEntryFactory;
     }
 
     private void onAvailableUsersPropertyChange(final PropertyChangeEvent propertyChangeEvent) {
@@ -68,7 +68,7 @@ public class UserListController implements ControllerInterface {
 
     private void userJoined(final User user) {
         if (Objects.nonNull(user)) {
-            Platform.runLater(() -> onlineUserList.addElement(user, userListEntryFactory.create(user)));
+            Platform.runLater(() -> onlineUserList.addElement(user, privateChatNavUserListEntryFactory.create(user)));
         }
     }
 
