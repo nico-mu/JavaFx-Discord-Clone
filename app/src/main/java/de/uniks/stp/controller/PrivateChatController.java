@@ -151,6 +151,8 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
         }
 
         ChatMessage messageNode = chatMessageFactory.create(message, false);
+        //set previous message text so parsed message is not saved to db
+        message.setMessage(messageText);
 
         if (Objects.nonNull(info) && Objects.isNull(editor.getServer(info.getServerId()))) {
             messageNode.addJoinButtonButton(info, this::joinServer);
