@@ -85,7 +85,7 @@ public class ServerUserListNavigationTest {
         Assertions.assertEquals(1, editor.getServer(serverId).getCategories().size());
         Assertions.assertEquals(0, editor.getServer(serverId).getCategories().get(0).getChannels().size());
 
-        robot.clickOn("#" + testUser1.getId() + "-ServerUserListEntry");
+        robot.clickOn("#" + testUser1.getId() + "-PrivateChatNavUserListEntry");
         Assertions.assertEquals(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_PRIVATE_CHAT, router.getCurrentRoute());
         Label nameLabel = robot.lookup("#home-screen-label").query();
         Assertions.assertTrue(nameLabel.getText().contains(testUser1.getName()));

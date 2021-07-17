@@ -21,7 +21,7 @@ public class PrivateChatNavUserListEntry extends UserListEntry {
                                        Editor editor,
                                        @Assisted final User user) {
         super(viewLoader, user);
-        this.setId(user.getId() + "-ServerUserListEntry");
+        this.setId(user.getId() + "-PrivateChatNavUserListEntry");
 
         this.editor = editor;
         this.router = router;
