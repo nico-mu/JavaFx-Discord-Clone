@@ -103,7 +103,7 @@ public class ServerCategoryElement extends VBox {
     private void onCategoryArrowClicked(MouseEvent mouseEvent) {
         channelListCollapsed = !channelListCollapsed;
         if (channelListCollapsed) {
-            categoryHeadArrow.setImage(viewLoader.loadImage("right-arrow.png"));
+            categoryHeadArrow.setImage(viewLoader.loadImage("up-arrow.png"));
             categoryChannelList.setVisible(false);
             categoryChannelList.setManaged(false);
         } else {

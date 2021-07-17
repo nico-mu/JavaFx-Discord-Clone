@@ -21,7 +21,7 @@
             <TextWithEmoteSupport id="category-head-label" fx:id="categoryHeadLabel" prefHeight="44.0" prefWidth="127.0" styleClass="category-head-label"/>
             <ImageView id="add-channel-plus" fx:id="addServerPlus" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" visible="false">
                <image>
-                  <Image url="@../img/blueplus.png" />
+                  <Image url="@../img/plus.png" />
                </image>
             </ImageView>
             <ImageView id="edit-category-gear" fx:id="editCatGear" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" visible="false">
