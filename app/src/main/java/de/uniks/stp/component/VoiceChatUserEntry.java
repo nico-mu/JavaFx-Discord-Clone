@@ -44,11 +44,26 @@ public class VoiceChatUserEntry extends VBox {
             throw new RuntimeException(exception);
         }
         userMuteImgView = (ImageView) muteAudioButton.getGraphic();
+        userMuteImgView.setVisible(false);
+
         this.user = user;
         setUserName(user.getName());
         setMute(user.isMute());
         muteAudioButton.setOnMouseClicked(this::handleMuteAudioButtonClick);
         muteAudioButton.setId(user.getId() + "-MuteVoiceChatUserBtn");
+
+        setOnMouseEntered(this::onMouseEntered);
+        setOnMouseExited(this::onMouseExited);
+    }
+
+    private void onMouseExited(MouseEvent mouseEvent) {
+        if (!userMute) {
+            userMuteImgView.setVisible(false);
+        }
+    }
+
+    private void onMouseEntered(MouseEvent mouseEvent) {
+        userMuteImgView.setVisible(true);
     }
 
     private void handleMuteAudioButtonClick(MouseEvent mouseEvent) {
@@ -61,6 +76,11 @@ public class VoiceChatUserEntry extends VBox {
     }
 
     public void setMute(final boolean userMute) {
+        if (userMute) {
+            userMuteImgView.setVisible(true);
+        } else if (!this.isHover()) {
+            userMuteImgView.setVisible(false);
+        }
         if (this.userMute != userMute) {
             this.userMute = userMute;
             Image nextImg;
