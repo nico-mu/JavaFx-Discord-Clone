@@ -13,7 +13,7 @@
       <Pane prefHeight="27.0" prefWidth="386.0" />
       <AnchorPane prefHeight="62.0" prefWidth="386.0">
          <Label id="notifications-label" styleClass="notifications-label" layoutX="28.0" layoutY="-1.0" prefHeight="30.0" prefWidth="235.0" text="%LBL_NOTIFICATIONS" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="0.0" />
-         <JFXToggleButton id="notifications-toggle-button" layoutX="28.0" layoutY="15.0" prefHeight="58.0" prefWidth="78.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="15.0" />
+         <JFXToggleButton id="notifications-toggle-button" layoutX="28.0" layoutY="15.0" prefHeight="58.0" prefWidth="78.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="15.0" styleClass="toggle-button"/>
          <Label id="notifications-activated-label" styleClass="notifications-activated-label" layoutX="116.0" layoutY="28.0" AnchorPane.leftAnchor="95.0" AnchorPane.topAnchor="30.0" />
       </AnchorPane>
       <StackPane prefHeight="75.0" prefWidth="386.0">
