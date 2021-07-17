@@ -61,6 +61,8 @@ public class EditMessageModal extends AbstractModal {
         saveButton.setDefaultButton(true);
         cancelButton.setOnAction(this::onCancel);
         cancelButton.setCancelButton(true);
+
+        Platform.runLater(() ->  textField.setText(model.getMessage()));
     }
 
     private void onCancel(ActionEvent actionEvent) {
