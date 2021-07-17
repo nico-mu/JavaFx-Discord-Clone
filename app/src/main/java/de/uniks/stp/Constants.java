@@ -36,7 +36,7 @@ public class Constants {
     public static final String LBL_USER_OFFLINE = "LBL_USER_OFFLINE";
     public static final String LBL_TIME_FORMATTING_TODAY= "LBL_TIME_FORMATTING_TODAY";
     public static final String LBL_TIME_FORMATTING_YESTERDAY = "LBL_TIME_FORMATTING_YESTERDAY";
-    public static final String LBL_SELECT_LANGUAGE_TITLE = "LBL_SELECT_LANGUAGE_TITLE";
+    public static final String LBL_SELECT_LANGUAGE_TITLE = "LBL_ACCORD_SETTINGS_TITLE";
     public static final String LBL_ON = "LBL_ON";
     public static final String LBL_OFF = "LBL_OFF";
     public static final String LBL_NO_CHANGES = "LBL_NO_CHANGES";
