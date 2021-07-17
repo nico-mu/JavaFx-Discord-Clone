@@ -179,21 +179,19 @@ public class ServerCategoryListController implements ControllerInterface, Subscr
         if (Objects.nonNull(category) && Objects.nonNull(channel) && channelElementHashMap.containsKey(channel)) {
             notificationService.removePublisher(channel);
 
-            HashMap<String, String> currentArgs = router.getCurrentArgs();
             // in case the deleted channel is currently shown: reload server
+            final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
+            final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
+            Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
+            channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
+            removePropertyChangeListenerIfAudio(channel);
+
+            HashMap<String, String> currentArgs = router.getCurrentArgs();
             if (currentArgs.containsKey(":categoryId") && currentArgs.containsKey(":categoryId")
                 && currentArgs.get(":categoryId").equals(category.getId())
                 && currentArgs.get(":channelId").equals(channel.getId())) {
                 RouteArgs args = new RouteArgs().addArgument(":id", model.getId());
                 Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
-            }
-            // else: remove channel element in list
-            else {
-                final ServerCategoryElement serverCategoryElement = categoryElementHashMap.get(category);
-                final ServerChannelElement serverChannelElement = channelElementHashMap.remove(channel);
-                Platform.runLater(() -> serverCategoryElement.removeChannelElement(serverChannelElement));
-                channel.listeners().removePropertyChangeListener(Channel.PROPERTY_NAME, channelNamePropertyChangeListener);
-                removePropertyChangeListenerIfAudio(channel);
             }
         }
     }

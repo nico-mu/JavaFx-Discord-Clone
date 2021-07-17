@@ -255,7 +255,9 @@ public class ServerVoiceChatController extends BaseController implements Control
 
         voiceChatClient.stop();
 
-        restClient.leaveAudioChannel(this.model, this::leaveAudioChannelCallback);
+        if (Objects.nonNull(model.getServer())) {
+            restClient.leaveAudioChannel(this.model, this::leaveAudioChannelCallback);
+        }
 
         model.listeners().removePropertyChangeListener(Channel.PROPERTY_AUDIO_MEMBERS, audioMembersPropertyChangeListener);
         model.getAudioMembers().forEach(this::removeMutePropertyChangeListener);
