@@ -54,3 +54,4 @@ present on the remote!
   Check regularly for new information and the latest server documentation
 * [GitHub Repository STPST21TeamG](https://github.com/sekassel/STPST21TeamG)
 * [Jira Project TG21](https://jira.uniks.de/projects/TG21/summary)
+* Icons von [Google Fonts](https://fonts.google.com/icons)

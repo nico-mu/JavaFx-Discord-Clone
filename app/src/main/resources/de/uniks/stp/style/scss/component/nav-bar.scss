@@ -2,7 +2,7 @@
 
 .nav-bar-element {
   -fx-background-radius: 20px;
-  -fx-background-color: $primary-text-fill;
+  -fx-background-color: $main-background-color;
   -fx-border-radius: 15px;
 }
 
@@ -19,7 +19,7 @@
 }
 
 .nav-bar-circle {
-    -fx-fill: $notification-fill;
+    -fx-fill: $button-color;
     -fx-stroke: $main-background-color;
 }
 
