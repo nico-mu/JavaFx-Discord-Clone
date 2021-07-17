@@ -16,7 +16,7 @@
       <HBox alignment="CENTER_LEFT" minHeight="40.0" prefHeight="100.0" prefWidth="200.0">
          <children>
             <Label styleClass="add-channel-name-textfield" text="%LBL_TEXT_CHANNEL" />
-            <JFXToggleButton id="type-toggle-button" prefHeight="58.0" prefWidth="19.0">
+            <JFXToggleButton id="type-toggle-button" prefHeight="58.0" prefWidth="19.0" styleClass="toggle-button">
                <HBox.margin>
                   <Insets left="12.0" />
                </HBox.margin>

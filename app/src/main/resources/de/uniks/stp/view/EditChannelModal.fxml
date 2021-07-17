@@ -17,7 +17,7 @@
                      <padding>
                         <Insets top="12.0" />
                      </padding></Label>
-                  <JFXToggleButton id="notifications-toggle-button" layoutY="29.0" prefHeight="58.0" prefWidth="78.0" text="ToggleButton" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="29.0" />
+                  <JFXToggleButton id="notifications-toggle-button" layoutY="29.0" prefHeight="58.0" prefWidth="78.0" text="ToggleButton" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="29.0" styleClass="toggle-button"/>
                   <Label id="notifications-activated-label" layoutX="60.0" layoutY="45.0" prefHeight="27.0" prefWidth="36.0" styleClass="notifications-activated-label" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="45.0" />
                </children>
             </AnchorPane>
