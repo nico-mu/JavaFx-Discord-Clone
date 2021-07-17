@@ -11,15 +11,15 @@ import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.scene.input.MouseEvent;
 
-public class ServerUserListEntry extends UserListEntry {
+public class PrivateChatNavUserListEntry extends UserListEntry {
     private final Editor editor;
     private final Router router;
 
     @AssistedInject
-    public ServerUserListEntry(ViewLoader viewLoader,
-                               Router router,
-                               Editor editor,
-                               @Assisted final User user) {
+    public PrivateChatNavUserListEntry(ViewLoader viewLoader,
+                                       Router router,
+                                       Editor editor,
+                                       @Assisted final User user) {
         super(viewLoader, user);
         this.setId(user.getId() + "-ServerUserListEntry");
 
@@ -30,7 +30,7 @@ public class ServerUserListEntry extends UserListEntry {
 
     @AssistedFactory
     public interface ServerUserListEntryFactory {
-        ServerUserListEntry create(User user);
+        PrivateChatNavUserListEntry create(User user);
     }
 
     private void handleClick(MouseEvent mouseEvent) {

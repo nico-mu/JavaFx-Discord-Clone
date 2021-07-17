@@ -3,7 +3,7 @@ package de.uniks.stp.controller;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
-import de.uniks.stp.component.ServerUserListEntry;
+import de.uniks.stp.component.PrivateChatNavUserListEntry;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import javafx.application.Platform;
@@ -24,15 +24,15 @@ public class ServerUserListController implements ControllerInterface {
     private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
     private final PropertyChangeListener userStatusPropertyChangeListener = this::onUserStatusPropertyChange;
 
-    private final HashMap<User, ServerUserListEntry> serverUserListEntryHashMap = new HashMap<>();
+    private final HashMap<User, PrivateChatNavUserListEntry> serverUserListEntryHashMap = new HashMap<>();
     private final Parent view;
-    private final ServerUserListEntry.ServerUserListEntryFactory serverUserListEntryFactory;
+    private final PrivateChatNavUserListEntry.ServerUserListEntryFactory serverUserListEntryFactory;
     private final Server model;
     private VBox onlineUserList;
     private VBox offlineUserList;
 
     @AssistedInject
-    public ServerUserListController(ServerUserListEntry.ServerUserListEntryFactory serverUserListEntryFactory,
+    public ServerUserListController(PrivateChatNavUserListEntry.ServerUserListEntryFactory serverUserListEntryFactory,
                                     @Assisted Parent view,
                                     @Assisted Server model) {
         this.view = view;
@@ -90,26 +90,26 @@ public class ServerUserListController implements ControllerInterface {
 
     private void removeUser(User user) {
         if (serverUserListEntryHashMap.containsKey(user)) {
-            ServerUserListEntry serverUserListEntry = serverUserListEntryHashMap.get(user);
+            PrivateChatNavUserListEntry privateChatNavUserListEntry = serverUserListEntryHashMap.get(user);
             Platform.runLater(() -> {
-                offlineUserList.getChildren().remove(serverUserListEntry);
-                onlineUserList.getChildren().remove(serverUserListEntry);
+                offlineUserList.getChildren().remove(privateChatNavUserListEntry);
+                onlineUserList.getChildren().remove(privateChatNavUserListEntry);
             });
         }
     }
 
     private void offlineUser(User user) {
         removeUser(user);
-        ServerUserListEntry serverUserListEntry = serverUserListEntryFactory.create(user);
-        serverUserListEntryHashMap.put(user, serverUserListEntry);
-        Platform.runLater(() -> offlineUserList.getChildren().add(serverUserListEntry));
+        PrivateChatNavUserListEntry privateChatNavUserListEntry = serverUserListEntryFactory.create(user);
+        serverUserListEntryHashMap.put(user, privateChatNavUserListEntry);
+        Platform.runLater(() -> offlineUserList.getChildren().add(privateChatNavUserListEntry));
     }
 
     private void onlineUser(User user) {
         removeUser(user);
-        ServerUserListEntry serverUserListEntry = serverUserListEntryFactory.create(user);
-        serverUserListEntryHashMap.put(user, serverUserListEntry);
-        Platform.runLater(() -> onlineUserList.getChildren().add(serverUserListEntry));
+        PrivateChatNavUserListEntry privateChatNavUserListEntry = serverUserListEntryFactory.create(user);
+        serverUserListEntryHashMap.put(user, privateChatNavUserListEntry);
+        Platform.runLater(() -> onlineUserList.getChildren().add(privateChatNavUserListEntry));
     }
 
     public void stop() {
