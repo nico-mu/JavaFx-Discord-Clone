@@ -29,7 +29,7 @@ public class PrivateChatNavUserListEntry extends UserListEntry {
     }
 
     @AssistedFactory
-    public interface ServerUserListEntryFactory {
+    public interface PrivateChatNavUserListEntryFactory {
         PrivateChatNavUserListEntry create(User user);
     }
 

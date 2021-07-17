@@ -26,18 +26,18 @@ public class ServerUserListController implements ControllerInterface {
 
     private final HashMap<User, PrivateChatNavUserListEntry> serverUserListEntryHashMap = new HashMap<>();
     private final Parent view;
-    private final PrivateChatNavUserListEntry.ServerUserListEntryFactory serverUserListEntryFactory;
+    private final PrivateChatNavUserListEntry.PrivateChatNavUserListEntryFactory privateChatNavUserListEntryFactory;
     private final Server model;
     private VBox onlineUserList;
     private VBox offlineUserList;
 
     @AssistedInject
-    public ServerUserListController(PrivateChatNavUserListEntry.ServerUserListEntryFactory serverUserListEntryFactory,
+    public ServerUserListController(PrivateChatNavUserListEntry.PrivateChatNavUserListEntryFactory privateChatNavUserListEntryFactory,
                                     @Assisted Parent view,
                                     @Assisted Server model) {
         this.view = view;
         this.model = model;
-        this.serverUserListEntryFactory = serverUserListEntryFactory;
+        this.privateChatNavUserListEntryFactory = privateChatNavUserListEntryFactory;
     }
 
     public void init() {
@@ -100,14 +100,14 @@ public class ServerUserListController implements ControllerInterface {
 
     private void offlineUser(User user) {
         removeUser(user);
-        PrivateChatNavUserListEntry privateChatNavUserListEntry = serverUserListEntryFactory.create(user);
+        PrivateChatNavUserListEntry privateChatNavUserListEntry = privateChatNavUserListEntryFactory.create(user);
         serverUserListEntryHashMap.put(user, privateChatNavUserListEntry);
         Platform.runLater(() -> offlineUserList.getChildren().add(privateChatNavUserListEntry));
     }
 
     private void onlineUser(User user) {
         removeUser(user);
-        PrivateChatNavUserListEntry privateChatNavUserListEntry = serverUserListEntryFactory.create(user);
+        PrivateChatNavUserListEntry privateChatNavUserListEntry = privateChatNavUserListEntryFactory.create(user);
         serverUserListEntryHashMap.put(user, privateChatNavUserListEntry);
         Platform.runLater(() -> onlineUserList.getChildren().add(privateChatNavUserListEntry));
     }
