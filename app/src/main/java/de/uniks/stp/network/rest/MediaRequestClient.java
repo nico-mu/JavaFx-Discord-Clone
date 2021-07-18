@@ -84,7 +84,10 @@ public class MediaRequestClient {
     }
 
     private void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
-        executor.execute(() -> req.asJsonAsync(callback));
+        try {
+            executor.execute(() -> req.asJsonAsync(callback));
+        } catch (IllegalArgumentException ignore) {
+        }
     }
 
     public void addMedia(Message message, ChatMessage messageNode) {
