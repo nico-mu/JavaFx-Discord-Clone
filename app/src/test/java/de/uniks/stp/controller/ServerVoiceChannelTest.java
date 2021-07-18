@@ -262,9 +262,11 @@ public class ServerVoiceChannelTest {
         final boolean mute = otherUser.isMute();
         final JFXButton muteOtherUserButton = robot.lookup("#" + otherUserId + "-MuteVoiceChatUserBtn").query();
         robot.clickOn(muteOtherUserButton);
+        WaitForAsyncUtils.waitForFxEvents();
         Assertions.assertEquals(!mute, otherUser.isMute());
 
         robot.clickOn(muteOtherUserButton);
+        WaitForAsyncUtils.waitForFxEvents();
         Assertions.assertEquals(mute, otherUser.isMute());
     }
   
@@ -288,9 +290,11 @@ public class ServerVoiceChannelTest {
 
         boolean audioOff = currentUser.isAudioOff();
         robot.clickOn(ServerVoiceChatController.AUDIO_OUTPUT_BTN_ID);
+        WaitForAsyncUtils.waitForFxEvents();
         Assertions.assertEquals(!audioOff, currentUser.isAudioOff());
 
         robot.clickOn(ServerVoiceChatController.AUDIO_OUTPUT_BTN_ID);
+        WaitForAsyncUtils.waitForFxEvents();
         Assertions.assertEquals(audioOff, currentUser.isAudioOff());
     }
   
@@ -314,9 +318,11 @@ public class ServerVoiceChannelTest {
       
         boolean mute = currentUser.isMute();
         robot.clickOn(ServerVoiceChatController.AUDIO_INPUT_BTN_ID);
+        WaitForAsyncUtils.waitForFxEvents();
         Assertions.assertEquals(!mute, currentUser.isMute());
 
         robot.clickOn(ServerVoiceChatController.AUDIO_INPUT_BTN_ID);
+        WaitForAsyncUtils.waitForFxEvents();
         Assertions.assertEquals(mute, currentUser.isMute());
     }
 
