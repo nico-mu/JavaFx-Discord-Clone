@@ -97,7 +97,7 @@ public class MediaRequestClient {
             }
             url = UrlUtil.encodeURL(url);
             if (url.contains("giphy") || url.contains("imgur") || url.contains("gph.is")) {
-                getMediaInformation("https://iframe-embed.qwertzuioplmnbvc.workers.dev/parse/" + UrlUtil.encodeURL(url), (msg) -> handleImgurGiphyResponse(msg, messageNode));
+                getMediaInformation("https://iframe-embed.qwertzuioplmnbvc.workers.dev/parse/" + url, (msg) -> handleImgurGiphyResponse(msg, messageNode));
             } else {
                 getMediaInformation("https://iframe.ly/api/iframely?url=" + url + "&api_key=914710cf5b1fd52a6d415c&html5=1&ssl=1&maxheight=240", (msg) -> handleMediaInformation(msg, messageNode));
             }
