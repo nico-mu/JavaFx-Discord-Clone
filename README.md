@@ -27,9 +27,10 @@ Things you need before installing the software.
 ### Usage Infos
 There are a few things you need to know when using Accord.
 
-* Accord can not run the same instance multiple times. You need two jars in separate directories in order to run multiple accord instances.
 * Jars can be compiled by running the "jar task" by gradle and can be found afterwards in .../app/build/libs. The "build jar" task location is in the gradle menu under Tasks/build/jar.
 * Easter egg can be accessed by opening private chat, writing "!play :handshake:" and receiving the same message from the chat partner within 30 seconds.
+* In case there are any problems with running the same instance of Accord multiple times, try to wait until the program has started before you launch it again.
+* In case there are communication problems in an audio channel, make sure you selected the right default speaker/microphone in your system settings. 
 
 ### Server
 
