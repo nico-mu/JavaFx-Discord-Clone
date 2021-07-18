@@ -29,7 +29,7 @@ There are a few things you need to know when using Accord.
 
 * Jars can be compiled by running the "jar task" by gradle and can be found afterwards in .../app/build/libs. The "build jar" task location is in the gradle menu under Tasks/build/jar.
 * Easter egg can be accessed by opening private chat, writing "!play :handshake:" and receiving the same message from the chat partner within 30 seconds.
-
+ 
 ### Server
 
 * [Release 1 documentation](https://seblog.cs.uni-kassel.de/wp-content/uploads/2021/04/ServerdokuR1.pdf)
