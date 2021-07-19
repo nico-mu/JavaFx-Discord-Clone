@@ -25,7 +25,7 @@ public class NotificationService {
     private final SessionDatabaseService databaseService;
     private final AudioService audioService;
 
-    @Inject
+
     public NotificationService(Router router,
                                SessionDatabaseService databaseService,
                                AudioService audioService) {

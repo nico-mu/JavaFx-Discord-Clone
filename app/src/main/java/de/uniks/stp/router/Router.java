@@ -16,7 +16,6 @@ public class Router {
     private String currentRoute;
     private RouteArgs currentArgs;
 
-    @Inject
     public Router(AppController appController) {
         this.appController = appController;
         routeMap = new RouteMap().getRoutes();

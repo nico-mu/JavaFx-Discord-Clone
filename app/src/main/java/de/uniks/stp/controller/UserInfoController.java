@@ -44,8 +44,7 @@ public class UserInfoController implements ControllerInterface {
     private Button logoutButton;
     private VBox settingsGearContainer;
 
-    @Inject
-    SettingsModal.SettingsModalFactory settingsModalFactory;
+    private final SettingsModal.SettingsModalFactory settingsModalFactory;
 
     @AssistedInject
     public UserInfoController(Editor editor,
@@ -53,6 +52,7 @@ public class UserInfoController implements ControllerInterface {
                               ViewLoader viewLoader,
                               SessionRestClient restClient,
                               Router router,
+                              SettingsModal.SettingsModalFactory settingsModalFactory,
                               @Assisted Parent view) {
         this.view = (AnchorPane) view;
         this.editor = editor;
@@ -60,7 +60,7 @@ public class UserInfoController implements ControllerInterface {
         this.viewLoader = viewLoader;
         this.router = router;
         this.app = app;
-
+        this.settingsModalFactory = settingsModalFactory;
     }
 
     @Override
