@@ -31,7 +31,6 @@ public class AppController implements ControllerInterface {
 
     private ControllerInterface currentController;
 
-    @Inject
     public AppController(AccordApp app,
                          ViewLoader viewLoader,
                          @Named("primaryStage") Stage primaryStage,

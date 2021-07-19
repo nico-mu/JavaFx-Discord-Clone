@@ -17,7 +17,6 @@ public class MediaRequestClient {
     private final ExecutorService executor;
     protected final UnirestInstance instance;
 
-    @Inject
     public MediaRequestClient() {
         executor = Executors.newFixedThreadPool(POOL_SIZE);
         instance = new UnirestInstance(new Config());

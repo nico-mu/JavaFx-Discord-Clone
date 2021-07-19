@@ -55,14 +55,14 @@ public class ServerSettingsModal extends AbstractModal {
     private static final Logger log = LoggerFactory.getLogger(ServerSettingsModal.class);
     private final boolean owner;
 
-    @Inject
-    ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
+    private final ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
 
     @AssistedInject
     public ServerSettingsModal(SessionDatabaseService databaseService,
                                ViewLoader viewLoader,
                                @Named("primaryStage") Stage primaryStage,
                                SessionRestClient restClient,
+                               ConfirmationModal.ConfirmationModalFactory confirmationModalFactory,
                                @Assisted Parent root,
                                @Assisted Server model,
                                @Assisted boolean owner) {
@@ -72,6 +72,7 @@ public class ServerSettingsModal extends AbstractModal {
         this.viewLoader = viewLoader;
         this.databaseService = databaseService;
         this.restClient = restClient;
+        this.confirmationModalFactory = confirmationModalFactory;
 
         setTitle(viewLoader.loadLabel(Constants.LBL_EDIT_SERVER_TITLE));
 

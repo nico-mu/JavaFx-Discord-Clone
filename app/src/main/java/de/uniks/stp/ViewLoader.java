@@ -19,11 +19,6 @@ import java.util.ResourceBundle;
 
 public class ViewLoader {
 
-    @Inject
-    public ViewLoader() {
-
-    }
-
     private final Logger log = LoggerFactory.getLogger(ViewLoader.class);
 
     private ResourceBundle resourceBundle;

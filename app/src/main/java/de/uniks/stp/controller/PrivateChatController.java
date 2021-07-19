@@ -54,8 +54,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
     private VBox onlineUsersContainer;
     private Label homeScreenLabel;
 
-    @Inject
-    MiniGameController.MiniGameControllerFactory miniGameControllerFactory;
+    private final MiniGameController.MiniGameControllerFactory miniGameControllerFactory;
 
     private final Parent view;
     private MiniGameController miniGameController;
@@ -74,6 +73,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
                                  MediaRequestClient mediaRequestClient,
                                  ChatMessageInput chatMessageInput,
                                  ChatMessage.ChatMessageFactory chatMessageFactory,
+                                 MiniGameController.MiniGameControllerFactory miniGameControllerFactory,
                                  @Assisted Parent view,
                                  @Assisted User user) {
         super(editor, serverInformationHandler, restClient, mediaRequestClient, chatMessageInput, viewLoader);
@@ -83,6 +83,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
         this.databaseService = databaseService;
         this.webSocketService = webSocketService;
         this.chatMessageFactory = chatMessageFactory;
+        this.miniGameControllerFactory = miniGameControllerFactory;
     }
 
     @Override

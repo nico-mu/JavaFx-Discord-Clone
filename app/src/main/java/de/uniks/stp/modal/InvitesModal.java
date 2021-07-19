@@ -52,8 +52,7 @@ public class InvitesModal extends AbstractModal {
     private final Editor editor;
     private final Server server;
 
-    @Inject
-    CreateInviteModal.CreateInviteModalFactory createInviteModalFactory;
+    private final CreateInviteModal.CreateInviteModalFactory createInviteModalFactory;
 
     PropertyChangeListener serverInvitationListener = this::onServerInvitationsChanged;
 
@@ -63,6 +62,7 @@ public class InvitesModal extends AbstractModal {
                         ViewLoader viewLoader,
                         @Named("primaryStage") Stage primaryStage,
                         InviteListEntry.InviteListEntryFactory inviteListEntryFactory,
+                        CreateInviteModal.CreateInviteModalFactory createInviteModalFactory,
                         @Assisted Parent root,
                         @Assisted Server server) {
         super(root, primaryStage);
@@ -71,6 +71,7 @@ public class InvitesModal extends AbstractModal {
         this.restClient = restClient;
         this.viewLoader = viewLoader;
         this.inviteListEntryFactory = inviteListEntryFactory;
+        this.createInviteModalFactory = createInviteModalFactory;
 
         setTitle(viewLoader.loadLabel(Constants.LBL_INVITATIONS));
         inviteListContainer = (VBox) view.lookup(INVITE_LIST_CONTAINER);

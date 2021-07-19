@@ -20,7 +20,6 @@ public class ServerInformationHandler {
     private final SessionRestClient restClient;
     private final NotificationService notificationService;
 
-    @Inject
     public ServerInformationHandler(Editor editor,
                                     SessionRestClient restClient,
                                     NotificationService notificationService) {

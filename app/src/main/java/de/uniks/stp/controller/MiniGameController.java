@@ -30,13 +30,15 @@ public class MiniGameController implements ControllerInterface {
     private EasterEggModal easterEggModal;
     private final User chatPartner;
 
-    @Inject
-    EasterEggModal.EasterEggModalFactory easterEggModalFactory;
+    private final EasterEggModal.EasterEggModalFactory easterEggModalFactory;
 
     @AssistedInject
-    public MiniGameController(ViewLoader viewLoader, @Assisted User chatPartner) {
+    public MiniGameController(ViewLoader viewLoader,
+                              EasterEggModal.EasterEggModalFactory easterEggModalFactory,
+                              @Assisted User chatPartner) {
         this.chatPartner = chatPartner;
         this.viewLoader = viewLoader;
+        this.easterEggModalFactory = easterEggModalFactory;
     }
 
     @Override

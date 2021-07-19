@@ -13,7 +13,6 @@ public class AppRestClient {
     protected final ExecutorService executorService;
     protected final UnirestInstance instance;
 
-    @Inject
     public AppRestClient() {
         executorService = Executors.newFixedThreadPool(6);
         instance = new UnirestInstance(new Config());

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 
 public class SessionRestClient extends AppRestClient {
 
-    @Inject
     public SessionRestClient(HttpRequestInterceptor interceptor) {
         super();
         instance.config().interceptor(interceptor);

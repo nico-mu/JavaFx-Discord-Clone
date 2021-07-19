@@ -52,9 +52,6 @@ public class NavBarListController implements ControllerInterface, SubscriberInte
     private final NavBarServerElement.NavBarServerElementFactory navBarServerElementFactory;
     private final NavBarUserElement.NavBarUserElementFactory navBarUserElementFactory;
 
-    @Inject
-    CreateServerModal.CreateServerModalFactory createServerModalFactory;
-
     private AnchorPane anchorPane;
     PropertyChangeListener availableServersPropertyChangeListener = this::onAvailableServersPropertyChange;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
