@@ -14,7 +14,6 @@ public class HttpRequestInterceptor implements Interceptor {
 
     private final String userKey;
 
-    @Inject
     public HttpRequestInterceptor(@Named("userKey") String userKey) {
         this.userKey = userKey;
     }

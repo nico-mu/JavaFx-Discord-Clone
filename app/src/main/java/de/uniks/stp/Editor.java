@@ -12,10 +12,6 @@ public class Editor {
     // Connection to model root object
     private Accord accord;
 
-    @Inject
-    public Editor() {
-
-    }
 
     public Accord getOrCreateAccord() {
         if (Objects.isNull(accord)) {

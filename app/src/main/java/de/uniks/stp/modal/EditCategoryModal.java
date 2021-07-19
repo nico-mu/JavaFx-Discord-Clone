@@ -54,14 +54,14 @@ public class EditCategoryModal extends AbstractModal {
     private final SessionRestClient restClient;
     private ConfirmationModal deleteConfirmationModal;
 
-    @Inject
-    ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
+    private final ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
 
     @AssistedInject
     public EditCategoryModal(ViewLoader viewLoader,
                              @Named("primaryStage") Stage primaryStage,
                              SessionDatabaseService databaseService,
                              SessionRestClient restClient,
+                             ConfirmationModal.ConfirmationModalFactory confirmationModalFactory,
                              @Assisted Parent root,
                              @Assisted Category model) {
         super(root, primaryStage);
@@ -69,6 +69,7 @@ public class EditCategoryModal extends AbstractModal {
         this.databaseService = databaseService;
         this.viewLoader = viewLoader;
         this.restClient = restClient;
+        this.confirmationModalFactory = confirmationModalFactory;
 
         setTitle(viewLoader.loadLabel(Constants.LBL_EDIT_CATEGORY_TITLE));
 

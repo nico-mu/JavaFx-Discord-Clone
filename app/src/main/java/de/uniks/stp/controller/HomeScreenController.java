@@ -49,23 +49,29 @@ public class HomeScreenController implements ControllerInterface {
     private DirectMessageListController directMessageListController;
     private PrivateChatController privateChatController;
 
-    @Inject
-    DirectMessageListController.DirectMessageListControllerFactory directMessageListControllerFactory;
 
-    @Inject
-    PrivateChatController.PrivateChatControllerFactory privateChatControllerFactory;
+    private final DirectMessageListController.DirectMessageListControllerFactory directMessageListControllerFactory;
+    private final PrivateChatController.PrivateChatControllerFactory privateChatControllerFactory;
+    private final UserListController.UserListControllerFactory userListControllerFactory;
 
-    @Inject
-    UserListController.UserListControllerFactory userListControllerFactory;
     private final ChangeListener<Number> viewHeightChangedListener = this::onViewHeightChangeListener;
 
 
     @AssistedInject
-    HomeScreenController(Editor editor, Router router, ViewLoader viewLoader, @Assisted Parent view) {
+    HomeScreenController(Editor editor,
+                         Router router,
+                         UserListController.UserListControllerFactory userListControllerFactory,
+                         PrivateChatController.PrivateChatControllerFactory privateChatControllerFactory,
+                         DirectMessageListController.DirectMessageListControllerFactory directMessageListControllerFactory,
+                         ViewLoader viewLoader,
+                         @Assisted Parent view) {
         this.view = (VBox) view;
         this.editor = editor;
         this.router = router;
         this.viewLoader = viewLoader;
+        this.userListControllerFactory = userListControllerFactory;
+        this.privateChatControllerFactory = privateChatControllerFactory;
+        this.directMessageListControllerFactory = directMessageListControllerFactory;
     }
 
     @Override

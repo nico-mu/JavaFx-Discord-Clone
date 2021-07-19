@@ -31,8 +31,6 @@ public class WebSocketService {
     private final SessionDatabaseService databaseService;
     private final WebSocketClientFactory webSocketClientFactory;
 
-
-    @Inject
     public WebSocketService(Editor editor,
                             NotificationService notificationService,
                             WebSocketClientFactory webSocketClientFactory,

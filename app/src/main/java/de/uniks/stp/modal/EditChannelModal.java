@@ -72,8 +72,8 @@ public class EditChannelModal extends AbstractModal {
     private final Editor editor;
     private final SessionRestClient restClient;
 
-    @Inject
-    ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
+
+    private final ConfirmationModal.ConfirmationModalFactory confirmationModalFactory;
 
     @AssistedInject
     public EditChannelModal(Editor editor,
@@ -83,6 +83,7 @@ public class EditChannelModal extends AbstractModal {
                             @Named("primaryStage") Stage primaryStage,
                             UserCheckList userCheckList,
                             UserCheckListEntry.UserCheckListEntryFactory userCheckListEntryFactory,
+                            ConfirmationModal.ConfirmationModalFactory confirmationModalFactory,
                             @Assisted Parent root,
                             @Assisted Channel channel) {
         super(root, primaryStage);
@@ -92,6 +93,7 @@ public class EditChannelModal extends AbstractModal {
         this.restClient = restClient;
         this.databaseService = databaseService;
         this.viewLoader = viewLoader;
+        this.confirmationModalFactory = confirmationModalFactory;
 
         setTitle(viewLoader.loadLabel(Constants.LBL_EDIT_CHANNEL));
         channelName = (JFXTextField) view.lookup(EDIT_CHANNEL_NAME_TEXTFIELD);

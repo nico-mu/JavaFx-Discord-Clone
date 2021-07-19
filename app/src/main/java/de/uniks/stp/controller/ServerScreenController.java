@@ -73,26 +73,14 @@ public class ServerScreenController implements ControllerInterface {
     private TextWithEmoteSupport channelNameLabel;
     private ChangeListener<Number> viewHeightChangedListener = this::onViewHeightChanged;
 
-    @Inject
-    ServerCategoryListController.ServerCategoryListControllerFactory serverCategoryListControllerFactory;
 
-    @Inject
-    ServerChatController.ServerChatControllerFactory serverChatControllerFactory;
-
-    @Inject
-    ServerVoiceChatController.ServerVoiceChatControllerFactory serverVoiceChatControllerFactory;
-
-    @Inject
-    ServerUserListController.ServerUserListControllerFactory serverUserListControllerFactory;
-
-    @Inject
-    InvitesModal.InvitesModalFactory invitesModalFactory;
-
-    @Inject
-    ServerSettingsModal.ServerSettingsModalFactory serverSettingsModalFactory;
-
-    @Inject
-    CreateCategoryModal.CreateCategoryModalFactory categoryModalFactory;
+    private final ServerCategoryListController.ServerCategoryListControllerFactory serverCategoryListControllerFactory;
+    private final ServerChatController.ServerChatControllerFactory serverChatControllerFactory;
+    private final ServerVoiceChatController.ServerVoiceChatControllerFactory serverVoiceChatControllerFactory;
+    private final ServerUserListController.ServerUserListControllerFactory serverUserListControllerFactory;
+    private final InvitesModal.InvitesModalFactory invitesModalFactory;
+    private final ServerSettingsModal.ServerSettingsModalFactory serverSettingsModalFactory;
+    private final CreateCategoryModal.CreateCategoryModalFactory categoryModalFactory;
 
     private final PropertyChangeListener channelNameListener = this::onChannelNamePropertyChange;
     PropertyChangeListener serverNamePropertyChangeListener = this::onServerNamePropertyChange;
@@ -100,12 +88,26 @@ public class ServerScreenController implements ControllerInterface {
     @AssistedInject
     public ServerScreenController(ViewLoader viewLoader,
                                   Editor editor,
+                                  ServerCategoryListController.ServerCategoryListControllerFactory serverCategoryListControllerFactory,
+                                  ServerChatController.ServerChatControllerFactory serverChatControllerFactory,
+                                  ServerVoiceChatController.ServerVoiceChatControllerFactory serverVoiceChatControllerFactory,
+                                  ServerUserListController.ServerUserListControllerFactory serverUserListControllerFactory,
+                                  InvitesModal.InvitesModalFactory invitesModalFactory,
+                                  ServerSettingsModal.ServerSettingsModalFactory serverSettingsModalFactory,
+                                  CreateCategoryModal.CreateCategoryModalFactory categoryModalFactory,
                                   @Assisted Parent view,
                                   @Assisted Server model) {
         this.view = (VBox) view;
         this.editor = editor;
         this.model = model;
         this.viewLoader = viewLoader;
+        this.serverCategoryListControllerFactory = serverCategoryListControllerFactory;
+        this.serverChatControllerFactory = serverChatControllerFactory;
+        this.serverVoiceChatControllerFactory = serverVoiceChatControllerFactory;
+        this.serverUserListControllerFactory = serverUserListControllerFactory;
+        this.invitesModalFactory = invitesModalFactory;
+        this.serverSettingsModalFactory = serverSettingsModalFactory;
+        this.categoryModalFactory = categoryModalFactory;
     }
 
     @Override

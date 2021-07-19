@@ -30,17 +30,11 @@ public class MainScreenController implements ControllerInterface {
     private final Editor editor;
     private final NotificationService notificationService;
 
-    @Inject
-    HomeScreenController.HomeScreenControllerFactory homeScreenControllerFactory;
 
-    @Inject
-    ServerScreenController.ServerScreenControllerFactory serverScreenControllerFactory;
-
-    @Inject
-    NavBarListController.NavBarListControllerFactory navBarListControllerFactory;
-
-    @Inject
-    UserInfoController.UserInfoControllerFactory userInfoControllerFactory;
+    private final HomeScreenController.HomeScreenControllerFactory homeScreenControllerFactory;
+    private final ServerScreenController.ServerScreenControllerFactory serverScreenControllerFactory;
+    private final NavBarListController.NavBarListControllerFactory navBarListControllerFactory;
+    private final UserInfoController.UserInfoControllerFactory userInfoControllerFactory;
 
     private AnchorPane navBar;
     private AnchorPane userSettingsPane;
@@ -51,11 +45,19 @@ public class MainScreenController implements ControllerInterface {
 
     @AssistedInject
     public MainScreenController(NotificationService notificationService,
-                         Editor editor,
-                         @Assisted Parent view) {
+                                Editor editor,
+                                HomeScreenController.HomeScreenControllerFactory homeScreenControllerFactory,
+                                ServerScreenController.ServerScreenControllerFactory serverScreenControllerFactory,
+                                NavBarListController.NavBarListControllerFactory navBarListControllerFactory,
+                                UserInfoController.UserInfoControllerFactory userInfoControllerFactory,
+                                @Assisted Parent view) {
         this.view = view;
         this.editor = editor;
         this.notificationService = notificationService;
+        this.homeScreenControllerFactory = homeScreenControllerFactory;
+        this.serverScreenControllerFactory = serverScreenControllerFactory;
+        this.navBarListControllerFactory = navBarListControllerFactory;
+        this.userInfoControllerFactory = userInfoControllerFactory;
     }
 
     @Override

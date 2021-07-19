@@ -26,7 +26,6 @@ public class SessionDatabaseService extends AppDatabaseService {
 
     private final User currentUser;
 
-    @Inject
     public SessionDatabaseService(@Named("currentUser") User currentUser) {
         super(false);
         this.currentUser = currentUser;

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 
 public class SessionRestClient extends AppRestClient {
 
-    @Inject
     public SessionRestClient(HttpRequestInterceptor interceptor) {
         super();
         instance.config().interceptor(interceptor);
@@ -111,7 +110,7 @@ public class SessionRestClient extends AppRestClient {
         for (String userId : members) {
             arrayBuilder.add(userId);
         }
-        HttpRequest<?> req = instance.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH)
+        HttpRequest<?> req = instance.post(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH)
             .body(Json.createObjectBuilder()
                 .add("name", channelName)
                 .add("type", type)
@@ -151,7 +150,7 @@ public class SessionRestClient extends AppRestClient {
         for (String userId : members) {
             arrayBuilder.add(userId);
         }
-        HttpRequest<?> req = instance.put(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + "/" + Constants.REST_CHANNEL_PATH + "/" + channelId)
+        HttpRequest<?> req = instance.put(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId)
             .body(Json.createObjectBuilder()
                 .add("name", channelName)
                 .add("privileged", privileged)
