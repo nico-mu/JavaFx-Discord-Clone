@@ -1,7 +1,12 @@
 @import "../base";
 
-.label-select-language {
+.label-usual {
   -fx-text-fill: $primary-text-fill;
+}
+
+.label-audio-settings {
+  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 15pt;
 }
 
 .settings-apply-button {
