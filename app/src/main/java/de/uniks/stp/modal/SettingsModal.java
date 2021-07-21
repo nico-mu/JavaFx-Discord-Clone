@@ -29,10 +29,14 @@ public class SettingsModal extends AbstractModal {
     public static final String SETTINGS_CANCEL_BUTTON = "#settings-cancel-button";
     public static final String SETTINGS_COMBO_SELECT_LANGUAGE = "#combo-select-language";
     public static final String SETTINGS_COMBO_SELECT_NOTIFICATION_SOUND = "#combo-select-notification-sound";
+    public static final String SETTINGS_COMBO_SELECT_INPUT_DEVICE = "#combo-select-input-device";
+    public static final String SETTINGS_COMBO_SELECT_OUTPUT_DEVICE = "#combo-select-output-device";
     private final JFXButton applyButton;
     private final JFXButton cancelButton;
     private final KeyBasedComboBox languageComboBox;
     private final KeyBasedComboBox notificationComboBox;
+    private final KeyBasedComboBox inputDeviceComboBox;
+    private final KeyBasedComboBox outputDeviceComboBox;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
     private final ViewLoader viewLoader;
     private final Router router;
@@ -60,17 +64,20 @@ public class SettingsModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(SETTINGS_CANCEL_BUTTON);
 
         languageComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_LANGUAGE);
-
         languageComboBox.addOptions(getLanguages());
         languageComboBox.setSelection(viewLoader.getCurrentLocale().getLanguage());
 
         notificationComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_NOTIFICATION_SOUND);
-
         notificationComboBox.addOptions(getNotificationSounds());
         notificationComboBox.setSelection(audioService.getNotificationSoundFileName());
 
+        inputDeviceComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_INPUT_DEVICE);
+
+        outputDeviceComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_OUTPUT_DEVICE);
+
         applyButton.setOnAction(this::onApplyButtonClicked);
         applyButton.setDefaultButton(true);  // use Enter in order to press button
+
         cancelButton.setOnAction(this::onCancelButtonClicked);
         cancelButton.setCancelButton(true);  // use Escape in order to press button
     }
