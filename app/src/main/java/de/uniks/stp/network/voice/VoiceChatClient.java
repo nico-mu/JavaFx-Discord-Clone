@@ -1,5 +1,6 @@
 package de.uniks.stp.network.voice;
 
+import de.uniks.stp.AudioService;
 import de.uniks.stp.Constants;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
@@ -28,6 +29,7 @@ public class VoiceChatClient {
     private final Object audioOutLock = new Object();
     private final Mixer speaker;
     private final Mixer microphone;
+    private final AudioService audioService;
     private final Map<String, SourceDataLine> userSourceDataLineMap = new HashMap<>();
 
     private final User currentUser;
@@ -45,11 +47,14 @@ public class VoiceChatClient {
     public VoiceChatClient(Channel channel,
                            User currentUser,
                            Mixer speaker,
-                           Mixer microphone) {
+                           Mixer microphone,
+                           AudioService audioService) {
         this.channel = channel;
         this.currentUser = currentUser;
         this.speaker = speaker;
         this.microphone = microphone;
+        this.audioService = audioService;
+        audioService.setUserSourceDataLineMap(userSourceDataLineMap);
         withFilteredUsers(currentUser);
     }
 
@@ -164,6 +169,32 @@ public class VoiceChatClient {
         }
     }
 
+    private void setOutputVolume(SourceDataLine audioOutDataLine){
+        if (audioOutDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl volume = (FloatControl) audioOutDataLine.getControl(FloatControl.Type.MASTER_GAIN);
+            // calculate correct new value. Values below around -30.0 are not necessary, maximum is at 6.0206
+            float max = 6.0206f;
+            int min = -31;
+            float diff = max - min;
+            // in order to reach that -10% is actually -10% for all values:
+            double correctPercent = 1-Math.pow(1- audioService.getVolumePercent()*0.01,3);
+            float newValue = min + (float) (correctPercent * diff);
+            if (newValue < -30.5) {
+                newValue = -80.0f;  // min is reached -> mute completely
+            } else if (newValue > max) {
+                newValue = max;  //in case rounding numbers went wrong
+            }
+            // set new value
+            try{
+                volume.setValue(newValue);
+            } catch (Exception e){
+                log.error("Failed to adjust volume for user in VoiceChat", e);
+            }
+        } else{
+            log.error("AudioOutDataLine is not controlSupported!");
+        }
+    }
+
     private void userJoined(User user) {
         final String userName = user.getName();
         try {
@@ -174,6 +205,10 @@ public class VoiceChatClient {
 
             audioOutDataLine.open(audioFormat);
             audioOutDataLine.start();
+
+            // set current volume
+            setOutputVolume(audioOutDataLine);
+
             user.listeners().addPropertyChangeListener(User.PROPERTY_MUTE, userMutePropertyChangeListener);
         } catch (LineUnavailableException e) {
             log.error("Failed to get line for user {}. Cleaning up..", userName);
