@@ -169,32 +169,6 @@ public class VoiceChatClient {
         }
     }
 
-    private void setOutputVolume(SourceDataLine audioOutDataLine){
-        if (audioOutDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-            FloatControl volume = (FloatControl) audioOutDataLine.getControl(FloatControl.Type.MASTER_GAIN);
-            // calculate correct new value. Values below around -30.0 are not necessary, maximum is at 6.0206
-            float max = 6.0206f;
-            int min = -31;
-            float diff = max - min;
-            // in order to reach that -10% is actually -10% for all values:
-            double correctPercent = 1-Math.pow(1- audioService.getVolumePercent()*0.01,3);
-            float newValue = min + (float) (correctPercent * diff);
-            if (newValue < -30.5) {
-                newValue = -80.0f;  // min is reached -> mute completely
-            } else if (newValue > max) {
-                newValue = max;  //in case rounding numbers went wrong
-            }
-            // set new value
-            try{
-                volume.setValue(newValue);
-            } catch (Exception e){
-                log.error("Failed to adjust volume for user in VoiceChat", e);
-            }
-        } else{
-            log.error("AudioOutDataLine is not controlSupported!");
-        }
-    }
-
     private void userJoined(User user) {
         final String userName = user.getName();
         try {
@@ -207,7 +181,7 @@ public class VoiceChatClient {
             audioOutDataLine.start();
 
             // set current volume
-            setOutputVolume(audioOutDataLine);
+            audioService.setUserOutputVolume(audioOutDataLine);
 
             user.listeners().addPropertyChangeListener(User.PROPERTY_MUTE, userMutePropertyChangeListener);
         } catch (LineUnavailableException e) {
