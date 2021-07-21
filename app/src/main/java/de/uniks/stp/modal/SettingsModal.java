@@ -7,9 +7,11 @@ import dagger.assisted.AssistedInject;
 import de.uniks.stp.AudioService;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.component.AudioDeviceComboBox;
 import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.SessionDatabaseService;
+import de.uniks.stp.network.voice.VoiceChatService;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Languages;
 import javafx.application.Platform;
@@ -35,13 +37,14 @@ public class SettingsModal extends AbstractModal {
     private final JFXButton cancelButton;
     private final KeyBasedComboBox languageComboBox;
     private final KeyBasedComboBox notificationComboBox;
-    private final KeyBasedComboBox inputDeviceComboBox;
-    private final KeyBasedComboBox outputDeviceComboBox;
+    private final AudioDeviceComboBox inputDeviceComboBox;
+    private final AudioDeviceComboBox outputDeviceComboBox;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
     private final ViewLoader viewLoader;
     private final Router router;
     private final SessionDatabaseService databaseService;
     private final AudioService audioService;
+    private final VoiceChatService voiceChatService;
     private final Stage primaryStage;
 
     @AssistedInject
@@ -50,6 +53,7 @@ public class SettingsModal extends AbstractModal {
                          @Named("primaryStage") Stage primaryStage,
                          SessionDatabaseService databaseService,
                          AudioService audioService,
+                         VoiceChatService voiceChatService,
                          @Assisted Parent root) {
         super(root, primaryStage);
         this.primaryStage = primaryStage;
@@ -57,6 +61,7 @@ public class SettingsModal extends AbstractModal {
         this.router = router;
         this.databaseService = databaseService;
         this.audioService = audioService;
+        this.voiceChatService = voiceChatService;
 
         setTitle(viewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE_TITLE));
 
@@ -71,9 +76,15 @@ public class SettingsModal extends AbstractModal {
         notificationComboBox.addOptions(getNotificationSounds());
         notificationComboBox.setSelection(audioService.getNotificationSoundFileName());
 
-        inputDeviceComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_INPUT_DEVICE);
+        inputDeviceComboBox = (AudioDeviceComboBox) view.lookup(SETTINGS_COMBO_SELECT_INPUT_DEVICE);
+        inputDeviceComboBox.init();
+        inputDeviceComboBox.withOptions(voiceChatService.getAvailableMicrophones());
+        inputDeviceComboBox.setSelection(voiceChatService.getSelectedMicrophone());
 
-        outputDeviceComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_OUTPUT_DEVICE);
+        outputDeviceComboBox = (AudioDeviceComboBox) view.lookup(SETTINGS_COMBO_SELECT_OUTPUT_DEVICE);
+        outputDeviceComboBox.init();
+        outputDeviceComboBox.withOptions(voiceChatService.getAvailableSpeakers());
+        outputDeviceComboBox.setSelection(voiceChatService.getSelectedSpeaker());
 
         applyButton.setOnAction(this::onApplyButtonClicked);
         applyButton.setDefaultButton(true);  // use Enter in order to press button

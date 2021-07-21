@@ -14,6 +14,30 @@ public class VoiceChatService {
     private static final Logger log = LoggerFactory.getLogger(VoiceChatClient.class);
     private static final AudioFormat audioFormat = getAudioFormat();
 
+    public Mixer getSelectedMicrophone() {
+        return selectedMicrophone;
+    }
+
+    public void setSelectedMicrophone(Mixer selectedMicrophone) {
+        this.selectedMicrophone = selectedMicrophone;
+    }
+
+    public Mixer getSelectedSpeaker() {
+        return selectedSpeaker;
+    }
+
+    public void setSelectedSpeaker(Mixer selectedSpeaker) {
+        this.selectedSpeaker = selectedSpeaker;
+    }
+
+    public List<Mixer> getAvailableSpeakers() {
+        return availableSpeakers;
+    }
+
+    public List<Mixer> getAvailableMicrophones() {
+        return availableMicrophones;
+    }
+
     private static AudioFormat getAudioFormat() {
         return new AudioFormat(
             Constants.AUDIOSTREAM_SAMPLE_RATE,

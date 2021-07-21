@@ -33,7 +33,7 @@
             <VBox prefHeight="200.0" prefWidth="180.0">
                <children>
                   <Label styleClass="label-usual" text="%LBL_INPUT_DEVICE" />
-                  <KeyBasedComboBox id="combo-select-input-device" layoutX="30.0" layoutY="30.0" prefHeight="32.0" prefWidth="165.0" styleClass="combo-select-language" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0" />
+                  <AudioDeviceComboBox id="combo-select-input-device" layoutX="30.0" layoutY="30.0" prefHeight="32.0" prefWidth="165.0" styleClass="combo-select-language" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0" />
                   <Label styleClass="label-usual" text="%LBL_INPUT_VOLUME">
                      <VBox.margin>
                         <Insets bottom="5.0" top="10.0" />
@@ -44,7 +44,7 @@
             <VBox prefHeight="200.0" prefWidth="180.0">
                <children>
                   <Label styleClass="label-usual" text="%LBL_OUTPUT_DEVICE" />
-                  <KeyBasedComboBox id="combo-select-output-device" layoutX="30.0" layoutY="30.0" prefHeight="32.0" prefWidth="165.0" styleClass="combo-select-language" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0" />
+                  <AudioDeviceComboBox id="combo-select-output-device" layoutX="30.0" layoutY="30.0" prefHeight="32.0" prefWidth="165.0" styleClass="combo-select-language" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0" />
                   <Label styleClass="label-usual" text="%LBL_OUTPUT_VOLUME">
                      <VBox.margin>
                         <Insets bottom="5.0" top="10.0" />
