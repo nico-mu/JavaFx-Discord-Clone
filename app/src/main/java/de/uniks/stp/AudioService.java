@@ -6,14 +6,22 @@ import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.notification.NotificationSound;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.SourceDataLine;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class AudioService {
+    private static final Logger log = LoggerFactory.getLogger(AudioService.class);
+    private int volumePercent;
+    Map<String, SourceDataLine>  userSourceDataLineMap;  //from VoiceChatClient, for adjusting volume
     private final String DEFAULT_SOUND_FILE = "gaming-lock.wav";
     private final AppDatabaseService databaseService;
     private Media notificationSoundFile;
@@ -23,11 +31,65 @@ public class AudioService {
 
     public AudioService(AppDatabaseService databaseService) {
         this.databaseService = databaseService;
-        AccordSettingDTO settingsDTO = databaseService.getAccordSetting(AccordSettingKey.NOTIFICATION_SOUND);
-        if (Objects.nonNull(settingsDTO)) {
-            setNotificationSoundFile(settingsDTO.getValue());
+        // get notification file
+        AccordSettingDTO notificationSettings = databaseService.getAccordSetting(AccordSettingKey.NOTIFICATION_SOUND);
+        if (Objects.nonNull(notificationSettings)) {
+            setNotificationSoundFile(notificationSettings.getValue());
         } else {
             setNotificationSoundFile(DEFAULT_SOUND_FILE);
+        }
+        // get audio out volume value
+        AccordSettingDTO volumeOutSettings = databaseService.getAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME);
+        if (Objects.nonNull(volumeOutSettings)) {
+            this.volumePercent = Integer.parseInt(volumeOutSettings.getValue());
+        } else {
+            this.volumePercent = 100;
+        }
+    }
+
+    public void setUserSourceDataLineMap(Map<String, SourceDataLine>  userSourceDataLineMap){
+        this.userSourceDataLineMap = userSourceDataLineMap;
+    }
+
+    public int getVolumePercent() {
+        return volumePercent;
+    }
+
+    public void setVolumePercent(int volumePercent) {
+        this.volumePercent = volumePercent;
+        databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME, String.valueOf(volumePercent));
+
+        // adjust volume of every user in VoiceChat
+        if(Objects.nonNull(userSourceDataLineMap)) {
+            for (SourceDataLine audioOutDataLine: userSourceDataLineMap.values()) {
+                setUserOutputVolume(audioOutDataLine);
+            }
+        }
+    }
+
+    public void setUserOutputVolume(SourceDataLine audioOutDataLine){
+        if (audioOutDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl volume = (FloatControl) audioOutDataLine.getControl(FloatControl.Type.MASTER_GAIN);
+            // calculate correct new value. Values below around -30.0 are not necessary, maximum is at 6.0206
+            float max = 6.0206f;
+            int min = -31;
+            float diff = max - min;
+            // in order to reach that -10% is actually -10% for all values:
+            double correctPercent = 1-Math.pow(1- volumePercent*0.01,3);
+            float newValue = min + (float) (correctPercent * diff);
+            if (newValue < -30.5) {
+                newValue = -80.0f;  // min is reached -> mute completely
+            } else if (newValue > max) {
+                newValue = max;  //in case rounding numbers went wrong
+            }
+            // set new value
+            try{
+                volume.setValue(newValue);
+            } catch (Exception e){
+                log.error("Failed to adjust volume for user in VoiceChat", e);
+            }
+        } else{
+            log.error("AudioOutDataLine is not controlSupported!");
         }
     }
 
@@ -63,6 +125,8 @@ public class AudioService {
             return;
         }
         MediaPlayer mediaPlayer = new MediaPlayer(notificationSoundFile);
+        double correctedVolume = Math.pow(volumePercent*0.01, 3);  //to reach that -10% is actually -10% for all values
+        mediaPlayer.setVolume(correctedVolume);
         mediaPlayer.play();
     }
 
