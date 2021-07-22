@@ -242,11 +242,14 @@ public class ServerChatController extends ChatController<ServerMessage> implemen
                 final String channelId = msgJson.getString("channel");
                 final long timestamp = msgJson.getLong("timestamp");
                 final String senderName = msgJson.getString("from");
-                final String msgText = msgJson.getString("text");
+                final String msgText = MessageUtil.filterContent(msgJson.getString("text"));
 
                 if (!channelId.equals(model.getId())) {
                     log.error("Received old server messages of wrong channel!");
                     return;
+                }
+                if (msgText.equals("")) {
+                    continue;
                 }
                 User sender = editor.getOrCreateServerMember(senderName, model.getCategory().getServer());
                 if (Objects.isNull(sender.getId())) {
