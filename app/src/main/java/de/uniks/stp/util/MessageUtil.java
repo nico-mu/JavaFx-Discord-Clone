@@ -11,9 +11,8 @@ import java.util.regex.Pattern;
  */
 public class MessageUtil {
 
-    private final static String FILTERED_COMMANDS =
-        "(^###quoteInit###.*###.*###.*\\[###.*###.*\\]\\[###.*###.*\\]###quoteStop###$)" + "|" +
-        "(!hangman|!guess|!stop|!imagebot|!randomimage|!tictactoe)";
+    private final static String FILTERED_COMMANDS = "(!hangman|!guess|!stop|!imagebot|!randomimage|!tictactoe)";
+    private final static String REPLY_COMMAND = "^###quoteInit###.*###.*###.*\\[###.*###.*\\]\\[###.*###.*\\]###quoteStop###$";
 
     /**
      * Finds invite in message and returns serverId & inviteId if found
@@ -40,6 +39,11 @@ public class MessageUtil {
     }
 
     public static String filterContent(String msg) {
-        return msg.replaceAll(FILTERED_COMMANDS, "");
+        Pattern replyPattern = Pattern.compile(REPLY_COMMAND);
+        if (replyPattern.matcher(msg).matches()) {
+            return msg.replaceAll("\\[", "").split("###")[4];
+        } else {
+            return msg.replaceAll(FILTERED_COMMANDS, "");
+        }
     }
 }

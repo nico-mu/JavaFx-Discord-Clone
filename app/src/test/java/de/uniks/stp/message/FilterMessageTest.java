@@ -17,7 +17,7 @@ public class FilterMessageTest {
             "!tictactoe143254"
         };
         String[] expectedResults = {
-            "",
+            "sendMessage245234",
             " testInput 123",
             " testInput 456",
             " test 123",
