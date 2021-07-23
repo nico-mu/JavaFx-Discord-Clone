@@ -1,6 +1,5 @@
 package de.uniks.stp.network.voice;
 
-import de.uniks.stp.AudioService;
 import de.uniks.stp.Constants;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
@@ -29,7 +28,6 @@ public class VoiceChatClient {
     private final Object audioOutLock = new Object();
     private final Mixer speaker;
     private final Mixer microphone;
-    private final AudioService audioService;
     private final Map<String, SourceDataLine> userSourceDataLineMap = new HashMap<>();
 
     private final User currentUser;
@@ -47,14 +45,11 @@ public class VoiceChatClient {
     public VoiceChatClient(Channel channel,
                            User currentUser,
                            Mixer speaker,
-                           Mixer microphone,
-                           AudioService audioService) {
+                           Mixer microphone) {
         this.channel = channel;
         this.currentUser = currentUser;
         this.speaker = speaker;
         this.microphone = microphone;
-        this.audioService = audioService;
-        audioService.setUserSourceDataLineMap(userSourceDataLineMap);
         withFilteredUsers(currentUser);
     }
 
@@ -179,10 +174,6 @@ public class VoiceChatClient {
 
             audioOutDataLine.open(audioFormat);
             audioOutDataLine.start();
-
-            // set current volume
-            audioService.setUserOutputVolume(audioOutDataLine);
-
             user.listeners().addPropertyChangeListener(User.PROPERTY_MUTE, userMutePropertyChangeListener);
         } catch (LineUnavailableException e) {
             log.error("Failed to get line for user {}. Cleaning up..", userName);

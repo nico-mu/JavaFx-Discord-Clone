@@ -15,7 +15,6 @@ import de.uniks.stp.view.Languages;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
-import javafx.scene.control.Slider;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,28 +29,16 @@ public class SettingsModal extends AbstractModal {
     public static final String SETTINGS_CANCEL_BUTTON = "#settings-cancel-button";
     public static final String SETTINGS_COMBO_SELECT_LANGUAGE = "#combo-select-language";
     public static final String SETTINGS_COMBO_SELECT_NOTIFICATION_SOUND = "#combo-select-notification-sound";
-    public static final String SETTINGS_COMBO_SELECT_INPUT_DEVICE = "#combo-select-input-device";
-    public static final String SETTINGS_COMBO_SELECT_OUTPUT_DEVICE = "#combo-select-output-device";
-    public static final String SETTINGS_SLIDER_INPUT_VOLUME = "#slider-input-volume";
-    public static final String SETTINGS_SLIDER_OUTPUT_VOLUME = "#slider-output-volume";
     private final JFXButton applyButton;
     private final JFXButton cancelButton;
     private final KeyBasedComboBox languageComboBox;
     private final KeyBasedComboBox notificationComboBox;
-    private final KeyBasedComboBox inputDeviceComboBox;
-    private final KeyBasedComboBox outputDeviceComboBox;
-    private final Slider inputVolumeSlider;
-    private final Slider outputVolumeSlider;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
     private final ViewLoader viewLoader;
     private final Router router;
     private final SessionDatabaseService databaseService;
     private final AudioService audioService;
     private final Stage primaryStage;
-
-    private String currentLanguage;
-    private String currentNotificationSoundFile;
-    private int currentOutputVolume;
 
     @AssistedInject
     public SettingsModal(ViewLoader viewLoader,
@@ -73,24 +60,14 @@ public class SettingsModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(SETTINGS_CANCEL_BUTTON);
 
         languageComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_LANGUAGE);
+
         languageComboBox.addOptions(getLanguages());
-        currentLanguage = viewLoader.getCurrentLocale().getLanguage();
-        languageComboBox.setSelection(currentLanguage);
+        languageComboBox.setSelection(viewLoader.getCurrentLocale().getLanguage());
 
         notificationComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_NOTIFICATION_SOUND);
+
         notificationComboBox.addOptions(getNotificationSounds());
-        currentNotificationSoundFile = audioService.getNotificationSoundFileName();
-        notificationComboBox.setSelection(currentNotificationSoundFile);
-
-        inputDeviceComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_INPUT_DEVICE);
-        // TODO
-        outputDeviceComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_OUTPUT_DEVICE);
-        // TODO
-
-        inputVolumeSlider = (Slider) view.lookup(SETTINGS_SLIDER_INPUT_VOLUME);
-        // TODO
-        outputVolumeSlider = (Slider) view.lookup(SETTINGS_SLIDER_OUTPUT_VOLUME);
-        outputVolumeSlider.setValue(audioService.getVolumePercent());
+        notificationComboBox.setSelection(audioService.getNotificationSoundFileName());
 
         applyButton.setOnAction(this::onApplyButtonClicked);
         applyButton.setDefaultButton(true);  // use Enter in order to press button
@@ -128,22 +105,8 @@ public class SettingsModal extends AbstractModal {
     }
 
     private void onApplyButtonClicked(ActionEvent actionEvent) {
-        // call change-methods only when there really was a change
-        String newLanguage = languageComboBox.getSelection();
-        if (! currentLanguage.equals(newLanguage)){
-            changeLanguage(newLanguage);
-            currentLanguage = newLanguage;
-        }
-        String newNotificationSoundFile = notificationComboBox.getSelection();
-        if (! currentNotificationSoundFile.equals(newNotificationSoundFile)){
-            audioService.setNotificationSoundFile(newNotificationSoundFile);
-            currentNotificationSoundFile = newNotificationSoundFile;
-        }
-        int newOutputVolume = (int) outputVolumeSlider.getValue();
-        if(currentOutputVolume != newOutputVolume){
-            audioService.setVolumePercent(newOutputVolume);
-            currentOutputVolume = newOutputVolume;
-        }
+        changeLanguage(languageComboBox.getSelection());
+        audioService.setNotificationSoundFile(notificationComboBox.getSelection());
         this.close();
     }
 
