@@ -5,6 +5,7 @@ import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.AppDatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.model.Channel;
+import de.uniks.stp.util.VoiceChatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,17 +82,16 @@ public class VoiceChatService {
     public VoiceChatService(VoiceChatClientFactory voiceChatClientFactory, AppDatabaseService databaseService) {
         this.voiceChatClientFactory = voiceChatClientFactory;
         this.databaseService = databaseService;
-        for (final Mixer.Info info : AudioSystem.getMixerInfo()) {
-            final Mixer mixer = AudioSystem.getMixer(info);
-            final DataLine.Info audioOut = new DataLine.Info(SourceDataLine.class, audioFormat);
+        for (final Mixer mixer : VoiceChatUtil.getMixers()) {
+            final DataLine.Info audioOut = new DataLine.Info(SourceDataLine.class, VoiceChatUtil.AUDIO_FORMAT);
             if (mixer.isLineSupported(audioOut)) {
                 availableSpeakers.add(mixer);
-                log.debug("Found speaker: {}", mixer.getMixerInfo());
+                log.debug("Found speaker:\n{}", VoiceChatUtil.getMixerHierarchyInfo(mixer));
             }
-            final DataLine.Info audioIn = new DataLine.Info(TargetDataLine.class, audioFormat);
+            final DataLine.Info audioIn = new DataLine.Info(TargetDataLine.class, VoiceChatUtil.AUDIO_FORMAT);
             if (mixer.isLineSupported(audioIn)) {
                 availableMicrophones.add(mixer);
-                log.debug("Found microphone: {}", mixer.getMixerInfo());
+                log.debug("Found microphone:\n{}", VoiceChatUtil.getMixerHierarchyInfo(mixer));
             }
         }
         if (isMicrophoneAvailable()) {
