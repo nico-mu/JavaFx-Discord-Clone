@@ -1,6 +1,9 @@
 package de.uniks.stp.network.voice;
 
 import de.uniks.stp.Constants;
+import de.uniks.stp.jpa.AccordSettingKey;
+import de.uniks.stp.jpa.AppDatabaseService;
+import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.model.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,16 +18,21 @@ public class VoiceChatService {
     private static final AudioFormat audioFormat = getAudioFormat();
     private Integer speakerVolumePercent;
 
+    private static String persistenceString(Mixer mixer) {
+        return mixer.getMixerInfo().toString();
+    }
+
     public Mixer getSelectedMicrophone() {
         return selectedMicrophone;
     }
 
     public void setSelectedMicrophone(Mixer selectedMicrophone) {
         if (!this.selectedMicrophone.equals(selectedMicrophone)) {
-            this.selectedMicrophone = selectedMicrophone;
             if (Objects.nonNull(voiceChatClient)) {
                 voiceChatClient.changeMicrophone(selectedMicrophone);
             }
+            this.selectedMicrophone = selectedMicrophone;
+            databaseService.saveAccordSetting(AccordSettingKey.AUDIO_IN_DEVICE, persistenceString(selectedMicrophone));
         }
     }
 
@@ -38,10 +46,11 @@ public class VoiceChatService {
                 final FloatControl volume = (FloatControl) selectedSpeaker.getControl(FloatControl.Type.MASTER_GAIN);
                 volume.setValue(speakerVolumePercent);
             }
-            this.selectedSpeaker = selectedSpeaker;
             if (Objects.nonNull(voiceChatClient)) {
                 voiceChatClient.changeSpeaker(selectedSpeaker);
             }
+            this.selectedSpeaker = selectedSpeaker;
+            databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_DEVICE, persistenceString(selectedSpeaker));
         }
     }
 
@@ -64,6 +73,7 @@ public class VoiceChatService {
     }
 
     private final VoiceChatClientFactory voiceChatClientFactory;
+    private final AppDatabaseService databaseService;
 
     private Mixer selectedMicrophone;
     private Mixer selectedSpeaker;
@@ -73,8 +83,9 @@ public class VoiceChatService {
     private VoiceChatClient voiceChatClient;
 
 
-    public VoiceChatService(VoiceChatClientFactory voiceChatClientFactory) {
+    public VoiceChatService(VoiceChatClientFactory voiceChatClientFactory, AppDatabaseService databaseService) {
         this.voiceChatClientFactory = voiceChatClientFactory;
+        this.databaseService = databaseService;
         for (final Mixer.Info info : AudioSystem.getMixerInfo()) {
             final Mixer mixer = AudioSystem.getMixer(info);
             final DataLine.Info audioOut = new DataLine.Info(SourceDataLine.class, audioFormat);
@@ -89,12 +100,34 @@ public class VoiceChatService {
             }
         }
         if (isMicrophoneAvailable()) {
-            // TODO: TG21-187 select Input Device
-            selectedMicrophone = availableMicrophones.get(0);
+            final AccordSettingDTO settingDTO = databaseService.getAccordSetting(AccordSettingKey.AUDIO_IN_DEVICE);
+            Mixer preferredMicrophone = availableMicrophones.get(0); // use default if none match
+
+            if (Objects.nonNull(settingDTO)) {
+                final String prefMixerInfoString = settingDTO.getValue();
+                for(Mixer mixer: availableMicrophones) {
+                    if (persistenceString(mixer).equals(prefMixerInfoString)) {
+                        preferredMicrophone = mixer;
+                        break;
+                    }
+                }
+            }
+            selectedMicrophone = preferredMicrophone;
         }
         if (isSpeakerAvailable()) {
-            // TODO: TG21-188 select Output Device
-            selectedSpeaker = availableSpeakers.get(0);
+            final AccordSettingDTO settingDTO = databaseService.getAccordSetting(AccordSettingKey.AUDIO_OUT_DEVICE);
+            Mixer preferredSpeaker = availableSpeakers.get(0); // use default if none match
+
+            if (Objects.nonNull(settingDTO)) {
+                final String prefMixerInfoString = settingDTO.getValue();
+                for(Mixer mixer: availableSpeakers) {
+                    if (persistenceString(mixer).equals(prefMixerInfoString)) {
+                        preferredSpeaker = mixer;
+                        break;
+                    }
+                }
+            }
+            selectedSpeaker = preferredSpeaker;
         }
     }
 
