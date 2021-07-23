@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
+import javax.sound.sampled.Mixer;
 import java.util.HashMap;
 import java.util.MissingResourceException;
 
@@ -51,6 +52,8 @@ public class SettingsModal extends AbstractModal {
     private final AudioService audioService;
     private final VoiceChatService voiceChatService;
     private final Stage primaryStage;
+    private Mixer currentMicrophone;
+    private Mixer currentSpeaker;
 
     private String currentLanguage;
     private String currentNotificationSoundFile;
@@ -95,12 +98,14 @@ public class SettingsModal extends AbstractModal {
         inputDeviceComboBox = (AudioDeviceComboBox) view.lookup(SETTINGS_COMBO_SELECT_INPUT_DEVICE);
         inputDeviceComboBox.init();
         inputDeviceComboBox.withOptions(voiceChatService.getAvailableMicrophones());
-        inputDeviceComboBox.setSelection(voiceChatService.getSelectedMicrophone());
+        currentMicrophone = voiceChatService.getSelectedMicrophone();
+        inputDeviceComboBox.setSelection(currentMicrophone);
 
         outputDeviceComboBox = (AudioDeviceComboBox) view.lookup(SETTINGS_COMBO_SELECT_OUTPUT_DEVICE);
         outputDeviceComboBox.init();
         outputDeviceComboBox.withOptions(voiceChatService.getAvailableSpeakers());
-        outputDeviceComboBox.setSelection(voiceChatService.getSelectedSpeaker());
+        currentSpeaker = voiceChatService.getSelectedSpeaker();
+        outputDeviceComboBox.setSelection(currentSpeaker);
 
         applyButton.setOnAction(this::onApplyButtonClicked);
         applyButton.setDefaultButton(true);  // use Enter in order to press button
@@ -153,8 +158,20 @@ public class SettingsModal extends AbstractModal {
         int newOutputVolume = (int) outputVolumeSlider.getValue();
         if(currentOutputVolume != newOutputVolume){
             audioService.setVolumePercent(newOutputVolume);
+            voiceChatService.setSpeakerVolumePercent(newOutputVolume);
             currentOutputVolume = newOutputVolume;
         }
+        final Mixer selectedMicrophone = inputDeviceComboBox.getValue();
+        if (!currentMicrophone.equals(selectedMicrophone)) {
+            voiceChatService.setSelectedMicrophone(selectedMicrophone);
+            currentMicrophone = selectedMicrophone;
+        }
+        final Mixer selectedSpeaker = outputDeviceComboBox.getValue();
+        if (!currentSpeaker.equals(selectedSpeaker)) {
+            voiceChatService.setSelectedSpeaker(selectedSpeaker);
+            currentSpeaker = selectedSpeaker;
+        }
+
         this.close();
     }
 

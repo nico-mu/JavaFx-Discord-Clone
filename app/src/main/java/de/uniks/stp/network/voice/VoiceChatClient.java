@@ -27,8 +27,8 @@ public class VoiceChatClient {
     private static final AudioFormat audioFormat = getAudioFormat();
     private final Object audioInLock = new Object();
     private final Object audioOutLock = new Object();
-    private final Mixer speaker;
-    private final Mixer microphone;
+    private Mixer speaker;
+    private Mixer microphone;
     private final AudioService audioService;
     private final Map<String, SourceDataLine> userSourceDataLineMap = new HashMap<>();
 
@@ -135,6 +135,40 @@ public class VoiceChatClient {
         }
     }
 
+    public void changeSpeaker(Mixer speaker) {
+        if (!this.speaker.equals(speaker)){
+            this.speaker = speaker;
+            userSourceDataLineMap.forEach((userName, oldSourceDataLine) -> {
+                try {
+                    initSpeakerForUser(userName);
+                    oldSourceDataLine.stop();
+                    oldSourceDataLine.drain();
+                    oldSourceDataLine.close();
+                } catch (LineUnavailableException e) {
+                    log.error("The speaker could not be initialized", e);
+                }
+            });
+        }
+    }
+
+    public void changeMicrophone(Mixer microphone) {
+        if (!this.microphone.equals(microphone)){
+            this.microphone = microphone;
+            if (Objects.nonNull(audioInDataLine)) {
+                final TargetDataLine oldAudioinDataLine = audioInDataLine;
+                try {
+                    initMicrophone();
+                } catch (LineUnavailableException e) {
+                    log.error("The microphone could not be initialized", e);
+                }
+                oldAudioinDataLine.stop();
+                oldAudioinDataLine.drain();
+                oldAudioinDataLine.close();
+            }
+        }
+
+    }
+
     private void recordAndSendAudio() {
         final JsonObject metadataObject = Json.createObjectBuilder()
             .add("channel", channel.getId())
@@ -172,16 +206,7 @@ public class VoiceChatClient {
     private void userJoined(User user) {
         final String userName = user.getName();
         try {
-            final DataLine.Info infoOut = new DataLine.Info(SourceDataLine.class, audioFormat);
-
-            final SourceDataLine audioOutDataLine = (SourceDataLine) speaker.getLine(infoOut);
-            userSourceDataLineMap.put(userName, audioOutDataLine);
-
-            audioOutDataLine.open(audioFormat);
-            audioOutDataLine.start();
-
-            // set current volume
-            audioService.setUserOutputVolume(audioOutDataLine);
+            initSpeakerForUser(userName);
 
             user.listeners().addPropertyChangeListener(User.PROPERTY_MUTE, userMutePropertyChangeListener);
         } catch (LineUnavailableException e) {
@@ -192,6 +217,19 @@ public class VoiceChatClient {
                 audioOutDataLine.close();
             }
         }
+    }
+
+    private void initSpeakerForUser(String userName) throws LineUnavailableException {
+        final DataLine.Info infoOut = new DataLine.Info(SourceDataLine.class, audioFormat);
+
+        final SourceDataLine audioOutDataLine = (SourceDataLine) speaker.getLine(infoOut);
+        userSourceDataLineMap.put(userName, audioOutDataLine);
+
+        audioOutDataLine.open(audioFormat);
+        audioOutDataLine.start();
+
+        // set current volume
+        audioService.setUserOutputVolume(audioOutDataLine);
     }
 
     private void userLeft(User user) {
@@ -267,13 +305,13 @@ public class VoiceChatClient {
     public void stop() {
         running = false;
 
-        synchronized (audioInLock) {
-            audioInLock.notifyAll();
-        }
         synchronized (audioOutLock) {
             audioOutLock.notifyAll();
         }
 
+        synchronized (audioInLock) {
+            audioInLock.notifyAll();
+        }
         if (Objects.nonNull(audioInDataLine)) {
             audioInDataLine.stop();
             audioInDataLine.drain();

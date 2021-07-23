@@ -13,13 +13,19 @@ import java.util.Objects;
 public class VoiceChatService {
     private static final Logger log = LoggerFactory.getLogger(VoiceChatClient.class);
     private static final AudioFormat audioFormat = getAudioFormat();
+    private Integer speakerVolumePercent;
 
     public Mixer getSelectedMicrophone() {
         return selectedMicrophone;
     }
 
     public void setSelectedMicrophone(Mixer selectedMicrophone) {
-        this.selectedMicrophone = selectedMicrophone;
+        if (!this.selectedMicrophone.equals(selectedMicrophone)) {
+            this.selectedMicrophone = selectedMicrophone;
+            if (Objects.nonNull(voiceChatClient)) {
+                voiceChatClient.changeMicrophone(selectedMicrophone);
+            }
+        }
     }
 
     public Mixer getSelectedSpeaker() {
@@ -27,7 +33,16 @@ public class VoiceChatService {
     }
 
     public void setSelectedSpeaker(Mixer selectedSpeaker) {
-        this.selectedSpeaker = selectedSpeaker;
+        if (!this.selectedSpeaker.equals(selectedSpeaker)) {
+            if (Objects.nonNull(speakerVolumePercent)) {
+                final FloatControl volume = (FloatControl) selectedSpeaker.getControl(FloatControl.Type.MASTER_GAIN);
+                volume.setValue(speakerVolumePercent);
+            }
+            this.selectedSpeaker = selectedSpeaker;
+            if (Objects.nonNull(voiceChatClient)) {
+                voiceChatClient.changeSpeaker(selectedSpeaker);
+            }
+        }
     }
 
     public List<Mixer> getAvailableSpeakers() {
@@ -103,5 +118,9 @@ public class VoiceChatService {
         if (Objects.nonNull(voiceChatClient)) {
             voiceChatClient.stop();
         }
+    }
+
+    public void setSpeakerVolumePercent(int speakerVolumePercent) {
+        this.speakerVolumePercent = speakerVolumePercent;
     }
 }
