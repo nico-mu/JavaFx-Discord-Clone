@@ -17,7 +17,6 @@ import de.uniks.stp.view.Languages;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
-import javafx.scene.control.Slider;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,16 +32,12 @@ public class SettingsModal extends AbstractModal {
     public static final String SETTINGS_CANCEL_BUTTON = "#settings-cancel-button";
     public static final String SETTINGS_COMBO_SELECT_LANGUAGE = "#combo-select-language";
     public static final String SETTINGS_COMBO_SELECT_NOTIFICATION_SOUND = "#combo-select-notification-sound";
-    public static final String SETTINGS_SLIDER_INPUT_VOLUME = "#slider-input-volume";
-    public static final String SETTINGS_SLIDER_OUTPUT_VOLUME = "#slider-output-volume";
     public static final String SETTINGS_COMBO_SELECT_INPUT_DEVICE = "#combo-select-input-device";
     public static final String SETTINGS_COMBO_SELECT_OUTPUT_DEVICE = "#combo-select-output-device";
     private final JFXButton applyButton;
     private final JFXButton cancelButton;
     private final KeyBasedComboBox languageComboBox;
     private final KeyBasedComboBox notificationComboBox;
-    private final Slider inputVolumeSlider;
-    private final Slider outputVolumeSlider;
     private final AudioDeviceComboBox inputDeviceComboBox;
     private final AudioDeviceComboBox outputDeviceComboBox;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
@@ -52,12 +47,12 @@ public class SettingsModal extends AbstractModal {
     private final AudioService audioService;
     private final VoiceChatService voiceChatService;
     private final Stage primaryStage;
-    private Mixer currentMicrophone;
-    private Mixer currentSpeaker;
 
     private String currentLanguage;
     private String currentNotificationSoundFile;
-    private int currentOutputVolume;
+
+    private Mixer currentMicrophone;
+    private Mixer currentSpeaker;
 
     @AssistedInject
     public SettingsModal(ViewLoader viewLoader,
@@ -89,11 +84,6 @@ public class SettingsModal extends AbstractModal {
         notificationComboBox.addOptions(getNotificationSounds());
         currentNotificationSoundFile = audioService.getNotificationSoundFileName();
         notificationComboBox.setSelection(currentNotificationSoundFile);
-
-        inputVolumeSlider = (Slider) view.lookup(SETTINGS_SLIDER_INPUT_VOLUME);
-        // TODO
-        outputVolumeSlider = (Slider) view.lookup(SETTINGS_SLIDER_OUTPUT_VOLUME);
-        outputVolumeSlider.setValue(audioService.getVolumePercent());
 
         inputDeviceComboBox = (AudioDeviceComboBox) view.lookup(SETTINGS_COMBO_SELECT_INPUT_DEVICE);
         inputDeviceComboBox.init();
@@ -144,7 +134,6 @@ public class SettingsModal extends AbstractModal {
     }
 
     private void onApplyButtonClicked(ActionEvent actionEvent) {
-        // call change-methods only when there really was a change
         String newLanguage = languageComboBox.getSelection();
         if (! currentLanguage.equals(newLanguage)){
             changeLanguage(newLanguage);
@@ -155,12 +144,7 @@ public class SettingsModal extends AbstractModal {
             audioService.setNotificationSoundFile(newNotificationSoundFile);
             currentNotificationSoundFile = newNotificationSoundFile;
         }
-        int newOutputVolume = (int) outputVolumeSlider.getValue();
-        if(currentOutputVolume != newOutputVolume){
-            audioService.setVolumePercent(newOutputVolume);
-            voiceChatService.setSpeakerVolumePercent(newOutputVolume);
-            currentOutputVolume = newOutputVolume;
-        }
+
         final Mixer selectedMicrophone = inputDeviceComboBox.getValue();
         if (!currentMicrophone.equals(selectedMicrophone)) {
             voiceChatService.setSelectedMicrophone(selectedMicrophone);

@@ -16,7 +16,6 @@ import java.util.Objects;
 public class VoiceChatService {
     private static final Logger log = LoggerFactory.getLogger(VoiceChatClient.class);
     private static final AudioFormat audioFormat = getAudioFormat();
-    private Integer speakerVolumePercent;
 
     private static String persistenceString(Mixer mixer) {
         return mixer.getMixerInfo().toString();
@@ -42,10 +41,6 @@ public class VoiceChatService {
 
     public void setSelectedSpeaker(Mixer selectedSpeaker) {
         if (!this.selectedSpeaker.equals(selectedSpeaker)) {
-            if (Objects.nonNull(speakerVolumePercent)) {
-                final FloatControl volume = (FloatControl) selectedSpeaker.getControl(FloatControl.Type.MASTER_GAIN);
-                volume.setValue(speakerVolumePercent);
-            }
             if (Objects.nonNull(voiceChatClient)) {
                 voiceChatClient.changeSpeaker(selectedSpeaker);
             }
@@ -151,9 +146,5 @@ public class VoiceChatService {
         if (Objects.nonNull(voiceChatClient)) {
             voiceChatClient.stop();
         }
-    }
-
-    public void setSpeakerVolumePercent(int speakerVolumePercent) {
-        this.speakerVolumePercent = speakerVolumePercent;
     }
 }
