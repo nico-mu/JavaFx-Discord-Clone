@@ -3,6 +3,7 @@ package de.uniks.stp.network.voice;
 import de.uniks.stp.Constants;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.User;
+import de.uniks.stp.util.VoiceChatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,6 @@ import java.util.concurrent.Executors;
 
 public class VoiceChatClient {
     private static final Logger log = LoggerFactory.getLogger(VoiceChatClient.class);
-    private static final AudioFormat audioFormat = getAudioFormat();
     private final Object audioInLock = new Object();
     private final Object audioOutLock = new Object();
     private final Mixer speaker;
@@ -51,16 +51,6 @@ public class VoiceChatClient {
         this.speaker = speaker;
         this.microphone = microphone;
         withFilteredUsers(currentUser);
-    }
-
-    private static AudioFormat getAudioFormat() {
-        return new AudioFormat(
-            Constants.AUDIOSTREAM_SAMPLE_RATE,
-            Constants.AUDIOSTREAM_SAMPLE_SIZE_BITS,
-            Constants.AUDIOSTREAM_CHANNEL,
-            Constants.AUDIOSTREAM_SIGNED,
-            Constants.AUDIOSTREAM_BIG_ENDIAN
-        );
     }
 
     public void init() {
@@ -167,12 +157,12 @@ public class VoiceChatClient {
     private void userJoined(User user) {
         final String userName = user.getName();
         try {
-            final DataLine.Info infoOut = new DataLine.Info(SourceDataLine.class, audioFormat);
+            final DataLine.Info infoOut = new DataLine.Info(SourceDataLine.class, VoiceChatUtil.AUDIO_FORMAT);
 
             final SourceDataLine audioOutDataLine = (SourceDataLine) speaker.getLine(infoOut);
             userSourceDataLineMap.put(userName, audioOutDataLine);
 
-            audioOutDataLine.open(audioFormat);
+            audioOutDataLine.open(VoiceChatUtil.AUDIO_FORMAT);
             audioOutDataLine.start();
             user.listeners().addPropertyChangeListener(User.PROPERTY_MUTE, userMutePropertyChangeListener);
         } catch (LineUnavailableException e) {
@@ -248,10 +238,10 @@ public class VoiceChatClient {
     }
 
     private void initMicrophone() throws LineUnavailableException {
-        final DataLine.Info infoIn = new DataLine.Info(TargetDataLine.class, audioFormat);
+        final DataLine.Info infoIn = new DataLine.Info(TargetDataLine.class, VoiceChatUtil.AUDIO_FORMAT);
 
         audioInDataLine = (TargetDataLine) microphone.getLine(infoIn);
-        audioInDataLine.open(audioFormat);
+        audioInDataLine.open(VoiceChatUtil.AUDIO_FORMAT);
         audioInDataLine.start();
     }
 

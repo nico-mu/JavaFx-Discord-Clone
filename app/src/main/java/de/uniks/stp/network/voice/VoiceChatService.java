@@ -1,8 +1,7 @@
 package de.uniks.stp.network.voice;
 
-import de.uniks.stp.Constants;
 import de.uniks.stp.model.Channel;
-import de.uniks.stp.util.AudioUtil;
+import de.uniks.stp.util.VoiceChatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,13 +12,6 @@ import java.util.Objects;
 
 public class VoiceChatService {
     private static final Logger log = LoggerFactory.getLogger(VoiceChatClient.class);
-    private static final AudioFormat audioFormat = new AudioFormat(
-            Constants.AUDIOSTREAM_SAMPLE_RATE,
-            Constants.AUDIOSTREAM_SAMPLE_SIZE_BITS,
-            Constants.AUDIOSTREAM_CHANNEL,
-            Constants.AUDIOSTREAM_SIGNED,
-            Constants.AUDIOSTREAM_BIG_ENDIAN
-        );
 
     private final VoiceChatClientFactory voiceChatClientFactory;
 
@@ -34,16 +26,16 @@ public class VoiceChatService {
     public VoiceChatService(VoiceChatClientFactory voiceChatClientFactory) {
         this.voiceChatClientFactory = voiceChatClientFactory;
 
-        for (final Mixer mixer : AudioUtil.getMixers()) {
-            final DataLine.Info audioOut = new DataLine.Info(SourceDataLine.class, audioFormat);
+        for (final Mixer mixer : VoiceChatUtil.getMixers()) {
+            final DataLine.Info audioOut = new DataLine.Info(SourceDataLine.class, VoiceChatUtil.AUDIO_FORMAT);
             if (mixer.isLineSupported(audioOut)) {
                 availableSpeakers.add(mixer);
-                log.debug("Found speaker:\n{}", AudioUtil.getMixerHierarchyInfo(mixer));
+                log.debug("Found speaker:\n{}", VoiceChatUtil.getMixerHierarchyInfo(mixer));
             }
-            final DataLine.Info audioIn = new DataLine.Info(TargetDataLine.class, audioFormat);
+            final DataLine.Info audioIn = new DataLine.Info(TargetDataLine.class, VoiceChatUtil.AUDIO_FORMAT);
             if (mixer.isLineSupported(audioIn)) {
                 availableMicrophones.add(mixer);
-                log.debug("Found microphone:\n{}", AudioUtil.getMixerHierarchyInfo(mixer));
+                log.debug("Found microphone:\n{}", VoiceChatUtil.getMixerHierarchyInfo(mixer));
             }
         }
         if (isMicrophoneAvailable()) {

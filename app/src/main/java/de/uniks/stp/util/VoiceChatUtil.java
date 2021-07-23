@@ -14,14 +14,26 @@
  */
 package de.uniks.stp.util;
 
+import de.uniks.stp.Constants;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.sound.sampled.*;
 import javax.sound.sampled.Control.Type;
 import javax.sound.sampled.Mixer.Info;
 
-public class AudioUtil {
+public class VoiceChatUtil {
+    // TODO: Clear unused functions before commit
+    public static final AudioFormat AUDIO_FORMAT = new AudioFormat(
+        Constants.AUDIOSTREAM_SAMPLE_RATE,
+        Constants.AUDIOSTREAM_SAMPLE_SIZE_BITS,
+        Constants.AUDIOSTREAM_CHANNEL,
+        Constants.AUDIOSTREAM_SIGNED,
+        Constants.AUDIOSTREAM_BIG_ENDIAN
+    );
+
 	public static void setMasterOutputVolume(float value) {
 		if (value < 0 || value > 1)
 			throw new IllegalArgumentException(
@@ -52,33 +64,6 @@ public class AudioUtil {
 		}
 	}
 
-	public static void setMasterOutputMute(boolean value) {
-		Line line = getMasterOutputLine();
-		if (line == null) throw new RuntimeException("Master output port not found");
-		boolean opened = open(line);
-		try {
-			BooleanControl control = getMuteControl(line);
-			if (control == null)
-				throw new RuntimeException("Mute control not found in master port: " + toString(line));
-			control.setValue(value);
-		} finally {
-			if (opened) line.close();
-		}
-	}
-
-	public static Boolean getMasterOutputMute() {
-		Line line = getMasterOutputLine();
-		if (line == null) return null;
-		boolean opened = open(line);
-		try {
-			BooleanControl control = getMuteControl(line);
-			if (control == null) return null;
-			return control.getValue();
-		} finally {
-			if (opened) line.close();
-		}
-	}
-
 	public static Line getMasterOutputLine() {
 		for (Mixer mixer : getMixers()) {
 			for (Line line : getAvailableOutputLines(mixer)) {
@@ -91,10 +76,12 @@ public class AudioUtil {
 		return null;
 	}
 
-	public static FloatControl getVolumeControl(Line line) {
-		if (!line.isOpen()) throw new RuntimeException("Line is closed: " + toString(line));
-		return (FloatControl) findControl(FloatControl.Type.VOLUME, line.getControls());
-	}
+    public static FloatControl getVolumeControl(Line line) {
+        if (!line.isOpen()) throw new RuntimeException("Line is closed: " + toString(line));
+        FloatControl control = (FloatControl) findControl(FloatControl.Type.VOLUME, line.getControls());
+        if (Objects.isNull(control)) control = (FloatControl) findControl(FloatControl.Type.MASTER_GAIN, line.getControls());
+        return control;
+    }
 
 	public static BooleanControl getMuteControl(Line line) {
 		if (!line.isOpen()) throw new RuntimeException("Line is closed: " + toString(line));
