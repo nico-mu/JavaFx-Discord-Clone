@@ -2,7 +2,6 @@ package de.uniks.stp.dagger.modules.session;
 
 import dagger.Module;
 import dagger.Provides;
-import de.uniks.stp.AudioService;
 import de.uniks.stp.Editor;
 import de.uniks.stp.dagger.scope.SessionScope;
 import de.uniks.stp.jpa.SessionDatabaseService;
@@ -57,7 +56,7 @@ public class SessionNetworkModule {
 
     @Provides
     @SessionScope
-    VoiceChatClientFactory provideVoiceChatClientFactory(@Named("currentUser") User currentUser, AudioService audioService) {
-        return new VoiceChatClientFactoryImpl(currentUser, audioService);
+    VoiceChatClientFactory provideVoiceChatClientFactory(@Named("currentUser") User currentUser) {
+        return new VoiceChatClientFactoryImpl(currentUser);
     }
 }
