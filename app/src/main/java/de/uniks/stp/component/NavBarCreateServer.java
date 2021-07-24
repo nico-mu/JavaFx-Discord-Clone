@@ -21,6 +21,7 @@ public class NavBarCreateServer extends NavBarElement {
         this.createServerModalFactory = createServerModalFactory;
         installTooltip(viewLoader.loadLabel(Constants.LBL_CREATE_SERVER));
         imageView.setImage(viewLoader.loadImage("plus.png"));
+        this.setId("create-server");
         notificationLabel.setVisible(false);
         circle.setVisible(false);
     }
