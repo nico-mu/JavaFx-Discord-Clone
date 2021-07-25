@@ -20,7 +20,7 @@
             </TextWithEmoteSupport>
             <Label id="settings-label">
                 <graphic>
-                    <ImageView id="server-settings-gear" fitHeight="45.0" fitWidth="45.0">
+                    <ImageView id="settings-gear" fitHeight="45.0" fitWidth="45.0">
                         <Image url="@../img/gear.png" />
                     </ImageView>
                 </graphic>

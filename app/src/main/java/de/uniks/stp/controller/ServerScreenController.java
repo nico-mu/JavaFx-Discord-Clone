@@ -51,7 +51,6 @@ public class ServerScreenController implements ControllerInterface {
     private static final String SERVER_CHANNEL_CONTAINER = "#server-channel-container";
     private static final String SERVER_USER_LIST_CONTAINER = "#server-user-list-container";
     private static final String SETTINGS_LABEL = "#settings-label";
-    private static final String SETTINGS_GEAR = "#server-settings-gear";
     private static final String CHANNEL_NAME_LABEL = "#channel-name-label";
 
     private final Editor editor;
