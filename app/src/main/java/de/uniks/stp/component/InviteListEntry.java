@@ -10,6 +10,7 @@ import de.uniks.stp.model.ServerInvitation;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -58,7 +59,31 @@ public class InviteListEntry extends HBox {
         until.setText(type);
         String currentMaxString = serverInvitation.getType().equals("temporal") ? "-" : serverInvitation.getCurrent() + " / " + serverInvitation.getMax();
         currentMax.setText(currentMaxString);
+
+        copy.setEffect(new ColorAdjust());
+        copy.setOnMouseEntered(event -> {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(-0.6);
+            copy.setEffect(colorAdjust);
+        });
+        copy.setOnMouseExited(event -> {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(0);
+            copy.setEffect(colorAdjust);
+        });
         copy.setOnMouseClicked(this::onCopyClicked);
+
+        delete.setEffect(new ColorAdjust());
+        delete.setOnMouseEntered(event -> {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(-0.6);
+            delete.setEffect(colorAdjust);
+        });
+        delete.setOnMouseExited(event -> {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(0);
+            delete.setEffect(colorAdjust);
+        });
         delete.setOnMouseClicked(this::onDeleteClicked);
     }
 
