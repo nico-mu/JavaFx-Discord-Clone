@@ -17,6 +17,8 @@ import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.effect.Effect;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -80,8 +82,19 @@ public class UserInfoController implements ControllerInterface {
         AnchorPane.setRightAnchor(userSubView, 10.0d);
 
         settingsGearContainer.setOnMouseClicked(this::onSettingsGearClicked);
-        settingsGearContainer.setOnMouseEntered(event -> settingsGear.setRotate(20));
-        settingsGearContainer.setOnMouseExited(event -> settingsGear.setRotate(0));
+        settingsGear.setEffect(new ColorAdjust());
+        settingsGearContainer.setOnMouseEntered(event -> {
+            settingsGear.setRotate(20);
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(-0.6);
+            settingsGear.setEffect(colorAdjust);
+        });
+        settingsGearContainer.setOnMouseExited(event -> {
+            settingsGear.setRotate(0);
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(0);
+            settingsGear.setEffect(colorAdjust);
+        });
         logoutButton.setOnAction(this::onLogoutButtonClicked);
         usernameLabel.setText(editor.getOrCreateAccord().getCurrentUser().getName());
     }
