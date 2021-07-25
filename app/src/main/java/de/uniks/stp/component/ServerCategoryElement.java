@@ -12,6 +12,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -72,7 +73,32 @@ public class ServerCategoryElement extends VBox {
         categoryHeadPane.setOnMouseEntered(this::onCategoryMouseEntered);
         categoryHeadPane.setOnMouseExited(this::onCategoryMouseExited);
 
+        addServerPlus.setEffect(new ColorAdjust());
+        addServerPlus.setOnMouseEntered(event -> {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(-0.6);
+            addServerPlus.setEffect(colorAdjust);
+        });
+        addServerPlus.setOnMouseExited(event -> {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(0);
+            addServerPlus.setEffect(colorAdjust);
+        });
         addServerPlus.setOnMouseClicked(this::onAddServerPlusClicked);
+
+        editCatGear.setEffect(new ColorAdjust());
+        editCatGear.setOnMouseEntered(event -> {
+            editCatGear.setRotate(20);
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(-0.6);
+            editCatGear.setEffect(colorAdjust);
+        });
+        editCatGear.setOnMouseExited(event -> {
+            editCatGear.setRotate(0);
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(0);
+            editCatGear.setEffect(colorAdjust);
+        });
         editCatGear.setOnMouseClicked(this::onEditCatGearClicked);
 
         this.setId(model.getId() + "-ServerCategoryElement");

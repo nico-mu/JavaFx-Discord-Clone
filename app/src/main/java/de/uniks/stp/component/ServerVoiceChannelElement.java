@@ -13,6 +13,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -81,6 +82,19 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
         channelContainer.setOnMouseEntered(this::onChannelMouseEntered);
         channelContainer.setOnMouseExited(this::onChannelMouseExited);
 
+        editChannel.setEffect(new ColorAdjust());
+        editChannel.setOnMouseEntered(event -> {
+            editChannel.setRotate(20);
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(-0.6);
+            editChannel.setEffect(colorAdjust);
+        });
+        editChannel.setOnMouseExited(event -> {
+            editChannel.setRotate(0);
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(0);
+            editChannel.setEffect(colorAdjust);
+        });
         editChannel.setOnMouseClicked(this::onEditChannelClicked);
 
         channelText.setId(model.getId() + "-ChannelElementVoice");
