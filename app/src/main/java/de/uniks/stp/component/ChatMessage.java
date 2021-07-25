@@ -99,8 +99,8 @@ public class ChatMessage extends HBox {
         deleteMessage.setId("delete-message-" + model.getId());
 
         if (editable) {
-            textVBox.setOnMouseEntered(this::onMouseEntered);
-            textVBox.setOnMouseExited(this::onMouseExited);
+            this.setOnMouseEntered(this::onMouseEntered);
+            this.setOnMouseExited(this::onMouseExited);
             editMessage.setOnMouseClicked(this::onMessageEdited);
             deleteMessage.setOnMouseClicked(this::onMessageDelete);
         }
