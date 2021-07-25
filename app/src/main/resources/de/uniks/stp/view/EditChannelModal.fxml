@@ -4,6 +4,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="480.0" styleClass="edit-channel-modal" stylesheets="@../style/css/view/edit-channel-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
@@ -17,7 +18,7 @@
                      <padding>
                         <Insets top="12.0" />
                      </padding></Label>
-                  <JFXToggleButton id="notifications-toggle-button" layoutY="29.0" prefHeight="58.0" prefWidth="78.0" text="ToggleButton" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="29.0" styleClass="toggle-button"/>
+                  <JFXToggleButton id="notifications-toggle-button" layoutY="29.0" prefHeight="58.0" prefWidth="78.0" styleClass="toggle-button" text="ToggleButton" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="29.0" />
                   <Label id="notifications-activated-label" layoutX="60.0" layoutY="45.0" prefHeight="27.0" prefWidth="36.0" styleClass="notifications-activated-label" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="45.0" />
                </children>
             </AnchorPane>
@@ -40,8 +41,14 @@
             </VBox>
             <HBox alignment="CENTER" prefHeight="0.0" prefWidth="200.0" spacing="144.0">
                <children>
-                  <JFXButton id="edit-channel-create-button" prefWidth="120.0" styleClass="edit-channel-create-button" text="%LBL_SAVE" />
-                  <JFXButton id="edit-channel-cancel-button" prefWidth="120.0" styleClass="edit-channel-cancel-button" text="%LBL_CANCEL" />
+                  <JFXButton id="edit-channel-create-button" prefWidth="120.0" styleClass="edit-channel-create-button" text="%LBL_SAVE">
+                     <font>
+                        <Font size="14.0" />
+                     </font></JFXButton>
+                  <JFXButton id="edit-channel-cancel-button" prefWidth="120.0" styleClass="edit-channel-cancel-button" text="%LBL_CANCEL">
+                     <font>
+                        <Font size="14.0" />
+                     </font></JFXButton>
                </children>
                <padding>
                   <Insets bottom="12.0" />
@@ -55,7 +62,10 @@
       <Pane id="seperator" minHeight="4.0" prefHeight="4.0" prefWidth="480.0" styleClass="separator" />
       <HBox alignment="CENTER_LEFT">
          <children>
-            <JFXButton id="delete-channel" prefWidth="120.0" styleClass="edit-channel-create-button" text="%LBL_DELETE" />
+            <JFXButton id="delete-channel" prefWidth="120.0" styleClass="edit-channel-create-button" text="%LBL_DELETE">
+               <font>
+                  <Font size="14.0" />
+               </font></JFXButton>
          </children>
          <padding>
             <Insets left="48.0" top="12.0" />

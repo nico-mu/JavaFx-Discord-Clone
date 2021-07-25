@@ -54,10 +54,10 @@ public class ChatMessage extends HBox {
     private VBox textVBox;
 
     @FXML
-    private ImageView editMessage;
+    private VBox editMessage;
 
     @FXML
-    private ImageView deleteMessage;
+    private VBox deleteMessage;
 
     private final Message model;
     private final ViewLoader viewLoader;

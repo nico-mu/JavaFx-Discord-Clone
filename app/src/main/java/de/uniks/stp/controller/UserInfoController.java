@@ -1,5 +1,6 @@
 package de.uniks.stp.controller;
 
+
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -16,6 +17,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -25,14 +27,13 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-
 public class UserInfoController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(MainScreenController.class);
 
     private final static String USERNAME_LABEL_ID = "#username-label";
     private final static String LOGOUT_BUTTON_ID = "#logout-button";
     private final static String SETTINGS_GEAR_CONTAINER_ID = "#settings-gear-container";
+    private final static String SETTINGS_GEAR_ID = "#settings-gear";
 
     private final AnchorPane view;
     private final Editor editor;
@@ -43,6 +44,7 @@ public class UserInfoController implements ControllerInterface {
     private Label usernameLabel;
     private Button logoutButton;
     private VBox settingsGearContainer;
+    private ImageView settingsGear;
 
     private final SettingsModal.SettingsModalFactory settingsModalFactory;
 
@@ -70,6 +72,7 @@ public class UserInfoController implements ControllerInterface {
         this.usernameLabel = (Label) view.lookup(USERNAME_LABEL_ID);
         this.logoutButton = (Button) view.lookup(LOGOUT_BUTTON_ID);
         this.settingsGearContainer = (VBox) view.lookup(SETTINGS_GEAR_CONTAINER_ID);
+        this.settingsGear = (ImageView) view.lookup(SETTINGS_GEAR_ID);
 
         AnchorPane.setBottomAnchor(userSubView, 7.5d);
         AnchorPane.setTopAnchor(userSubView, 5.0d);
@@ -77,6 +80,8 @@ public class UserInfoController implements ControllerInterface {
         AnchorPane.setRightAnchor(userSubView, 10.0d);
 
         settingsGearContainer.setOnMouseClicked(this::onSettingsGearClicked);
+        settingsGearContainer.setOnMouseEntered(event -> settingsGear.setRotate(20));
+        settingsGearContainer.setOnMouseExited(event -> settingsGear.setRotate(0));
         logoutButton.setOnAction(this::onLogoutButtonClicked);
         usernameLabel.setText(editor.getOrCreateAccord().getCurrentUser().getName());
     }

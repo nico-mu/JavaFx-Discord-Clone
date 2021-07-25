@@ -1,5 +1,9 @@
 @import "../base";
 
+.message:hover {
+  -fx-background-color: $secondary-hover-color;
+}
+
 .message-text {
   -fx-text-fill: $primary-text-fill;
   -fx-fill: $primary-text-fill;

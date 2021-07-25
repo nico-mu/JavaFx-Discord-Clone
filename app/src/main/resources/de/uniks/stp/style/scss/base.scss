@@ -8,6 +8,7 @@ $box-border: white;
 $box-fill: #AAAAAA;
 $error-text-fill: red;
 $hover-background-color: #585858;
+$secondary-hover-color: #23272a;
 
 @mixin main-container-mixin {
     -fx-background-color: $main-background-color;
@@ -21,6 +22,20 @@ $hover-background-color: #585858;
 
 .container {
     -fx-background-color: transparent;
+}
+
+.jfx-button {
+    -jfx-button-type: FLAT;
+    -fx-background-color: $button-color;
+    -fx-text-fill: $primary-text-fill;
+}
+
+.jfx-button:hover {
+    -fx-background-color: #5066AD;
+}
+
+.jfx-button .jfx-rippler{
+    -jfx-rippler-fill: #2B459C;
 }
 
 .toggle-button {
