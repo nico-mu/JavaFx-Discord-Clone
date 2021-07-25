@@ -3,15 +3,21 @@ package de.uniks.stp.minigame;
 import java.util.Date;
 
 public class GameInvitation {
+    public enum State {
+        PENDING,
+        SENT,
+        RECEIVED
+    }
+
     public static final int TIMEOUT = 30 * 1000; // 30 seconds
-    private GameInvitationState state = GameInvitationState.PENDING;
+    private State state = State.PENDING;
     private Long creationTime;
 
     public long getCreationTime() {
         return creationTime;
     }
 
-    public GameInvitationState getState() {
+    public State getState() {
         return state;
     }
 
@@ -20,11 +26,11 @@ public class GameInvitation {
     }
 
     public boolean isSent() {
-        return getState().equals(GameInvitationState.SENT) && hasNotTimeout();
+        return getState().equals(State.SENT) && hasNotTimeout();
     }
 
     public boolean isReceived() {
-        return getState().equals(GameInvitationState.RECEIVED) && hasNotTimeout();
+        return getState().equals(State.RECEIVED) && hasNotTimeout();
     }
 
     public GameInvitation setCreationTime(long creationTime) {
@@ -32,13 +38,13 @@ public class GameInvitation {
         return this;
     }
 
-    public GameInvitation setState(GameInvitationState state) {
+    public GameInvitation setState(State state) {
         this.state = state;
         return this;
     }
 
     public void recycle() {
-        setState(GameInvitationState.PENDING);
+        setState(State.PENDING);
         creationTime = null;
     }
 }

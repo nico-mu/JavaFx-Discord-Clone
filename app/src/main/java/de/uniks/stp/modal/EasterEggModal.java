@@ -7,6 +7,7 @@ import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.minigame.GameCommand;
+import de.uniks.stp.minigame.GameInfo;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.websocket.WebSocketService;
 import javafx.application.Platform;
@@ -18,6 +19,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 import javax.inject.Named;
+import java.util.function.Consumer;
 
 public class EasterEggModal extends AbstractModal {
     public final String ROCK = "rock";
@@ -40,7 +42,6 @@ public class EasterEggModal extends AbstractModal {
     private final User opponentUser;
     private final ViewLoader viewLoader;
     private final WebSocketService webSocketService;
-    private String action;  //saves current selected action of currentUser
     private String opponentAction;  //saves current selected action of opponent
     private boolean revanche = false;  //used to save whether one player already invited the other for a revanche
 
@@ -65,58 +66,30 @@ public class EasterEggModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
 
         revancheButton.setOnAction(this::onRevancheButtonClicked);
-        rockButton.setOnAction(this::onRockButtonClicked);
-        scissorsButton.setOnAction(this::onScissorsButtonClicked);
-        paperButton.setOnAction(this::onPaperButtonClicked);
         cancelButton.setOnAction(closeHandler);
     }
 
-    public void setOpponentAction(String action) {
-        opponentAction = action;
-        if (action != null) {
-            battle();  //battle as soon as both have selected an action
-        }
+    public void setOnRockButtonClicked(EventHandler<ActionEvent> onRockButtonClicked) {
+        rockButton.setOnAction(onRockButtonClicked);
     }
 
-    private void onRockButtonClicked(ActionEvent actionEvent) {
-        webSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.CHOOSE_ROCK.command);
-        action = ROCK;
-        reactToActionSelected();
+    public void setOnScissorsButtonClicked(EventHandler<ActionEvent> onScissorsButtonClicked) {
+        scissorsButton.setOnAction(onScissorsButtonClicked);
     }
 
-    private void onScissorsButtonClicked(ActionEvent actionEvent) {
-        webSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.CHOOSE_SCISSOR.command);
-        action = SCISSORS;
-        reactToActionSelected();
-    }
-
-    private void onPaperButtonClicked(ActionEvent actionEvent) {
-        webSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.CHOOSE_PAPER.command);
-        action = PAPER;
-        reactToActionSelected();
-    }
-
-    /**
-     * Called everytime the currentPlayer selected an action
-     */
-    private void reactToActionSelected() {
-        colorOwnButton();
-        if (opponentAction != null) {
-            battle();  //battle as soon as both have selected an action
-        }
+    public void setOnPaperButtonClicked(EventHandler<ActionEvent> onPaperButtonClicked) {
+        paperButton.setOnAction(onPaperButtonClicked);
     }
 
     /**
      * Used to show your current choice
      */
-    private void colorOwnButton() {
+    public void setButtonColor(GameInfo.Action action, String color) {
         resetButtonColor();
-        if(action.equals(ROCK)) {
-            rockButton.setStyle("-fx-background-color: green;");
-        } else if(action.equals(PAPER)){
-            paperButton.setStyle("-fx-background-color: green;");
-        } else if(action.equals(SCISSORS)){
-            scissorsButton.setStyle("-fx-background-color: green;");
+        switch (action) {
+            case ROCK -> rockButton.setStyle("-fx-background-color: " + color + ";");
+            case PAPER -> paperButton.setStyle("-fx-background-color: " + color + ";");
+            case SCISSORS -> scissorsButton.setStyle("-fx-background-color: " + color + ";");
         }
     }
 
@@ -130,7 +103,7 @@ public class EasterEggModal extends AbstractModal {
      * Called when both players choiced. Shows result of battle.
      */
     private void battle() {
-        int result = determineWinner();
+        int result = 0;
         colorOpponentButton(result);
         if (result == 0) {
             Platform.runLater(() -> actionLabel.setText(viewLoader.loadLabel(Constants.LBL_RESULT_DRAW)));
@@ -149,45 +122,18 @@ public class EasterEggModal extends AbstractModal {
     }
 
     /**
-     * @return 1 if currentUser wins, 0 if it's a draw, -1 if opponent wins
-     */
-    private int determineWinner() {
-        if (action.equals(opponentAction)) {
-            return 0;
-        } else if (action.equals(ROCK)) {
-            if (opponentAction.equals(PAPER)) {
-                return -1;
-            } else {
-                return 1;
-            }
-        } else if (action.equals(PAPER)) {
-            if (opponentAction.equals(ROCK)) {
-                return 1;
-            } else {
-                return -1;
-            }
-        } else {
-            if (opponentAction.equals(ROCK)) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
-    }
-
-    /**
      * Called to show the opponents choice. At this moment the own choice is also already shown
      */
     private void colorOpponentButton(int res) {
         if(res == 0){
             // draw -> mark common choice yellow
-            if(action.equals(ROCK)){
+            /* if(action.equals(ROCK)){
                 Platform.runLater(() -> rockButton.setStyle("-fx-background-color: yellow;"));
             } else if(action.equals(PAPER)){
                 Platform.runLater(() -> paperButton.setStyle("-fx-background-color: yellow;"));
             } else if(action.equals(SCISSORS)){
                 Platform.runLater(() -> scissorsButton.setStyle("-fx-background-color: yellow;"));
-            }
+            }*/
         } else if(opponentAction.equals(ROCK)){
             Platform.runLater(() -> rockButton.setStyle("-fx-background-color: red;"));
         } else if(opponentAction.equals(PAPER)){
@@ -231,7 +177,6 @@ public class EasterEggModal extends AbstractModal {
             paperButton.setDisable(false);
             scissorsButton.setDisable(false);
         });
-        action = null;
         opponentAction = null;
     }
 
