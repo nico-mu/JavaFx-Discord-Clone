@@ -21,24 +21,16 @@
                      <Insets left="10.0" />
                   </HBox.margin>
                </Text>
-               <VBox fx:id="editMessage" alignment="BOTTOM_CENTER">
-                  <children>
-                     <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" styleClass="image-view">
-                        <image>
-                           <Image url="@../img/edit.png" />
-                        </image>
-                     </ImageView>
-                  </children>
-               </VBox>
-               <VBox fx:id="deleteMessage" alignment="BOTTOM_CENTER">
-                  <children>
-                     <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                           <Image url="@../img/delete.png" />
-                        </image>
-                     </ImageView>
-                  </children>
-               </VBox>
+               <ImageView fx:id="editMessage" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" styleClass="image-view">
+                  <image>
+                     <Image url="@../img/edit.png" />
+                  </image>
+               </ImageView>
+               <ImageView fx:id="deleteMessage" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                     <Image url="@../img/delete.png" />
+                  </image>
+               </ImageView>
             </children>
          </HBox>
          <TextWithEmoteSupport fx:id="messageText" styleClass="message-text" />

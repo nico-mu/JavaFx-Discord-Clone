@@ -24,6 +24,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -54,10 +55,10 @@ public class ChatMessage extends HBox {
     private VBox textVBox;
 
     @FXML
-    private VBox editMessage;
+    private ImageView editMessage;
 
     @FXML
-    private VBox deleteMessage;
+    private ImageView deleteMessage;
 
     private final Message model;
     private final ViewLoader viewLoader;
@@ -103,8 +104,34 @@ public class ChatMessage extends HBox {
             editMessage.setOnMouseClicked(this::onMessageEdited);
             deleteMessage.setOnMouseClicked(this::onMessageDelete);
         }
+
+        editMessage.setEffect(new ColorAdjust());
+        editMessage.setOnMouseEntered(event -> {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(-0.6);
+            editMessage.setEffect(colorAdjust);
+        });
+        editMessage.setOnMouseExited(event -> {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(0);
+            editMessage.setEffect(colorAdjust);
+        });
         editMessage.setVisible(false);
+
+        deleteMessage.setEffect(new ColorAdjust());
+        deleteMessage.setOnMouseEntered(event -> {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(-0.6);
+            deleteMessage.setEffect(colorAdjust);
+        });
+        deleteMessage.setOnMouseExited(event -> {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setContrast(0);
+            deleteMessage.setEffect(colorAdjust);
+        });
         deleteMessage.setVisible(false);
+
+
     }
 
     private String getTimestampText() {
