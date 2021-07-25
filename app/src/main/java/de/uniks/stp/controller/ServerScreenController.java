@@ -280,6 +280,8 @@ public class ServerScreenController implements ControllerInterface {
             item.setOnAction(null);
         }
         view.heightProperty().removeListener(viewHeightChangedListener);
+        settingsGear.setOnMouseEntered(null);
+        settingsGear.setOnMouseExited(null);
     }
 
     private void onViewHeightChanged(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {

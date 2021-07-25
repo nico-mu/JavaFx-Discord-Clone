@@ -130,6 +130,8 @@ public class UserInfoController implements ControllerInterface {
     public void stop() {
         logoutButton.setOnAction(null);
         settingsGearContainer.setOnMouseClicked(null);
+        settingsGear.setOnMouseEntered(null);
+        settingsGear.setOnMouseExited(null);
     }
 
     @AssistedFactory
