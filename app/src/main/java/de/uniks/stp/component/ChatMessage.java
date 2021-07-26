@@ -107,14 +107,9 @@ public class ChatMessage extends HBox {
         }
 
         AnimationUtil animationUtil = new AnimationUtil();
-        editMessage.setEffect(new ColorAdjust());
-        editMessage.setOnMouseEntered(event -> animationUtil.iconEntered(editMessage));
-        editMessage.setOnMouseExited(event -> animationUtil.iconExited(editMessage));
+        animationUtil.setIconAnimation(editMessage);
         editMessage.setVisible(false);
-
-        deleteMessage.setEffect(new ColorAdjust());
-        deleteMessage.setOnMouseEntered(event -> animationUtil.iconEntered(deleteMessage));
-        deleteMessage.setOnMouseExited(event -> animationUtil.iconExited(deleteMessage));
+        animationUtil.setIconAnimation(deleteMessage);
         deleteMessage.setVisible(false);
 
 

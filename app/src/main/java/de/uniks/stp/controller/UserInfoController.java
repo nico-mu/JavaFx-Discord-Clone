@@ -84,9 +84,7 @@ public class UserInfoController implements ControllerInterface {
 
         AnimationUtil animationUtil = new AnimationUtil();
         settingsGearContainer.setOnMouseClicked(this::onSettingsGearClicked);
-        settingsGear.setEffect(new ColorAdjust());
-        settingsGearContainer.setOnMouseEntered(event -> animationUtil.gearEntered(settingsGear));
-        settingsGearContainer.setOnMouseExited(event -> animationUtil.gearExited(settingsGear));
+        animationUtil.setIconAnimation(settingsGear);
         logoutButton.setOnAction(this::onLogoutButtonClicked);
         usernameLabel.setText(editor.getOrCreateAccord().getCurrentUser().getName());
     }

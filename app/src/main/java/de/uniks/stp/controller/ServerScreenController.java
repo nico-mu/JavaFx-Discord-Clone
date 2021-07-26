@@ -138,9 +138,8 @@ public class ServerScreenController implements ControllerInterface {
         view.heightProperty().addListener(viewHeightChangedListener);
 
         AnimationUtil animationUtil = new AnimationUtil();
-        settingsGear.setEffect(new ColorAdjust());
-        settingsGearLabel.setOnMouseEntered(event -> animationUtil.gearEntered(settingsGear));
-        settingsGearLabel.setOnMouseExited(event -> animationUtil.gearExited(settingsGear));
+        settingsGearLabel.setOnMouseEntered(event ->  animationUtil.iconEntered(settingsGear));
+        settingsGearLabel.setOnMouseExited(event ->  animationUtil.iconExited(settingsGear));
         settingsGearLabel.setOnMouseClicked(e -> settingsContextMenu.show(settingsGearLabel, Side.BOTTOM, 0, 0));
 
         categoryListController = serverCategoryListControllerFactory.create(serverChannelOverview, model);

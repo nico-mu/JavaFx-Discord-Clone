@@ -75,14 +75,9 @@ public class ServerCategoryElement extends VBox {
         categoryHeadPane.setOnMouseExited(this::onCategoryMouseExited);
 
         AnimationUtil animationUtil = new AnimationUtil();
-        addServerPlus.setEffect(new ColorAdjust());
-        addServerPlus.setOnMouseEntered(event -> animationUtil.iconEntered(addServerPlus));
-        addServerPlus.setOnMouseExited(event -> animationUtil.iconExited(addServerPlus));
+        animationUtil.setIconAnimation(addServerPlus);
         addServerPlus.setOnMouseClicked(this::onAddServerPlusClicked);
-
-        editCatGear.setEffect(new ColorAdjust());
-        editCatGear.setOnMouseEntered(event -> animationUtil.gearEntered(editCatGear));
-        editCatGear.setOnMouseExited(event -> animationUtil.gearExited(editCatGear));
+        animationUtil.setIconAnimation(editCatGear);
         editCatGear.setOnMouseClicked(this::onEditCatGearClicked);
 
         this.setId(model.getId() + "-ServerCategoryElement");

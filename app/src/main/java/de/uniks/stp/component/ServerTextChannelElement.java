@@ -78,9 +78,7 @@ public class ServerTextChannelElement extends ServerChannelElement implements No
         channelContainer.setOnMouseExited(this::onChannelMouseExited);
 
         AnimationUtil animationUtil = new AnimationUtil();
-        editChannel.setEffect(new ColorAdjust());
-        editChannel.setOnMouseEntered(event -> animationUtil.gearEntered(editChannel));
-        editChannel.setOnMouseExited(event -> animationUtil.gearExited(editChannel));
+        animationUtil.setIconAnimation(editChannel);
         editChannel.setOnMouseClicked(this::onEditChannelClicked);
 
         for (Node node : channelText.getChildren()) {

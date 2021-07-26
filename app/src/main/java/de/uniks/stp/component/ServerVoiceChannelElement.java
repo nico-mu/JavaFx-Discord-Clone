@@ -85,9 +85,7 @@ public class ServerVoiceChannelElement extends ServerChannelElement {
         channelContainer.setOnMouseExited(this::onChannelMouseExited);
 
         AnimationUtil animationUtil = new AnimationUtil();
-        editChannel.setEffect(new ColorAdjust());
-        editChannel.setOnMouseEntered(event -> animationUtil.gearEntered(editChannel));
-        editChannel.setOnMouseExited(event -> animationUtil.gearExited(editChannel));
+        animationUtil.setIconAnimation(editChannel);
         editChannel.setOnMouseClicked(this::onEditChannelClicked);
 
         channelText.setId(model.getId() + "-ChannelElementVoice");

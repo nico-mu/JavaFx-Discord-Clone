@@ -62,14 +62,9 @@ public class InviteListEntry extends HBox {
         currentMax.setText(currentMaxString);
 
         AnimationUtil animationUtil = new AnimationUtil();
-        copy.setEffect(new ColorAdjust());
-        copy.setOnMouseEntered(event -> animationUtil.iconEntered(copy));
-        copy.setOnMouseExited(event -> animationUtil.iconExited(copy));
+        animationUtil.setIconAnimation(copy);
         copy.setOnMouseClicked(this::onCopyClicked);
-
-        delete.setEffect(new ColorAdjust());
-        delete.setOnMouseEntered(event -> animationUtil.iconEntered(delete));
-        delete.setOnMouseExited(event -> animationUtil.iconExited(delete));
+        animationUtil.setIconAnimation(delete);
         delete.setOnMouseClicked(this::onDeleteClicked);
     }
 
