@@ -1,11 +1,5 @@
 @import "../base";
 
-.jfx-button {
-    -jfx-button-type: FLAT;
-    -fx-background-color: $button-color;
-    -fx-text-fill: $primary-text-fill;
-}
-
 .login-form {
     -fx-background-color: $secondary-background-color;
 }

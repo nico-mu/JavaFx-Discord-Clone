@@ -7,9 +7,11 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.InvitesModal;
 import de.uniks.stp.model.ServerInvitation;
+import de.uniks.stp.util.AnimationUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -58,7 +60,11 @@ public class InviteListEntry extends HBox {
         until.setText(type);
         String currentMaxString = serverInvitation.getType().equals("temporal") ? "-" : serverInvitation.getCurrent() + " / " + serverInvitation.getMax();
         currentMax.setText(currentMaxString);
+
+        AnimationUtil animationUtil = new AnimationUtil();
+        animationUtil.setIconAnimation(copy);
         copy.setOnMouseClicked(this::onCopyClicked);
+        animationUtil.setIconAnimation(delete);
         delete.setOnMouseClicked(this::onDeleteClicked);
     }
 

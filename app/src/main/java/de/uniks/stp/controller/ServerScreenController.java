@@ -14,9 +14,9 @@ import de.uniks.stp.modal.ServerSettingsModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
-import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.util.AnimationUtil;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -28,13 +28,14 @@ import javafx.scene.Parent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -69,6 +70,7 @@ public class ServerScreenController implements ControllerInterface {
     private ServerUserListController serverUserListController;
     private FlowPane serverUserListContainer;
     private Label settingsGearLabel;
+    private ImageView settingsGear;
     private ContextMenu settingsContextMenu;
     private TextWithEmoteSupport channelNameLabel;
     private ChangeListener<Number> viewHeightChangedListener = this::onViewHeightChanged;
@@ -117,6 +119,7 @@ public class ServerScreenController implements ControllerInterface {
         serverChannelContainer = (VBox) serverScreenView.lookup(SERVER_CHANNEL_CONTAINER);
         serverUserListContainer = (FlowPane) serverScreenView.lookup(SERVER_USER_LIST_CONTAINER);
         settingsGearLabel = (Label) serverScreenView.lookup(SETTINGS_LABEL);
+        settingsGear = (ImageView) settingsGearLabel.getGraphic();
         settingsContextMenu = settingsGearLabel.getContextMenu();
 
         channelNameLabel = (TextWithEmoteSupport) serverScreenView.lookup(CHANNEL_NAME_LABEL);
@@ -134,6 +137,9 @@ public class ServerScreenController implements ControllerInterface {
         serverScreenView.setPrefHeight(view.getHeight());
         view.heightProperty().addListener(viewHeightChangedListener);
 
+        AnimationUtil animationUtil = new AnimationUtil();
+        settingsGearLabel.setOnMouseEntered(event ->  animationUtil.iconEntered(settingsGear));
+        settingsGearLabel.setOnMouseExited(event ->  animationUtil.iconExited(settingsGear));
         settingsGearLabel.setOnMouseClicked(e -> settingsContextMenu.show(settingsGearLabel, Side.BOTTOM, 0, 0));
 
         categoryListController = serverCategoryListControllerFactory.create(serverChannelOverview, model);
@@ -264,6 +270,8 @@ public class ServerScreenController implements ControllerInterface {
             item.setOnAction(null);
         }
         view.heightProperty().removeListener(viewHeightChangedListener);
+        settingsGear.setOnMouseEntered(null);
+        settingsGear.setOnMouseExited(null);
     }
 
     private void onViewHeightChanged(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {

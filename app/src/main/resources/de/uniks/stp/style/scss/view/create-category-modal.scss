@@ -27,15 +27,3 @@
 .spinner .arc {
   -fx-stroke: $button-color;
 }
-
-.create-button {
-  -fx-background-color: $button-color;
-  -fx-text-fill: $primary-text-fill;
-  -fx-font-size: 14px;
-}
-
-.cancel-button {
-  -fx-background-color: $button-color;
-  -fx-text-fill: $primary-text-fill;
-  -fx-font-size: 14px;
-}

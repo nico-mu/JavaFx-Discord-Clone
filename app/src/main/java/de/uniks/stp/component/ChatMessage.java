@@ -11,6 +11,7 @@ import de.uniks.stp.modal.DeleteMessageModal;
 import de.uniks.stp.modal.EditMessageModal;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
+import de.uniks.stp.util.AnimationUtil;
 import de.uniks.stp.util.DateUtil;
 import de.uniks.stp.util.InviteInfo;
 import de.uniks.stp.view.Views;
@@ -24,6 +25,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -98,13 +100,19 @@ public class ChatMessage extends HBox {
         deleteMessage.setId("delete-message-" + model.getId());
 
         if (editable) {
-            textVBox.setOnMouseEntered(this::onMouseEntered);
-            textVBox.setOnMouseExited(this::onMouseExited);
+            this.setOnMouseEntered(this::onMouseEntered);
+            this.setOnMouseExited(this::onMouseExited);
             editMessage.setOnMouseClicked(this::onMessageEdited);
             deleteMessage.setOnMouseClicked(this::onMessageDelete);
         }
+
+        AnimationUtil animationUtil = new AnimationUtil();
+        animationUtil.setIconAnimation(editMessage);
         editMessage.setVisible(false);
+        animationUtil.setIconAnimation(deleteMessage);
         deleteMessage.setVisible(false);
+
+
     }
 
     private String getTimestampText() {

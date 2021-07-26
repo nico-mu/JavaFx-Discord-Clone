@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXCheckBox?>
-<?import com.jfoenix.controls.JFXTextField?>
-<?import com.jfoenix.controls.JFXToggleButton?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="440.0" prefWidth="480.0" spacing="12.0" styleClass="add-channel-modal" stylesheets="@../style/css/view/add-channel-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
@@ -45,8 +42,14 @@
       </VBox>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="120.0">
          <children>
-            <JFXButton id="add-channel-create-button" prefHeight="30.0" prefWidth="140.0" styleClass="add-channel-create-button" text="%LBL_CREATE" />
-            <JFXButton id="add-channel-cancel-button" prefHeight="30.0" prefWidth="140.0" styleClass="add-channel-cancel-button" text="%LBL_CANCEL" />
+            <JFXButton id="add-channel-create-button" prefHeight="30.0" prefWidth="140.0" styleClass="add-channel-create-button" text="%LBL_CREATE">
+               <font>
+                  <Font size="14.0" />
+               </font></JFXButton>
+            <JFXButton id="add-channel-cancel-button" prefHeight="30.0" prefWidth="140.0" styleClass="add-channel-cancel-button" text="%LBL_CANCEL">
+               <font>
+                  <Font size="14.0" />
+               </font></JFXButton>
          </children>
       </HBox>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">

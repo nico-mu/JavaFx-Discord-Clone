@@ -5,6 +5,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <VBox id="settings-container" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="380.0" prefWidth="400.0" styleClass="settings-modal" stylesheets="@../style/css/view/settings-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
@@ -56,9 +57,15 @@
       </HBox>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="303.0">
          <children>
-            <JFXButton id="settings-apply-button" prefHeight="40.0" prefWidth="90.0" styleClass="settings-apply-button" text="%LBL_APPLY" />
+            <JFXButton id="settings-apply-button" prefHeight="40.0" prefWidth="90.0" styleClass="settings-apply-button" text="%LBL_APPLY">
+               <font>
+                  <Font size="14.0" />
+               </font></JFXButton>
             <Pane prefHeight="97.0" prefWidth="60.0" />
-            <JFXButton id="settings-cancel-button" prefHeight="40.0" prefWidth="90.0" styleClass="settings-cancel-button" text="%LBL_CANCEL" />
+            <JFXButton id="settings-cancel-button" prefHeight="40.0" prefWidth="90.0" styleClass="settings-cancel-button" text="%LBL_CANCEL">
+               <font>
+                  <Font size="14.0" />
+               </font></JFXButton>
          </children>
       </HBox>
    </children>
