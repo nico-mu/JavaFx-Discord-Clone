@@ -11,6 +11,7 @@ import de.uniks.stp.modal.DeleteMessageModal;
 import de.uniks.stp.modal.EditMessageModal;
 import de.uniks.stp.model.Message;
 import de.uniks.stp.model.ServerMessage;
+import de.uniks.stp.util.AnimationUtil;
 import de.uniks.stp.util.DateUtil;
 import de.uniks.stp.util.InviteInfo;
 import de.uniks.stp.view.Views;
@@ -105,30 +106,15 @@ public class ChatMessage extends HBox {
             deleteMessage.setOnMouseClicked(this::onMessageDelete);
         }
 
+        AnimationUtil animationUtil = new AnimationUtil();
         editMessage.setEffect(new ColorAdjust());
-        editMessage.setOnMouseEntered(event -> {
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(-0.6);
-            editMessage.setEffect(colorAdjust);
-        });
-        editMessage.setOnMouseExited(event -> {
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(0);
-            editMessage.setEffect(colorAdjust);
-        });
+        editMessage.setOnMouseEntered(event -> animationUtil.iconEntered(editMessage));
+        editMessage.setOnMouseExited(event -> animationUtil.iconExited(editMessage));
         editMessage.setVisible(false);
 
         deleteMessage.setEffect(new ColorAdjust());
-        deleteMessage.setOnMouseEntered(event -> {
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(-0.6);
-            deleteMessage.setEffect(colorAdjust);
-        });
-        deleteMessage.setOnMouseExited(event -> {
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(0);
-            deleteMessage.setEffect(colorAdjust);
-        });
+        deleteMessage.setOnMouseEntered(event -> animationUtil.iconEntered(deleteMessage));
+        deleteMessage.setOnMouseExited(event -> animationUtil.iconExited(deleteMessage));
         deleteMessage.setVisible(false);
 
 

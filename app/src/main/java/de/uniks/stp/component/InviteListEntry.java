@@ -7,6 +7,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.InvitesModal;
 import de.uniks.stp.model.ServerInvitation;
+import de.uniks.stp.util.AnimationUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -60,30 +61,15 @@ public class InviteListEntry extends HBox {
         String currentMaxString = serverInvitation.getType().equals("temporal") ? "-" : serverInvitation.getCurrent() + " / " + serverInvitation.getMax();
         currentMax.setText(currentMaxString);
 
+        AnimationUtil animationUtil = new AnimationUtil();
         copy.setEffect(new ColorAdjust());
-        copy.setOnMouseEntered(event -> {
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(-0.6);
-            copy.setEffect(colorAdjust);
-        });
-        copy.setOnMouseExited(event -> {
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(0);
-            copy.setEffect(colorAdjust);
-        });
+        copy.setOnMouseEntered(event -> animationUtil.iconEntered(copy));
+        copy.setOnMouseExited(event -> animationUtil.iconExited(copy));
         copy.setOnMouseClicked(this::onCopyClicked);
 
         delete.setEffect(new ColorAdjust());
-        delete.setOnMouseEntered(event -> {
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(-0.6);
-            delete.setEffect(colorAdjust);
-        });
-        delete.setOnMouseExited(event -> {
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(0);
-            delete.setEffect(colorAdjust);
-        });
+        delete.setOnMouseEntered(event -> animationUtil.iconEntered(delete));
+        delete.setOnMouseExited(event -> animationUtil.iconExited(delete));
         delete.setOnMouseClicked(this::onDeleteClicked);
     }
 

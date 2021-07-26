@@ -7,6 +7,7 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.CreateChannelModal;
 import de.uniks.stp.modal.EditCategoryModal;
 import de.uniks.stp.model.Category;
+import de.uniks.stp.util.AnimationUtil;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -73,32 +74,15 @@ public class ServerCategoryElement extends VBox {
         categoryHeadPane.setOnMouseEntered(this::onCategoryMouseEntered);
         categoryHeadPane.setOnMouseExited(this::onCategoryMouseExited);
 
+        AnimationUtil animationUtil = new AnimationUtil();
         addServerPlus.setEffect(new ColorAdjust());
-        addServerPlus.setOnMouseEntered(event -> {
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(-0.6);
-            addServerPlus.setEffect(colorAdjust);
-        });
-        addServerPlus.setOnMouseExited(event -> {
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(0);
-            addServerPlus.setEffect(colorAdjust);
-        });
+        addServerPlus.setOnMouseEntered(event -> animationUtil.iconEntered(addServerPlus));
+        addServerPlus.setOnMouseExited(event -> animationUtil.iconExited(addServerPlus));
         addServerPlus.setOnMouseClicked(this::onAddServerPlusClicked);
 
         editCatGear.setEffect(new ColorAdjust());
-        editCatGear.setOnMouseEntered(event -> {
-            editCatGear.setRotate(20);
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(-0.6);
-            editCatGear.setEffect(colorAdjust);
-        });
-        editCatGear.setOnMouseExited(event -> {
-            editCatGear.setRotate(0);
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(0);
-            editCatGear.setEffect(colorAdjust);
-        });
+        editCatGear.setOnMouseEntered(event -> animationUtil.gearEntered(editCatGear));
+        editCatGear.setOnMouseExited(event -> animationUtil.gearExited(editCatGear));
         editCatGear.setOnMouseClicked(this::onEditCatGearClicked);
 
         this.setId(model.getId() + "-ServerCategoryElement");

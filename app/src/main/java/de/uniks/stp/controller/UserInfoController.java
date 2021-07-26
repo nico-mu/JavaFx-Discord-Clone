@@ -11,6 +11,7 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.SettingsModal;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.util.AnimationUtil;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -81,20 +82,11 @@ public class UserInfoController implements ControllerInterface {
         AnchorPane.setLeftAnchor(userSubView, 10.0d);
         AnchorPane.setRightAnchor(userSubView, 10.0d);
 
+        AnimationUtil animationUtil = new AnimationUtil();
         settingsGearContainer.setOnMouseClicked(this::onSettingsGearClicked);
         settingsGear.setEffect(new ColorAdjust());
-        settingsGearContainer.setOnMouseEntered(event -> {
-            settingsGear.setRotate(20);
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(-0.6);
-            settingsGear.setEffect(colorAdjust);
-        });
-        settingsGearContainer.setOnMouseExited(event -> {
-            settingsGear.setRotate(0);
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(0);
-            settingsGear.setEffect(colorAdjust);
-        });
+        settingsGearContainer.setOnMouseEntered(event -> animationUtil.gearEntered(settingsGear));
+        settingsGearContainer.setOnMouseExited(event -> animationUtil.gearExited(settingsGear));
         logoutButton.setOnAction(this::onLogoutButtonClicked);
         usernameLabel.setText(editor.getOrCreateAccord().getCurrentUser().getName());
     }

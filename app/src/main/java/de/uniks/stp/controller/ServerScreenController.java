@@ -16,6 +16,7 @@ import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.RouteInfo;
+import de.uniks.stp.util.AnimationUtil;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -136,19 +137,10 @@ public class ServerScreenController implements ControllerInterface {
         serverScreenView.setPrefHeight(view.getHeight());
         view.heightProperty().addListener(viewHeightChangedListener);
 
+        AnimationUtil animationUtil = new AnimationUtil();
         settingsGear.setEffect(new ColorAdjust());
-        settingsGearLabel.setOnMouseEntered(event -> {
-            settingsGear.setRotate(20);
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(-0.6);
-            settingsGear.setEffect(colorAdjust);
-        });
-        settingsGearLabel.setOnMouseExited(event -> {
-            settingsGear.setRotate(0);
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(0);
-            settingsGear.setEffect(colorAdjust);
-        });
+        settingsGearLabel.setOnMouseEntered(event -> animationUtil.gearEntered(settingsGear));
+        settingsGearLabel.setOnMouseExited(event -> animationUtil.gearExited(settingsGear));
         settingsGearLabel.setOnMouseClicked(e -> settingsContextMenu.show(settingsGearLabel, Side.BOTTOM, 0, 0));
 
         categoryListController = serverCategoryListControllerFactory.create(serverChannelOverview, model);

@@ -7,6 +7,7 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.EditChannelModal;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.util.AnimationUtil;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -76,19 +77,10 @@ public class ServerTextChannelElement extends ServerChannelElement implements No
         channelContainer.setOnMouseEntered(this::onChannelMouseEntered);
         channelContainer.setOnMouseExited(this::onChannelMouseExited);
 
+        AnimationUtil animationUtil = new AnimationUtil();
         editChannel.setEffect(new ColorAdjust());
-        editChannel.setOnMouseEntered(event -> {
-            editChannel.setRotate(20);
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(-0.6);
-            editChannel.setEffect(colorAdjust);
-        });
-        editChannel.setOnMouseExited(event -> {
-            editChannel.setRotate(0);
-            ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setContrast(0);
-            editChannel.setEffect(colorAdjust);
-        });
+        editChannel.setOnMouseEntered(event -> animationUtil.gearEntered(editChannel));
+        editChannel.setOnMouseExited(event -> animationUtil.gearExited(editChannel));
         editChannel.setOnMouseClicked(this::onEditChannelClicked);
 
         for (Node node : channelText.getChildren()) {
