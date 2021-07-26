@@ -1,14 +1,10 @@
 package de.uniks.stp.jpa;
 
-import de.uniks.stp.jpa.model.DirectMessageDTO;
-import de.uniks.stp.jpa.model.MutedCategoryDTO;
-import de.uniks.stp.jpa.model.MutedChannelDTO;
-import de.uniks.stp.jpa.model.MutedServerDTO;
+import de.uniks.stp.jpa.model.*;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
 import javafx.util.Pair;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -46,6 +42,91 @@ public class SessionDatabaseService extends AppDatabaseService {
                 .setMessage(message.getMessage())
                 .setOwnerName(currentUser.getName())
         );
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public ApiIntegrationSettingDTO getApiIntegrationSetting(String serviceName) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ApiIntegrationSettingDTO> query = criteriaBuilder.createQuery(ApiIntegrationSettingDTO.class);
+        Root<ApiIntegrationSettingDTO> root = query.from(ApiIntegrationSettingDTO.class);
+
+        query.where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("username"), currentUser.getName()),
+                criteriaBuilder.equal(root.get("serviceName"), serviceName)
+            )
+        );
+
+        ApiIntegrationSettingDTO result = null;
+
+        try {
+            result = entityManager.createQuery(query).getSingleResult();
+        }
+        catch (NoResultException ignored) {}
+
+        transaction.commit();
+        entityManager.close();
+
+        return result;
+    }
+
+    public void addApiIntegrationSetting(String serviceName, String refreshToken) {
+        ApiIntegrationSettingDTO apiIntegrationSettingDTO = getApiIntegrationSetting(serviceName);
+
+        if(Objects.isNull(apiIntegrationSettingDTO)) {
+            apiIntegrationSettingDTO = new ApiIntegrationSettingDTO().setServiceName(serviceName)
+                .setUsername(currentUser.getName())
+                .setRefreshToken(refreshToken);
+        }
+        else {
+            apiIntegrationSettingDTO.setRefreshToken(refreshToken);
+        }
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        entityManager.merge(apiIntegrationSettingDTO);
+
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public void deleteApiIntegrationSetting(String serviceName) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ApiIntegrationSettingDTO> query = criteriaBuilder.createQuery(ApiIntegrationSettingDTO.class);
+        Root<ApiIntegrationSettingDTO> root = query.from(ApiIntegrationSettingDTO.class);
+
+        query.where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("username"), currentUser.getName()),
+                criteriaBuilder.equal(root.get("serviceName"), serviceName)
+            )
+        );
+
+        ApiIntegrationSettingDTO result = null;
+
+        try {
+            result = entityManager.createQuery(query).getSingleResult();
+        }
+        catch (NoResultException ignored) {}
+
+        if(Objects.nonNull(result)) {
+            entityManager.remove(result);
+        }
 
         transaction.commit();
         entityManager.close();

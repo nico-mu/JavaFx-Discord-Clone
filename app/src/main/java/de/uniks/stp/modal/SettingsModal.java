@@ -10,6 +10,11 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.SessionDatabaseService;
+import de.uniks.stp.network.integration.IntegrationService;
+import de.uniks.stp.network.integration.authorization.AuthorizationCallback;
+import de.uniks.stp.network.integration.Credentials;
+import de.uniks.stp.network.integration.Integrations;
+import de.uniks.stp.network.integration.authorization.SpotifyAuthorizationClient;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Languages;
 import javafx.application.Platform;
@@ -29,6 +34,7 @@ public class SettingsModal extends AbstractModal {
     public static final String SETTINGS_CANCEL_BUTTON = "#settings-cancel-button";
     public static final String SETTINGS_COMBO_SELECT_LANGUAGE = "#combo-select-language";
     public static final String SETTINGS_COMBO_SELECT_NOTIFICATION_SOUND = "#combo-select-notification-sound";
+    public static final String SETTINGS_SPOTIFY_INTEGRATION_BUTTON = "#spotify-integration-button";
     private final JFXButton applyButton;
     private final JFXButton cancelButton;
     private final KeyBasedComboBox languageComboBox;
@@ -39,6 +45,9 @@ public class SettingsModal extends AbstractModal {
     private final SessionDatabaseService databaseService;
     private final AudioService audioService;
     private final Stage primaryStage;
+    private final JFXButton spotifyIntegrationButton;
+    private final SpotifyAuthorizationClient spotifyAuthorizationClient;
+    private final IntegrationService integrationService;
 
     @AssistedInject
     public SettingsModal(ViewLoader viewLoader,
@@ -46,6 +55,8 @@ public class SettingsModal extends AbstractModal {
                          @Named("primaryStage") Stage primaryStage,
                          SessionDatabaseService databaseService,
                          AudioService audioService,
+                         SpotifyAuthorizationClient spotifyAuthorizationClient,
+                         IntegrationService integrationService,
                          @Assisted Parent root) {
         super(root, primaryStage);
         this.primaryStage = primaryStage;
@@ -53,11 +64,14 @@ public class SettingsModal extends AbstractModal {
         this.router = router;
         this.databaseService = databaseService;
         this.audioService = audioService;
+        this.spotifyAuthorizationClient = spotifyAuthorizationClient;
+        this.integrationService = integrationService;
 
         setTitle(viewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE_TITLE));
 
         applyButton = (JFXButton) view.lookup(SETTINGS_APPLY_BUTTON);
         cancelButton = (JFXButton) view.lookup(SETTINGS_CANCEL_BUTTON);
+        spotifyIntegrationButton = (JFXButton) view.lookup(SETTINGS_SPOTIFY_INTEGRATION_BUTTON);
 
         languageComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_LANGUAGE);
 
@@ -73,6 +87,22 @@ public class SettingsModal extends AbstractModal {
         applyButton.setDefaultButton(true);  // use Enter in order to press button
         cancelButton.setOnAction(this::onCancelButtonClicked);
         cancelButton.setCancelButton(true);  // use Escape in order to press button
+
+        spotifyIntegrationButton.setOnAction(this::onSpotifyIntegrationButton);
+    }
+
+    private void onSpotifyIntegrationButton(ActionEvent actionEvent) {
+        spotifyAuthorizationClient.authorize(new AuthorizationCallback() {
+            @Override
+            public void onSuccess(Credentials credentials) {
+                integrationService.startService(Integrations.SPOTIFY.key, credentials);
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                //TODO: show failure message and color button
+            }
+        });
     }
 
     public HashMap<String, String> getLanguages() {

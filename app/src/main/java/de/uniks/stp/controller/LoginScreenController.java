@@ -298,6 +298,7 @@ public class LoginScreenController implements ControllerInterface {
             }
             app.setSessionComponent(sessionComponent);
             sessionComponent.getWebsocketService().init();
+            sessionComponent.getIntegrationService().init();
 
             if (!tempUserLogin && rememberMeCheckBox.isSelected()) {
                 // Save in db
