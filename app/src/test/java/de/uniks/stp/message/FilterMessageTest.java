@@ -27,8 +27,7 @@ public class FilterMessageTest {
             "!tictactoe143254",
             "12324"
         };
-        String[] results = new String[samples.length];
-        for (int index = 0; index < results.length; ++index) {
+        for (int index = 0; index < samples.length; ++index) {
             Assertions.assertEquals(expectedResults[index], MessageUtil.filterContent(samples[index]));
         }
     }
