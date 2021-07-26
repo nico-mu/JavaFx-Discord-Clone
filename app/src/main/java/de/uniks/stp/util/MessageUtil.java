@@ -40,9 +40,8 @@ public class MessageUtil {
 
     public static String filterContent(String msg) {
         if (replyPattern.matcher(msg).matches()) {
-            return msg.replaceAll("\\[", "").split("###")[4];
-        } else {
-            return msg.replaceAll(FILTERED_COMMANDS, "");
+            msg = msg.replaceAll("\\[", "").split("###")[4];
         }
+        return msg.replaceAll(FILTERED_COMMANDS, "");
     }
 }

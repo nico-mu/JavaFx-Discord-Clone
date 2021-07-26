@@ -15,7 +15,8 @@ public class FilterMessageTest {
             "!imagebot string 987",
             "!randomimage test 134",
             "!tictactoe143254",
-            "!tictactoe 12324"
+            "!tictactoe 12324",
+            "###quoteInit###repliedToText123###quoteMessage###!hangman test @@@123[###messageId243525###repliedToId314235][###235233452###2143423532]###quoteStop###"
         };
         String[] expectedResults = {
             "sendMessage245234",
@@ -25,7 +26,8 @@ public class FilterMessageTest {
             "string 987",
             "test 134",
             "!tictactoe143254",
-            "12324"
+            "12324",
+            "test @@@123"
         };
         for (int index = 0; index < samples.length; ++index) {
             Assertions.assertEquals(expectedResults[index], MessageUtil.filterContent(samples[index]));
