@@ -14,16 +14,18 @@ public class FilterMessageTest {
             "!stop test 123",
             "!imagebot string 987",
             "!randomimage test 134",
-            "!tictactoe143254"
+            "!tictactoe143254",
+            "!tictactoe 12324"
         };
         String[] expectedResults = {
             "sendMessage245234",
-            " testInput 123",
-            " testInput 456",
-            " test 123",
-            " string 987",
-            " test 134",
-            "143254"
+            "testInput 123",
+            "testInput 456",
+            "test 123",
+            "string 987",
+            "test 134",
+            "!tictactoe143254",
+            "12324"
         };
         String[] results = new String[samples.length];
         for (int index = 0; index < results.length; ++index) {

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  */
 public class MessageUtil {
 
-    private final static String FILTERED_COMMANDS = "(!hangman|!guess|!stop|!imagebot|!randomimage|!tictactoe)";
+    private final static String FILTERED_COMMANDS = "(!hangman |!guess |!stop |!imagebot |!randomimage |!tictactoe )";
     private final static Pattern replyPattern = Pattern.compile("^###quoteInit###.*###.*###.*\\[###.*###.*\\]\\[###.*###.*\\]###quoteStop###$");
 
     /**
