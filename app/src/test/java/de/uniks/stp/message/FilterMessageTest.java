@@ -25,7 +25,7 @@ public class FilterMessageTest {
             "test 123",
             "string 987",
             "test 134",
-            "!tictactoe143254",
+            "143254",
             "12324",
             "test @@@123"
         };
