@@ -22,9 +22,6 @@ import javax.inject.Named;
 import java.util.function.Consumer;
 
 public class EasterEggModal extends AbstractModal {
-    public final String ROCK = "rock";
-    public final String PAPER = "paper";
-    public final String SCISSORS = "scissors";
     public final String ACTION_LABEL = "#action-label";
     public final String REVANCHE_BUTTON = "#revanche-button";
     public final String ROCK_BUTTON = "#rock-button";
@@ -138,10 +135,6 @@ public class EasterEggModal extends AbstractModal {
             paperButton.setDisable(false);
             scissorsButton.setDisable(false);
         });
-    }
-
-    public void opponentLeft() {
-        Platform.runLater(() -> actionLabel.setText(viewLoader.loadLabel(Constants.LBL_GAME_LEFT)));
     }
 
     @Override

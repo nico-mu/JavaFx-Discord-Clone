@@ -66,7 +66,11 @@ public class MiniGameController implements ControllerInterface {
         );
         incomingCommandHandler.put(
             GameCommand.LEAVE.command,
-            (messageText, timestamp) -> gameMatcher.setOpponentCommand(GameCommand.LEAVE)
+            (messageText, timestamp) -> {
+                gameMatcher.setOpponentCommand(GameCommand.LEAVE);
+                easterEggModal.setScoreText(viewLoader.loadLabel(Constants.LBL_GAME_LEFT));
+                gameScore.recycle();
+            }
         );
     }
 
@@ -116,6 +120,7 @@ public class MiniGameController implements ControllerInterface {
     }
 
     private void incomingChooseActionCommand(String messageText, long timestamp) {
+        // !choose <action>
         Scanner scanner = new Scanner(messageText);
         scanner.next();
         String rawOpponentAction = scanner.next();
@@ -209,6 +214,8 @@ public class MiniGameController implements ControllerInterface {
 
     private void closeEasterEggModal(ActionEvent actionEvent) {
         if (Objects.nonNull(easterEggModal)) {
+            webSocketService.sendPrivateMessage(chatPartner.getName(), GameCommand.LEAVE.command);
+            gameMatcher.setOwnCommand(GameCommand.LEAVE);
             easterEggModal.close();
             easterEggModal = null;
         }
