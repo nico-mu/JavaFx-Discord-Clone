@@ -1,15 +1,12 @@
 package de.uniks.stp.controller;
 
-import com.sun.prism.shader.DrawPgram_LinearGradient_REFLECT_AlphaTest_Loader;
 import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
-import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
-import de.uniks.stp.model.Category;
-import de.uniks.stp.model.Server;
+import de.uniks.stp.modal.SettingsModal;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.websocket.WSCallback;
@@ -18,13 +15,10 @@ import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
-import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -39,14 +33,7 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(ApplicationExtension.class)
@@ -130,6 +117,9 @@ public class SettingsModalTest {
         Assertions.assertEquals("light-button.wav", notificationSoundComboBox2.getSelection());
         Platform.runLater(() -> notificationSoundComboBox2.setSelection("gaming-lock.wav"));
         WaitForAsyncUtils.waitForFxEvents();
+
+        robot.clickOn(SettingsModal.SETTINGS_COMBO_SELECT_INPUT_DEVICE);
+        robot.clickOn(SettingsModal.SETTINGS_COMBO_SELECT_OUTPUT_DEVICE);
 
         robot.clickOn("#settings-apply-button");
     }
