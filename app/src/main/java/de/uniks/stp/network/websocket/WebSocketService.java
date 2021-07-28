@@ -6,6 +6,7 @@ import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.minigame.GameCommand;
 import de.uniks.stp.model.*;
 import de.uniks.stp.notification.NotificationService;
+import de.uniks.stp.util.MessageUtil;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +92,10 @@ public class WebSocketService {
      * @param message
      */
     public void sendPrivateMessage(String receiverName, String message) {
+        message = MessageUtil.filterContent(message);
+        if (message.equals("")) {
+            return;
+        }
         JsonObject msgObject = Json.createObjectBuilder()
             .add("channel", "private")
             .add("to", receiverName)
@@ -121,11 +126,11 @@ public class WebSocketService {
 
         final String from = jsonObject.getString("from");
         final long timestamp = jsonObject.getLong("timestamp");
-        final String msgText = jsonObject.getString("message");
+        final String msgText = MessageUtil.filterContent(jsonObject.getString("message"));
         final String to = jsonObject.getString("to");
 
         // in case it's sent by you
-        if (from.equals(currentUser.getName())) {
+        if (from.equals(currentUser.getName()) || msgText.equals("")) {
             return;
         }
 
@@ -192,6 +197,10 @@ public class WebSocketService {
      * @param message
      */
     public void sendServerMessage(String serverId, String channelId, String message) {
+        message = MessageUtil.filterContent(message);
+        if (message.equals("")) {
+            return;
+        }
         JsonObject msgObject = Json.createObjectBuilder()
             .add("channel", channelId)
             .add("message", message)
@@ -223,7 +232,11 @@ public class WebSocketService {
         final String channelId = jsonObject.getString("channel");
         final long timestamp = jsonObject.getLong("timestamp");
         final String from = jsonObject.getString("from");
-        final String msgText = jsonObject.getString("text");
+        final String msgText = MessageUtil.filterContent(jsonObject.getString("text"));
+
+        if (msgText.equals("")) {
+            return;
+        }
 
         User sender = editor.getOtherUser(from);
         if (Objects.isNull(sender)) {

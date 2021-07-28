@@ -4,11 +4,15 @@ import de.uniks.stp.Constants;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * This class should be used to detect/return commands or other special texts in a message
  */
 public class MessageUtil {
+
+    private final static String FILTERED_COMMANDS = "(!hangman |!hangman|!guess |!guess|!stop |!stop|!imagebot |!imagebot|!randomimage |!randomimage|!tictactoe |!tictactoe)";
+    private final static Pattern replyPattern = Pattern.compile("^###quoteInit###.*###.*###.*\\[###.*###.*\\]\\[###.*###.*\\]###quoteStop###$");
 
     /**
      * Finds invite in message and returns serverId & inviteId if found
@@ -32,5 +36,12 @@ public class MessageUtil {
             }
         }
         return null;
+    }
+
+    public static String filterContent(String msg) {
+        if (replyPattern.matcher(msg).matches()) {
+            msg = msg.replaceAll("\\[", "").split("###")[4];
+        }
+        return msg.replaceAll(FILTERED_COMMANDS, "");
     }
 }
