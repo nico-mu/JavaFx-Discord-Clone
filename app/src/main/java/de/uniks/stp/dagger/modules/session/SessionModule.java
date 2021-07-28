@@ -5,6 +5,7 @@ import dagger.Provides;
 import de.uniks.stp.AudioService;
 import de.uniks.stp.Editor;
 import de.uniks.stp.dagger.scope.SessionScope;
+import de.uniks.stp.jpa.AppDatabaseService;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.ServerInformationHandler;
@@ -35,8 +36,9 @@ public class SessionModule {
 
     @Provides
     @SessionScope
-    static VoiceChatService provideSessionVoiceChatService(VoiceChatClientFactory voiceChatClientFactory) {
-        return new VoiceChatService(voiceChatClientFactory);
+    static VoiceChatService provideSessionVoiceChatService(VoiceChatClientFactory voiceChatClientFactory,
+                                                           AppDatabaseService databaseService) {
+        return new VoiceChatService(voiceChatClientFactory, databaseService);
     }
 
     @Provides

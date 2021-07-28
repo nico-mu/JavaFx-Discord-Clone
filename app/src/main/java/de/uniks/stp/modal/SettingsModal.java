@@ -7,9 +7,11 @@ import dagger.assisted.AssistedInject;
 import de.uniks.stp.AudioService;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.component.AudioDeviceComboBox;
 import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.SessionDatabaseService;
+import de.uniks.stp.network.voice.VoiceChatService;
 import de.uniks.stp.router.Router;
 import de.uniks.stp.view.Languages;
 import javafx.application.Platform;
@@ -20,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
+import javax.sound.sampled.Mixer;
 import java.util.HashMap;
 import java.util.MissingResourceException;
 
@@ -29,16 +32,27 @@ public class SettingsModal extends AbstractModal {
     public static final String SETTINGS_CANCEL_BUTTON = "#settings-cancel-button";
     public static final String SETTINGS_COMBO_SELECT_LANGUAGE = "#combo-select-language";
     public static final String SETTINGS_COMBO_SELECT_NOTIFICATION_SOUND = "#combo-select-notification-sound";
+    public static final String SETTINGS_COMBO_SELECT_INPUT_DEVICE = "#combo-select-input-device";
+    public static final String SETTINGS_COMBO_SELECT_OUTPUT_DEVICE = "#combo-select-output-device";
     private final JFXButton applyButton;
     private final JFXButton cancelButton;
     private final KeyBasedComboBox languageComboBox;
     private final KeyBasedComboBox notificationComboBox;
+    private final AudioDeviceComboBox inputDeviceComboBox;
+    private final AudioDeviceComboBox outputDeviceComboBox;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
     private final ViewLoader viewLoader;
     private final Router router;
     private final SessionDatabaseService databaseService;
     private final AudioService audioService;
+    private final VoiceChatService voiceChatService;
     private final Stage primaryStage;
+
+    private String currentLanguage;
+    private String currentNotificationSoundFile;
+
+    private Mixer currentMicrophone;
+    private Mixer currentSpeaker;
 
     @AssistedInject
     public SettingsModal(ViewLoader viewLoader,
@@ -46,6 +60,7 @@ public class SettingsModal extends AbstractModal {
                          @Named("primaryStage") Stage primaryStage,
                          SessionDatabaseService databaseService,
                          AudioService audioService,
+                         VoiceChatService voiceChatService,
                          @Assisted Parent root) {
         super(root, primaryStage);
         this.primaryStage = primaryStage;
@@ -53,6 +68,7 @@ public class SettingsModal extends AbstractModal {
         this.router = router;
         this.databaseService = databaseService;
         this.audioService = audioService;
+        this.voiceChatService = voiceChatService;
 
         setTitle(viewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE_TITLE));
 
@@ -60,17 +76,30 @@ public class SettingsModal extends AbstractModal {
         cancelButton = (JFXButton) view.lookup(SETTINGS_CANCEL_BUTTON);
 
         languageComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_LANGUAGE);
-
         languageComboBox.addOptions(getLanguages());
-        languageComboBox.setSelection(viewLoader.getCurrentLocale().getLanguage());
+        currentLanguage = viewLoader.getCurrentLocale().getLanguage();
+        languageComboBox.setSelection(currentLanguage);
 
         notificationComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_NOTIFICATION_SOUND);
-
         notificationComboBox.addOptions(getNotificationSounds());
-        notificationComboBox.setSelection(audioService.getNotificationSoundFileName());
+        currentNotificationSoundFile = audioService.getNotificationSoundFileName();
+        notificationComboBox.setSelection(currentNotificationSoundFile);
+
+        inputDeviceComboBox = (AudioDeviceComboBox) view.lookup(SETTINGS_COMBO_SELECT_INPUT_DEVICE);
+        inputDeviceComboBox.init();
+        inputDeviceComboBox.withOptions(voiceChatService.getAvailableMicrophones());
+        currentMicrophone = voiceChatService.getSelectedMicrophone();
+        inputDeviceComboBox.setSelection(currentMicrophone);
+
+        outputDeviceComboBox = (AudioDeviceComboBox) view.lookup(SETTINGS_COMBO_SELECT_OUTPUT_DEVICE);
+        outputDeviceComboBox.init();
+        outputDeviceComboBox.withOptions(voiceChatService.getAvailableSpeakers());
+        currentSpeaker = voiceChatService.getSelectedSpeaker();
+        outputDeviceComboBox.setSelection(currentSpeaker);
 
         applyButton.setOnAction(this::onApplyButtonClicked);
         applyButton.setDefaultButton(true);  // use Enter in order to press button
+
         cancelButton.setOnAction(this::onCancelButtonClicked);
         cancelButton.setCancelButton(true);  // use Escape in order to press button
     }
@@ -105,8 +134,28 @@ public class SettingsModal extends AbstractModal {
     }
 
     private void onApplyButtonClicked(ActionEvent actionEvent) {
-        changeLanguage(languageComboBox.getSelection());
-        audioService.setNotificationSoundFile(notificationComboBox.getSelection());
+        String newLanguage = languageComboBox.getSelection();
+        if (! currentLanguage.equals(newLanguage)){
+            changeLanguage(newLanguage);
+            currentLanguage = newLanguage;
+        }
+        String newNotificationSoundFile = notificationComboBox.getSelection();
+        if (! currentNotificationSoundFile.equals(newNotificationSoundFile)){
+            audioService.setNotificationSoundFile(newNotificationSoundFile);
+            currentNotificationSoundFile = newNotificationSoundFile;
+        }
+
+        final Mixer selectedMicrophone = inputDeviceComboBox.getValue();
+        if (!currentMicrophone.equals(selectedMicrophone)) {
+            voiceChatService.setSelectedMicrophone(selectedMicrophone);
+            currentMicrophone = selectedMicrophone;
+        }
+        final Mixer selectedSpeaker = outputDeviceComboBox.getValue();
+        if (!currentSpeaker.equals(selectedSpeaker)) {
+            voiceChatService.setSelectedSpeaker(selectedSpeaker);
+            currentSpeaker = selectedSpeaker;
+        }
+
         this.close();
     }
 
