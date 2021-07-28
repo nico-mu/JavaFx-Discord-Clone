@@ -42,8 +42,6 @@ public class EasterEggModal extends AbstractModal {
     private final User opponentUser;
     private final ViewLoader viewLoader;
     private final WebSocketService webSocketService;
-    private String opponentAction;  //saves current selected action of opponent
-    private boolean revanche = false;  //used to save whether one player already invited the other for a revanche
 
     @AssistedInject
     public EasterEggModal(ViewLoader viewLoader,
@@ -65,7 +63,6 @@ public class EasterEggModal extends AbstractModal {
         paperButton = (Button) view.lookup(PAPER_BUTTON);
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
 
-        revancheButton.setOnAction(this::onRevancheButtonClicked);
         cancelButton.setOnAction(closeHandler);
     }
 
@@ -81,38 +78,29 @@ public class EasterEggModal extends AbstractModal {
         paperButton.setOnAction(onPaperButtonClicked);
     }
 
+    public void setOnRevancheButtonClicked(EventHandler<ActionEvent> onRevancheButtonClicked) {
+        revancheButton.setOnAction(onRevancheButtonClicked);
+    }
+
     /**
      * Used to show your current choice
      */
     public void setButtonColor(GameInfo.Action action, String color) {
         resetButtonColor();
-        switch (action) {
-            case ROCK -> rockButton.setStyle("-fx-background-color: " + color + ";");
-            case PAPER -> paperButton.setStyle("-fx-background-color: " + color + ";");
-            case SCISSORS -> scissorsButton.setStyle("-fx-background-color: " + color + ";");
-        }
+        Platform.runLater(() -> {
+            switch (action) {
+                case ROCK -> rockButton.setStyle("-fx-background-color: " + color + ";");
+                case PAPER -> paperButton.setStyle("-fx-background-color: " + color + ";");
+                case SCISSORS -> scissorsButton.setStyle("-fx-background-color: " + color + ";");
+            }
+        });
     }
 
-    private void resetButtonColor(){
-        rockButton.setStyle("-fx-background-color: transparent;");
-        paperButton.setStyle("-fx-background-color: transparent;");
-        scissorsButton.setStyle("-fx-background-color: transparent;");
+    public void setScoreText(String text) {
+        Platform.runLater(() -> actionLabel.setText(text));
     }
 
-    /**
-     * Called when both players choiced. Shows result of battle.
-     */
-    private void battle() {
-        int result = 0;
-        colorOpponentButton(result);
-        if (result == 0) {
-            Platform.runLater(() -> actionLabel.setText(viewLoader.loadLabel(Constants.LBL_RESULT_DRAW)));
-        } else if (result == 1) {
-            Platform.runLater(() -> actionLabel.setText(viewLoader.loadLabel(Constants.LBL_RESULT_WIN)));
-        } else {
-            Platform.runLater(() -> actionLabel.setText(viewLoader.loadLabel(Constants.LBL_RESULT_LOSS)));
-        }
-
+    public void endGame() {
         Platform.runLater(() -> {
             revancheButton.setVisible(true);
             rockButton.setDisable(true);
@@ -121,54 +109,27 @@ public class EasterEggModal extends AbstractModal {
         });
     }
 
+    public JFXButton getRevancheButton() {
+        return revancheButton;
+    }
+
+    private void resetButtonColor() {
+        rockButton.setStyle("-fx-background-color: transparent;");
+        paperButton.setStyle("-fx-background-color: transparent;");
+        scissorsButton.setStyle("-fx-background-color: transparent;");
+    }
+
     /**
      * Called to show the opponents choice. At this moment the own choice is also already shown
      */
     private void colorOpponentButton(int res) {
-        if(res == 0){
-            // draw -> mark common choice yellow
-            /* if(action.equals(ROCK)){
-                Platform.runLater(() -> rockButton.setStyle("-fx-background-color: yellow;"));
-            } else if(action.equals(PAPER)){
-                Platform.runLater(() -> paperButton.setStyle("-fx-background-color: yellow;"));
-            } else if(action.equals(SCISSORS)){
-                Platform.runLater(() -> scissorsButton.setStyle("-fx-background-color: yellow;"));
-            }*/
-        } else if(opponentAction.equals(ROCK)){
-            Platform.runLater(() -> rockButton.setStyle("-fx-background-color: red;"));
-        } else if(opponentAction.equals(PAPER)){
-            Platform.runLater(() -> paperButton.setStyle("-fx-background-color: red;"));
-        } else{
-            Platform.runLater(() -> scissorsButton.setStyle("-fx-background-color: red;"));
-        }
-    }
 
-    private void onRevancheButtonClicked(ActionEvent actionEvent) {
-        if(revanche){
-            webSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.REVANCHE.command);
-            playAgain();
-        } else{
-            revanche = true;
-            revancheButton.setVisible(false);
-            webSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.REVANCHE.command);
-            actionLabel.setText(viewLoader.loadLabel(Constants.LBL_REVANCHE_WAIT));
-        }
-    }
-
-    public void incomingRevanche(){
-        if(revanche){
-            playAgain();
-        } else{
-            revanche = true;
-            Platform.runLater(() -> actionLabel.setText(viewLoader.loadLabel(Constants.LBL_REVANCHE_RESPOND)));
-        }
     }
 
     /**
      * prepares everything for a new battle
      */
-    private void playAgain() {
-        revanche = false;
+    public void playAgain() {
         Platform.runLater(() -> {
             revancheButton.setVisible(false);
             actionLabel.setText(viewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION));
@@ -177,11 +138,9 @@ public class EasterEggModal extends AbstractModal {
             paperButton.setDisable(false);
             scissorsButton.setDisable(false);
         });
-        opponentAction = null;
     }
 
-    public void opponentLeft(){
-        revanche = false;
+    public void opponentLeft() {
         Platform.runLater(() -> actionLabel.setText(viewLoader.loadLabel(Constants.LBL_GAME_LEFT)));
     }
 

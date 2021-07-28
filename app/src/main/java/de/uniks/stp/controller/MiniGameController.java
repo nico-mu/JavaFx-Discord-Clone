@@ -3,12 +3,10 @@ package de.uniks.stp.controller;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.emote.EmoteParser;
-import de.uniks.stp.minigame.GameCommand;
-import de.uniks.stp.minigame.GameInfo;
-import de.uniks.stp.minigame.GameInvitation;
-import de.uniks.stp.minigame.GameMatcher;
+import de.uniks.stp.minigame.*;
 import de.uniks.stp.modal.EasterEggModal;
 import de.uniks.stp.model.DirectMessage;
 import de.uniks.stp.model.User;
@@ -34,6 +32,7 @@ public class MiniGameController implements ControllerInterface {
     private EasterEggModal easterEggModal;
     private final User chatPartner;
     private final GameMatcher gameMatcher = new GameMatcher();
+    private final GameScore gameScore = new GameScore();
     private final EasterEggModal.EasterEggModalFactory easterEggModalFactory;
     private final WebSocketService webSocketService;
 
@@ -59,7 +58,10 @@ public class MiniGameController implements ControllerInterface {
             GameCommand.REVANCHE.command,
             (messageText, timestamp) -> {
                 gameMatcher.setOpponentCommand(GameCommand.REVANCHE);
-                checkCommandMatch();
+                easterEggModal.setScoreText(viewLoader.loadLabel(Constants.LBL_REVANCHE_RESPOND));
+                gameMatcher.ifCommandMatch(command -> {
+                    easterEggModal.playAgain();
+                });
             }
         );
         incomingCommandHandler.put(
@@ -104,13 +106,6 @@ public class MiniGameController implements ControllerInterface {
         }
     }
 
-    private void checkCommandMatch() {
-        gameMatcher.ifCommandMatch(command -> {
-
-            }
-        );
-    }
-
     private void incomingPlayCommand(String messageText, long timestamp) {
         if (invitation.isSent()) {
             invitation.recycle();
@@ -140,9 +135,49 @@ public class MiniGameController implements ControllerInterface {
                 })
             ).map(gameMatcher::setOpponentCommand);
 
-        gameMatcher.ifActionMatch((ownAction, opponentAction) -> {
-            log.debug("MATCH");
-        });
+        gameMatcher.ifActionMatch(this::handleActionMatch);
+    }
+
+    // handle action match -> determine winner, set score, recycle
+    private void handleActionMatch(GameInfo.Action ownAction, GameInfo.Action opponentAction) {
+        GameInfo.Result result = GameInfo.determineWinner(ownAction, opponentAction);
+
+        if (result.equals(GameInfo.Result.LOSS)) {
+            gameScore.increaseOpponentScore();
+            easterEggModal.setButtonColor(ownAction, "red");
+        } else if (result.equals(GameInfo.Result.DRAW)) {
+            easterEggModal.setButtonColor(ownAction, "yellow");
+        } else {
+            gameScore.increaseOwnScore();
+            easterEggModal.setButtonColor(ownAction, "green");
+        }
+
+        if (gameScore.isOwnWin()) {
+            easterEggModal.setScoreText(gameScore + ", " + viewLoader.loadLabel(Constants.LBL_RESULT_WIN));
+            easterEggModal.endGame();
+            gameScore.recycle();
+        } else if (gameScore.isOwnLoss()) {
+            easterEggModal.setScoreText(gameScore + ", " + viewLoader.loadLabel(Constants.LBL_RESULT_LOSS));
+            easterEggModal.endGame();
+            gameScore.recycle();
+        } else {
+            easterEggModal.setScoreText(gameScore + ", " + viewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION));
+        }
+        gameMatcher.recycle();
+    }
+
+    private void handleActionSelect(GameCommand command) {
+        GameInfo.castCommand(command).flatMap(
+            (action -> {
+                webSocketService.sendPrivateMessage(chatPartner.getName(), command.command);
+                gameMatcher.setOwnCommand(command);
+                easterEggModal.setButtonColor(action, "white");
+
+                return Optional.empty();
+            })
+        );
+
+        gameMatcher.ifActionMatch(this::handleActionMatch);
     }
 
     /**
@@ -155,43 +190,17 @@ public class MiniGameController implements ControllerInterface {
             easterEggModal = easterEggModalFactory.create(easterEggModalView,
                 chatPartner,
                 this::closeEasterEggModal);
-            easterEggModal.setOnPaperButtonClicked(event -> {
-                webSocketService.sendPrivateMessage(chatPartner.getName(), GameCommand.CHOOSE_PAPER.command);
-                gameMatcher.setOwnCommand(GameCommand.CHOOSE_PAPER);
-                easterEggModal.setButtonColor(GameInfo.Action.PAPER, "green");
-                gameMatcher.ifActionMatch((ownAction, opponentAction) -> {
-                    GameInfo.Result result = GameInfo.determineWinner(ownAction, opponentAction);
+            easterEggModal.setOnPaperButtonClicked(event -> handleActionSelect(GameCommand.CHOOSE_PAPER));
+            easterEggModal.setOnRockButtonClicked(event -> handleActionSelect(GameCommand.CHOOSE_ROCK));
+            easterEggModal.setOnScissorsButtonClicked(event -> handleActionSelect(GameCommand.CHOOSE_SCISSOR));
+            easterEggModal.setOnRevancheButtonClicked(event -> {
+                webSocketService.sendPrivateMessage(chatPartner.getName(), GameCommand.REVANCHE.command);
+                gameMatcher.setOwnCommand(GameCommand.REVANCHE);
+                easterEggModal.getRevancheButton().setVisible(false);
+                easterEggModal.setScoreText(viewLoader.loadLabel(Constants.LBL_REVANCHE_WAIT));
 
-                    if (result.equals(GameInfo.Result.LOSS)) {
-                        easterEggModal.setButtonColor(ownAction, "red");
-                        gameMatcher.recycle();
-                    }
-                });
-            });
-            easterEggModal.setOnRockButtonClicked(event -> {
-                webSocketService.sendPrivateMessage(chatPartner.getName(), GameCommand.CHOOSE_ROCK.command);
-                gameMatcher.setOwnCommand(GameCommand.CHOOSE_ROCK);
-                easterEggModal.setButtonColor(GameInfo.Action.ROCK, "green");
-                gameMatcher.ifActionMatch((ownAction, opponentAction) -> {
-                    GameInfo.Result result = GameInfo.determineWinner(ownAction, opponentAction);
-
-                    if (result.equals(GameInfo.Result.LOSS)) {
-                        easterEggModal.setButtonColor(ownAction, "red");
-                        gameMatcher.recycle();
-                    }
-                });
-            });
-            easterEggModal.setOnScissorsButtonClicked(event -> {
-                webSocketService.sendPrivateMessage(chatPartner.getName(), GameCommand.CHOOSE_SCISSOR.command);
-                gameMatcher.setOwnCommand(GameCommand.CHOOSE_SCISSOR);
-                easterEggModal.setButtonColor(GameInfo.Action.SCISSORS, "green");
-                gameMatcher.ifActionMatch((ownAction, opponentAction) -> {
-                    GameInfo.Result result = GameInfo.determineWinner(ownAction, opponentAction);
-
-                    if (result.equals(GameInfo.Result.LOSS)) {
-                        easterEggModal.setButtonColor(ownAction, "red");
-                        gameMatcher.recycle();
-                    }
+                gameMatcher.ifCommandMatch(command -> {
+                    easterEggModal.playAgain();
                 });
             });
             easterEggModal.show();

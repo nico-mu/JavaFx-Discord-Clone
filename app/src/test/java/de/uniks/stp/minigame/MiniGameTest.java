@@ -54,4 +54,17 @@ public class MiniGameTest {
         Assertions.assertTrue(lambdaCalled.get());
         lambdaCalled.set(false);
     }
+
+    @Test
+    public void testMiniGameScore() {
+        GameScore score = new GameScore();
+        score.setMaxRounds(5);
+        score.increaseOwnScore().increaseOwnScore().increaseOwnScore();
+        // Expect own win
+        Assertions.assertTrue(score.isOwnWin());
+        score.recycle();
+        score.increaseOpponentScore().increaseOpponentScore().increaseOwnScore().increaseOpponentScore();
+        // Expect own loss
+        Assertions.assertTrue(score.isOwnLoss());
+    }
 }
