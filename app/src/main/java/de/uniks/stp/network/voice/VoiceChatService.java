@@ -1,6 +1,5 @@
 package de.uniks.stp.network.voice;
 
-import de.uniks.stp.Constants;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.AppDatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
@@ -9,14 +8,16 @@ import de.uniks.stp.util.VoiceChatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.sampled.*;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.TargetDataLine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class VoiceChatService {
     private static final Logger log = LoggerFactory.getLogger(VoiceChatClient.class);
-    private static final AudioFormat audioFormat = getAudioFormat();
 
     private static String persistenceString(Mixer mixer) {
         return mixer.getMixerInfo().toString();
@@ -56,16 +57,6 @@ public class VoiceChatService {
 
     public List<Mixer> getAvailableMicrophones() {
         return availableMicrophones;
-    }
-
-    private static AudioFormat getAudioFormat() {
-        return new AudioFormat(
-            Constants.AUDIOSTREAM_SAMPLE_RATE,
-            Constants.AUDIOSTREAM_SAMPLE_SIZE_BITS,
-            Constants.AUDIOSTREAM_CHANNEL,
-            Constants.AUDIOSTREAM_SIGNED,
-            Constants.AUDIOSTREAM_BIG_ENDIAN
-        );
     }
 
     private final VoiceChatClientFactory voiceChatClientFactory;
