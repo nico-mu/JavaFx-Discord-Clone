@@ -22,15 +22,3 @@
   -fx-border-color: $main-background-color transparent transparent transparent;
   -fx-border-width: 2px;
 }
-
-.yes-button {
-  -fx-background-color: $button-color;
-  -fx-text-fill: $primary-text-fill;
-  -fx-font-size: 14px;
-}
-
-.no-button {
-  -fx-background-color: $button-color;
-  -fx-text-fill: $primary-text-fill;
-  -fx-font-size: 14px;
-}

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXButton?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.image.ImageView?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="modal" stylesheets="@../style/css/view/invites-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <VBox prefHeight="200.0" prefWidth="100.0" styleClass="list-container">
@@ -28,8 +30,14 @@
          </padding></VBox>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="120.0">
          <children>
-            <JFXButton id="invites-create" styleClass="create-button" text="%LBL_CREATE" />
-            <JFXButton id="invites-cancel" styleClass="cancel-button" text="%LBL_CANCEL" />
+            <JFXButton id="invites-create" styleClass="create-button" text="%LBL_CREATE">
+               <font>
+                  <Font size="14.0" />
+               </font></JFXButton>
+            <JFXButton id="invites-cancel" styleClass="cancel-button" text="%LBL_CANCEL">
+               <font>
+                  <Font size="14.0" />
+               </font></JFXButton>
          </children>
       </HBox>
       <Label id="invites-error" styleClass="error" />

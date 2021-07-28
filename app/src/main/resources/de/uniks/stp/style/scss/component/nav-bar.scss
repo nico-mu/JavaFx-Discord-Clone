@@ -6,6 +6,10 @@
   -fx-border-radius: 15px;
 }
 
+.nav-bar-element:hover {
+  -fx-background-color: $hover-background-color;
+}
+
 .nav-element-marker {
   -fx-background-color: $button-color;
 }

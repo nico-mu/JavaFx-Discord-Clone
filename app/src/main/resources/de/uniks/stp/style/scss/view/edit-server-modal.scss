@@ -26,18 +26,6 @@
   -fx-background-color: $main-background-color;
 }
 
-.edit-channel-create-button {
-  -fx-background-color: $button-color;
-  -fx-text-fill: $primary-text-fill;
-  -fx-font-size: 14px;
-}
-
-.edit-channel-cancel-button {
-  -fx-background-color: $button-color;
-  -fx-text-fill: $primary-text-fill;
-  -fx-font-size: 14px;
-}
-
 .edit-channel-error {
   -fx-text-fill: $error-text-fill;
 }
