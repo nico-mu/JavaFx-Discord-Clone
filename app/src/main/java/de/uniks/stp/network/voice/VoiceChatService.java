@@ -162,7 +162,9 @@ public class VoiceChatService {
     public void setInputVolume(int newInputVolume) {
         this.inputVolume = newInputVolume;
         databaseService.saveAccordSetting(AccordSettingKey.AUDIO_IN_VOLUME, String.valueOf(newInputVolume));
-        voiceChatClient.setInputVolume(newInputVolume);
+        if (Objects.nonNull(voiceChatClient)){
+            voiceChatClient.setInputVolume(newInputVolume);
+        }
     }
 
     public int getInputVolume() {
@@ -172,7 +174,9 @@ public class VoiceChatService {
     public void setOutputVolume(int newOutputVolume) {
         this.outputVolume = newOutputVolume;
         databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME, String.valueOf(newOutputVolume));
-        voiceChatClient.setOutputVolume(newOutputVolume);
+        if (Objects.nonNull(voiceChatClient)){
+            voiceChatClient.setOutputVolume(newOutputVolume);
+        }
     }
 
     public int getOutputVolume() {
