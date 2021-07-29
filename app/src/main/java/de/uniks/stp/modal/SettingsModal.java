@@ -30,6 +30,7 @@ import javax.inject.Named;
 import javax.sound.sampled.Mixer;
 import java.util.HashMap;
 import java.util.MissingResourceException;
+import java.util.Objects;
 
 public class SettingsModal extends AbstractModal {
 
@@ -164,24 +165,24 @@ public class SettingsModal extends AbstractModal {
     }
 
     private void onApplyButtonClicked(ActionEvent actionEvent) {
-        String newLanguage = languageComboBox.getSelection();
-        if (! currentLanguage.equals(newLanguage)){
+        final String newLanguage = languageComboBox.getSelection();
+        if (Objects.nonNull(newLanguage) && !newLanguage.equals(currentLanguage)){
             changeLanguage(newLanguage);
             currentLanguage = newLanguage;
         }
-        String newNotificationSoundFile = notificationComboBox.getSelection();
-        if (! currentNotificationSoundFile.equals(newNotificationSoundFile)){
+        final String newNotificationSoundFile = notificationComboBox.getSelection();
+        if (Objects.nonNull(newNotificationSoundFile) && !newNotificationSoundFile.equals(currentNotificationSoundFile)) {
             audioService.setNotificationSoundFile(newNotificationSoundFile);
             currentNotificationSoundFile = newNotificationSoundFile;
         }
 
         final Mixer selectedMicrophone = inputDeviceComboBox.getValue();
-        if (!currentMicrophone.equals(selectedMicrophone)) {
+        if (Objects.nonNull(selectedMicrophone) && !selectedMicrophone.equals(currentMicrophone)) {
             voiceChatService.setSelectedMicrophone(selectedMicrophone);
             currentMicrophone = selectedMicrophone;
         }
         final Mixer selectedSpeaker = outputDeviceComboBox.getValue();
-        if (!currentSpeaker.equals(selectedSpeaker)) {
+        if (Objects.nonNull(selectedSpeaker) && !selectedSpeaker.equals(currentSpeaker)) {
             voiceChatService.setSelectedSpeaker(selectedSpeaker);
             currentSpeaker = selectedSpeaker;
         }
