@@ -14,8 +14,8 @@ public class EmotePickerPopup extends Popup {
     private final EmotePicker emotePicker;
 
     @Inject
-    public EmotePickerPopup(ViewLoader viewLoader) {
-        emotePicker = new EmotePicker(viewLoader);
+    public EmotePickerPopup(EmotePicker emotePicker) {
+        this.emotePicker = emotePicker;
         this.setAutoFix(false);
         this.setAutoHide(true);
         this.setHideOnEscape(true);

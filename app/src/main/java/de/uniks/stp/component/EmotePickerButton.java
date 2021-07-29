@@ -14,8 +14,8 @@ public class EmotePickerButton extends VBox {
     private final EmotePickerPopup popup;
 
     @Inject
-    public EmotePickerButton(ViewLoader viewLoader) {
-        popup = new EmotePickerPopup(viewLoader);
+    public EmotePickerButton(ViewLoader viewLoader, EmotePickerPopup popup) {
+        this.popup = popup;
 
         final FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.EMOTE_PICKER_BUTTON);
         fxmlLoader.setRoot(this);
