@@ -16,7 +16,8 @@ public class FilterMessageTest {
             "!randomimage test 134",
             "!tictactoe143254",
             "!tictactoe 12324",
-            "###quoteInit###repliedToText123###quoteMessage###!hangman test @@@123[###messageId243525###repliedToId314235][###235233452###2143423532]###quoteStop###"
+            "###quoteInit###repliedToText123###quoteMessage###!hangman test @@@123[###messageId243525###repliedToId314235][###235233452###2143423532]###quoteStop###",
+            "\\!play :handshake:"
         };
         String[] expectedResults = {
             "sendMessage245234",
@@ -27,7 +28,8 @@ public class FilterMessageTest {
             "test 134",
             "143254",
             "12324",
-            "test @@@123"
+            "test @@@123",
+            "\\!play :handshake:"
         };
         for (int index = 0; index < samples.length; ++index) {
             Assertions.assertEquals(expectedResults[index], MessageUtil.filterContent(samples[index]));

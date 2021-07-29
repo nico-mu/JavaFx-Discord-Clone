@@ -131,7 +131,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
         long timestampBefore = new Date().getTime() - GameInvitation.TIMEOUT;
         InviteInfo info = null;
 
-        if (miniGameController.isIncomingCommandMessage(messageText)) {
+        if (miniGameController.isIncomingCommandMessage(messageText) && !MessageUtil.isEscapedCommand(messageText)) {
             if (!message.getSender().getName().equals(currentUser.getName())) {
                 miniGameController.handleIncomingMessage((DirectMessage) message);  //when sent by chatPartner
             }

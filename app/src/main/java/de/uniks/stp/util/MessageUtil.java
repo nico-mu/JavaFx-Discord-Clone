@@ -38,7 +38,14 @@ public class MessageUtil {
         return null;
     }
 
+    public static boolean isEscapedCommand(String msg) {
+        return msg.startsWith("\\");
+    }
+
     public static String filterContent(String msg) {
+        if (isEscapedCommand(msg)) {
+            return msg;
+        }
         if (replyPattern.matcher(msg).matches()) {
             msg = msg.replaceAll("\\[", "").split("###")[4];
         }
