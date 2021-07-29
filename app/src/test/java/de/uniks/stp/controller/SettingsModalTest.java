@@ -15,6 +15,8 @@ import de.uniks.stp.network.websocket.WebSocketService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
+import javafx.scene.control.Slider;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import kong.unirest.Callback;
 import kong.unirest.HttpResponse;
@@ -88,7 +90,7 @@ public class SettingsModalTest {
     }
 
     @Test
-    public void SettingsTest(FxRobot robot) {
+    public void changeLanguageAndNotificationSoundTest(FxRobot robot) {
         Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, new RouteArgs()));
         WaitForAsyncUtils.waitForFxEvents();
 
@@ -122,6 +124,57 @@ public class SettingsModalTest {
         robot.clickOn(SettingsModal.SETTINGS_COMBO_SELECT_OUTPUT_DEVICE);
 
         robot.clickOn("#settings-apply-button");
+    }
+
+    /**
+     * Tests changing audio input & output volume and saving the new value.
+     * @param robot
+     */
+    @Test
+    public void changeInputAndOutputVolumeTest(FxRobot robot) {
+        // open SettingsModal
+        RouteArgs args = new RouteArgs();
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN, args));
+        WaitForAsyncUtils.waitForFxEvents();
+        robot.clickOn("#settings-gear-container");
+
+        // change input volume
+        Slider inputSlider = robot.lookup("#slider-input-volume").query();
+        double oldInputValue = inputSlider.getValue();
+        System.out.println(oldInputValue);
+        robot.clickOn(inputSlider);
+        if (oldInputValue != 0.0d){
+            robot.press(KeyCode.LEFT);
+            robot.release(KeyCode.LEFT);
+        } else{
+            robot.press(KeyCode.RIGHT);
+            robot.release(KeyCode.RIGHT);
+        }
+        // change output volume
+        Slider outputSlider = robot.lookup("#slider-output-volume").query();
+        double oldOutputValue = outputSlider.getValue();
+        robot.clickOn(outputSlider);
+        if (oldOutputValue != 0.0d){
+            robot.press(KeyCode.LEFT);
+            robot.release(KeyCode.LEFT);
+        } else{
+            robot.press(KeyCode.RIGHT);
+            robot.release(KeyCode.RIGHT);
+        }
+
+        // check for change
+        double newInputValue = inputSlider.getValue();
+        System.out.println(newInputValue);
+        Assertions.assertNotEquals(oldInputValue, newInputValue);
+        double newOutputValue = outputSlider.getValue();
+        Assertions.assertNotEquals(oldOutputValue, newOutputValue);
+        robot.clickOn("#settings-apply-button");
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // check for changes still there when opening modal again
+        robot.clickOn("#settings-gear-container");
+        Assertions.assertEquals(newInputValue, inputSlider.getValue());
+        Assertions.assertEquals(newOutputValue, outputSlider.getValue());
     }
 
     @AfterEach
