@@ -17,47 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class VoiceChatService {
-    private static final Logger log = LoggerFactory.getLogger(VoiceChatClient.class);
-
-    private static String persistenceString(Mixer mixer) {
-        return mixer.getMixerInfo().toString();
-    }
-
-    public Mixer getSelectedMicrophone() {
-        return selectedMicrophone;
-    }
-
-    public void setSelectedMicrophone(Mixer selectedMicrophone) {
-        if (!this.selectedMicrophone.equals(selectedMicrophone)) {
-            if (Objects.nonNull(voiceChatClient)) {
-                voiceChatClient.changeMicrophone(selectedMicrophone);
-            }
-            this.selectedMicrophone = selectedMicrophone;
-            databaseService.saveAccordSetting(AccordSettingKey.AUDIO_IN_DEVICE, persistenceString(selectedMicrophone));
-        }
-    }
-
-    public Mixer getSelectedSpeaker() {
-        return selectedSpeaker;
-    }
-
-    public void setSelectedSpeaker(Mixer selectedSpeaker) {
-        if (!this.selectedSpeaker.equals(selectedSpeaker)) {
-            if (Objects.nonNull(voiceChatClient)) {
-                voiceChatClient.changeSpeaker(selectedSpeaker);
-            }
-            this.selectedSpeaker = selectedSpeaker;
-            databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_DEVICE, persistenceString(selectedSpeaker));
-        }
-    }
-
-    public List<Mixer> getAvailableSpeakers() {
-        return availableSpeakers;
-    }
-
-    public List<Mixer> getAvailableMicrophones() {
-        return availableMicrophones;
-    }
+    private static final Logger log = LoggerFactory.getLogger(VoiceChatService.class);
 
     private final VoiceChatClientFactory voiceChatClientFactory;
     private final AppDatabaseService databaseService;
@@ -68,6 +28,9 @@ public class VoiceChatService {
     private final List<Mixer> availableSpeakers = new ArrayList<>();
     private final List<Mixer> availableMicrophones = new ArrayList<>();
     private VoiceChatClient voiceChatClient;
+
+    private int inputVolume;
+    private int outputVolume;
 
 
     public VoiceChatService(VoiceChatClientFactory voiceChatClientFactory, AppDatabaseService databaseService) {
@@ -115,6 +78,61 @@ public class VoiceChatService {
             }
             selectedSpeaker = preferredSpeaker;
         }
+
+        // get audio out volume value
+        AccordSettingDTO volumeOutSettings = databaseService.getAccordSetting(AccordSettingKey.AUDIO_IN_VOLUME);
+        if (Objects.nonNull(volumeOutSettings)) {
+            this.inputVolume = Integer.parseInt(volumeOutSettings.getValue());
+        } else {
+            this.inputVolume = 100;
+        }
+        // get audio out volume value
+        AccordSettingDTO volumeInSettings = databaseService.getAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME);
+        if (Objects.nonNull(volumeOutSettings)) {
+            this.outputVolume = Integer.parseInt(volumeInSettings.getValue());
+        } else {
+            this.outputVolume = 100;
+        }
+    }
+
+    private static String persistenceString(Mixer mixer) {
+        return mixer.getMixerInfo().toString();
+    }
+
+    public Mixer getSelectedMicrophone() {
+        return selectedMicrophone;
+    }
+
+    public void setSelectedMicrophone(Mixer selectedMicrophone) {
+        if (!this.selectedMicrophone.equals(selectedMicrophone)) {
+            if (Objects.nonNull(voiceChatClient)) {
+                voiceChatClient.changeMicrophone(selectedMicrophone);
+            }
+            this.selectedMicrophone = selectedMicrophone;
+            databaseService.saveAccordSetting(AccordSettingKey.AUDIO_IN_DEVICE, persistenceString(selectedMicrophone));
+        }
+    }
+
+    public Mixer getSelectedSpeaker() {
+        return selectedSpeaker;
+    }
+
+    public void setSelectedSpeaker(Mixer selectedSpeaker) {
+        if (!this.selectedSpeaker.equals(selectedSpeaker)) {
+            if (Objects.nonNull(voiceChatClient)) {
+                voiceChatClient.changeSpeaker(selectedSpeaker);
+            }
+            this.selectedSpeaker = selectedSpeaker;
+            databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_DEVICE, persistenceString(selectedSpeaker));
+        }
+    }
+
+    public List<Mixer> getAvailableSpeakers() {
+        return availableSpeakers;
+    }
+
+    public List<Mixer> getAvailableMicrophones() {
+        return availableMicrophones;
     }
 
     public boolean isSpeakerAvailable() {
@@ -137,5 +155,23 @@ public class VoiceChatService {
         if (Objects.nonNull(voiceChatClient)) {
             voiceChatClient.stop();
         }
+    }
+
+    public void setInputVolume(int newInputVolume) {
+        this.inputVolume = newInputVolume;
+        databaseService.saveAccordSetting(AccordSettingKey.AUDIO_IN_VOLUME, String.valueOf(newInputVolume));
+    }
+
+    public int getInputVolume() {
+        return inputVolume;
+    }
+
+    public void setOutputVolume(int newOutputVolume) {
+        this.outputVolume = newOutputVolume;
+        databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME, String.valueOf(newOutputVolume));
+    }
+
+    public int getOutputVolume() {
+        return outputVolume;
     }
 }
