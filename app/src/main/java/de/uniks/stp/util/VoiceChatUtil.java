@@ -2,13 +2,12 @@ package de.uniks.stp.util;
 
 import de.uniks.stp.Constants;
 
+import javax.sound.sampled.*;
+import javax.sound.sampled.Mixer.Info;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-import javax.sound.sampled.*;
-import javax.sound.sampled.Control.Type;
-import javax.sound.sampled.Mixer.Info;
 
 public class VoiceChatUtil {
     public static final AudioFormat AUDIO_FORMAT = new AudioFormat(
@@ -18,26 +17,6 @@ public class VoiceChatUtil {
         Constants.AUDIOSTREAM_SIGNED,
         Constants.AUDIOSTREAM_BIG_ENDIAN
     );
-
-    public static FloatControl getVolumeControl(Line line) {
-        if (!line.isOpen()) throw new RuntimeException("Line is closed: " + toString(line));
-        FloatControl control = (FloatControl) findControl(FloatControl.Type.VOLUME, line.getControls());
-        if (Objects.isNull(control)) control = (FloatControl) findControl(FloatControl.Type.MASTER_GAIN, line.getControls());
-        return control;
-    }
-
-	private static Control findControl(Type type, Control... controls) {
-		if (controls == null || controls.length == 0) return null;
-		for (Control control : controls) {
-			if (control.getType().equals(type)) return control;
-			if (control instanceof CompoundControl) {
-				CompoundControl compoundControl = (CompoundControl) control;
-				Control member = findControl(type, compoundControl.getMemberControls());
-				if (member != null) return member;
-			}
-		}
-		return null;
-	}
 
 	public static List<Mixer> getMixers() {
 		Info[] infos = AudioSystem.getMixerInfo();
@@ -129,13 +108,42 @@ public class VoiceChatUtil {
 		return info.toString() + " (" + line.getClass().getSimpleName() + ")";
 	}
 
-	public static String toString(Mixer mixer) {
-		if (mixer == null) return null;
-		StringBuilder sb = new StringBuilder();
-		Info info = mixer.getMixerInfo();
-		sb.append(info.getName());
-		sb.append(" (").append(info.getDescription()).append(")");
-		sb.append(mixer.isOpen() ? " [open]" : " [closed]");
-		return sb.toString();
-	}
+    public static String toString(Mixer mixer) {
+        if (mixer == null) return null;
+        StringBuilder sb = new StringBuilder();
+        Info info = mixer.getMixerInfo();
+        sb.append(info.getName());
+        sb.append(" (").append(info.getDescription()).append(")");
+        sb.append(mixer.isOpen() ? " [open]" : " [closed]");
+        return sb.toString();
+    }
+
+    public static byte[] adjustVolume(int volume, byte[] audioBuf) {
+        /* Do not change anything if volume is not withing acceptable range of 0 - 100.
+         Notice that a volume of 100 would not change anything and just return the buffer as is */
+        if (volume < 0 || volume >= 100) {
+            return audioBuf;
+        }
+        final float vol = volume / 100f;
+        final ByteBuffer wrap = ByteBuffer.wrap(audioBuf).order(ByteOrder.LITTLE_ENDIAN);
+        final ByteBuffer dest = ByteBuffer.allocate(audioBuf.length).order(ByteOrder.LITTLE_ENDIAN);
+
+        // Copy metadata
+        for (int i = 0; i < Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE; i++) {
+            dest.put(wrap.get());
+        }
+
+        // PCM
+        while (wrap.hasRemaining()) {
+            short temp = wrap.getShort();
+            temp *= vol;
+
+            byte b1 = (byte) (temp & 0xff);
+            byte b2 = (byte) ((temp >> 8) & 0xff);
+
+            dest.put(b1);
+            dest.put(b2);
+        }
+        return dest.array();
+    }
 }
