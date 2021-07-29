@@ -22,6 +22,10 @@ import javax.inject.Named;
 import java.util.function.Consumer;
 
 public class EasterEggModal extends AbstractModal {
+    public static final String WIN_COLOR = "green";
+    public static final String LOSS_COLOR = "red";
+    public static final String DRAW_COLOR = "yellow";
+    public static final String SELECTED_ACTION_COLOR = "white";
     public final String ACTION_LABEL = "#action-label";
     public final String REVANCHE_BUTTON = "#revanche-button";
     public final String ROCK_BUTTON = "#rock-button";
@@ -35,22 +39,17 @@ public class EasterEggModal extends AbstractModal {
     private final Button scissorsButton;
     private final Button paperButton;
     private final JFXButton cancelButton;
-
-    private final User opponentUser;
     private final ViewLoader viewLoader;
-    private final WebSocketService webSocketService;
+    private final EventHandler<ActionEvent> closeHandler;
 
     @AssistedInject
     public EasterEggModal(ViewLoader viewLoader,
-                          WebSocketService webSocketService,
                           @Named("primaryStage") Stage primaryStage,
                           @Assisted Parent root,
-                          @Assisted User opponentUser,
                           @Assisted EventHandler<ActionEvent> closeHandler) {
         super(root, primaryStage);
-        this.opponentUser = opponentUser;
         this.viewLoader = viewLoader;
-        this.webSocketService = webSocketService;
+        this.closeHandler = closeHandler;
 
         setTitle(viewLoader.loadLabel(Constants.LBL_EASTER_EGG_TITLE));
         actionLabel = (Label) view.lookup(ACTION_LABEL);
@@ -79,21 +78,19 @@ public class EasterEggModal extends AbstractModal {
         revancheButton.setOnAction(onRevancheButtonClicked);
     }
 
-    /**
-     * Used to show your current choice
-     */
     public void setButtonColor(GameInfo.Action action, String color) {
+        final String COLORED_BG = "-fx-background-color: " + color + ";";
         resetButtonColor();
         Platform.runLater(() -> {
             switch (action) {
-                case ROCK -> rockButton.setStyle("-fx-background-color: " + color + ";");
-                case PAPER -> paperButton.setStyle("-fx-background-color: " + color + ";");
-                case SCISSORS -> scissorsButton.setStyle("-fx-background-color: " + color + ";");
+                case ROCK -> rockButton.setStyle(COLORED_BG);
+                case PAPER -> paperButton.setStyle(COLORED_BG);
+                case SCISSORS -> scissorsButton.setStyle(COLORED_BG);
             }
         });
     }
 
-    public void setScoreText(String text) {
+    public void setActionText(String text) {
         Platform.runLater(() -> actionLabel.setText(text));
     }
 
@@ -106,29 +103,10 @@ public class EasterEggModal extends AbstractModal {
         });
     }
 
-    public JFXButton getRevancheButton() {
-        return revancheButton;
-    }
-
-    private void resetButtonColor() {
-        rockButton.setStyle("-fx-background-color: transparent;");
-        paperButton.setStyle("-fx-background-color: transparent;");
-        scissorsButton.setStyle("-fx-background-color: transparent;");
-    }
-
-    /**
-     * Called to show the opponents choice. At this moment the own choice is also already shown
-     */
-    private void colorOpponentButton(int res) {
-
-    }
-
-    /**
-     * prepares everything for a new battle
-     */
     public void playAgain() {
         Platform.runLater(() -> {
             revancheButton.setVisible(false);
+            // TODO: remove dependency for Constants here
             actionLabel.setText(viewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION));
             resetButtonColor();
             rockButton.setDisable(false);
@@ -137,9 +115,20 @@ public class EasterEggModal extends AbstractModal {
         });
     }
 
+    public JFXButton getRevancheButton() {
+        return revancheButton;
+    }
+
+    private void resetButtonColor() {
+        final String TRANSPARENT_BG = "-fx-background-color: transparent;";
+        rockButton.setStyle(TRANSPARENT_BG);
+        paperButton.setStyle(TRANSPARENT_BG);
+        scissorsButton.setStyle(TRANSPARENT_BG);
+    }
+
     @Override
     public void close() {
-        webSocketService.sendPrivateMessage(opponentUser.getName(), GameCommand.LEAVE.command);
+        closeHandler.handle(null);
         revancheButton.setOnAction(null);
         rockButton.setOnAction(null);
         scissorsButton.setOnAction(null);
@@ -150,6 +139,6 @@ public class EasterEggModal extends AbstractModal {
 
     @AssistedFactory
     public interface EasterEggModalFactory {
-        EasterEggModal create(Parent view, User opponentUser, EventHandler<ActionEvent> closeEventHandler);
+        EasterEggModal create(Parent view, EventHandler<ActionEvent> closeEventHandler);
     }
 }

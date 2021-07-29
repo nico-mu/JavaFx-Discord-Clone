@@ -20,9 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class MiniGameController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(MiniGameController.class);
@@ -53,12 +50,11 @@ public class MiniGameController implements ControllerInterface {
         incomingCommandHandler.put(GameCommand.CHOOSE_ROCK.command, this::incomingChooseActionCommand);
         incomingCommandHandler.put(GameCommand.CHOOSE_SCISSOR.command, this::incomingChooseActionCommand);
         incomingCommandHandler.put(GameCommand.CHOOSE_PAPER.command, this::incomingChooseActionCommand);
-
         incomingCommandHandler.put(
             GameCommand.REVANCHE.command,
             (messageText, timestamp) -> {
                 gameMatcher.setOpponentCommand(GameCommand.REVANCHE);
-                easterEggModal.setScoreText(viewLoader.loadLabel(Constants.LBL_REVANCHE_RESPOND));
+                easterEggModal.setActionText(viewLoader.loadLabel(Constants.LBL_REVANCHE_RESPOND));
                 gameMatcher.ifCommandMatch(command -> {
                     easterEggModal.playAgain();
                 });
@@ -68,7 +64,7 @@ public class MiniGameController implements ControllerInterface {
             GameCommand.LEAVE.command,
             (messageText, timestamp) -> {
                 gameMatcher.setOpponentCommand(GameCommand.LEAVE);
-                easterEggModal.setScoreText(viewLoader.loadLabel(Constants.LBL_GAME_LEFT));
+                easterEggModal.setActionText(viewLoader.loadLabel(Constants.LBL_GAME_LEFT));
                 gameScore.recycle();
             }
         );
@@ -143,30 +139,30 @@ public class MiniGameController implements ControllerInterface {
         gameMatcher.ifActionMatch(this::handleActionMatch);
     }
 
-    // handle action match -> determine winner, set score, recycle
+    // handle action match -> determine winner, set action, recycle
     private void handleActionMatch(GameInfo.Action ownAction, GameInfo.Action opponentAction) {
         GameInfo.Result result = GameInfo.determineWinner(ownAction, opponentAction);
 
         if (result.equals(GameInfo.Result.LOSS)) {
             gameScore.increaseOpponentScore();
-            easterEggModal.setButtonColor(ownAction, "red");
+            easterEggModal.setButtonColor(ownAction, EasterEggModal.LOSS_COLOR);
         } else if (result.equals(GameInfo.Result.DRAW)) {
-            easterEggModal.setButtonColor(ownAction, "yellow");
+            easterEggModal.setButtonColor(ownAction, EasterEggModal.DRAW_COLOR);
         } else {
             gameScore.increaseOwnScore();
-            easterEggModal.setButtonColor(ownAction, "green");
+            easterEggModal.setButtonColor(ownAction, EasterEggModal.WIN_COLOR);
         }
 
         if (gameScore.isOwnWin()) {
-            easterEggModal.setScoreText(gameScore + ", " + viewLoader.loadLabel(Constants.LBL_RESULT_WIN));
+            easterEggModal.setActionText(gameScore + ", " + viewLoader.loadLabel(Constants.LBL_RESULT_WIN));
             easterEggModal.endGame();
             gameScore.recycle();
         } else if (gameScore.isOwnLoss()) {
-            easterEggModal.setScoreText(gameScore + ", " + viewLoader.loadLabel(Constants.LBL_RESULT_LOSS));
+            easterEggModal.setActionText(gameScore + ", " + viewLoader.loadLabel(Constants.LBL_RESULT_LOSS));
             easterEggModal.endGame();
             gameScore.recycle();
         } else {
-            easterEggModal.setScoreText(gameScore + ", " + viewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION));
+            easterEggModal.setActionText(gameScore + ", " + viewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION));
         }
         gameMatcher.recycle();
     }
@@ -176,7 +172,7 @@ public class MiniGameController implements ControllerInterface {
             (action -> {
                 webSocketService.sendPrivateMessage(chatPartner.getName(), command.command);
                 gameMatcher.setOwnCommand(command);
-                easterEggModal.setButtonColor(action, "white");
+                easterEggModal.setButtonColor(action, EasterEggModal.SELECTED_ACTION_COLOR);
 
                 return Optional.empty();
             })
@@ -192,9 +188,7 @@ public class MiniGameController implements ControllerInterface {
         closeEasterEggModal(null);
         Platform.runLater(() -> {
             Parent easterEggModalView = viewLoader.loadView(Views.EASTER_EGG_MODAL);
-            easterEggModal = easterEggModalFactory.create(easterEggModalView,
-                chatPartner,
-                this::closeEasterEggModal);
+            easterEggModal = easterEggModalFactory.create(easterEggModalView, this::closeEasterEggModal);
             easterEggModal.setOnPaperButtonClicked(event -> handleActionSelect(GameCommand.CHOOSE_PAPER));
             easterEggModal.setOnRockButtonClicked(event -> handleActionSelect(GameCommand.CHOOSE_ROCK));
             easterEggModal.setOnScissorsButtonClicked(event -> handleActionSelect(GameCommand.CHOOSE_SCISSOR));
@@ -202,7 +196,7 @@ public class MiniGameController implements ControllerInterface {
                 webSocketService.sendPrivateMessage(chatPartner.getName(), GameCommand.REVANCHE.command);
                 gameMatcher.setOwnCommand(GameCommand.REVANCHE);
                 easterEggModal.getRevancheButton().setVisible(false);
-                easterEggModal.setScoreText(viewLoader.loadLabel(Constants.LBL_REVANCHE_WAIT));
+                easterEggModal.setActionText(viewLoader.loadLabel(Constants.LBL_REVANCHE_WAIT));
 
                 gameMatcher.ifCommandMatch(command -> {
                     easterEggModal.playAgain();
