@@ -8,6 +8,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -42,6 +46,17 @@ public abstract class AbstractAuthorizationClient implements HttpHandler {
             e.printStackTrace();
             authorizationCallback.onFailure(e.getMessage());
         }
+    }
+
+    protected static Map<String, String> splitQuery(String queryString) {
+        Map<String, String> queryPairs = new LinkedHashMap<>();
+        String[] pairs = queryString.split("&");
+        for (String pair : pairs) {
+            int index = pair.indexOf("=");
+            queryPairs.put(URLDecoder.decode(pair.substring(0, index), StandardCharsets.UTF_8),
+                URLDecoder.decode(pair.substring(index + 1), StandardCharsets.UTF_8));
+        }
+        return queryPairs;
     }
 
     protected void noTimeout() {

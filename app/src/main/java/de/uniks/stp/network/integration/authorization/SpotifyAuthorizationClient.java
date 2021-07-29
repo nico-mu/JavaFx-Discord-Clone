@@ -15,7 +15,6 @@ import org.apache.hc.core5.http.ParseException;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -100,17 +99,6 @@ public class SpotifyAuthorizationClient extends AbstractAuthorizationClient {
             e.printStackTrace();
             authorizationCallback.onFailure(e.getMessage());
         }
-    }
-
-    private static Map<String, String> splitQuery(String queryString) {
-        Map<String, String> queryPairs = new LinkedHashMap<>();
-        String[] pairs = queryString.split("&");
-        for (String pair : pairs) {
-            int index = pair.indexOf("=");
-            queryPairs.put(URLDecoder.decode(pair.substring(0, index), StandardCharsets.UTF_8),
-                URLDecoder.decode(pair.substring(index + 1), StandardCharsets.UTF_8));
-        }
-        return queryPairs;
     }
 
     private String generateCodeChallenge() {
