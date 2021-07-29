@@ -25,7 +25,7 @@ public class ApiIntegrationSettingDTO {
     @Column(name = "USERNAME", updatable = false)
     private String username;
 
-    @Column(name = "REFRESH_TOKEN", updatable = false)
+    @Column(name = "REFRESH_TOKEN")
     private String refreshToken;
 
     public String getServiceName() {

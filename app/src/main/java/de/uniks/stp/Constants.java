@@ -15,6 +15,7 @@ public class Constants {
     public static final String REST_MESSAGES_PATH = "/messages";
     public static final String REST_TIMESTAMP_PATH = "?timestamp=";
     public static final String REST_INVITES_PATH = "/invites";
+    public static final String REST_DESCRIPTION_PATH = "/description";
 
 
     public static final String USER_KEY_HEADER_NAME = "userKey";

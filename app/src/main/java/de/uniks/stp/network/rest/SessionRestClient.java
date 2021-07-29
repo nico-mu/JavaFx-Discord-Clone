@@ -4,9 +4,9 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.model.Channel;
 import kong.unirest.Callback;
 import kong.unirest.HttpRequest;
+import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 
-import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import java.util.ArrayList;
@@ -195,5 +195,11 @@ public class SessionRestClient extends AppRestClient {
     public void deleteMessage(String serverId, String categoryId, String channelId, String messageId, Callback<JsonNode> callback) {
         HttpRequest<?> req = instance.delete(Constants.REST_SERVER_PATH + "/" + serverId + Constants.REST_CATEGORY_PATH + "/" + categoryId + Constants.REST_CHANNEL_PATH + "/" + channelId + Constants.REST_MESSAGES_PATH + "/" + messageId);
         sendRequest(req, callback);
+    }
+
+    public HttpResponse<JsonNode> updateDescription(String userId, String description) {
+        HttpRequest<?> req = instance.post(Constants.REST_USERS_PATH + "/" + userId + Constants.REST_DESCRIPTION_PATH)
+            .body(Json.createObjectBuilder().add("text", description).build().toString());
+        return sendSyncRequest(req);
     }
 }

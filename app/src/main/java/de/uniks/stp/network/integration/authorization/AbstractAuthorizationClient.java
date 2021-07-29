@@ -37,7 +37,7 @@ public abstract class AbstractAuthorizationClient implements HttpHandler {
     public void authorize(AuthorizationCallback authorizationCallback) {
         this.authorizationCallback = authorizationCallback;
         try {
-            server = HttpServer.create(new InetSocketAddress(IntegrationConstants.TEMP_SERVER_HOST, 8001), 0);
+            server = HttpServer.create(new InetSocketAddress(IntegrationConstants.TEMP_SERVER_HOST, IntegrationConstants.TEMP_SERVER_PORT), 0);
             server.createContext(serverPath, this);
             server.setExecutor(executorService);
             server.start();

@@ -78,7 +78,27 @@ public class SessionDatabaseService extends AppDatabaseService {
     }
 
     public void addApiIntegrationSetting(String serviceName, String refreshToken) {
-        ApiIntegrationSettingDTO apiIntegrationSettingDTO = getApiIntegrationSetting(serviceName);
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ApiIntegrationSettingDTO> query = criteriaBuilder.createQuery(ApiIntegrationSettingDTO.class);
+        Root<ApiIntegrationSettingDTO> root = query.from(ApiIntegrationSettingDTO.class);
+
+        query.where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("username"), currentUser.getName()),
+                criteriaBuilder.equal(root.get("serviceName"), serviceName)
+            )
+        );
+
+        ApiIntegrationSettingDTO apiIntegrationSettingDTO = null;
+
+        try {
+            apiIntegrationSettingDTO = entityManager.createQuery(query).getSingleResult();
+        }
+        catch (NoResultException ignored) {}
 
         if(Objects.isNull(apiIntegrationSettingDTO)) {
             apiIntegrationSettingDTO = new ApiIntegrationSettingDTO().setServiceName(serviceName)
@@ -88,11 +108,6 @@ public class SessionDatabaseService extends AppDatabaseService {
         else {
             apiIntegrationSettingDTO.setRefreshToken(refreshToken);
         }
-
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
-
-        transaction.begin();
 
         entityManager.merge(apiIntegrationSettingDTO);
 
