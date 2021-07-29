@@ -1,5 +1,6 @@
 package de.uniks.stp.controller;
 
+
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -10,12 +11,16 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.SettingsModal;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.util.AnimationUtil;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.effect.Effect;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -25,14 +30,13 @@ import kong.unirest.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-
 public class UserInfoController implements ControllerInterface {
     private static final Logger log = LoggerFactory.getLogger(MainScreenController.class);
 
     private final static String USERNAME_LABEL_ID = "#username-label";
     private final static String LOGOUT_BUTTON_ID = "#logout-button";
     private final static String SETTINGS_GEAR_CONTAINER_ID = "#settings-gear-container";
+    private final static String SETTINGS_GEAR_ID = "#settings-gear";
 
     private final AnchorPane view;
     private final Editor editor;
@@ -43,6 +47,7 @@ public class UserInfoController implements ControllerInterface {
     private Label usernameLabel;
     private Button logoutButton;
     private VBox settingsGearContainer;
+    private ImageView settingsGear;
 
     private final SettingsModal.SettingsModalFactory settingsModalFactory;
 
@@ -70,13 +75,16 @@ public class UserInfoController implements ControllerInterface {
         this.usernameLabel = (Label) view.lookup(USERNAME_LABEL_ID);
         this.logoutButton = (Button) view.lookup(LOGOUT_BUTTON_ID);
         this.settingsGearContainer = (VBox) view.lookup(SETTINGS_GEAR_CONTAINER_ID);
+        this.settingsGear = (ImageView) view.lookup(SETTINGS_GEAR_ID);
 
         AnchorPane.setBottomAnchor(userSubView, 7.5d);
         AnchorPane.setTopAnchor(userSubView, 5.0d);
         AnchorPane.setLeftAnchor(userSubView, 10.0d);
         AnchorPane.setRightAnchor(userSubView, 10.0d);
 
+        AnimationUtil animationUtil = new AnimationUtil();
         settingsGearContainer.setOnMouseClicked(this::onSettingsGearClicked);
+        animationUtil.setIconAnimation(settingsGear);
         logoutButton.setOnAction(this::onLogoutButtonClicked);
         usernameLabel.setText(editor.getOrCreateAccord().getCurrentUser().getName());
     }
@@ -113,6 +121,8 @@ public class UserInfoController implements ControllerInterface {
     public void stop() {
         logoutButton.setOnAction(null);
         settingsGearContainer.setOnMouseClicked(null);
+        settingsGear.setOnMouseEntered(null);
+        settingsGear.setOnMouseExited(null);
     }
 
     @AssistedFactory

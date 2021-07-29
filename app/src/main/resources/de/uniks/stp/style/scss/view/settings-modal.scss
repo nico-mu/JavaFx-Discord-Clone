@@ -1,17 +1,12 @@
 @import "../base";
 
-.label-select-language {
+.label-usual {
   -fx-text-fill: $primary-text-fill;
 }
 
-.settings-apply-button {
-  -fx-background-color: $button-color;
+.label-audio-settings {
   -fx-text-fill: $primary-text-fill;
-}
-
-.settings-cancel-button {
-  -fx-background-color: $button-color;
-  -fx-text-fill: $primary-text-fill;
+  -fx-font-size: 15pt;
 }
 
 .combo-select-language {

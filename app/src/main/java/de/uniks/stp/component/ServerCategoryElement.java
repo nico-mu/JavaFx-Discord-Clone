@@ -7,11 +7,13 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.modal.CreateChannelModal;
 import de.uniks.stp.modal.EditCategoryModal;
 import de.uniks.stp.model.Category;
+import de.uniks.stp.util.AnimationUtil;
 import de.uniks.stp.view.Views;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -72,7 +74,10 @@ public class ServerCategoryElement extends VBox {
         categoryHeadPane.setOnMouseEntered(this::onCategoryMouseEntered);
         categoryHeadPane.setOnMouseExited(this::onCategoryMouseExited);
 
+        AnimationUtil animationUtil = new AnimationUtil();
+        animationUtil.setIconAnimation(addServerPlus);
         addServerPlus.setOnMouseClicked(this::onAddServerPlusClicked);
+        animationUtil.setIconAnimation(editCatGear);
         editCatGear.setOnMouseClicked(this::onEditCatGearClicked);
 
         this.setId(model.getId() + "-ServerCategoryElement");

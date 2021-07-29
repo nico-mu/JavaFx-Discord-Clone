@@ -9,3 +9,7 @@
   -fx-background-color: $hover-background-color;
   -fx-background-radius: 8px;
 }
+
+.user-name-container:active {
+  -fx-background-color: RED;
+}
