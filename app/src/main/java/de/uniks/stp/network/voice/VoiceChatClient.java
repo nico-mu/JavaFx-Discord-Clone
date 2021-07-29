@@ -30,6 +30,9 @@ public class VoiceChatClient {
     private Mixer microphone;
     private final Map<String, SourceDataLine> userSourceDataLineMap = new HashMap<>();
 
+    private int inputVolume = 100;  //init set to max in case setInputVolume is not called fast enough
+    private int outputVolume = 100;  //init set to max in case setOutputVolume is not called fast enough
+
     private final User currentUser;
     private final Channel channel;
     private final PropertyChangeListener currentUserMutePropertyChangeListener = this::onCurrentUserMutePropertyChange;
@@ -151,7 +154,6 @@ public class VoiceChatClient {
                 oldAudioinDataLine.close();
             }
         }
-
     }
 
     private void recordAndSendAudio() {
@@ -334,5 +336,13 @@ public class VoiceChatClient {
             this.filteredUsers.remove(value);
         }
         return this;
+    }
+
+    public void setInputVolume(int newInputVolume) {
+        this.inputVolume = newInputVolume;
+    }
+
+    public void setOutputVolume(int newOutputVolume) {
+        this.outputVolume = newOutputVolume;
     }
 }

@@ -149,6 +149,8 @@ public class VoiceChatService {
         }
         voiceChatClient = voiceChatClientFactory.create(model, selectedSpeaker, selectedMicrophone);
         voiceChatClient.init();
+        voiceChatClient.setInputVolume(inputVolume);
+        voiceChatClient.setOutputVolume(outputVolume);
     }
 
     public void removeVoiceChatClient(Channel model) {
@@ -160,6 +162,7 @@ public class VoiceChatService {
     public void setInputVolume(int newInputVolume) {
         this.inputVolume = newInputVolume;
         databaseService.saveAccordSetting(AccordSettingKey.AUDIO_IN_VOLUME, String.valueOf(newInputVolume));
+        voiceChatClient.setInputVolume(newInputVolume);
     }
 
     public int getInputVolume() {
@@ -169,6 +172,7 @@ public class VoiceChatService {
     public void setOutputVolume(int newOutputVolume) {
         this.outputVolume = newOutputVolume;
         databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME, String.valueOf(newOutputVolume));
+        voiceChatClient.setOutputVolume(newOutputVolume);
     }
 
     public int getOutputVolume() {
