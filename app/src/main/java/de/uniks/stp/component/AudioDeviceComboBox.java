@@ -6,6 +6,7 @@ import javafx.util.StringConverter;
 import javax.sound.sampled.Mixer;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class AudioDeviceComboBox extends JFXComboBox<Mixer> {
     private HashMap<String, Mixer> options;
@@ -36,7 +37,12 @@ public class AudioDeviceComboBox extends JFXComboBox<Mixer> {
     private class MixerToStringConverter extends StringConverter<Mixer> {
         @Override
         public String toString(Mixer mixer) {
-            return mixer.getMixerInfo().getName();
+            String mixerName = "";
+            if (Objects.nonNull(mixer) && Objects.nonNull(mixer.getMixerInfo())) {
+                final Mixer.Info mixerInfo = mixer.getMixerInfo();
+                mixerName = mixerInfo.getName();
+            }
+            return mixerName;
         }
 
         @Override
