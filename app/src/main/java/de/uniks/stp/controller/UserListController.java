@@ -33,6 +33,8 @@ public class UserListController implements ControllerInterface {
     private final ListComponent<User, UserListEntry> onlineUserList;
     private final SessionRestClient restClient;
     private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
+    private final PropertyChangeListener userDescriptionChangeListener = this::onUserDescriptionChanged;
+
     private final PrivateChatNavUserListEntry.PrivateChatNavUserListEntryFactory privateChatNavUserListEntryFactory;
 
     @AssistedInject
@@ -55,8 +57,10 @@ public class UserListController implements ControllerInterface {
 
         if (Objects.isNull(oldValue)) {
             userJoined(newValue);
+            newValue.listeners().addPropertyChangeListener(User.PROPERTY_DESCRIPTION, userDescriptionChangeListener);
         } else if (Objects.isNull(newValue)) {
             userLeft(oldValue);
+            oldValue.listeners().removePropertyChangeListener(User.PROPERTY_DESCRIPTION, userDescriptionChangeListener);
         }
     }
 
@@ -86,11 +90,12 @@ public class UserListController implements ControllerInterface {
                 final JSONObject jsonUser = (JSONObject) o;
                 final String userId = jsonUser.getString("id");
                 final String name = jsonUser.getString("name");
+                final String description = jsonUser.getString("description");
 
                 User otherUser = editor.getOrCreateOtherUser(userId, name);
 
                 if (Objects.nonNull(otherUser)) {
-                    final User user = otherUser.setStatus(true);
+                    final User user = otherUser.setStatus(true).setDescription(description);
                     userJoined(user);
                 }
             });
@@ -101,6 +106,20 @@ public class UserListController implements ControllerInterface {
     public void stop() {
         final Accord accord = editor.getOrCreateAccord();
         accord.listeners().removePropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
+
+        for (User userModel : onlineUserList.getModels()) {
+            userModel.listeners().removePropertyChangeListener(User.PROPERTY_DESCRIPTION, userDescriptionChangeListener);
+        }
+    }
+
+    private void onUserDescriptionChanged(PropertyChangeEvent propertyChangeEvent) {
+        User user = (User) propertyChangeEvent.getSource();
+        String description = (String) propertyChangeEvent.getNewValue();
+        UserListEntry userListEntry = onlineUserList.getElement(user);
+
+        if(Objects.nonNull(userListEntry)) {
+            userListEntry.setDescription(description);
+        }
     }
 
     @AssistedFactory

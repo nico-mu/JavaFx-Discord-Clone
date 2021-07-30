@@ -46,6 +46,7 @@ public class SpotifyAuthorizationClient extends AbstractAuthorizationClient {
         AuthorizationCodeUriRequest authorizationCodeUriRequest = spotifyApi.authorizationCodePKCEUri(generateCodeChallenge())
             .scope(IntegrationConstants.SPOTIFY_AUTHORIZE_SCOPES)
             .show_dialog(true).build();
+
         //open browser with spotify url, client id and redirectUri
         app.getHostServices().showDocument(authorizationCodeUriRequest.execute().toString());
         stopServerAfterTimeout();
