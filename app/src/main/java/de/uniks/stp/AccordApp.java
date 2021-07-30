@@ -5,6 +5,7 @@ import de.uniks.stp.dagger.components.DaggerAppComponent;
 import de.uniks.stp.dagger.components.SessionComponent;
 import de.uniks.stp.dagger.components.test.DaggerAppTestComponent;
 import javafx.application.Application;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,9 @@ public class AccordApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        Image img = new Image("de/uniks/stp/img/guava.png");
+        primaryStage.getIcons().add(img);
+
         //create appComponent
         if(testMode) {
             appComponent = DaggerAppTestComponent.builder()
