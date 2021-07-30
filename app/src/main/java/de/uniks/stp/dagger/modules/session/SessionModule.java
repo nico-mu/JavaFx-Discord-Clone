@@ -53,7 +53,7 @@ public class SessionModule {
 
     @Provides
     @SessionScope
-    static IntegrationService provideIntegrationService(SpotifyApiClient spotifyApiClient) {
-        return new IntegrationService(spotifyApiClient);
+    static IntegrationService provideIntegrationService(SpotifyApiClient spotifyApiClient, SessionDatabaseService databaseService) {
+        return new IntegrationService(spotifyApiClient, databaseService);
     }
 }

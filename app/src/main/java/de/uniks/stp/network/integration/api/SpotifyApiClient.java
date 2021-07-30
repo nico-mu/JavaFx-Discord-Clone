@@ -134,7 +134,7 @@ public class SpotifyApiClient implements IntegrationApiClient {
         boolean newValue = (boolean)propertyChangeEvent.getNewValue();
 
         if(newValue) {
-            currentUser.setDescription("# " + viewLoader.loadLabel("LBL_LISTENING_TO_SPOTIFY"));
+            currentUser.setDescription("#" + viewLoader.loadLabel("LBL_LISTENING_TO_SPOTIFY"));
         }
         else {
             currentUser.setDescription(" ");
