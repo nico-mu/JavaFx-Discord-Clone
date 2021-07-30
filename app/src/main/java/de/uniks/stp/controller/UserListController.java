@@ -118,7 +118,9 @@ public class UserListController implements ControllerInterface {
         UserListEntry userListEntry = onlineUserList.getElement(user);
 
         if(Objects.nonNull(userListEntry)) {
-            userListEntry.setDescription(description);
+            Platform.runLater(() -> {
+                userListEntry.setDescription(description);
+            });
         }
     }
 
