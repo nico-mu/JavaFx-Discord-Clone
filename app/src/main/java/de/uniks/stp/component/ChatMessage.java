@@ -27,6 +27,8 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
@@ -54,6 +56,9 @@ public class ChatMessage extends HBox {
 
     @FXML
     private VBox textVBox;
+
+    @FXML
+    private ImageView copyMessage;
 
     @FXML
     private ImageView editMessage;
@@ -96,17 +101,21 @@ public class ChatMessage extends HBox {
 
         this.setId("message-" + model.getId());
         messageText.setId("message-text-" + model.getId());
+        copyMessage.setId("copy-message-" + model.getId());
         editMessage.setId("edit-message-" + model.getId());
         deleteMessage.setId("delete-message-" + model.getId());
 
         if (editable) {
             this.setOnMouseEntered(this::onMouseEntered);
             this.setOnMouseExited(this::onMouseExited);
+            copyMessage.setOnMouseClicked(this::onMessageCopy);
             editMessage.setOnMouseClicked(this::onMessageEdited);
             deleteMessage.setOnMouseClicked(this::onMessageDelete);
         }
 
         AnimationUtil animationUtil = new AnimationUtil();
+        animationUtil.setIconAnimation(copyMessage);
+        copyMessage.setVisible(false);
         animationUtil.setIconAnimation(editMessage);
         editMessage.setVisible(false);
         animationUtil.setIconAnimation(deleteMessage);
@@ -151,13 +160,23 @@ public class ChatMessage extends HBox {
     }
 
     private void onMouseExited(MouseEvent mouseEvent) {
+        copyMessage.setVisible(false);
         editMessage.setVisible(false);
         deleteMessage.setVisible(false);
     }
 
     private void onMouseEntered(MouseEvent mouseEvent) {
+        copyMessage.setVisible(true);
         editMessage.setVisible(true);
         deleteMessage.setVisible(true);
+    }
+
+    private void onMessageCopy(MouseEvent mouseEvent) {
+        String message = model.getMessage();
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(message);
+        clipboard.setContent(content);
     }
 
     private void onMessageEdited(MouseEvent mouseEvent) {

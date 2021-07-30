@@ -21,6 +21,11 @@
                      <Insets left="10.0" />
                   </HBox.margin>
                </Text>
+               <ImageView fx:id="copyMessage" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" styleClass="image-view">
+                  <image>
+                     <Image url="@../img/copy.png" />
+                  </image>
+               </ImageView>
                <ImageView fx:id="editMessage" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" styleClass="image-view">
                   <image>
                      <Image url="@../img/edit.png" />
