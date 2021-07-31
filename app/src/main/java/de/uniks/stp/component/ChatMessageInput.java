@@ -34,7 +34,9 @@ public class ChatMessageInput extends HBox {
     private Consumer<String> submitListener;
 
     @Inject
-    public ChatMessageInput(ViewLoader viewLoader) {
+    public ChatMessageInput(ViewLoader viewLoader,
+                            EmotePickerButton emotePickerButton,
+                            EmoteTextArea emoteTextArea) {
         FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE_INPUT);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -46,8 +48,8 @@ public class ChatMessageInput extends HBox {
             throw new RuntimeException(exception);
         }
 
-        emotePickerButton = new EmotePickerButton(viewLoader);
-        emoteTextArea = new EmoteTextArea(viewLoader);
+        this.emotePickerButton = emotePickerButton;
+        this.emoteTextArea = emoteTextArea;
         emoteTextArea.setOnKeyPressed(this::checkForEnter);
 
         VirtualizedScrollPane<EmoteTextArea> scroll = new VirtualizedScrollPane<>(emoteTextArea);
