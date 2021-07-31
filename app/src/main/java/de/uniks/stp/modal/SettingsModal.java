@@ -22,6 +22,7 @@ import de.uniks.stp.view.Languages;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
+import javafx.scene.control.Slider;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,8 @@ public class SettingsModal extends AbstractModal {
     public static final String SETTINGS_COMBO_SELECT_NOTIFICATION_SOUND = "#combo-select-notification-sound";
     public static final String SETTINGS_COMBO_SELECT_INPUT_DEVICE = "#combo-select-input-device";
     public static final String SETTINGS_COMBO_SELECT_OUTPUT_DEVICE = "#combo-select-output-device";
+    public static final String SETTINGS_SLIDER_INPUT_VOLUME = "#slider-input-volume";
+    public static final String SETTINGS_SLIDER_OUTPUT_VOLUME = "#slider-output-volume";
     public static final String SETTINGS_SPOTIFY_INTEGRATION_BUTTON = "#spotify-integration-button";
     private final JFXButton applyButton;
     private final JFXButton cancelButton;
@@ -47,6 +50,8 @@ public class SettingsModal extends AbstractModal {
     private final KeyBasedComboBox notificationComboBox;
     private final AudioDeviceComboBox inputDeviceComboBox;
     private final AudioDeviceComboBox outputDeviceComboBox;
+    private final Slider inputVolumeSlider;
+    private final Slider outputVolumeSlider;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
     private final ViewLoader viewLoader;
     private final Router router;
@@ -63,6 +68,8 @@ public class SettingsModal extends AbstractModal {
 
     private Mixer currentMicrophone;
     private Mixer currentSpeaker;
+    private int currentInputVolume;
+    private int currentOutputVolume;
 
     @AssistedInject
     public SettingsModal(ViewLoader viewLoader,
@@ -111,6 +118,15 @@ public class SettingsModal extends AbstractModal {
         outputDeviceComboBox.withOptions(voiceChatService.getAvailableSpeakers());
         currentSpeaker = voiceChatService.getSelectedSpeaker();
         outputDeviceComboBox.setSelection(currentSpeaker);
+
+        // init volume slider
+        inputVolumeSlider = (Slider) view.lookup(SETTINGS_SLIDER_INPUT_VOLUME);
+        currentInputVolume = voiceChatService.getInputVolume();
+        inputVolumeSlider.setValue(currentInputVolume);
+
+        outputVolumeSlider = (Slider) view.lookup(SETTINGS_SLIDER_OUTPUT_VOLUME);
+        currentOutputVolume = voiceChatService.getOutputVolume();
+        outputVolumeSlider.setValue(currentOutputVolume);
 
         applyButton.setOnAction(this::onApplyButtonClicked);
         applyButton.setDefaultButton(true);  // use Enter in order to press button
@@ -185,6 +201,17 @@ public class SettingsModal extends AbstractModal {
         if (Objects.nonNull(selectedSpeaker) && !selectedSpeaker.equals(currentSpeaker)) {
             voiceChatService.setSelectedSpeaker(selectedSpeaker);
             currentSpeaker = selectedSpeaker;
+        }
+
+        final int newInputVolume = (int) inputVolumeSlider.getValue();
+        if(currentInputVolume != newInputVolume){
+            voiceChatService.setInputVolume(newInputVolume);
+            currentInputVolume = newInputVolume;
+        }
+        final int newOutputVolume = (int) outputVolumeSlider.getValue();
+        if(currentOutputVolume != newOutputVolume){
+            voiceChatService.setOutputVolume(newOutputVolume);
+            currentOutputVolume = newOutputVolume;
         }
 
         this.close();
