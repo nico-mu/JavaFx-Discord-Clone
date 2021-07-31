@@ -55,6 +55,6 @@ public class IntegrationService {
     }
 
     public void stop() {
-        spotifyApiClient.stop();
+        spotifyApiClient.shutdown();
     }
 }

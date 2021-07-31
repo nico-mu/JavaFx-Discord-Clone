@@ -168,4 +168,9 @@ public class SpotifyApiClient implements IntegrationApiClient {
         currentUser.listeners()
             .removePropertyChangeListener(User.PROPERTY_SPOTIFY_PLAYING, currentUserPlayingChangeListener);
     }
+
+    public void shutdown() {
+        this.stop();
+        executorService.shutdown();
+    }
 }
