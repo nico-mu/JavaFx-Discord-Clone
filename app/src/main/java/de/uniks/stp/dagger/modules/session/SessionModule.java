@@ -8,8 +8,6 @@ import de.uniks.stp.dagger.scope.SessionScope;
 import de.uniks.stp.jpa.AppDatabaseService;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
-import de.uniks.stp.network.integration.IntegrationService;
-import de.uniks.stp.network.integration.api.SpotifyApiClient;
 import de.uniks.stp.network.rest.ServerInformationHandler;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.voice.VoiceChatClientFactory;
@@ -49,11 +47,5 @@ public class SessionModule {
                                                               SessionRestClient restClient,
                                                               NotificationService notificationService) {
         return new ServerInformationHandler(editor, restClient, notificationService);
-    }
-
-    @Provides
-    @SessionScope
-    static IntegrationService provideIntegrationService(SpotifyApiClient spotifyApiClient, SessionDatabaseService databaseService) {
-        return new IntegrationService(spotifyApiClient, databaseService);
     }
 }

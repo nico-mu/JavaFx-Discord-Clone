@@ -15,6 +15,7 @@ import org.apache.hc.core5.http.ParseException;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -23,13 +24,12 @@ import java.util.*;
 public class SpotifyAuthorizationClient extends AbstractAuthorizationClient {
 
     private SpotifyApi spotifyApi;
-    private static String codeVerifier;
+    private String codeVerifier;
 
     @Inject
     public SpotifyAuthorizationClient(AccordApp app) {
         super(app);
         this.serverPath = this.serverPath + IntegrationConstants.TEMP_SERVER_INTEGRATION_PATH_SPOTIFY;
-
     }
 
     @Override
@@ -48,25 +48,36 @@ public class SpotifyAuthorizationClient extends AbstractAuthorizationClient {
             .show_dialog(true).build();
 
         //open browser with spotify url, client id and redirectUri
-        app.getHostServices().showDocument(authorizationCodeUriRequest.execute().toString());
+        app.showUriInBrowser(authorizationCodeUriRequest.execute().toString());
         stopServerAfterTimeout();
+    }
+
+    public void setSpotifyApi(SpotifyApi spotifyApi) {
+        this.spotifyApi = spotifyApi;
     }
 
     private String getRedirectUri() {
         return "http://" +
-            IntegrationConstants.TEMP_SERVER_HOST + ":" +
-            server.getAddress().getPort() + serverPath;
+            IntegrationConstants.TEMP_SERVER_HOST + ":" + IntegrationConstants.TEMP_SERVER_PORT + serverPath;
     }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String query = exchange.getRequestURI().getQuery();
-        log.debug(query);
-        Map<String, String> splitQueryMap = splitQuery(query);
         String response;
         OutputStream os = exchange.getResponseBody();
+        String query = exchange.getRequestURI().getQuery();
+        log.debug(query);
 
-        if(splitQueryMap.containsKey("code")) {
+        try {
+            if(Objects.isNull(query)) {
+                throw new MalformedURLException();
+            }
+            Map<String, String> splitQueryMap = splitQuery(query);
+
+            if(!splitQueryMap.containsKey("code")) {
+                throw new MalformedURLException();
+            }
+
             response = "success";
             //make api request here to get spotify api key
             AuthorizationCodePKCERequest authorizationCodePKCERequest =
@@ -76,7 +87,7 @@ public class SpotifyAuthorizationClient extends AbstractAuthorizationClient {
             executorService.execute(() -> getCredentials(authorizationCodePKCERequest));
             exchange.sendResponseHeaders(200, response.length());
         }
-        else {
+        catch (MalformedURLException ex) {
             response = "failure";
             executorService.execute(() -> authorizationCallback.onFailure("not authenticated"));
             exchange.sendResponseHeaders(400, response.length());
@@ -88,7 +99,7 @@ public class SpotifyAuthorizationClient extends AbstractAuthorizationClient {
         stopServer();
     }
 
-    private void getCredentials(AuthorizationCodePKCERequest authorizationCodePKCERequest) {
+    public void getCredentials(AuthorizationCodePKCERequest authorizationCodePKCERequest) {
         try {
             AuthorizationCodeCredentials credentials = authorizationCodePKCERequest.execute();
             Credentials wrappedCredentials = new Credentials();
@@ -102,7 +113,7 @@ public class SpotifyAuthorizationClient extends AbstractAuthorizationClient {
         }
     }
 
-    private String generateCodeChallenge() {
+    public String generateCodeChallenge() {
         MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");

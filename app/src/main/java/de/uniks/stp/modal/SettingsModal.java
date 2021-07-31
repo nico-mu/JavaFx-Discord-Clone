@@ -13,6 +13,7 @@ import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.network.integration.IntegrationService;
+import de.uniks.stp.network.integration.authorization.AbstractAuthorizationClient;
 import de.uniks.stp.network.integration.authorization.AuthorizationCallback;
 import de.uniks.stp.network.integration.Credentials;
 import de.uniks.stp.network.integration.Integrations;
@@ -59,7 +60,6 @@ public class SettingsModal extends AbstractModal {
     private final VoiceChatService voiceChatService;
     private final Stage primaryStage;
     private final HBox integrationContainer;
-    private final SpotifyAuthorizationClient spotifyAuthorizationClient;
     private final IntegrationService integrationService;
     private final IntegrationButton.IntegrationButtonFactory integrationButtonFactory;
 
@@ -77,7 +77,6 @@ public class SettingsModal extends AbstractModal {
                          SessionDatabaseService databaseService,
                          AudioService audioService,
                          VoiceChatService voiceChatService,
-                         SpotifyAuthorizationClient spotifyAuthorizationClient,
                          IntegrationService integrationService,
                          IntegrationButton.IntegrationButtonFactory integrationButtonFactory,
                          @Assisted Parent root) {
@@ -88,7 +87,6 @@ public class SettingsModal extends AbstractModal {
         this.databaseService = databaseService;
         this.audioService = audioService;
         this.voiceChatService = voiceChatService;
-        this.spotifyAuthorizationClient = spotifyAuthorizationClient;
         this.integrationService = integrationService;
         this.integrationButtonFactory = integrationButtonFactory;
 
@@ -142,18 +140,22 @@ public class SettingsModal extends AbstractModal {
     }
 
     private void onSpotifyIntegrationButton(MouseEvent mouseEvent) {
-        spotifyAuthorizationClient.authorize(new AuthorizationCallback() {
-            @Override
-            public void onSuccess(Credentials credentials) {
-                integrationService.startService(Integrations.SPOTIFY.key, credentials);
-                spotifyIntegrationButton.setSuccessMode();
-            }
+        AbstractAuthorizationClient authorizationClient = integrationService.getAuthorizationClient(Integrations.SPOTIFY.key);
 
-            @Override
-            public void onFailure(String errorMessage) {
-                spotifyIntegrationButton.setErrorMode();
-            }
-        });
+        if(Objects.nonNull(authorizationClient)) {
+            authorizationClient.authorize(new AuthorizationCallback() {
+                @Override
+                public void onSuccess(Credentials credentials) {
+                    integrationService.startService(Integrations.SPOTIFY.key, credentials);
+                    spotifyIntegrationButton.setSuccessMode();
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    spotifyIntegrationButton.setErrorMode();
+                }
+            });
+        }
     }
 
     public HashMap<String, String> getLanguages() {

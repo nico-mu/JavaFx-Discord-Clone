@@ -3,6 +3,7 @@ package de.uniks.stp.dagger.components;
 import dagger.BindsInstance;
 import dagger.Subcomponent;
 import de.uniks.stp.controller.MainScreenController;
+import de.uniks.stp.dagger.modules.session.SessionIntegrationModule;
 import de.uniks.stp.dagger.modules.session.SessionModule;
 import de.uniks.stp.dagger.modules.session.SessionNetworkModule;
 import de.uniks.stp.dagger.scope.SessionScope;
@@ -17,7 +18,7 @@ import javax.annotation.Nullable;
 import javax.inject.Named;
 
 @SessionScope
-@Subcomponent(modules = {SessionModule.class, SessionNetworkModule.class})
+@Subcomponent(modules = {SessionModule.class, SessionNetworkModule.class, SessionIntegrationModule.class})
 public interface SessionComponent {
 
     MainScreenController.MainScreenControllerFactory getMainScreenControllerFactory();

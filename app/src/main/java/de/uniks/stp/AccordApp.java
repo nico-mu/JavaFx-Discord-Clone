@@ -59,6 +59,10 @@ public class AccordApp extends Application {
         }
     }
 
+    public void showUriInBrowser(String uri) {
+        this.getHostServices().showDocument(uri);
+    }
+
     public SessionComponent getSessionComponent() {
         return sessionComponent;
     }

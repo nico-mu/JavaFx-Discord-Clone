@@ -95,7 +95,7 @@ public class InviteMessageTest {
         String otherUserName = "otherTestUser";
         String otherUserId = "123";
 
-        JSONObject otherUserJson = new JSONObject().put("id", otherUserId).put("name", otherUserName);
+        JSONObject otherUserJson = new JSONObject().put("id", otherUserId).put("name", otherUserName).put("description", "#123");
         JSONArray data = new JSONArray().put(otherUserJson);
         JSONObject j = new JSONObject().put("status", "success").put("message", "").put("data", data);
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
@@ -151,7 +151,7 @@ public class InviteMessageTest {
         String otherUserName = "otherTestUser";
         String otherUserId = "123";
 
-        JSONObject otherUserJson = new JSONObject().put("id", otherUserId).put("name", otherUserName);
+        JSONObject otherUserJson = new JSONObject().put("id", otherUserId).put("name", otherUserName).put("description", "#123");
         JSONArray data = new JSONArray().put(otherUserJson);
         JSONObject j = new JSONObject().put("status", "success").put("message", "").put("data", data);
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));

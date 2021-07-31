@@ -36,7 +36,7 @@ import java.util.concurrent.Executors;
 public class SpotifyApiClient implements IntegrationApiClient {
 
     private final static Logger log = LoggerFactory.getLogger(SpotifyApiClient.class);
-    private final ExecutorService executorService;
+    private ExecutorService executorService;
     private final User currentUser;
     private final SessionDatabaseService databaseService;
     private final ViewLoader viewLoader;
@@ -46,10 +46,10 @@ public class SpotifyApiClient implements IntegrationApiClient {
     private final PropertyChangeListener currentUserPlayingChangeListener;
 
     @Inject
-    SpotifyApiClient(@Named("currentUser") User currentUser,
-                     ViewLoader viewLoader,
-                     SessionRestClient restClient,
-                     SessionDatabaseService sessionDatabaseService) {
+    public SpotifyApiClient(@Named("currentUser") User currentUser,
+                            ViewLoader viewLoader,
+                            SessionRestClient restClient,
+                            SessionDatabaseService sessionDatabaseService) {
         this.databaseService = sessionDatabaseService;
         this.executorService = Executors.newCachedThreadPool();
         this.currentUser = currentUser;
@@ -74,7 +74,7 @@ public class SpotifyApiClient implements IntegrationApiClient {
             @Override
             public void run() {
                 GetUsersCurrentlyPlayingTrackRequest getUsersCurrentlyPlayingTrackRequest =
-                    spotifyApi.getUsersCurrentlyPlayingTrack().build();
+                    getUsersCurrentlyPlayingTrackRequest();
 
                 try {
                     CurrentlyPlaying playing = getUsersCurrentlyPlayingTrackRequest.execute();
@@ -111,9 +111,16 @@ public class SpotifyApiClient implements IntegrationApiClient {
         }
     }
 
+    public GetUsersCurrentlyPlayingTrackRequest getUsersCurrentlyPlayingTrackRequest() {
+        return spotifyApi.getUsersCurrentlyPlayingTrack().build();
+    }
+
+    public AuthorizationCodePKCERefreshRequest getAuthorizationCodePKCERefreshRequest() {
+        return spotifyApi.authorizationCodePKCERefresh().build();
+    }
+
     private void getRefreshedToken() {
-        AuthorizationCodePKCERefreshRequest authorizationCodePKCERefreshRequest =
-            spotifyApi.authorizationCodePKCERefresh().build();
+        AuthorizationCodePKCERefreshRequest authorizationCodePKCERefreshRequest = getAuthorizationCodePKCERefreshRequest();
         try {
             final AuthorizationCodeCredentials authorizationCodeCredentials = authorizationCodePKCERefreshRequest.execute();
             log.debug("Access token expires in {}", authorizationCodeCredentials.getExpiresIn().toString());
