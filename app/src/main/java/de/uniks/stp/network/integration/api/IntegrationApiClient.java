@@ -8,4 +8,5 @@ public interface IntegrationApiClient {
     void start(Credentials credentials);
     void refresh();
     void stop();
+    void shutdown();
 }

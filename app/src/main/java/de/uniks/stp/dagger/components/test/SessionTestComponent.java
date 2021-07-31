@@ -4,6 +4,7 @@ import dagger.BindsInstance;
 import dagger.Subcomponent;
 import de.uniks.stp.dagger.components.SessionComponent;
 import de.uniks.stp.dagger.modules.session.SessionModule;
+import de.uniks.stp.dagger.modules.test.SessionTestIntegrationModule;
 import de.uniks.stp.dagger.modules.test.SessionTestNetworkModule;
 import de.uniks.stp.dagger.scope.SessionScope;
 import de.uniks.stp.model.User;
@@ -14,7 +15,7 @@ import javax.annotation.Nullable;
 import javax.inject.Named;
 
 @SessionScope
-@Subcomponent(modules = {SessionModule.class, SessionTestNetworkModule.class})
+@Subcomponent(modules = {SessionModule.class, SessionTestNetworkModule.class, SessionTestIntegrationModule.class})
 public interface SessionTestComponent extends SessionComponent {
 
     WebSocketClientFactory getWebSocketClientFactory();

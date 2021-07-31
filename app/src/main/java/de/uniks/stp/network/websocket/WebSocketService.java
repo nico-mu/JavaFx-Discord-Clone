@@ -169,20 +169,26 @@ public class WebSocketService {
 
         if (Objects.nonNull(data)) {
             final String userId = data.getString("id");
-            final String userName = data.getString("name");
+
             switch (action) {
                 case "userJoined":
+                    String userName = data.getString("name");
                     editor.getOrCreateOtherUser(userId, userName);
                     if (editor.isChatPartnerOfCurrentUser(userId)) {
                         editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(true);
                     }
                     break;
                 case "userLeft":
+                    userName = data.getString("name");
                     editor.removeOtherUserById(userId);
                     if (editor.isChatPartnerOfCurrentUser(userId)) {
                         editor.getOrCreateChatPartnerOfCurrentUser(userId, userName).setStatus(false);
                     }
                     break;
+                case "userDescriptionChanged":
+                    final String description = data.getString("description");
+                    User user = editor.getOtherUserById(userId);
+                    user.setDescription(description);
                 default:
                     break;
             }
@@ -461,7 +467,6 @@ public class WebSocketService {
                     channel = editor.getChannel(channelId, category);
                     editor.getOrCreateServerMessage(messageId, channel).setMessage(message);
                     break;
-
                 case "messageDeleted":
                     messageId = data.getString("id");
                     categoryId = data.getString("category");

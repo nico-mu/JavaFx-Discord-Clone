@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,11 +34,14 @@ public abstract class AbstractAuthorizationClient implements HttpHandler {
     public void authorize(AuthorizationCallback authorizationCallback) {
         this.authorizationCallback = authorizationCallback;
         try {
-            server = HttpServer.create(new InetSocketAddress(IntegrationConstants.TEMP_SERVER_HOST, IntegrationConstants.TEMP_SERVER_PORT), 0);
-            server.createContext(serverPath, this);
-            server.setExecutor(executorService);
-            server.start();
-            log.debug("Server started on port: " + server.getAddress().getPort());
+            //needed for testing purposes
+            if(Objects.isNull(server)) {
+                server = HttpServer.create(new InetSocketAddress(IntegrationConstants.TEMP_SERVER_HOST, IntegrationConstants.TEMP_SERVER_PORT), 0);
+                server.createContext(serverPath, this);
+                server.setExecutor(executorService);
+                server.start();
+                log.debug("Server started on port: " + server.getAddress().getPort());
+            }
         } catch (IOException e) {
             e.printStackTrace();
             authorizationCallback.onFailure(e.getMessage());
@@ -59,7 +59,7 @@ public abstract class AbstractAuthorizationClient implements HttpHandler {
         return queryPairs;
     }
 
-    protected void noTimeout() {
+    public void noTimeout() {
         serverTimeout.cancel();
         serverTimeout.purge();
     }

@@ -7,73 +7,116 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox id="settings-container" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="380.0" prefWidth="400.0" styleClass="settings-modal" stylesheets="@../style/css/view/settings-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox id="settings-container" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="570.0" prefWidth="651.0" spacing="10.0" styleClass="settings-modal" stylesheets="@../style/css/view/settings-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
+      <HBox prefHeight="54.0" prefWidth="642.0" styleClass="header-border-bottom">
+         <children>
+            <Label prefHeight="30.0" prefWidth="342.0" styleClass="label-settings-header" text="%LBL_GENERAL_SETTINGS" />
+         </children>
+         <padding>
+            <Insets left="20.0" />
+         </padding>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+      </HBox>
       <AnchorPane prefHeight="60.0" prefWidth="243.0">
          <children>
-            <KeyBasedComboBox id="combo-select-language" layoutX="30.0" layoutY="30.0" prefHeight="32.0" prefWidth="243.0" styleClass="combo-select-language" unFocusColor="WHITE" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0" />
+            <KeyBasedComboBox id="combo-select-language" layoutX="30.0" layoutY="30.0" prefHeight="30.0" prefWidth="250.0" styleClass="combo-select-language" unFocusColor="WHITE" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="30.0" />
             <Label id="label-select-language" prefHeight="30.0" prefWidth="235.0" styleClass="label-usual" text="%LBL_SELECT_LANGUAGE" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="0.0" />
          </children>
       </AnchorPane>
       <AnchorPane prefHeight="60.0" prefWidth="243.0">
          <children>
-            <KeyBasedComboBox id="combo-select-notification-sound" layoutX="30.0" layoutY="30.0" prefHeight="32.0" prefWidth="243.0" styleClass="combo-select-language" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0" />
+            <KeyBasedComboBox id="combo-select-notification-sound" layoutX="30.0" layoutY="30.0" prefHeight="30.0" prefWidth="250.0" styleClass="combo-select-language" AnchorPane.leftAnchor="20.0" />
             <Label id="label-select-notification-sound" prefHeight="30.0" prefWidth="235.0" styleClass="label-usual" text="%LBL_SELECT_NOTIFICATION_SOUND" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="0.0" />
          </children>
       </AnchorPane>
-      <HBox alignment="CENTER_LEFT" prefHeight="48.0" prefWidth="300.0">
+      <HBox alignment="CENTER_LEFT" prefHeight="60.0" prefWidth="642.0" styleClass="header-border-bottom">
          <children>
-            <Label styleClass="label-audio-settings" text="%LBL_AUDIO_SETTINGS">
+            <Label prefHeight="30.0" prefWidth="318.0" styleClass="label-settings-header" text="%LBL_AUDIO_SETTINGS">
                <HBox.margin>
-                  <Insets left="20.0" />
+                  <Insets />
                </HBox.margin></Label>
          </children>
+         <padding>
+            <Insets left="20.0" />
+         </padding>
+         <VBox.margin>
+            <Insets top="20.0" />
+         </VBox.margin>
       </HBox>
-      <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0">
+      <AnchorPane>
          <children>
-            <VBox prefHeight="200.0" prefWidth="180.0">
+            <HBox prefHeight="100.0" prefWidth="597.0" AnchorPane.leftAnchor="20.0">
                <children>
-                  <Label styleClass="label-usual" text="%LBL_INPUT_DEVICE" />
-                  <AudioDeviceComboBox id="combo-select-input-device" layoutX="30.0" layoutY="30.0" prefHeight="32.0" prefWidth="165.0" styleClass="combo-select-language" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0" />
-                  <Label styleClass="label-usual" text="%LBL_INPUT_VOLUME">
-                     <VBox.margin>
-                        <Insets bottom="5.0" top="10.0" />
-                     </VBox.margin></Label>
-                  <Slider id="slider-input-volume" maxWidth="165.0" />
+                  <VBox prefHeight="100.0" prefWidth="287.0">
+                     <children>
+                        <Label styleClass="label-usual" text="%LBL_INPUT_DEVICE" />
+                        <AudioDeviceComboBox id="combo-select-input-device" layoutX="30.0" layoutY="30.0" prefHeight="30.0" prefWidth="250.0" styleClass="combo-select-language" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0" />
+                        <Label styleClass="label-usual" text="%LBL_INPUT_VOLUME">
+                           <VBox.margin>
+                              <Insets bottom="5.0" top="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <Slider id="slider-input-volume" maxWidth="165.0" />
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="100.0" prefWidth="262.0">
+                     <children>
+                        <Label styleClass="label-usual" text="%LBL_OUTPUT_DEVICE" />
+                        <AudioDeviceComboBox id="combo-select-output-device" layoutX="30.0" layoutY="30.0" prefHeight="32.0" prefWidth="250.0" styleClass="combo-select-language" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0" />
+                        <Label styleClass="label-usual" text="%LBL_OUTPUT_VOLUME">
+                           <VBox.margin>
+                              <Insets bottom="5.0" top="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <Slider id="slider-output-volume" maxWidth="165.0" />
+                     </children>
+                  </VBox>
                </children>
-            </VBox>
-            <VBox prefHeight="200.0" prefWidth="180.0">
-               <children>
-                  <Label styleClass="label-usual" text="%LBL_OUTPUT_DEVICE" />
-                  <AudioDeviceComboBox id="combo-select-output-device" layoutX="30.0" layoutY="30.0" prefHeight="32.0" prefWidth="165.0" styleClass="combo-select-language" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0" />
-                  <Label styleClass="label-usual" text="%LBL_OUTPUT_VOLUME">
-                     <VBox.margin>
-                        <Insets bottom="5.0" top="10.0" />
-                     </VBox.margin></Label>
-                  <Slider id="slider-output-volume" maxWidth="165.0" />
-               </children>
-            </VBox>
+            </HBox>
          </children>
-      </HBox>
-      <HBox alignment="CENTER" prefHeight="115.0" prefWidth="469.0">
+      </AnchorPane>
+      <HBox prefHeight="57.0" prefWidth="642.0" styleClass="header-border-bottom">
          <children>
-            <JFXButton id="spotify-integration-button" mnemonicParsing="false" prefHeight="40.0" prefWidth="103.0" styleClass="settings-apply-button" text="Spotify" />
+            <Label prefHeight="30.0" prefWidth="320.0" styleClass="label-settings-header" text="%LBL_INTEGRATION_SETTINGS" />
          </children>
          <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding></HBox>
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="303.0">
-         <children>
-            <JFXButton id="settings-apply-button" prefHeight="40.0" prefWidth="90.0" styleClass="settings-apply-button" text="%LBL_APPLY">
-               <font>
-                  <Font size="14.0" />
-               </font></JFXButton>
-            <Pane prefHeight="97.0" prefWidth="60.0" />
-            <JFXButton id="settings-cancel-button" prefHeight="40.0" prefWidth="90.0" styleClass="settings-cancel-button" text="%LBL_CANCEL">
-               <font>
-                  <Font size="14.0" />
-               </font></JFXButton>
-         </children>
+            <Insets left="20.0" />
+         </padding>
+         <VBox.margin>
+            <Insets top="20.0" />
+         </VBox.margin>
       </HBox>
+      <HBox id="integration-container" prefHeight="115.0" prefWidth="469.0" spacing="10.0">
+         <VBox.margin>
+            <Insets left="20.0" />
+         </VBox.margin>
+         <padding>
+            <Insets bottom="10.0" top="10.0" />
+         </padding></HBox>
+      <AnchorPane prefHeight="96.0" prefWidth="642.0">
+         <children>
+            <HBox alignment="TOP_CENTER" layoutY="54.0" prefHeight="46.0" prefWidth="578.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
+               <children>
+                  <JFXButton id="settings-apply-button" prefHeight="40.0" prefWidth="115.0" styleClass="settings-apply-button" text="%LBL_APPLY">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </JFXButton>
+                  <Pane prefHeight="46.0" prefWidth="54.0" />
+                  <JFXButton id="settings-cancel-button" prefHeight="40.0" prefWidth="115.0" styleClass="settings-cancel-button" text="%LBL_CANCEL">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </JFXButton>
+               </children>
+            </HBox>
+         </children>
+      </AnchorPane>
    </children>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
 </VBox>
