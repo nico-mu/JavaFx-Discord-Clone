@@ -30,6 +30,9 @@ public class VoiceChatClient {
     private Mixer microphone;
     private final Map<String, SourceDataLine> userSourceDataLineMap = new HashMap<>();
 
+    private int inputVolume = 100;  //init set to max in case setInputVolume is not called fast enough
+    private int outputVolume = 100;  //init set to max in case setOutputVolume is not called fast enough
+
     private final User currentUser;
     private final Channel channel;
     private final PropertyChangeListener currentUserMutePropertyChangeListener = this::onCurrentUserMutePropertyChange;
@@ -111,7 +114,7 @@ public class VoiceChatClient {
                 final String userName = metadataJson.getString("name");
                 final SourceDataLine audioOutDataLine = userSourceDataLineMap.get(userName);
                 if (Objects.nonNull(userName) && Objects.nonNull(audioOutDataLine) && filteredUsers.stream().map(User::getName).noneMatch(userName::equals)) {
-                    audioBuf = VoiceChatUtil.adjustVolume(100, audioBuf);
+                    audioBuf = VoiceChatUtil.adjustVolume(outputVolume, audioBuf);
                     audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
                 }
             } catch (SocketException | JsonParsingException ignored) {
@@ -152,7 +155,6 @@ public class VoiceChatClient {
                 oldAudioinDataLine.close();
             }
         }
-
     }
 
     private void recordAndSendAudio() {
@@ -180,7 +182,7 @@ public class VoiceChatClient {
                 continue;
             }
             audioInDataLine.read(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
-            audioBuf = VoiceChatUtil.adjustVolume(100, audioBuf);
+            audioBuf = VoiceChatUtil.adjustVolume(inputVolume, audioBuf);
             final DatagramPacket audioInDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length, address, Constants.AUDIOSTREAM_PORT);
             try {
                 datagramSocket.send(audioInDatagramPacket);
@@ -336,5 +338,13 @@ public class VoiceChatClient {
             this.filteredUsers.remove(value);
         }
         return this;
+    }
+
+    public void setInputVolume(int newInputVolume) {
+        this.inputVolume = newInputVolume;
+    }
+
+    public void setOutputVolume(int newOutputVolume) {
+        this.outputVolume = newOutputVolume;
     }
 }
