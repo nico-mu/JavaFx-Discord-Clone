@@ -67,7 +67,7 @@ public class VoiceChatClientTest {
     }
 
     @AfterEach
-    public void tearDown()  {
+    public void tearDown() {
         speaker1 = null;
         speaker2 = null;
         microphone1 = null;
