@@ -45,32 +45,32 @@ public class MediaRequestClient {
     public void handleMediaInformation(HttpResponse<JsonNode> response, ChatMessage messageNode) {
         JsonNode jsonNode = response.getBody();
         JSONObject jsonObject = jsonNode.getObject();
-        String html = "";
         String url = "";
-        try {
-            html = jsonObject.getString("html");
-        } catch (JSONException ignored) {
-        }
-        try {
+        if (jsonObject.has("url")) {
+            // should be true every time
             url = jsonObject.getString("url");
-            if (url.endsWith(".gif") || url.endsWith(".jpg") || url.endsWith(".png") || url.endsWith(".jpeg")) {
-                loadImage(html, messageNode, url);
-                return;
-            }
-        } catch (JSONException ignored) {
         }
-        try {
+
+        if (jsonObject.has("html")) {
+            // parse media as html
+            String html = jsonObject.getString("html");
+            if (isImageURL(url)) {
+                loadImage(html, messageNode, url);
+            } else {
+                loadVideo(html, messageNode, "");
+            }
+            return;
+        }
+
+        if (jsonObject.has("links") && jsonObject.getJSONObject("links").has("file")) {
+            // parse media as resource
             JSONObject file = (JSONObject) jsonObject.getJSONObject("links").getJSONArray("file").get(0);
             String contentType = file.getString("type");
             if (contentType.startsWith("image")) {
-                loadImage(html, messageNode, url);
+                loadImage("", messageNode, url);
             } else if (contentType.equals("video/mp4")){
-                html = "";
-                loadVideo(html, messageNode, url);
+                loadVideo("", messageNode, url);
             }
-        } catch (JSONException e) {
-            url = "";
-            loadVideo(html, messageNode, url);
         }
     }
 
@@ -87,6 +87,10 @@ public class MediaRequestClient {
             executor.execute(() -> req.asJsonAsync(callback));
         } catch (IllegalArgumentException ignore) {
         }
+    }
+
+    private boolean isImageURL(String url) {
+        return (url.endsWith(".gif") || url.endsWith(".jpg") || url.endsWith(".png") || url.endsWith(".jpeg"));
     }
 
     public void addMedia(Message message, ChatMessage messageNode) {
