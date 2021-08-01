@@ -11,11 +11,7 @@
       <padding>
          <Insets left="10.0" />
       </padding>
-      <ImageView fx:id="descriptionImageView" fitHeight="16.0" fitWidth="16.0" managed="false" pickOnBounds="true" preserveRatio="true" visible="false">
-         <image>
-            <Image url="@../img/spotify.png" />
-         </image>
-      </ImageView>
+      <ImageView fx:id="descriptionImageView" fitHeight="16.0" fitWidth="16.0" managed="false" pickOnBounds="true" preserveRatio="true" visible="false" />
       <Label fx:id="descriptionLabel" styleClass="user-list-entry-description-label" />
    </HBox>
    <padding>

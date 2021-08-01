@@ -53,12 +53,17 @@ public class UserListEntry extends VBox {
 
     public void setDescription(final String description) {
         if(Objects.nonNull(description) && !description.isEmpty() && !description.isBlank()) {
-            Integrations integration = IntegrationUtil.getIntegrationForToken(description.substring(0, 1));
-            if(Objects.nonNull(integration)) {
-                String pictureName = IntegrationUtil.getPictureNameForIntegration(integration);
-                descriptionImageView.setImage(viewLoader.loadImage(pictureName));
+            String token = description.substring(0, 1);
+            Integrations integration = IntegrationUtil.getIntegrationForToken(token);
+            String parsedDescription = description;
+
+            if(Objects.nonNull(integration) || token.equals("+")) {
+                parsedDescription = parsedDescription.substring(1);
+                if(Objects.nonNull(integration)) {
+                    String pictureName = IntegrationUtil.getPictureNameForIntegration(integration);
+                    descriptionImageView.setImage(viewLoader.loadImage(pictureName));
+                }
             }
-            final String parsedDescription = description.substring(1);
 
             descriptionLabel.setVisible(true);
             descriptionLabel.setManaged(true);
