@@ -12,25 +12,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import javax.sound.sampled.Mixer;
 import java.util.List;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.ArgumentMatchers.any;
 
 public class VoiceChatServiceTest {
-    @Mock
-    private Mixer speaker1;
-    @Mock
-    private Mixer speaker2;
-    @Mock
-    private Mixer microphone1;
-    @Mock
-    private Mixer microphone2;
-
     private SessionDatabaseService sessionDatabaseService;
     private VoiceChatClientFactory voiceChatClientFactory;
     private VoiceChatService voiceChatService;
@@ -54,21 +42,8 @@ public class VoiceChatServiceTest {
 
         sessionDatabaseService = sessionTestComponent.getSessionDatabaseService();
         voiceChatClientFactory = sessionTestComponent.getVoiceChatClientFactory();
-        doReturn(Mockito.mock(VoiceChatClient.class)).when(voiceChatClientFactory).create(any(), any(), any());
 
         voiceChatService = Mockito.spy(new VoiceChatService(voiceChatClientFactory, sessionDatabaseService));
-    }
-
-    @Test
-    public void changeDevicesTest() {
-        voiceChatService.setSelectedMicrophone(microphone1);
-        Assertions.assertEquals(microphone1, voiceChatService.getSelectedMicrophone());
-        voiceChatService.setSelectedSpeaker(speaker1);
-        Assertions.assertEquals(speaker1, voiceChatService.getSelectedSpeaker());
-        voiceChatService.setSelectedMicrophone(microphone2);
-        Assertions.assertEquals(microphone2, voiceChatService.getSelectedMicrophone());
-        voiceChatService.setSelectedSpeaker(speaker2);
-        Assertions.assertEquals(speaker2, voiceChatService.getSelectedSpeaker());
     }
 
     @Test
@@ -99,23 +74,17 @@ public class VoiceChatServiceTest {
 
     @Test
     public void changeVolumesTest() {
-        int inputVolume = voiceChatService.getInputVolume();
-        int outputVolume = voiceChatService.getOutputVolume();
-        voiceChatService.setInputVolume(inputVolume/2);
-        voiceChatService.setOutputVolume(outputVolume/2);
+        final int inputVolume = voiceChatService.getInputVolume();
+        final int outputVolume = voiceChatService.getOutputVolume();
+        voiceChatService.setInputVolume(inputVolume / 2);
+        voiceChatService.setOutputVolume(outputVolume / 2);
 
-        inputVolume = voiceChatService.getInputVolume();
-        outputVolume = voiceChatService.getOutputVolume();
-        Assertions.assertEquals(inputVolume/2, inputVolume);
-        Assertions.assertEquals(outputVolume/2, outputVolume);
+        Assertions.assertEquals(inputVolume / 2, voiceChatService.getInputVolume());
+        Assertions.assertEquals(outputVolume / 2, voiceChatService.getOutputVolume());
     }
 
     @AfterEach
     public void tearDown() {
-        speaker1 = null;
-        speaker2 = null;
-        microphone1 = null;
-        microphone2 = null;
         sessionDatabaseService.stop();
         sessionDatabaseService = null;
         voiceChatClientFactory = null;
