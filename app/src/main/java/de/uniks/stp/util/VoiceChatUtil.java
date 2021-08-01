@@ -124,7 +124,7 @@ public class VoiceChatUtil {
         if (volume < 0 || volume >= 100) {
             return audioBuf;
         }
-        final float vol = volume / 100f;
+        final double vol = Math.pow(volume / 100d, 2);  //for better volume scaling
         final ByteBuffer wrap = ByteBuffer.wrap(audioBuf).order(ByteOrder.LITTLE_ENDIAN);
         final ByteBuffer dest = ByteBuffer.allocate(audioBuf.length).order(ByteOrder.LITTLE_ENDIAN);
 
