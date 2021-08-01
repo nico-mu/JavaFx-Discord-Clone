@@ -57,7 +57,7 @@ public class MediaRequestClient {
             if (isImageURL(url)) {
                 loadImage(html, messageNode, url);
             } else {
-                loadVideo(html, messageNode, "");
+                loadVideo(html, messageNode, url);
             }
             return;
         }
