@@ -22,6 +22,7 @@ import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 
+import javax.inject.Named;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Objects;
@@ -86,17 +87,20 @@ public class UserListController implements ControllerInterface {
     private void handleUserOnlineRequest(final HttpResponse<JsonNode> response) {
         if (response.isSuccess()) {
             final JSONArray data = response.getBody().getObject().getJSONArray("data");
+            final User currentUser = editor.getOrCreateAccord().getCurrentUser();
             data.forEach(o -> {
                 final JSONObject jsonUser = (JSONObject) o;
                 final String userId = jsonUser.getString("id");
                 final String name = jsonUser.getString("name");
                 final String description = jsonUser.getString("description");
 
-                User otherUser = editor.getOrCreateOtherUser(userId, name);
+                if(!name.equals(currentUser.getName())) {
+                    User otherUser = editor.getOrCreateOtherUser(userId, name);
 
-                if (Objects.nonNull(otherUser)) {
-                    final User user = otherUser.setStatus(true).setDescription(description);
-                    userJoined(user);
+                    if (Objects.nonNull(otherUser)) {
+                        final User user = otherUser.setStatus(true).setDescription(description);
+                        userJoined(user);
+                    }
                 }
             });
         }

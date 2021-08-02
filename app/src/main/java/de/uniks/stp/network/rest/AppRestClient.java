@@ -13,7 +13,7 @@ public class AppRestClient {
     protected final UnirestInstance instance;
 
     public AppRestClient() {
-        executorService = Executors.newFixedThreadPool(6);
+        executorService = Executors.newCachedThreadPool();
         instance = new UnirestInstance(new Config());
         instance.config()
             .defaultBaseUrl(Constants.REST_SERVER_BASE_URL);
