@@ -5,5 +5,5 @@ import de.uniks.stp.model.Channel;
 import javax.sound.sampled.Mixer;
 
 public interface VoiceChatClientFactory {
-    VoiceChatClient create(Channel channel, Mixer speaker, Mixer microphone);
+    VoiceChatClient create(VoiceChatService voiceChatService, Channel channel, Mixer speaker, Mixer microphone);
 }

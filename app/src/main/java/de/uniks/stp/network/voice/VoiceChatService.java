@@ -1,32 +1,36 @@
 package de.uniks.stp.network.voice;
 
+import de.uniks.stp.Constants;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.AppDatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.model.Channel;
-import de.uniks.stp.util.VoiceChatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.TargetDataLine;
+import javax.sound.sampled.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class VoiceChatService {
     private static final Logger log = LoggerFactory.getLogger(VoiceChatService.class);
+    private final AudioFormat audioFormat = new AudioFormat(
+        Constants.AUDIOSTREAM_SAMPLE_RATE,
+        Constants.AUDIOSTREAM_SAMPLE_SIZE_BITS,
+        Constants.AUDIOSTREAM_CHANNEL,
+        Constants.AUDIOSTREAM_SIGNED,
+        Constants.AUDIOSTREAM_BIG_ENDIAN
+    );
 
     private final VoiceChatClientFactory voiceChatClientFactory;
     private final AppDatabaseService databaseService;
-
-    private Mixer selectedMicrophone;
-    private Mixer selectedSpeaker;
-
     private final List<Mixer> availableSpeakers = new ArrayList<>();
     private final List<Mixer> availableMicrophones = new ArrayList<>();
+    private Mixer selectedMicrophone;
+    private Mixer selectedSpeaker;
     private VoiceChatClient voiceChatClient;
 
     private int inputVolume;
@@ -36,16 +40,14 @@ public class VoiceChatService {
     public VoiceChatService(VoiceChatClientFactory voiceChatClientFactory, AppDatabaseService databaseService) {
         this.voiceChatClientFactory = voiceChatClientFactory;
         this.databaseService = databaseService;
-        for (final Mixer mixer : VoiceChatUtil.getMixers()) {
-            final DataLine.Info audioOut = new DataLine.Info(SourceDataLine.class, VoiceChatUtil.AUDIO_FORMAT);
+        for (final Mixer mixer : getMixers()) {
+            final DataLine.Info audioOut = new DataLine.Info(SourceDataLine.class, audioFormat);
             if (mixer.isLineSupported(audioOut)) {
                 availableSpeakers.add(mixer);
-                log.debug("Found speaker:\n{}", VoiceChatUtil.getMixerHierarchyInfo(mixer));
             }
-            final DataLine.Info audioIn = new DataLine.Info(TargetDataLine.class, VoiceChatUtil.AUDIO_FORMAT);
+            final DataLine.Info audioIn = new DataLine.Info(TargetDataLine.class, audioFormat);
             if (mixer.isLineSupported(audioIn)) {
                 availableMicrophones.add(mixer);
-                log.debug("Found microphone:\n{}", VoiceChatUtil.getMixerHierarchyInfo(mixer));
             }
         }
         if (isMicrophoneAvailable()) {
@@ -54,7 +56,7 @@ public class VoiceChatService {
 
             if (Objects.nonNull(settingDTO)) {
                 final String prefMixerInfoString = settingDTO.getValue();
-                for(Mixer mixer: availableMicrophones) {
+                for (Mixer mixer : availableMicrophones) {
                     if (persistenceString(mixer).equals(prefMixerInfoString)) {
                         preferredMicrophone = mixer;
                         break;
@@ -69,7 +71,7 @@ public class VoiceChatService {
 
             if (Objects.nonNull(settingDTO)) {
                 final String prefMixerInfoString = settingDTO.getValue();
-                for(Mixer mixer: availableSpeakers) {
+                for (Mixer mixer : availableSpeakers) {
                     if (persistenceString(mixer).equals(prefMixerInfoString)) {
                         preferredSpeaker = mixer;
                         break;
@@ -97,6 +99,49 @@ public class VoiceChatService {
 
     private static String persistenceString(Mixer mixer) {
         return mixer.getMixerInfo().toString();
+    }
+
+    public List<Mixer> getMixers() {
+        Mixer.Info[] infos = AudioSystem.getMixerInfo();
+        List<Mixer> mixers = new ArrayList<>(infos.length);
+        for (Mixer.Info info : infos) {
+            Mixer mixer = AudioSystem.getMixer(info);
+            mixers.add(mixer);
+        }
+        return mixers;
+    }
+
+    public AudioFormat getAudioFormat() {
+        return audioFormat;
+    }
+
+    public byte[] adjustVolume(int volume, byte[] audioBuf) {
+        /* Do not change anything if volume is not withing acceptable range of 0 - 100.
+         Notice that a volume of 100 would not change anything and just return the buffer as is */
+        if (volume < 0 || volume >= 100) {
+            return audioBuf;
+        }
+        final double vol = Math.pow(volume / 100d, 2);  //for better volume scaling
+        final ByteBuffer wrap = ByteBuffer.wrap(audioBuf).order(ByteOrder.LITTLE_ENDIAN);
+        final ByteBuffer dest = ByteBuffer.allocate(audioBuf.length).order(ByteOrder.LITTLE_ENDIAN);
+
+        // Copy metadata
+        for (int i = 0; i < Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE; i++) {
+            dest.put(wrap.get());
+        }
+
+        // PCM
+        while (wrap.hasRemaining()) {
+            short temp = wrap.getShort();
+            temp *= vol;
+
+            byte b1 = (byte) (temp & 0xff);
+            byte b2 = (byte) ((temp >> 8) & 0xff);
+
+            dest.put(b1);
+            dest.put(b2);
+        }
+        return dest.array();
     }
 
     public Mixer getSelectedMicrophone() {
@@ -147,7 +192,7 @@ public class VoiceChatService {
         if (Objects.nonNull(voiceChatClient)) {
             voiceChatClient.stop();
         }
-        voiceChatClient = voiceChatClientFactory.create(model, selectedSpeaker, selectedMicrophone);
+        voiceChatClient = voiceChatClientFactory.create(this, model, selectedSpeaker, selectedMicrophone);
         voiceChatClient.init();
         voiceChatClient.setInputVolume(inputVolume);
         voiceChatClient.setOutputVolume(outputVolume);
@@ -159,27 +204,27 @@ public class VoiceChatService {
         }
     }
 
-    public void setInputVolume(int newInputVolume) {
-        this.inputVolume = newInputVolume;
-        databaseService.saveAccordSetting(AccordSettingKey.AUDIO_IN_VOLUME, String.valueOf(newInputVolume));
-        if (Objects.nonNull(voiceChatClient)){
-            voiceChatClient.setInputVolume(newInputVolume);
-        }
-    }
-
     public int getInputVolume() {
         return inputVolume;
     }
 
-    public void setOutputVolume(int newOutputVolume) {
-        this.outputVolume = newOutputVolume;
-        databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME, String.valueOf(newOutputVolume));
-        if (Objects.nonNull(voiceChatClient)){
-            voiceChatClient.setOutputVolume(newOutputVolume);
+    public void setInputVolume(int newInputVolume) {
+        this.inputVolume = newInputVolume;
+        databaseService.saveAccordSetting(AccordSettingKey.AUDIO_IN_VOLUME, String.valueOf(newInputVolume));
+        if (Objects.nonNull(voiceChatClient)) {
+            voiceChatClient.setInputVolume(newInputVolume);
         }
     }
 
     public int getOutputVolume() {
         return outputVolume;
+    }
+
+    public void setOutputVolume(int newOutputVolume) {
+        this.outputVolume = newOutputVolume;
+        databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME, String.valueOf(newOutputVolume));
+        if (Objects.nonNull(voiceChatClient)) {
+            voiceChatClient.setOutputVolume(newOutputVolume);
+        }
     }
 }
