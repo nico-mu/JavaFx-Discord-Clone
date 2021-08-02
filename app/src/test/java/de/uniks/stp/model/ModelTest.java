@@ -1,10 +1,8 @@
 package de.uniks.stp.model;
 
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.Test;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
