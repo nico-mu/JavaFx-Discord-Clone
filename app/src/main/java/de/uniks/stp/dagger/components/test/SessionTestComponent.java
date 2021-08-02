@@ -7,6 +7,7 @@ import de.uniks.stp.dagger.modules.session.SessionModule;
 import de.uniks.stp.dagger.modules.test.SessionTestNetworkModule;
 import de.uniks.stp.dagger.scope.SessionScope;
 import de.uniks.stp.model.User;
+import de.uniks.stp.network.voice.VoiceChatClientFactory;
 import de.uniks.stp.network.websocket.WebSocketClientFactory;
 import de.uniks.stp.notification.NotificationService;
 
@@ -19,6 +20,7 @@ public interface SessionTestComponent extends SessionComponent {
 
     WebSocketClientFactory getWebSocketClientFactory();
     NotificationService getNotificationService();
+    VoiceChatClientFactory getVoiceChatClientFactory();
 
     @Subcomponent.Builder
     interface Builder {
