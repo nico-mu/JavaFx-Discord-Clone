@@ -44,7 +44,7 @@ public class VoiceChatClientTest {
             .userKey("123-45")
             .build();
 
-        voiceChatClient = sessionTestComponent.getVoiceChatClientFactory().create(new Channel(), speaker1, microphone1);
+        voiceChatClient = sessionTestComponent.getVoiceChatClientFactory().create(null, new Channel(), speaker1, microphone1);
     }
 
     @Test
