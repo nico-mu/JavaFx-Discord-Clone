@@ -71,6 +71,7 @@ public class ChatMessage extends HBox {
     private final DeleteMessageModal.DeleteMessageModalFactory deleteMessageModalFactory;
     private final EditMessageModal.EditMessageModalFactory editMessageModalFactory;
     private final JoinServerButton.JoinServerButtonFactory joinServerButtonFactory;
+    private boolean editable;
 
     @AssistedInject
     public ChatMessage(ViewLoader viewLoader,
@@ -82,6 +83,7 @@ public class ChatMessage extends HBox {
         FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+        this.editable = editable;
 
         try {
             fxmlLoader.load();
@@ -105,10 +107,10 @@ public class ChatMessage extends HBox {
         editMessage.setId("edit-message-" + model.getId());
         deleteMessage.setId("delete-message-" + model.getId());
 
+        this.setOnMouseEntered(this::onMouseEntered);
+        this.setOnMouseExited(this::onMouseExited);
+        copyMessage.setOnMouseClicked(this::onMessageCopy);
         if (editable) {
-            this.setOnMouseEntered(this::onMouseEntered);
-            this.setOnMouseExited(this::onMouseExited);
-            copyMessage.setOnMouseClicked(this::onMessageCopy);
             editMessage.setOnMouseClicked(this::onMessageEdited);
             deleteMessage.setOnMouseClicked(this::onMessageDelete);
         }
@@ -161,14 +163,18 @@ public class ChatMessage extends HBox {
 
     private void onMouseExited(MouseEvent mouseEvent) {
         copyMessage.setVisible(false);
-        editMessage.setVisible(false);
-        deleteMessage.setVisible(false);
+        if (editable) {
+            editMessage.setVisible(false);
+            deleteMessage.setVisible(false);
+        }
     }
 
     private void onMouseEntered(MouseEvent mouseEvent) {
         copyMessage.setVisible(true);
-        editMessage.setVisible(true);
-        deleteMessage.setVisible(true);
+        if (editable) {
+            editMessage.setVisible(true);
+            deleteMessage.setVisible(true);
+        }
     }
 
     private void onMessageCopy(MouseEvent mouseEvent) {
