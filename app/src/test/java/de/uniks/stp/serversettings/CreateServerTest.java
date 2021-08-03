@@ -168,7 +168,7 @@ public class CreateServerTest {
         nico.clickOn("#server-address-text-field");
         String serverId = "sId";
         String inviteId = "iId";
-        nico.write("a//b/c/d/" + serverId + "/e/" + inviteId);
+        nico.write("https://ac.uniks.de/api/servers/" + serverId + "/invites/" + inviteId);
         nico.clickOn("#add-server-join-button");
 
         JSONObject j = new JSONObject()
@@ -188,7 +188,7 @@ public class CreateServerTest {
         nico.clickOn("#server-address-text-field");
         String serverId2 = "sId2";
         String inviteId2 = "iId2";
-        nico.write("a//b/c/d/" + serverId2 + "/e/" + inviteId2);
+        nico.write("https://ac.uniks.de/api/servers/" + serverId2 + "/invites/" + inviteId2);
         nico.clickOn("#add-server-join-button");
         Assertions.assertEquals("", errorLabel.getText());
 

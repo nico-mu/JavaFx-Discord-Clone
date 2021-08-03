@@ -12,6 +12,8 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.network.rest.ServerInformationHandler;
 import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.util.InviteInfo;
+import de.uniks.stp.util.MessageUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -124,12 +126,10 @@ public class CreateServerModal extends AbstractModal {
             createButton.setDisable(true);
             cancelButton.setDisable(true);
             spinner.setVisible(true);
-            String[] info = link.split("/");
-            if(info.length == 8) {
-                String serverId = info[5];
-                String invId = info[7];
-                restClient.joinServer(serverId, invId, editor.getCurrentUserName(), editor.getOrCreateAccord().getCurrentUser().getPassword(), (response) -> handleJoinServerResponse(serverId, response));
-            }
+            InviteInfo inviteInfo = MessageUtil.getInviteInfo(link);
+            String serverId = inviteInfo.getServerId();
+            String invId = inviteInfo.getInviteId();
+            restClient.joinServer(serverId , invId, editor.getCurrentUserName(), editor.getOrCreateAccord().getCurrentUser().getPassword(), (response) -> handleJoinServerResponse(serverId, response));
         }
         else{
             setErrorMessage(Constants.LBL_MISSING_ADDRESS);
