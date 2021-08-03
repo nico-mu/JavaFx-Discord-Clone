@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 public class AccordApp extends Application {
-
     private static final Logger log = LoggerFactory.getLogger(AccordApp.class);
 
     private BaseAppComponent appComponent;
@@ -33,6 +32,10 @@ public class AccordApp extends Application {
                 .primaryStage(primaryStage)
                 .build();
         }
+        // set app icon
+        ViewLoader viewLoader = appComponent.getViewLoader();
+        primaryStage.getIcons().add(viewLoader.loadImage("guava.png"));
+
         //start app using AppController
         appComponent.getAppController().init();
     }
