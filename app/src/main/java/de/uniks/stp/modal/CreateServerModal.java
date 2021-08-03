@@ -29,14 +29,18 @@ import java.util.Objects;
 public class CreateServerModal extends AbstractModal {
     public static final String ADD_SERVER_CREATE_BUTTON = "#add-server-create-button";
     public static final String ADD_SERVER_CANCEL_BUTTON = "#add-server-cancel-button";
+    public static final String ADD_SERVER_JOIN_BUTTON = "#add-server-join-button";
     public static final String ADD_SERVER_TEXT_FIELD_SERVERNAME = "#servername-text-field";
+    public static final String ADD_SERVER_TEXT_FIELD_SERVER_ADDRESS = "#server-address-text-field";
     public static final String ADD_SERVER_ERROR_LABEL = "#error-message-label";
     public static final String ADD_SERVER_SPINNER = "#spinner";
 
     private final Editor editor;
     private final JFXButton createButton;
     private final JFXButton cancelButton;
+    private final JFXButton joinButton;
     private final JFXTextField servernameTextField;
+    private final JFXTextField serverAddressTextField;
     private final Label errorLabel;
     private final JFXSpinner spinner;
     private final SessionRestClient restClient;
@@ -62,20 +66,24 @@ public class CreateServerModal extends AbstractModal {
 
         createButton = (JFXButton) view.lookup(ADD_SERVER_CREATE_BUTTON);
         cancelButton = (JFXButton) view.lookup(ADD_SERVER_CANCEL_BUTTON);
+        joinButton = (JFXButton) view.lookup(ADD_SERVER_JOIN_BUTTON);
         servernameTextField = (JFXTextField) view.lookup(ADD_SERVER_TEXT_FIELD_SERVERNAME);
+        serverAddressTextField = (JFXTextField) view.lookup(ADD_SERVER_TEXT_FIELD_SERVER_ADDRESS);
         errorLabel = (Label) view.lookup(ADD_SERVER_ERROR_LABEL);
         spinner = (JFXSpinner) view.lookup(ADD_SERVER_SPINNER);
 
-        createButton.setOnAction(this::onApplyButtonClicked);
+        createButton.setOnAction(this::onCreateButtonClicked);
         createButton.setDefaultButton(true);  // use Enter in order to press button
         cancelButton.setOnAction(this::onCancelButtonClicked);
         cancelButton.setCancelButton(true);  // use Escape in order to press button
+        joinButton.setOnAction(this::onJoinButtonClicked);
     }
 
     @Override
     public void close() {
         createButton.setOnAction(null);
         cancelButton.setOnAction(null);
+        joinButton.setOnAction(null);
         super.close();
     }
 
@@ -88,11 +96,13 @@ public class CreateServerModal extends AbstractModal {
      * If TextField is empty, it shows an error message
      * @param actionEvent
      */
-    private void onApplyButtonClicked(ActionEvent actionEvent) {
+    private void onCreateButtonClicked(ActionEvent actionEvent) {
         String name = servernameTextField.getText();
         if (! name.isEmpty()){
             setErrorMessage(null);
             servernameTextField.setDisable(true);
+            serverAddressTextField.setDisable(true);
+            joinButton.setDisable(true);
             createButton.setDisable(true);
             cancelButton.setDisable(true);
             spinner.setVisible(true);
@@ -101,6 +111,53 @@ public class CreateServerModal extends AbstractModal {
         }
         else{
             setErrorMessage(Constants.LBL_MISSING_NAME);
+        }
+    }
+
+    private void onJoinButtonClicked(ActionEvent actionEvent) {
+        String link = serverAddressTextField.getText();
+        if (! link.isEmpty()){
+            setErrorMessage(null);
+            servernameTextField.setDisable(true);
+            serverAddressTextField.setDisable(true);
+            joinButton.setDisable(true);
+            createButton.setDisable(true);
+            cancelButton.setDisable(true);
+            spinner.setVisible(true);
+            String[] info = link.split("/");
+            if(info.length != 8) {
+                return;
+            }
+            String serverId = info[5];
+            String invId = info[7];
+
+            restClient.joinServer(serverId, invId, editor.getCurrentUserName(), editor.getOrCreateAccord().getCurrentUser().getPassword(), (response) -> handleJoinServerResponse(serverId, response));
+        }
+        else{
+            setErrorMessage(Constants.LBL_MISSING_ADDRESS);
+        }
+    }
+
+    private void handleJoinServerResponse(String serverId, HttpResponse<JsonNode> response) {
+        log.debug(response.getBody().toPrettyString());
+
+        if (response.isSuccess()) {
+            editor.getOrCreateServer(serverId);
+            restClient.getServerInformation(serverId, serverInformationHandler::handleServerInformationRequest);
+            restClient.getCategories(serverId, (msg) -> serverInformationHandler.handleCategories(msg, editor.getServer(serverId)));
+            Platform.runLater(this::close);
+        } else {
+            log.error("Join server failed!");
+            setErrorMessage(Constants.LBL_JOIN_SERVER_FAILED);
+
+            Platform.runLater(() -> {
+                servernameTextField.setDisable(false);
+                serverAddressTextField.setDisable(false);
+                joinButton.setDisable(false);
+                createButton.setDisable(false);
+                cancelButton.setDisable(false);
+                spinner.setVisible(false);
+            });
         }
     }
 
@@ -130,6 +187,8 @@ public class CreateServerModal extends AbstractModal {
 
             Platform.runLater(() -> {
                 servernameTextField.setDisable(false);
+                serverAddressTextField.setDisable(false);
+                joinButton.setDisable(false);
                 createButton.setDisable(false);
                 cancelButton.setDisable(false);
                 spinner.setVisible(false);
