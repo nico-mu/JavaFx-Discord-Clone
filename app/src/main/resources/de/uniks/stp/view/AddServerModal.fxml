@@ -1,42 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXSpinner?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<VBox id="add-server-container" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="add-server-modal" stylesheets="@../style/css/view/add-server-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox id="add-server-container" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="12.0" styleClass="add-server-modal" stylesheets="@../style/css/view/add-server-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Pane prefHeight="20.0" />
-      <AnchorPane prefHeight="60.0" prefWidth="243.0">
+      <Label id="enter-servername-label" prefHeight="30.0" prefWidth="235.0" styleClass="enter-servername-label" text="%LBL_ENTER_SERVERNAME_PROMPT">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <JFXTextField id="servername-text-field" prefHeight="32.0" prefWidth="243.0" promptText="%LBL_SERVERNAME" styleClass="servername-text-field" />
+      <JFXButton id="add-server-create-button" prefHeight="35.0" prefWidth="150.0" text="%LBL_CREATE">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </JFXButton>
+      <Pane maxHeight="2.0" minHeight="2.0" prefHeight="2.0" prefWidth="200.0" styleClass="pane">
+         <VBox.margin>
+            <Insets bottom="6.0" top="6.0" />
+         </VBox.margin></Pane>
+      <Label styleClass="enter-servername-label" text="%LBL_ENTER_SERVER_ADDRESS_PROMPT">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <JFXTextField id="server-address-text-field" prefWidth="235.0" promptText="%LBL_SERVER_ADDRESS" styleClass="servername-text-field" />
+      <JFXButton id="add-server-join-button" prefHeight="35.0" prefWidth="150.0" text="%LBL_JOIN_SERVER">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </JFXButton>
+      <Pane maxHeight="2.0" minHeight="2.0" prefHeight="2.0" prefWidth="200.0" styleClass="pane">
+         <VBox.margin>
+            <Insets bottom="6.0" top="6.0" />
+         </VBox.margin>
+      </Pane>
+      <JFXButton id="add-server-cancel-button" prefHeight="35.0" prefWidth="150.0" text="%LBL_CANCEL">
+         <font>
+            <Font size="14.0" />
+         </font>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+      </JFXButton>
+      <StackPane prefHeight="50.0" prefWidth="200.0">
          <children>
-            <Label id="enter-servername-label" prefHeight="30.0" prefWidth="235.0" styleClass="enter-servername-label" text="%LBL_ENTER_SERVERNAME_PROMPT" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="0.0" />
-            <JFXTextField id="servername-text-field" layoutX="51.0" layoutY="36.0" prefHeight="32.0" prefWidth="243.0" promptText="%LBL_SERVERNAME" styleClass="servername-text-field" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0" />
+            <Label id="error-message-label" styleClass="error-message-label" />
+            <JFXSpinner id="spinner" radius="12.0" styleClass="spinner" visible="false" />
          </children>
-      </AnchorPane>
-      <Pane prefHeight="20.0" />
-      <VBox prefHeight="100.0">
-         <children>
-            <HBox alignment="CENTER" prefHeight="50.0" prefWidth="303.0">
-               <children>
-                  <JFXButton id="add-server-create-button" prefHeight="40.0" prefWidth="90.0" styleClass="add-server-create-button" text="%LBL_CREATE">
-                     <font>
-                        <Font size="14.0" />
-                     </font></JFXButton>
-                  <Pane prefWidth="60.0" />
-                  <JFXButton id="add-server-cancel-button" prefHeight="40.0" prefWidth="90.0" styleClass="add-server-cancel-button" text="%LBL_CANCEL">
-                     <font>
-                        <Font size="14.0" />
-                     </font></JFXButton>
-               </children>
-            </HBox>
-            <StackPane prefHeight="50.0" prefWidth="200.0">
-               <children>
-                  <Label id="error-message-label" styleClass="error-message-label" />
-                  <JFXSpinner id="spinner" radius="12.0" styleClass="spinner" visible="false" />
-               </children>
-            </StackPane>
-         </children>
-      </VBox>
+      </StackPane>
    </children>
+   <padding>
+      <Insets left="24.0" right="24.0" top="24.0" />
+   </padding>
 </VBox>
