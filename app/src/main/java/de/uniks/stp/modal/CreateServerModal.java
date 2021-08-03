@@ -125,13 +125,11 @@ public class CreateServerModal extends AbstractModal {
             cancelButton.setDisable(true);
             spinner.setVisible(true);
             String[] info = link.split("/");
-            if(info.length != 8) {
-                return;
+            if(info.length == 8) {
+                String serverId = info[5];
+                String invId = info[7];
+                restClient.joinServer(serverId, invId, editor.getCurrentUserName(), editor.getOrCreateAccord().getCurrentUser().getPassword(), (response) -> handleJoinServerResponse(serverId, response));
             }
-            String serverId = info[5];
-            String invId = info[7];
-
-            restClient.joinServer(serverId, invId, editor.getCurrentUserName(), editor.getOrCreateAccord().getCurrentUser().getPassword(), (response) -> handleJoinServerResponse(serverId, response));
         }
         else{
             setErrorMessage(Constants.LBL_MISSING_ADDRESS);

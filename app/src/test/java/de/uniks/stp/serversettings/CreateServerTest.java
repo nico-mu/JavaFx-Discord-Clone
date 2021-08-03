@@ -83,7 +83,7 @@ public class CreateServerTest {
         AppTestComponent appTestComponent = (AppTestComponent) app.getAppComponent();
         router = appTestComponent.getRouter();
         editor = appTestComponent.getEditor();
-        User currentUser = editor.createCurrentUser("TestUser1", true).setId("1");
+        User currentUser = editor.createCurrentUser("TestUser1", true).setId("1").setPassword("password");
         editor.setCurrentUser(currentUser);
 
         SessionTestComponent sessionTestComponent = appTestComponent
@@ -152,6 +152,55 @@ public class CreateServerTest {
         Assertions.assertEquals(1, editor.getOrCreateAccord().getCurrentUser().getAvailableServers().size());
         Assertions.assertEquals("testServer2", editor.getOrCreateAccord().getCurrentUser().getAvailableServers().get(0).getName());
         Assertions.assertEquals("testServer2Id", editor.getOrCreateAccord().getCurrentUser().getAvailableServers().get(0).getId());
+    }
+
+    @Test
+    public void joinServerTest(FxRobot nico) {
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_HOME + Constants.ROUTE_LIST_ONLINE_USERS, new RouteArgs()));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        nico.clickOn("#create-server");
+        nico.clickOn("#add-server-join-button");
+
+        Label errorLabel = nico.lookup("#error-message-label").query();
+        Assertions.assertNotEquals("", errorLabel.getText());
+
+        nico.clickOn("#server-address-text-field");
+        String serverId = "sId";
+        String inviteId = "iId";
+        nico.write("a//b/c/d/" + serverId + "/e/" + inviteId);
+        nico.clickOn("#add-server-join-button");
+
+        JSONObject j = new JSONObject()
+            .put("status", "failure");
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(false);
+
+        verify(restMock).joinServer(eq(serverId), eq(inviteId), eq("TestUser1"), eq("password"), callbackCaptor.capture());
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertNotEquals("", errorLabel.getText());
+
+        JFXTextField addressTextfield = nico.lookup("#server-address-text-field").query();
+        addressTextfield.clear();
+        nico.clickOn("#server-address-text-field");
+        String serverId2 = "sId2";
+        String inviteId2 = "iId2";
+        nico.write("a//b/c/d/" + serverId2 + "/e/" + inviteId2);
+        nico.clickOn("#add-server-join-button");
+        Assertions.assertEquals("", errorLabel.getText());
+
+        JSONObject j2 = new JSONObject()
+            .put("status", "success");
+        when(res.getBody()).thenReturn(new JsonNode(j2.toString()));
+        when(res.isSuccess()).thenReturn(true);
+
+        verify(restMock).joinServer(eq(serverId2), eq(inviteId2), eq("TestUser1"), eq("password"), callbackCaptor.capture());
+        Callback<JsonNode> callback2 = callbackCaptor.getValue();
+        callback2.completed(res);
+        WaitForAsyncUtils.waitForFxEvents();
     }
 
     @AfterEach
