@@ -22,7 +22,6 @@ import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 
-import javax.inject.Named;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Objects;
@@ -58,22 +57,22 @@ public class UserListController implements ControllerInterface {
 
         if (Objects.isNull(oldValue)) {
             userJoined(newValue);
-            newValue.listeners().addPropertyChangeListener(User.PROPERTY_DESCRIPTION, userDescriptionChangeListener);
         } else if (Objects.isNull(newValue)) {
             userLeft(oldValue);
-            oldValue.listeners().removePropertyChangeListener(User.PROPERTY_DESCRIPTION, userDescriptionChangeListener);
         }
     }
 
     private void userLeft(final User user) {
         if (Objects.nonNull(user)) {
             Platform.runLater(() -> onlineUserList.removeElement(user));
+            user.listeners().removePropertyChangeListener(User.PROPERTY_DESCRIPTION, userDescriptionChangeListener);
         }
     }
 
     private void userJoined(final User user) {
         if (Objects.nonNull(user)) {
             Platform.runLater(() -> onlineUserList.addElement(user, privateChatNavUserListEntryFactory.create(user)));
+            user.listeners().addPropertyChangeListener(User.PROPERTY_DESCRIPTION, userDescriptionChangeListener);
         }
     }
 
