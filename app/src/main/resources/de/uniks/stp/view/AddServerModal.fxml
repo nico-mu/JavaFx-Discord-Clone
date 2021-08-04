@@ -5,50 +5,45 @@
 <?import com.jfoenix.controls.JFXTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox id="add-server-container" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="12.0" styleClass="add-server-modal" stylesheets="@../style/css/view/add-server-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox id="add-server-container" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="12.0" styleClass="add-server-modal" stylesheets="@../style/css/view/add-server-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label id="enter-servername-label" prefHeight="30.0" prefWidth="235.0" styleClass="enter-servername-label" text="%LBL_ENTER_SERVERNAME_PROMPT">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </Label>
-      <JFXTextField id="servername-text-field" prefHeight="32.0" prefWidth="243.0" promptText="%LBL_SERVERNAME" styleClass="servername-text-field" />
-      <JFXButton id="add-server-create-button" prefHeight="35.0" prefWidth="150.0" text="%LBL_CREATE">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </JFXButton>
-      <Pane maxHeight="2.0" minHeight="2.0" prefHeight="2.0" prefWidth="200.0" styleClass="pane">
+      <VBox spacing="12.0" styleClass="container">
+         <children>
+            <Label id="enter-servername-label" prefHeight="30.0" prefWidth="235.0" styleClass="enter-servername-label" text="%LBL_ENTER_SERVERNAME_PROMPT">
+            </Label>
+            <JFXTextField id="servername-text-field" prefHeight="32.0" prefWidth="243.0" promptText="%LBL_SERVERNAME" styleClass="servername-text-field" />
+            <JFXButton id="add-server-create-button" prefHeight="35.0" prefWidth="150.0" text="%LBL_CREATE">
+            </JFXButton>
+         </children>
          <VBox.margin>
-            <Insets bottom="12.0" top="12.0" />
-         </VBox.margin></Pane>
-      <Label styleClass="enter-servername-label" text="%LBL_ENTER_SERVER_ADDRESS_PROMPT">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </Label>
-      <JFXTextField id="server-address-text-field" prefWidth="235.0" promptText="%LBL_SERVER_ADDRESS" styleClass="servername-text-field" />
-      <JFXButton id="add-server-join-button" prefHeight="35.0" prefWidth="150.0" text="%LBL_JOIN_SERVER">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </JFXButton>
-      <Pane maxHeight="2.0" minHeight="2.0" prefHeight="2.0" prefWidth="200.0" styleClass="pane">
-         <VBox.margin>
-            <Insets bottom="12.0" top="12.0" />
+            <Insets bottom="12.0" />
          </VBox.margin>
-      </Pane>
-      <JFXButton id="add-server-cancel-button" prefHeight="35.0" prefWidth="150.0" text="%LBL_CANCEL">
-         <font>
-            <Font size="14.0" />
-         </font>
+         <padding>
+            <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+         </padding>
+      </VBox>
+      <VBox spacing="12.0" styleClass="container">
+         <children>
+            <Label styleClass="enter-servername-label" text="%LBL_ENTER_SERVER_ADDRESS_PROMPT">
+            </Label>
+            <JFXTextField id="server-address-text-field" prefWidth="235.0" promptText="%LBL_SERVER_ADDRESS" styleClass="servername-text-field" />
+            <JFXButton id="add-server-join-button" prefHeight="35.0" prefWidth="150.0" text="%LBL_JOIN_SERVER">
+            </JFXButton>
+         </children>
          <VBox.margin>
-            <Insets />
+            <Insets bottom="12.0" />
+         </VBox.margin>
+         <padding>
+            <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+         </padding>
+      </VBox>
+      <JFXButton id="add-server-cancel-button" prefHeight="35.0" prefWidth="150.0" text="%LBL_CANCEL">
+         <VBox.margin>
+            <Insets left="6.0" />
          </VBox.margin>
       </JFXButton>
       <StackPane prefHeight="50.0" prefWidth="200.0">

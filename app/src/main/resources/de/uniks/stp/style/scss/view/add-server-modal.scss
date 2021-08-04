@@ -6,7 +6,7 @@
 
 .enter-servername-label {
   -fx-text-fill: $primary-text-fill;
-  -fx-font-size: 18px;
+  -fx-font-size: 14px;
 }
 
 .servername-text-field {
@@ -28,6 +28,11 @@
   -fx-stroke: $button-color;
 }
 
-.pane {
+.container {
   -fx-background-color: $main-background-color;
+  -fx-background-radius: 6px;
+}
+
+.button {
+  -fx-font-size: 14px;
 }
