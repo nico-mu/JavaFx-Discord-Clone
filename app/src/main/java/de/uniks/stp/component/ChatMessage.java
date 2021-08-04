@@ -1,6 +1,5 @@
 package de.uniks.stp.component;
 
-import com.jfoenix.controls.JFXSpinner;
 import com.sun.javafx.webkit.Accessor;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -22,10 +21,8 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -33,9 +30,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 
@@ -122,8 +116,6 @@ public class ChatMessage extends HBox {
         editMessage.setVisible(false);
         animationUtil.setIconAnimation(deleteMessage);
         deleteMessage.setVisible(false);
-
-
     }
 
     private String getTimestampText() {
