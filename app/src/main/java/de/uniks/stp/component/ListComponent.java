@@ -11,7 +11,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ListComponent<Model, Element extends Node> extends ScrollPane {
@@ -75,6 +77,10 @@ public class ListComponent<Model, Element extends Node> extends ScrollPane {
 
     public Collection<Element> getElements() {
         return elementHashMap.values();
+    }
+
+    public List<Model> getModels() {
+        return new ArrayList<>(elementHashMap.keySet());
     }
 
     public void addElement(Model model, Element element) {

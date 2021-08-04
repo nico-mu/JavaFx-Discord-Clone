@@ -9,6 +9,7 @@
         <class>de.uniks.stp.jpa.model.MutedChannelDTO</class>
         <class>de.uniks.stp.jpa.model.MutedCategoryDTO</class>
         <class>de.uniks.stp.jpa.model.MutedServerDTO</class>
+        <class>de.uniks.stp.jpa.model.ApiIntegrationSettingDTO</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>

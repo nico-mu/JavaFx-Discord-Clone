@@ -1,0 +1,12 @@
+@import "../base";
+
+.integration-button-container {
+  -fx-background-color: $main-background-color;
+  -fx-border-radius: 5px;
+  -fx-background-radius: 5px;
+  -fx-cursor: hand;
+}
+
+.integration-button-badge-default {
+  -fx-background-color: $button-color;
+}

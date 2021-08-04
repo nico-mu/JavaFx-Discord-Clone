@@ -8,15 +8,25 @@ import de.uniks.stp.AudioService;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.AudioDeviceComboBox;
+import de.uniks.stp.component.IntegrationButton;
 import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.SessionDatabaseService;
+import de.uniks.stp.network.integration.IntegrationService;
+import de.uniks.stp.network.integration.authorization.AbstractAuthorizationClient;
+import de.uniks.stp.network.integration.authorization.AuthorizationCallback;
+import de.uniks.stp.network.integration.Credentials;
+import de.uniks.stp.network.integration.Integrations;
+import de.uniks.stp.network.integration.authorization.SpotifyAuthorizationClient;
 import de.uniks.stp.network.voice.VoiceChatService;
 import de.uniks.stp.router.Router;
+import de.uniks.stp.util.IntegrationUtil;
 import de.uniks.stp.view.Languages;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.control.Slider;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -38,6 +48,7 @@ public class SettingsModal extends AbstractModal {
     public static final String SETTINGS_COMBO_SELECT_OUTPUT_DEVICE = "#combo-select-output-device";
     public static final String SETTINGS_SLIDER_INPUT_VOLUME = "#slider-input-volume";
     public static final String SETTINGS_SLIDER_OUTPUT_VOLUME = "#slider-output-volume";
+    public static final String SETTINGS_INTEGRATION_CONTAINER = "#integration-container";
     private final JFXButton applyButton;
     private final JFXButton cancelButton;
     private final KeyBasedComboBox languageComboBox;
@@ -53,6 +64,9 @@ public class SettingsModal extends AbstractModal {
     private final AudioService audioService;
     private final VoiceChatService voiceChatService;
     private final Stage primaryStage;
+    private final HBox integrationContainer;
+    private final IntegrationService integrationService;
+    private final IntegrationButton.IntegrationButtonFactory integrationButtonFactory;
 
     private String currentLanguage;
     private String currentNotificationSoundFile;
@@ -61,6 +75,7 @@ public class SettingsModal extends AbstractModal {
     private Mixer currentSpeaker;
     private int currentInputVolume;
     private int currentOutputVolume;
+    private IntegrationButton spotifyIntegrationButton;
 
     @AssistedInject
     public SettingsModal(ViewLoader viewLoader,
@@ -69,6 +84,8 @@ public class SettingsModal extends AbstractModal {
                          SessionDatabaseService databaseService,
                          AudioService audioService,
                          VoiceChatService voiceChatService,
+                         IntegrationService integrationService,
+                         IntegrationButton.IntegrationButtonFactory integrationButtonFactory,
                          @Assisted Parent root) {
         super(root, primaryStage);
         this.primaryStage = primaryStage;
@@ -77,11 +94,14 @@ public class SettingsModal extends AbstractModal {
         this.databaseService = databaseService;
         this.audioService = audioService;
         this.voiceChatService = voiceChatService;
+        this.integrationService = integrationService;
+        this.integrationButtonFactory = integrationButtonFactory;
 
         setTitle(viewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE_TITLE));
 
         applyButton = (JFXButton) view.lookup(SETTINGS_APPLY_BUTTON);
         cancelButton = (JFXButton) view.lookup(SETTINGS_CANCEL_BUTTON);
+        integrationContainer = (HBox) view.lookup(SETTINGS_INTEGRATION_CONTAINER);
 
         languageComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_LANGUAGE);
         languageComboBox.addOptions(getLanguages());
@@ -119,6 +139,39 @@ public class SettingsModal extends AbstractModal {
 
         cancelButton.setOnAction(this::onCancelButtonClicked);
         cancelButton.setCancelButton(true);  // use Escape in order to press button
+
+        //integration buttons
+        addIntegrationButtons();
+
+    }
+
+    private void addIntegrationButtons() {
+        spotifyIntegrationButton = integrationButtonFactory.create(viewLoader.loadImage("spotify_button.png"));
+        spotifyIntegrationButton.setOnMouseClicked(this::onSpotifyIntegrationButton);
+        integrationContainer.getChildren().add(spotifyIntegrationButton);
+
+        if(integrationService.isServiceConnected(Integrations.SPOTIFY.key)) {
+            spotifyIntegrationButton.setSuccessMode();
+        }
+    }
+
+    private void onSpotifyIntegrationButton(MouseEvent mouseEvent) {
+        AbstractAuthorizationClient authorizationClient = integrationService.getAuthorizationClient(Integrations.SPOTIFY.key);
+
+        if(Objects.nonNull(authorizationClient)) {
+            authorizationClient.authorize(new AuthorizationCallback() {
+                @Override
+                public void onSuccess(Credentials credentials) {
+                    integrationService.startService(Integrations.SPOTIFY.key, credentials);
+                    spotifyIntegrationButton.setSuccessMode();
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    spotifyIntegrationButton.setErrorMode();
+                }
+            });
+        }
     }
 
     public HashMap<String, String> getLanguages() {

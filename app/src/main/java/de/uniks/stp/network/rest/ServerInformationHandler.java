@@ -47,10 +47,11 @@ public class ServerInformationHandler {
                 JSONObject jsonUser = (JSONObject) o;
                 String userId = jsonUser.getString("id");
                 String name = jsonUser.getString("name");
-                boolean status = Boolean.parseBoolean(jsonUser.getString("online"));
+                boolean status = jsonUser.getBoolean("online");
+                String description = jsonUser.getString("description");
 
                 User serverMember = editor.getOrCreateServerMember(userId, name, editor.getServer(serverId));
-                serverMember.setStatus(status);
+                serverMember.setStatus(status).setDescription(description);
             });
         }
     }

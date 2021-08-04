@@ -4,7 +4,7 @@
   -fx-text-fill: $primary-text-fill;
 }
 
-.label-audio-settings {
+.label-settings-header {
   -fx-text-fill: $primary-text-fill;
   -fx-font-size: 15pt;
 }
@@ -24,4 +24,9 @@
 
 .settings-modal {
   -fx-background-color: $secondary-background-color;
+}
+
+.header-border-bottom {
+  -fx-border-color: transparent transparent $button-color transparent;
+  -fx-border-width: 2px;
 }

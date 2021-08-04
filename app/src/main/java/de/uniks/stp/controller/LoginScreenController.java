@@ -24,6 +24,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -299,6 +300,9 @@ public class LoginScreenController implements ControllerInterface {
             app.setSessionComponent(sessionComponent);
             sessionComponent.getWebsocketService().init();
 
+            //we have to request all online users here to get the id of the current user and start the integration service
+            sessionComponent.getSessionRestClient().requestOnlineUsers(this::handleUserOnlineRequest);
+
             if (!tempUserLogin && rememberMeCheckBox.isSelected()) {
                 // Save in db
                 databaseService.saveAccordSetting(AccordSettingKey.LAST_USER_LOGIN, name);
@@ -318,6 +322,28 @@ public class LoginScreenController implements ControllerInterface {
             else{
                 setErrorMessage(Constants.LBL_LOGIN_FAILED);
             }
+        }
+    }
+
+    private void handleUserOnlineRequest(HttpResponse<JsonNode> response) {
+        if(response.isSuccess()) {
+            final JSONArray data = response.getBody().getObject().getJSONArray("data");
+            final User currentUser = editor.getOrCreateAccord().getCurrentUser();
+            for (Object o : data) {
+                final JSONObject jsonUser = (JSONObject) o;
+                final String userId = jsonUser.getString("id");
+                final String name = jsonUser.getString("name");
+                if(currentUser.getName().equals(name)) {
+                    currentUser.setId(userId);
+                }
+            }
+
+            if(!currentUser.getId().isEmpty()) {
+                app.getSessionComponent().getIntegrationService().init();
+            }
+        }
+        else {
+            log.warn("Could not request online users");
         }
     }
 
