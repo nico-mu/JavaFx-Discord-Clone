@@ -117,10 +117,12 @@ public class ServerInformationTest {
                     .put(new JSONObject()
                         .put("id", currentUser.getId())
                         .put("name", currentUser.getName())
+                        .put("description", " ")
                         .put("online", true))
                     .put(new JSONObject()
                         .put("id", serverOwnerId)
                         .put("name", serverOwnerName)
+                        .put("description", " ")
                         .put("online", serverOwnerStatus))));
         when(res.getBody()).thenReturn(new JsonNode(server1Information.toString()));
         when(res.isSuccess()).thenReturn(true);

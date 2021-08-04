@@ -26,6 +26,8 @@ public class GenModel implements ClassModelDecorator {
         String id;
         String name;
         String password;
+        String description;
+        boolean spotifyPlaying;
         boolean status;
         boolean mute;
         boolean audioOff;

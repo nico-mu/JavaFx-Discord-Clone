@@ -5,6 +5,10 @@
   -fx-text-fill: $primary-text-fill;
 }
 
+.user-list-entry-description-label {
+  -fx-text-fill: $primary-text-fill;
+}
+
 .user-name-container:hover {
   -fx-background-color: $hover-background-color;
   -fx-background-radius: 8px;
