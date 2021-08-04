@@ -15,6 +15,7 @@ public class Constants {
     public static final String REST_MESSAGES_PATH = "/messages";
     public static final String REST_TIMESTAMP_PATH = "?timestamp=";
     public static final String REST_INVITES_PATH = "/invites";
+    public static final String REST_DESCRIPTION_PATH = "/description";
 
 
     public static final String USER_KEY_HEADER_NAME = "userKey";
@@ -32,6 +33,7 @@ public class Constants {
     public static final String LBL_CREATE_SERVER = "LBL_CREATE_SERVER";
     public static final String LBL_ADD_SERVER_TITLE = "LBL_ADD_SERVER_TITLE";
     public static final String LBL_CREATE_SERVER_FAILED = "LBL_CREATE_SERVER_FAILED";
+    public static final String LBL_JOIN_SERVER_FAILED = "LBL_JOIN_SERVER_FAILED";
     public static final String LBL_ONLINE_USERS = "LBL_ONLINE_USERS";
     public static final String LBL_USER_OFFLINE = "LBL_USER_OFFLINE";
     public static final String LBL_TIME_FORMATTING_TODAY= "LBL_TIME_FORMATTING_TODAY";
@@ -55,6 +57,7 @@ public class Constants {
     public static final String LBL_CONFIRM_DELETE_CATEGORY = "LBL_CONFIRM_DELETE_CATEGORY";
     public static final String LBL_CREATE_CHANNEL = "LBL_CREATE_CHANNEL";
     public static final String LBL_MISSING_NAME = "LBL_MISSING_NAME";
+    public static final String LBL_MISSING_ADDRESS = "LBL_MISSING_ADDRESS";
     public static final String LBL_MISSING_MEMBERS = "LBL_MISSING_MEMBERS";
     public static final String LBL_INVITATIONS = "LBL_INVITATIONS";
     public static final String LBL_INVITATION = "LBL_INVITATION";

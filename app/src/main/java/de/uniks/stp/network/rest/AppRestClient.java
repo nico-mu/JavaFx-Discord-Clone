@@ -3,7 +3,6 @@ package de.uniks.stp.network.rest;
 import de.uniks.stp.Constants;
 import kong.unirest.*;
 
-import javax.inject.Inject;
 import javax.json.Json;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,7 +13,7 @@ public class AppRestClient {
     protected final UnirestInstance instance;
 
     public AppRestClient() {
-        executorService = Executors.newFixedThreadPool(6);
+        executorService = Executors.newCachedThreadPool();
         instance = new UnirestInstance(new Config());
         instance.config()
             .defaultBaseUrl(Constants.REST_SERVER_BASE_URL);
@@ -27,6 +26,10 @@ public class AppRestClient {
 
     protected void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
         executorService.execute(() -> req.asJsonAsync(callback));
+    }
+
+    protected HttpResponse<JsonNode> sendSyncRequest(HttpRequest<?> req) {
+        return req.asJson();
     }
 
     private void sendAuthRequest(String endpoint, String name, String password, Callback<JsonNode> callback) {

@@ -33,6 +33,8 @@ public class UserListController implements ControllerInterface {
     private final ListComponent<User, UserListEntry> onlineUserList;
     private final SessionRestClient restClient;
     private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
+    private final PropertyChangeListener userDescriptionChangeListener = this::onUserDescriptionChanged;
+
     private final PrivateChatNavUserListEntry.PrivateChatNavUserListEntryFactory privateChatNavUserListEntryFactory;
 
     @AssistedInject
@@ -63,12 +65,14 @@ public class UserListController implements ControllerInterface {
     private void userLeft(final User user) {
         if (Objects.nonNull(user)) {
             Platform.runLater(() -> onlineUserList.removeElement(user));
+            user.listeners().removePropertyChangeListener(User.PROPERTY_DESCRIPTION, userDescriptionChangeListener);
         }
     }
 
     private void userJoined(final User user) {
         if (Objects.nonNull(user)) {
             Platform.runLater(() -> onlineUserList.addElement(user, privateChatNavUserListEntryFactory.create(user)));
+            user.listeners().addPropertyChangeListener(User.PROPERTY_DESCRIPTION, userDescriptionChangeListener);
         }
     }
 
@@ -82,16 +86,20 @@ public class UserListController implements ControllerInterface {
     private void handleUserOnlineRequest(final HttpResponse<JsonNode> response) {
         if (response.isSuccess()) {
             final JSONArray data = response.getBody().getObject().getJSONArray("data");
+            final User currentUser = editor.getOrCreateAccord().getCurrentUser();
             data.forEach(o -> {
                 final JSONObject jsonUser = (JSONObject) o;
                 final String userId = jsonUser.getString("id");
                 final String name = jsonUser.getString("name");
+                final String description = jsonUser.getString("description");
 
-                User otherUser = editor.getOrCreateOtherUser(userId, name);
+                if(!name.equals(currentUser.getName())) {
+                    User otherUser = editor.getOrCreateOtherUser(userId, name);
 
-                if (Objects.nonNull(otherUser)) {
-                    final User user = otherUser.setStatus(true);
-                    userJoined(user);
+                    if (Objects.nonNull(otherUser)) {
+                        final User user = otherUser.setStatus(true).setDescription(description);
+                        userJoined(user);
+                    }
                 }
             });
         }
@@ -101,6 +109,22 @@ public class UserListController implements ControllerInterface {
     public void stop() {
         final Accord accord = editor.getOrCreateAccord();
         accord.listeners().removePropertyChangeListener(Accord.PROPERTY_OTHER_USERS, availableUsersPropertyChangeListener);
+
+        for (User userModel : onlineUserList.getModels()) {
+            userModel.listeners().removePropertyChangeListener(User.PROPERTY_DESCRIPTION, userDescriptionChangeListener);
+        }
+    }
+
+    private void onUserDescriptionChanged(PropertyChangeEvent propertyChangeEvent) {
+        User user = (User) propertyChangeEvent.getSource();
+        String description = (String) propertyChangeEvent.getNewValue();
+        UserListEntry userListEntry = onlineUserList.getElement(user);
+
+        if(Objects.nonNull(userListEntry)) {
+            Platform.runLater(() -> {
+                userListEntry.setDescription(description);
+            });
+        }
     }
 
     @AssistedFactory

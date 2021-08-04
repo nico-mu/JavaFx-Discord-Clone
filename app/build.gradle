@@ -28,6 +28,7 @@ dependencies {
     implementation group: 'org.glassfish.tyrus', name: 'tyrus-container-grizzly-client', version: '1.15'
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.31.Final'
     compile group: 'com.h2database', name: 'h2', version: '1.4.200'
+    compile 'se.michaelthelin.spotify:spotify-web-api-java:6.5.4'
 
     fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.7.0'
     implementation group: 'org.fulib', name: 'fulibYaml', version: '1.4.0'

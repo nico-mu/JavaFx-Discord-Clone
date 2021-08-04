@@ -90,6 +90,7 @@ public class UserInfoController implements ControllerInterface {
     }
 
     private void onLogoutButtonClicked(ActionEvent actionEvent) {
+        app.getSessionComponent().getIntegrationService().stop();
         restClient.sendLogoutRequest(this::handleLogoutResponse);
     }
 
