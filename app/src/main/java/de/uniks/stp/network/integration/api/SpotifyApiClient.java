@@ -28,21 +28,19 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class SpotifyApiClient implements IntegrationApiClient {
 
     private final static Logger log = LoggerFactory.getLogger(SpotifyApiClient.class);
     private ExecutorService executorService;
+    private ScheduledExecutorService scheduledExecutorService;
+    private ScheduledFuture<?> scheduledFuture;
     private final User currentUser;
     private final SessionDatabaseService databaseService;
     private final ViewLoader viewLoader;
     private final SessionRestClient restClient;
     private SpotifyApi spotifyApi;
-    private Timer timer;
     private final PropertyChangeListener currentUserPlayingChangeListener;
 
     @Inject
@@ -52,9 +50,9 @@ public class SpotifyApiClient implements IntegrationApiClient {
                             SessionDatabaseService sessionDatabaseService) {
         this.databaseService = sessionDatabaseService;
         this.executorService = Executors.newCachedThreadPool();
+        this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         this.currentUser = currentUser;
         this.viewLoader = viewLoader;
-        timer = new Timer();
         this.currentUserPlayingChangeListener = this::onCurrentUserPlayingChanged;
         this.restClient = restClient;
     }
@@ -69,29 +67,25 @@ public class SpotifyApiClient implements IntegrationApiClient {
             .setAccessToken(credentials.getAccessToken()).setRefreshToken(credentials.getRefreshToken()).build();
 
         //start api requests to playing api
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                GetUsersCurrentlyPlayingTrackRequest getUsersCurrentlyPlayingTrackRequest =
-                    getUsersCurrentlyPlayingTrackRequest();
+        scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(() -> {
+            GetUsersCurrentlyPlayingTrackRequest getUsersCurrentlyPlayingTrackRequest =
+                getUsersCurrentlyPlayingTrackRequest();
 
-                try {
-                    CurrentlyPlaying playing = getUsersCurrentlyPlayingTrackRequest.execute();
-                    currentUser.setSpotifyPlaying(Objects.nonNull(playing) && playing.getIs_playing());
+            try {
+                CurrentlyPlaying playing = getUsersCurrentlyPlayingTrackRequest.execute();
+                currentUser.setSpotifyPlaying(Objects.nonNull(playing) && playing.getIs_playing());
 
-                } catch (IOException | SpotifyWebApiException | ParseException e) {
-                    if(e instanceof UnauthorizedException && e.getMessage().equals("The access token expired")) {
-                        log.debug("The access token expired");
-                        refresh();
-                    }
-                    else {
-                        log.error("Unknown exception in spotify api client", e);
-                        stop();
-                    }
+            } catch (IOException | SpotifyWebApiException | ParseException e) {
+                if(e instanceof UnauthorizedException && e.getMessage().equals("The access token expired")) {
+                    log.debug("The access token expired");
+                    refresh();
+                }
+                else {
+                    log.error("Unknown exception in spotify api client", e);
+                    stop();
                 }
             }
-        }, 0, IntegrationConstants.SPOTIFY_POLL_INTERVAL);
+        }, 0, IntegrationConstants.SPOTIFY_POLL_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -163,14 +157,16 @@ public class SpotifyApiClient implements IntegrationApiClient {
     @Override
     public void stop() {
         //stop polling timer
-        timer.cancel();
-        timer.purge();
+        if(Objects.nonNull(scheduledFuture)) {
+            scheduledFuture.cancel(true);
+        }
         currentUser.listeners()
             .removePropertyChangeListener(User.PROPERTY_SPOTIFY_PLAYING, currentUserPlayingChangeListener);
     }
 
     public void shutdown() {
         this.stop();
+        scheduledExecutorService.shutdown();
         executorService.shutdown();
     }
 }

@@ -343,7 +343,7 @@ public class LoginScreenController implements ControllerInterface {
             }
         }
         else {
-            log.error("Could not request online users");
+            log.warn("Could not request online users");
         }
     }
 

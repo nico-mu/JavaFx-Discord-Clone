@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -35,8 +35,17 @@ public class SpotifyApiClientTest {
     @Mock
     private ExecutorService executorService;
 
+    @Mock
+    private ScheduledExecutorService scheduledExecutorService;
+
+    @Mock
+    private ScheduledFuture<?> scheduledFutureMock;
+
     @Captor
     private ArgumentCaptor<Runnable> runnableArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<Runnable> scheduledRunnableArgumentCaptor;
 
     private SessionRestClient sessionRestClient;
     private SessionDatabaseService databaseService;
@@ -56,10 +65,13 @@ public class SpotifyApiClientTest {
 
         MockitoAnnotations.initMocks(this);
         when(httpResponseMock.isSuccess()).thenReturn(true);
+
+        doReturn(scheduledFutureMock).when(scheduledExecutorService)
+            .scheduleAtFixedRate(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class));
     }
 
     @Test
-    public void startSpotifyApiClientTestSuccessful() throws IOException, ParseException, SpotifyWebApiException, InterruptedException {
+    public void startSpotifyApiClientTestSuccessful() throws IOException, ParseException, SpotifyWebApiException {
         GetUsersCurrentlyPlayingTrackRequest currentlyPlayingTrackRequestMock = Mockito.mock(GetUsersCurrentlyPlayingTrackRequest.class);
         CurrentlyPlaying playing = Mockito.mock(CurrentlyPlaying.class);
         Credentials credentials = new Credentials();
@@ -72,13 +84,19 @@ public class SpotifyApiClientTest {
         when(sessionRestClient.updateDescription(eq("123"), anyString())).thenReturn(httpResponseMock);
 
         spotifyApiClientSpy.start(credentials);
-        Thread.sleep(2000);
+
+        verify(scheduledExecutorService)
+            .scheduleAtFixedRate(scheduledRunnableArgumentCaptor.capture(), eq(0L), anyLong(), eq(TimeUnit.MILLISECONDS));
+
+        Runnable scheduledRunnable = scheduledRunnableArgumentCaptor.getValue();
+        scheduledRunnable.run();
+
         verify(currentUser).setDescription(anyString());
         Assertions.assertTrue(currentUser.isSpotifyPlaying());
     }
 
     @Test
-    public void startSpotifyApiClientTestRefresh() throws IOException, ParseException, SpotifyWebApiException, InterruptedException {
+    public void startSpotifyApiClientTestRefresh() throws IOException, ParseException, SpotifyWebApiException {
         GetUsersCurrentlyPlayingTrackRequest currentlyPlayingTrackRequestMock = Mockito.mock(GetUsersCurrentlyPlayingTrackRequest.class);
         AuthorizationCodePKCERefreshRequest authorizationCodePKCERefreshRequestMock = Mockito.mock(AuthorizationCodePKCERefreshRequest.class);
         AuthorizationCodeCredentials authorizationCodeCredentialsMock = Mockito.mock(AuthorizationCodeCredentials.class);
@@ -94,7 +112,12 @@ public class SpotifyApiClientTest {
         when(authorizationCodeCredentialsMock.getRefreshToken()).thenReturn("refresh_token");
 
         spotifyApiClientSpy.start(credentials);
-        Thread.sleep(2000);
+        verify(scheduledExecutorService)
+            .scheduleAtFixedRate(scheduledRunnableArgumentCaptor.capture(), eq(0L), anyLong(), eq(TimeUnit.MILLISECONDS));
+
+        Runnable scheduledRunnable = scheduledRunnableArgumentCaptor.getValue();
+        scheduledRunnable.run();
+
         verify(spotifyApiClientSpy).refresh();
     }
 
@@ -140,7 +163,6 @@ public class SpotifyApiClientTest {
 
     @AfterEach
     public void tearDown() {
-        spotifyApiClientSpy.stop();
         databaseService.deleteApiIntegrationSetting(Integrations.SPOTIFY.key);
         currentUser = null;
         databaseService = null;

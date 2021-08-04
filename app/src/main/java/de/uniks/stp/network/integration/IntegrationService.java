@@ -47,7 +47,7 @@ public class IntegrationService {
             spotifyApiClient.start(credentials);
         }
         else {
-            log.debug("Unknown service integration {}", serviceName);
+            log.warn("Unknown service integration {}", serviceName);
         }
     }
 
@@ -56,7 +56,7 @@ public class IntegrationService {
            return spotifyAuthorizationClientProvider.get();
         }
         else {
-            log.debug("Unknown service integration {}", serviceName);
+            log.warn("Unknown service integration {}", serviceName);
             return null;
         }
     }
@@ -70,7 +70,7 @@ public class IntegrationService {
             log.debug("description for user {} changed successfully", currentUser.getName());
         }
         else {
-            log.error("Could not change description of user {}", currentUser.getName());
+            log.warn("Could not change description of user {}", currentUser.getName());
         }
     }
 

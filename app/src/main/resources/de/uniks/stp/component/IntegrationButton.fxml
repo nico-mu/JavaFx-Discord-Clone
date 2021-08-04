@@ -4,16 +4,16 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<fx:root alignment="CENTER" prefHeight="50.0" prefWidth="55.0" spacing="5.0" styleClass="integration-button-container" stylesheets="@../style/css/component/integration-button.css" type="HBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <ImageView fx:id="integrationImageView" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-            <HBox.margin>
-                <Insets />
-            </HBox.margin>
-        </ImageView>
-        <Pane fx:id="integrationBadge" prefHeight="40.0" prefWidth="25.0" styleClass="integration-button-badge-default" />
-    </children>
+<fx:root alignment="CENTER" prefHeight="50.0" prefWidth="55.0" spacing="5.0" styleClass="integration-button-container"
+         stylesheets="@../style/css/component/integration-button.css" type="HBox"
+         xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <padding>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
     </padding>
+    <ImageView fx:id="integrationImageView" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+        <HBox.margin>
+            <Insets/>
+        </HBox.margin>
+    </ImageView>
+    <Pane fx:id="integrationBadge" prefHeight="40.0" prefWidth="25.0" styleClass="integration-button-badge-default"/>
 </fx:root>
