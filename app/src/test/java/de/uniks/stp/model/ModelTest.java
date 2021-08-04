@@ -323,8 +323,4 @@ public class ModelTest {
 
         user.removeYou();
     }
-
-    public void handlePropertyChange(PropertyChangeEvent propertyChangeEvent) {
-        return;
-    }
 }
