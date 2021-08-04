@@ -12,6 +12,7 @@ import javax.inject.Inject;
 
 public class NavBarCreateServer extends NavBarElement {
 
+    public static String CREATE_SERVER_ID = "#create-server";
     private final CreateServerModal.CreateServerModalFactory createServerModalFactory;
 
     @Inject
