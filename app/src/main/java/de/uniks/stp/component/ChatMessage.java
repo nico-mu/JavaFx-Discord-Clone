@@ -1,6 +1,5 @@
 package de.uniks.stp.component;
 
-import com.jfoenix.controls.JFXSpinner;
 import com.sun.javafx.webkit.Accessor;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -22,18 +21,15 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 
@@ -56,6 +52,9 @@ public class ChatMessage extends HBox {
     private VBox textVBox;
 
     @FXML
+    private ImageView copyMessage;
+
+    @FXML
     private ImageView editMessage;
 
     @FXML
@@ -66,6 +65,7 @@ public class ChatMessage extends HBox {
     private final DeleteMessageModal.DeleteMessageModalFactory deleteMessageModalFactory;
     private final EditMessageModal.EditMessageModalFactory editMessageModalFactory;
     private final JoinServerButton.JoinServerButtonFactory joinServerButtonFactory;
+    private boolean editable;
 
     @AssistedInject
     public ChatMessage(ViewLoader viewLoader,
@@ -77,6 +77,7 @@ public class ChatMessage extends HBox {
         FXMLLoader fxmlLoader = viewLoader.getFXMLComponentLoader(Components.CHAT_MESSAGE);
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+        this.editable = editable;
 
         try {
             fxmlLoader.load();
@@ -96,23 +97,25 @@ public class ChatMessage extends HBox {
 
         this.setId("message-" + model.getId());
         messageText.setId("message-text-" + model.getId());
+        copyMessage.setId("copy-message-" + model.getId());
         editMessage.setId("edit-message-" + model.getId());
         deleteMessage.setId("delete-message-" + model.getId());
 
+        this.setOnMouseEntered(this::onMouseEntered);
+        this.setOnMouseExited(this::onMouseExited);
+        copyMessage.setOnMouseClicked(this::onMessageCopy);
         if (editable) {
-            this.setOnMouseEntered(this::onMouseEntered);
-            this.setOnMouseExited(this::onMouseExited);
             editMessage.setOnMouseClicked(this::onMessageEdited);
             deleteMessage.setOnMouseClicked(this::onMessageDelete);
         }
 
         AnimationUtil animationUtil = new AnimationUtil();
+        animationUtil.setIconAnimation(copyMessage);
+        copyMessage.setVisible(false);
         animationUtil.setIconAnimation(editMessage);
         editMessage.setVisible(false);
         animationUtil.setIconAnimation(deleteMessage);
         deleteMessage.setVisible(false);
-
-
     }
 
     private String getTimestampText() {
@@ -151,13 +154,27 @@ public class ChatMessage extends HBox {
     }
 
     private void onMouseExited(MouseEvent mouseEvent) {
-        editMessage.setVisible(false);
-        deleteMessage.setVisible(false);
+        copyMessage.setVisible(false);
+        if (editable) {
+            editMessage.setVisible(false);
+            deleteMessage.setVisible(false);
+        }
     }
 
     private void onMouseEntered(MouseEvent mouseEvent) {
-        editMessage.setVisible(true);
-        deleteMessage.setVisible(true);
+        copyMessage.setVisible(true);
+        if (editable) {
+            editMessage.setVisible(true);
+            deleteMessage.setVisible(true);
+        }
+    }
+
+    private void onMessageCopy(MouseEvent mouseEvent) {
+        String message = model.getMessage();
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(message);
+        clipboard.setContent(content);
     }
 
     private void onMessageEdited(MouseEvent mouseEvent) {
