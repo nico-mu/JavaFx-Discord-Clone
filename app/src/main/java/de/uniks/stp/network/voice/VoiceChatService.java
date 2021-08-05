@@ -112,7 +112,7 @@ public class VoiceChatService {
         }
     }
 
-    private static String persistenceString(Mixer mixer) {
+    public String persistenceString(Mixer mixer) {
         return mixer.getMixerInfo().toString();
     }
 
@@ -335,19 +335,25 @@ public class VoiceChatService {
     }
 
     public TargetDataLine createUsableTargetDataLine() throws LineUnavailableException {
-        final DataLine.Info infoIn = new DataLine.Info(TargetDataLine.class, getAudioFormat());
-        final TargetDataLine dataLine = (TargetDataLine) getSelectedMicrophone().getLine(infoIn);
-        dataLine.open(getAudioFormat());
-        dataLine.start();
-        return dataLine;
+        if (isMicrophoneAvailable()) {
+            final DataLine.Info infoIn = new DataLine.Info(TargetDataLine.class, getAudioFormat());
+            final TargetDataLine dataLine = (TargetDataLine) getSelectedMicrophone().getLine(infoIn);
+            dataLine.open(getAudioFormat());
+            dataLine.start();
+            return dataLine;
+        }
+        return null;
     }
 
     public SourceDataLine createUsableSourceDataLine() throws LineUnavailableException {
-        final DataLine.Info infoIn = new DataLine.Info(SourceDataLine.class, getAudioFormat());
-        final SourceDataLine dataLine = (SourceDataLine) getSelectedSpeaker().getLine(infoIn);
-        dataLine.open(getAudioFormat());
-        dataLine.start();
-        return dataLine;
+        if (isSpeakerAvailable()) {
+            final DataLine.Info infoIn = new DataLine.Info(SourceDataLine.class, getAudioFormat());
+            final SourceDataLine dataLine = (SourceDataLine) getSelectedSpeaker().getLine(infoIn);
+            dataLine.open(getAudioFormat());
+            dataLine.start();
+            return dataLine;
+        }
+        return null;
     }
 
     public boolean isInMicrophoneSensitivity(byte[] audioBuf) {

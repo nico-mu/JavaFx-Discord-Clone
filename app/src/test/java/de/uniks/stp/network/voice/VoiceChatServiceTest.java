@@ -27,6 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+
 public class VoiceChatServiceTest {
     private SessionDatabaseService sessionDatabaseService;
     private VoiceChatClientFactory voiceChatClientFactory;
@@ -147,6 +150,20 @@ public class VoiceChatServiceTest {
         }
         voiceChatService.stopDataLine(sourceDataLineRef.get());
         voiceChatService.stopDataLine(targetDataLineRef.get());
+    }
+
+    @Test
+    public void changeDevicesTest() {
+        doReturn("someDevice").when(voiceChatService).persistenceString(any(Mixer.class));
+        voiceChatService.setSelectedSpeaker(speaker1);
+        voiceChatService.setSelectedMicrophone(microphone1);
+        Assertions.assertEquals(speaker1, voiceChatService.getSelectedSpeaker());
+        Assertions.assertEquals(microphone1, voiceChatService.getSelectedMicrophone());
+
+        voiceChatService.setSelectedSpeaker(speaker2);
+        voiceChatService.setSelectedMicrophone(microphone2);
+        Assertions.assertNotEquals(speaker1, voiceChatService.getSelectedSpeaker());
+        Assertions.assertNotEquals(microphone1, voiceChatService.getSelectedMicrophone());
     }
 
     @AfterEach

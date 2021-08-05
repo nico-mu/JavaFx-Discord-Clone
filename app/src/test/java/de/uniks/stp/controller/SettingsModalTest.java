@@ -7,9 +7,11 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.modal.SettingsModal;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.network.voice.VoiceChatClientFactory;
 import de.uniks.stp.network.voice.VoiceChatService;
 import de.uniks.stp.network.websocket.WSCallback;
 import de.uniks.stp.network.websocket.WebSocketClientFactory;
@@ -35,7 +37,12 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.TargetDataLine;
 import java.util.HashMap;
+
+import static org.mockito.Mockito.doReturn;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @ExtendWith(ApplicationExtension.class)
@@ -60,6 +67,9 @@ public class SettingsModalTest {
     private WebSocketClientFactory webSocketClientFactoryMock;
     private WebSocketService webSocketService;
     private SessionRestClient restMock;
+    private SessionDatabaseService sessionDatabaseService;
+    private VoiceChatClientFactory voiceChatClientFactory;
+    private VoiceChatService voiceChatService;
 
     @Start
     public void start(Stage stage) {
@@ -87,6 +97,11 @@ public class SettingsModalTest {
         webSocketService = sessionTestComponent.getWebsocketService();
         restMock = sessionTestComponent.getSessionRestClient();
         webSocketService.init();
+
+        sessionDatabaseService = sessionTestComponent.getSessionDatabaseService();
+        voiceChatClientFactory = sessionTestComponent.getVoiceChatClientFactory();
+
+        voiceChatService = Mockito.spy(new VoiceChatService(voiceChatClientFactory, sessionDatabaseService));
     }
 
     @Test
@@ -214,6 +229,15 @@ public class SettingsModalTest {
 
     @Test
     public void microphoneTestTest(FxRobot  robot) {
+        SourceDataLine sourceDataLineMock = Mockito.mock(SourceDataLine.class);
+        TargetDataLine targetDataLineMock = Mockito.mock(TargetDataLine.class);
+        try {
+            doReturn(sourceDataLineMock).when(voiceChatService).createUsableSourceDataLine();
+            doReturn(targetDataLineMock).when(voiceChatService).createUsableTargetDataLine();
+        } catch (LineUnavailableException ignored) { }
+        doReturn(true).when(voiceChatService).isMicrophoneAvailable();
+        doReturn(true).when(voiceChatService).isSpeakerAvailable();
+
         // open SettingsModal
         RouteArgs args = new RouteArgs();
         Platform.runLater(() -> router.route(Constants.ROUTE_MAIN, args));
@@ -225,12 +249,18 @@ public class SettingsModalTest {
         robot.clickOn(button);
         Assertions.assertNotEquals(oldButtonText, button.getText());
 
-        ProgressBar bar = robot.lookup(SettingsModal.SETTINGS_PROGRESS_BAR_INPUT_SENSITIVITY).query();
+        final ProgressBar bar = robot.lookup(SettingsModal.SETTINGS_PROGRESS_BAR_INPUT_SENSITIVITY).query();
         Assertions.assertEquals(0d, bar.getProgress());
 
         oldButtonText = button.getText();
         robot.clickOn(button);
         Assertions.assertNotEquals(oldButtonText, button.getText());
+
+        final Slider outputVolumeSlider = robot.lookup(SettingsModal.SETTINGS_SLIDER_OUTPUT_VOLUME).query();
+        final Slider inputVolumeSlider = robot.lookup(SettingsModal.SETTINGS_SLIDER_INPUT_VOLUME).query();
+        voiceChatService.startMicrophoneTest(inputVolumeSlider, outputVolumeSlider, bar);
+        voiceChatService.stopMicrophoneTest();
+
     }
 
     @AfterEach
@@ -245,6 +275,9 @@ public class SettingsModalTest {
         stringArgumentCaptor = null;
         wsCallbackArgumentCaptor = null;
         endpointCallbackHashmap = null;
+        sessionDatabaseService = null;
+        voiceChatClientFactory = null;
+        voiceChatService = null;
         Platform.runLater(app::stop);
         WaitForAsyncUtils.waitForFxEvents();
         app = null;

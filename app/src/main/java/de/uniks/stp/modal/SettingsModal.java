@@ -173,7 +173,7 @@ public class SettingsModal extends AbstractModal {
         log.debug("Starting microphone test.");
         String nextButtonActionText;
 
-        inputSensitivityBar.setProgress(0);
+        inputSensitivityBar.setProgress(0d);
         if (microphoneTestRunning) {
             // stop test
             voiceChatService.stopMicrophoneTest();
