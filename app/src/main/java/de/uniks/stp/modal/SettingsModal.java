@@ -25,9 +25,11 @@ import de.uniks.stp.view.Languages;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Slider;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,8 @@ public class SettingsModal extends AbstractModal {
     public static final String SETTINGS_SLIDER_OUTPUT_VOLUME = "#slider-output-volume";
     public static final String SETTINGS_INTEGRATION_CONTAINER = "#integration-container";
     public static final String SETTINGS_SLIDER_INPUT_SENSITIVITY = "#slider-input-sensitivity";
+    public static final String SETTINGS_PROGRESS_BAR_INPUT_SENSITIVITY = "#progress-bar-input-sensitivity";
+    public static final String SETTINGS_INPUT_SENSITIVITY_CONTAINER = "#input-sensitivity-container";
     public static final String SETTINGS_MICROPHONE_TEST_BUTTON = "#input-sensitivity-test-button";
 
     private final JFXButton applyButton;
@@ -61,6 +65,8 @@ public class SettingsModal extends AbstractModal {
     private final AudioDeviceComboBox outputDeviceComboBox;
     private final Slider inputVolumeSlider;
     private final Slider inputSensitivitySlider;
+    private final ProgressBar inputSensitivityBar;
+    private final StackPane inputSensitivityContainer;
     private final Slider outputVolumeSlider;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
     private final ViewLoader viewLoader;
@@ -143,6 +149,8 @@ public class SettingsModal extends AbstractModal {
         outputVolumeSlider.setValue(currentOutputVolume);
 
         inputSensitivitySlider = (Slider) view.lookup(SETTINGS_SLIDER_INPUT_SENSITIVITY);
+        inputSensitivityBar = (ProgressBar) view.lookup(SETTINGS_PROGRESS_BAR_INPUT_SENSITIVITY);
+        inputSensitivityContainer = (StackPane) view.lookup(SETTINGS_INPUT_SENSITIVITY_CONTAINER);
 
 
         applyButton.setOnAction(this::onApplyButtonClicked);
@@ -161,22 +169,19 @@ public class SettingsModal extends AbstractModal {
     private void onTestMicrophoneButtonClicked(ActionEvent actionEvent) {
         log.debug("Starting microphone test.");
         String nextButtonActionText;
-        boolean sliderDisable;
 
+        inputSensitivityBar.setProgress(0);
         if (microphoneTestRunning) {
             // stop test
-            sliderDisable = true;
             voiceChatService.stopMicrophoneTest();
             nextButtonActionText = viewLoader.loadLabel(Constants.LBL_MICROPHONE_TEST_START);
         } else {
             // start test
-            sliderDisable = false;
-            voiceChatService.startMicrophoneTest(inputVolumeSlider, outputVolumeSlider, inputSensitivitySlider);
+            voiceChatService.startMicrophoneTest(inputVolumeSlider, outputVolumeSlider, inputSensitivityBar);
             nextButtonActionText = viewLoader.loadLabel(Constants.LBL_MICROPHONE_TEST_STOP);
         }
         microphoneTestRunning = !microphoneTestRunning;
         testMicrophoneButton.setText(nextButtonActionText);
-        inputSensitivitySlider.setDisable(sliderDisable);
     }
 
     private void addIntegrationButtons() {

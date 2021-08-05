@@ -57,9 +57,10 @@
                   <Insets bottom="5.0" top="10.0" />
                </VBox.margin>
             </Label>
-            <Pane>
-               <Slider id="slider-input-sensitivity" disable="true" layoutX="3.0" layoutY="1.0" maxWidth="165.0"/>
-            </Pane>
+            <StackPane id="input-sensitivity-container" alignment="CENTER_LEFT">
+               <ProgressBar id="progress-bar-input-sensitivity" progress="0.0" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="165.0" />
+               <Slider id="slider-input-sensitivity" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="165.0" />
+            </StackPane>
             <JFXButton id="input-sensitivity-test-button" prefHeight="24.0" prefWidth="115.0" text="%LBL_MICROPHONE_TEST_START">
                <font>
                   <Font size="14.0" />

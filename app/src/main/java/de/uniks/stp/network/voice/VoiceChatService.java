@@ -1,11 +1,12 @@
 package de.uniks.stp.network.voice;
 
-import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import de.uniks.stp.Constants;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.AppDatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.model.Channel;
+import javafx.application.Platform;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,6 +123,10 @@ public class VoiceChatService {
     }
 
     public byte[] adjustVolume(int volume, byte[] audioBuf) {
+        return this.adjustVolume(volume, audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE);
+    }
+
+    private byte[] adjustVolume(int volume, byte[] audioBuf, int metadataSize) {
         /* Do not change anything if volume is not withing acceptable range of 0 - 100.
          Notice that a volume of 100 would not change anything and just return the buffer as is */
         if (volume < 0 || volume >= 100) {
@@ -132,7 +137,7 @@ public class VoiceChatService {
         final ByteBuffer dest = ByteBuffer.allocate(audioBuf.length).order(ByteOrder.LITTLE_ENDIAN);
 
         // Copy metadata
-        for (int i = 0; i < Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE; i++) {
+        for (int i = 0; i < metadataSize; i++) {
             dest.put(wrap.get());
         }
 
@@ -226,7 +231,7 @@ public class VoiceChatService {
         databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME, String.valueOf(newOutputVolume));
     }
 
-    public void startMicrophoneTest(Slider inputVolumeSlider, Slider outputVolumeSlider, Slider inputSensitivitySlider) {
+    public void startMicrophoneTest(Slider inputVolumeSlider, Slider outputVolumeSlider, ProgressBar inputSensitivityBar) {
         if (Objects.isNull(executorService)) {
             executorService = Executors.newCachedThreadPool();
         }
@@ -238,15 +243,24 @@ public class VoiceChatService {
                 audioInDataLine = createUsableTargetDataLine();
                 audioOutDataLine = createUsableSourceDataLine();
 
-                byte[] audioBuf = new byte[Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE+ Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE];
+                byte[] audioBuf = new byte[Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE];
+                final int metadataSize = 0;
                 while (microphoneTestRunning) {
                     if (Objects.nonNull(audioInDataLine)) {
-                        audioInDataLine.read(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
+                        audioInDataLine.read(audioBuf, metadataSize, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
 
                         if (Objects.nonNull(audioOutDataLine)) {
                             // adjust volume once by combining in- and output volume
-                            final byte[] adjustedAudioBuf = adjustVolume((int) inputVolumeSlider.getValue() * (int) outputVolumeSlider.getValue() / 100, audioBuf);
-                            audioOutDataLine.write(adjustedAudioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
+                            final int inputVolume = (int) inputVolumeSlider.getValue();
+                            final int outputVolume = (int) outputVolumeSlider.getValue();
+                            int volume = inputVolume * outputVolume / 100;
+                            byte[] adjustedAudioBuf = adjustVolume(volume, audioBuf, metadataSize);
+                            audioOutDataLine.write(adjustedAudioBuf, metadataSize, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
+
+                            volume = inputVolume;
+                            adjustedAudioBuf = adjustVolume(volume, audioBuf, metadataSize);
+                            final double decibel = calculateDecibel(adjustedAudioBuf, metadataSize);
+                            Platform.runLater(() -> inputSensitivityBar.setProgress((decibel+100)/100));
                         }
                     }
                 }
@@ -257,6 +271,34 @@ public class VoiceChatService {
                 stopDataLine(audioOutDataLine);
             }
         });
+    }
+
+    /**
+     * Calculates the decibel value for the given sample
+     *
+     * @param audioBuf the sample
+     * @return the decibel value
+     */
+    public double calculateDecibel(byte[] audioBuf) {
+        return calculateDecibel(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE);
+    }
+
+    private double calculateDecibel(byte[] audioBuf, int metadataSize) {
+        final ByteBuffer wrap = ByteBuffer.wrap(audioBuf).order(ByteOrder.LITTLE_ENDIAN);
+        // Skip metadata
+        for (int i = 0; i < metadataSize; i++) {
+            wrap.get();
+        }
+
+        int samplesAmount = 0;
+        double sumOfSampleSq = 0d;    // sum of square of normalized samples.
+        while (wrap.hasRemaining()) {
+            final float normSample = wrap.getShort() / 32767f;  // normalized the sample with maximum value.
+            sumOfSampleSq += (normSample * normSample);
+            samplesAmount++;
+        }
+
+        return 10*Math.log10(sumOfSampleSq / samplesAmount);
     }
 
     public void stopMicrophoneTest() {
