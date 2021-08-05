@@ -151,9 +151,10 @@ public class SettingsModal extends AbstractModal {
 
         // init sensitivity slider
         inputSensitivitySlider = (Slider) view.lookup(SETTINGS_SLIDER_INPUT_SENSITIVITY);
+        currentInputSensitivity = voiceChatService.getInputSensitivity();
+        inputSensitivitySlider.setValue(currentInputSensitivity);
         inputSensitivityBar = (ProgressBar) view.lookup(SETTINGS_PROGRESS_BAR_INPUT_SENSITIVITY);
         inputSensitivityContainer = (StackPane) view.lookup(SETTINGS_INPUT_SENSITIVITY_CONTAINER);
-
 
         applyButton.setOnAction(this::onApplyButtonClicked);
         applyButton.setDefaultButton(true);  // use Enter in order to press button
