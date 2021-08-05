@@ -18,6 +18,7 @@ import java.io.StringReader;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -25,15 +26,13 @@ public class VoiceChatClient {
     private static final Logger log = LoggerFactory.getLogger(VoiceChatClient.class);
     private final Object audioInLock = new Object();
     private final Object audioOutLock = new Object();
-    private final Map<String, SourceDataLine> userSourceDataLineMap = new HashMap<>();
+    private final Map<String, SourceDataLine> userSourceDataLineMap = new ConcurrentHashMap<>();
     private final User currentUser;
     private final VoiceChatService voiceChatService;
     private final Channel channel;
     private final PropertyChangeListener currentUserAudioOffPropertyChangeListener = this::onCurrentUserAudioOffPropertyChange;
     private final PropertyChangeListener currentUserMutePropertyChangeListener = this::onCurrentUserMutePropertyChange;
-    private Mixer speaker;
     private final PropertyChangeListener audioMembersPropertyChangeListener = this::onAudioMembersPropertyChange;
-    private Mixer microphone;
     private boolean running;
     private InetAddress address;
     private List<User> filteredUsers = new ArrayList<>();
@@ -44,32 +43,30 @@ public class VoiceChatClient {
 
     public VoiceChatClient(VoiceChatService voiceChatService,
                            Channel channel,
-                           User currentUser,
-                           Mixer speaker,
-                           Mixer microphone) {
+                           User currentUser) {
         this.voiceChatService = voiceChatService;
         this.channel = channel;
         this.currentUser = currentUser;
-        this.speaker = speaker;
-        this.microphone = microphone;
         withFilteredUsers(currentUser);
     }
 
     public void init() {
-        try {
-            initMicrophone();
-        } catch (LineUnavailableException e) {
-            log.error("The microphone could not be initialized", e);
+        if (voiceChatService.isMicrophoneAvailable()) {
+            try {
+                initMicrophone();
+            } catch (LineUnavailableException e) {
+                log.error("The microphone could not be initialized", e);
+            }
         }
 
         try {
-            address = InetAddress.getByName(Constants.AUDIOSTREAM_BASE_URL);
+            address = getAddress();
         } catch (UnknownHostException e) {
             log.error("Host could not be resolved", e);
         }
 
         try {
-            datagramSocket = new DatagramSocket();
+            final DatagramSocket datagramSocket = getDatagramSocket();
             datagramSocket.connect(address, Constants.AUDIOSTREAM_PORT);
         } catch (SocketException e) {
             log.error("The socket could not be set up", e);
@@ -87,6 +84,30 @@ public class VoiceChatClient {
         executorService = Executors.newCachedThreadPool();
         executorService.execute(this::receiveAndPlayAudio);
         executorService.execute(this::recordAndSendAudio);
+    }
+
+    private DatagramSocket getDatagramSocket() throws SocketException {
+        if (Objects.isNull(datagramSocket)) {
+            setDatagramSocket(new DatagramSocket());
+        }
+        return datagramSocket;
+    }
+
+    public VoiceChatClient setDatagramSocket(DatagramSocket datagramSocket) {
+        this.datagramSocket = datagramSocket;
+        return this;
+    }
+
+    public InetAddress getAddress() throws UnknownHostException {
+        if (Objects.isNull(address)) {
+            setAddress(InetAddress.getByName(Constants.AUDIOSTREAM_BASE_URL));
+        }
+        return address;
+    }
+
+    public VoiceChatClient setAddress(InetAddress address) {
+        this.address = address;
+        return this;
     }
 
     private void receiveAndPlayAudio() {
@@ -123,37 +144,26 @@ public class VoiceChatClient {
         }
     }
 
-    public void changeSpeaker(Mixer speaker) {
-        if (!this.speaker.equals(speaker)) {
-            this.speaker = speaker;
-            userSourceDataLineMap.forEach((userName, oldSourceDataLine) -> {
-                try {
-                    initSpeakerForUser(userName);
-                    oldSourceDataLine.stop();
-                    oldSourceDataLine.drain();
-                    oldSourceDataLine.close();
-                } catch (LineUnavailableException e) {
-                    log.error("The speaker could not be initialized", e);
-                }
-            });
-        }
+    public void onSpeakerChanged() {
+        userSourceDataLineMap.forEach((userName, oldSourceDataLine) -> {
+            try {
+                initSpeakerForUser(userName);
+            } catch (LineUnavailableException e) {
+                log.error("The speaker could not be initialized", e);
+            }
+            voiceChatService.stopDataLine(oldSourceDataLine);
+        });
     }
 
-    public void changeMicrophone(Mixer microphone) {
-        if (!this.microphone.equals(microphone)) {
-            this.microphone = microphone;
-            if (Objects.nonNull(audioInDataLine)) {
-                final TargetDataLine oldAudioinDataLine = audioInDataLine;
-                try {
-                    initMicrophone();
-                } catch (LineUnavailableException e) {
-                    log.error("The microphone could not be initialized", e);
-                }
-                oldAudioinDataLine.stop();
-                oldAudioinDataLine.drain();
-                oldAudioinDataLine.close();
-            }
+    public void onMicrophoneChanged() {
+        final TargetDataLine oldAudioinDataLine = audioInDataLine;
+        try {
+            initMicrophone();
+        } catch (LineUnavailableException e) {
+            log.error("The microphone could not be initialized", e);
         }
+        voiceChatService.stopDataLine(oldAudioinDataLine);
+
     }
 
     private void recordAndSendAudio() {
@@ -211,25 +221,15 @@ public class VoiceChatClient {
     }
 
     private void initSpeakerForUser(String userName) throws LineUnavailableException {
-        final AudioFormat audioFormat = voiceChatService.getAudioFormat();
-        final DataLine.Info infoOut = new DataLine.Info(SourceDataLine.class, audioFormat);
-
-        final SourceDataLine audioOutDataLine = (SourceDataLine) speaker.getLine(infoOut);
+        final SourceDataLine audioOutDataLine = voiceChatService.createUsableSourceDataLine();
         userSourceDataLineMap.put(userName, audioOutDataLine);
-
-        audioOutDataLine.open(audioFormat);
-        audioOutDataLine.start();
     }
 
     private void userLeft(User user) {
         final SourceDataLine audioOutDataLine = userSourceDataLineMap.remove(user.getName());
         user.listeners().removePropertyChangeListener(User.PROPERTY_MUTE, userMutePropertyChangeListener);
 
-        if (Objects.nonNull(audioOutDataLine)) {
-            audioOutDataLine.stop();
-            audioOutDataLine.drain();
-            audioOutDataLine.close();
-        }
+        voiceChatService.stopDataLine(audioOutDataLine);
     }
 
     private void onAudioMembersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
@@ -284,12 +284,7 @@ public class VoiceChatClient {
     }
 
     private void initMicrophone() throws LineUnavailableException {
-        final AudioFormat audioFormat = voiceChatService.getAudioFormat();
-        final DataLine.Info infoIn = new DataLine.Info(TargetDataLine.class, audioFormat);
-
-        audioInDataLine = (TargetDataLine) microphone.getLine(infoIn);
-        audioInDataLine.open(audioFormat);
-        audioInDataLine.start();
+        audioInDataLine = voiceChatService.createUsableTargetDataLine();
     }
 
     public void stop() {
