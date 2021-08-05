@@ -1,10 +1,12 @@
 package de.uniks.stp.network.voice;
 
+import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import de.uniks.stp.Constants;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.AppDatabaseService;
 import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.model.Channel;
+import javafx.scene.control.Slider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +16,8 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class VoiceChatService {
     private static final Logger log = LoggerFactory.getLogger(VoiceChatService.class);
@@ -35,6 +39,8 @@ public class VoiceChatService {
 
     private int inputVolume;
     private int outputVolume;
+    private ExecutorService executorService;
+    private boolean microphoneTestRunning = false;
 
 
     public VoiceChatService(VoiceChatClientFactory voiceChatClientFactory, AppDatabaseService databaseService) {
@@ -194,8 +200,6 @@ public class VoiceChatService {
         }
         voiceChatClient = voiceChatClientFactory.create(this, model, selectedSpeaker, selectedMicrophone);
         voiceChatClient.init();
-        voiceChatClient.setInputVolume(inputVolume);
-        voiceChatClient.setOutputVolume(outputVolume);
     }
 
     public void removeVoiceChatClient(Channel model) {
@@ -211,9 +215,6 @@ public class VoiceChatService {
     public void setInputVolume(int newInputVolume) {
         this.inputVolume = newInputVolume;
         databaseService.saveAccordSetting(AccordSettingKey.AUDIO_IN_VOLUME, String.valueOf(newInputVolume));
-        if (Objects.nonNull(voiceChatClient)) {
-            voiceChatClient.setInputVolume(newInputVolume);
-        }
     }
 
     public int getOutputVolume() {
@@ -223,8 +224,70 @@ public class VoiceChatService {
     public void setOutputVolume(int newOutputVolume) {
         this.outputVolume = newOutputVolume;
         databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME, String.valueOf(newOutputVolume));
-        if (Objects.nonNull(voiceChatClient)) {
-            voiceChatClient.setOutputVolume(newOutputVolume);
+    }
+
+    public void startMicrophoneTest(Slider inputVolumeSlider, Slider outputVolumeSlider, Slider inputSensitivitySlider) {
+        if (Objects.isNull(executorService)) {
+            executorService = Executors.newCachedThreadPool();
         }
+        microphoneTestRunning = true;
+        executorService.execute(() -> {
+            TargetDataLine audioInDataLine = null;
+            SourceDataLine audioOutDataLine = null;
+            try {
+                audioInDataLine = createUsableTargetDataLine();
+                audioOutDataLine = createUsableSourceDataLine();
+
+                byte[] audioBuf = new byte[Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE+ Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE];
+                while (microphoneTestRunning) {
+                    if (Objects.nonNull(audioInDataLine)) {
+                        audioInDataLine.read(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
+
+                        if (Objects.nonNull(audioOutDataLine)) {
+                            // adjust volume once by combining in- and output volume
+                            final byte[] adjustedAudioBuf = adjustVolume((int) inputVolumeSlider.getValue() * (int) outputVolumeSlider.getValue() / 100, audioBuf);
+                            audioOutDataLine.write(adjustedAudioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
+                        }
+                    }
+                }
+            } catch (LineUnavailableException ignored) { }
+            finally {
+                // Clean up
+                stopDataLine(audioInDataLine);
+                stopDataLine(audioOutDataLine);
+            }
+        });
+    }
+
+    public void stopMicrophoneTest() {
+        microphoneTestRunning = false;
+        if (Objects.nonNull(executorService)) {
+            executorService.shutdown();
+            executorService = null;
+        }
+    }
+
+    public void stopDataLine(DataLine dataLineToBeClosed) {
+        if (Objects.nonNull(dataLineToBeClosed)) {
+            dataLineToBeClosed.stop();
+            dataLineToBeClosed.drain();
+            dataLineToBeClosed.close();
+        }
+    }
+
+    public TargetDataLine createUsableTargetDataLine() throws LineUnavailableException {
+        final DataLine.Info infoIn = new DataLine.Info(TargetDataLine.class, getAudioFormat());
+        final TargetDataLine dataLine = (TargetDataLine) getSelectedMicrophone().getLine(infoIn);
+        dataLine.open(getAudioFormat());
+        dataLine.start();
+        return dataLine;
+    }
+
+    public SourceDataLine createUsableSourceDataLine() throws LineUnavailableException {
+        final DataLine.Info infoIn = new DataLine.Info(SourceDataLine.class, getAudioFormat());
+        final SourceDataLine dataLine = (SourceDataLine) getSelectedSpeaker().getLine(infoIn);
+        dataLine.open(getAudioFormat());
+        dataLine.start();
+        return dataLine;
     }
 }

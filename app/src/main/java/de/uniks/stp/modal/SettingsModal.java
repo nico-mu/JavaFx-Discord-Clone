@@ -49,13 +49,18 @@ public class SettingsModal extends AbstractModal {
     public static final String SETTINGS_SLIDER_INPUT_VOLUME = "#slider-input-volume";
     public static final String SETTINGS_SLIDER_OUTPUT_VOLUME = "#slider-output-volume";
     public static final String SETTINGS_INTEGRATION_CONTAINER = "#integration-container";
+    public static final String SETTINGS_SLIDER_INPUT_SENSITIVITY = "#slider-input-sensitivity";
+    public static final String SETTINGS_MICROPHONE_TEST_BUTTON = "#input-sensitivity-test-button";
+
     private final JFXButton applyButton;
     private final JFXButton cancelButton;
+    private final JFXButton testMicrophoneButton;
     private final KeyBasedComboBox languageComboBox;
     private final KeyBasedComboBox notificationComboBox;
     private final AudioDeviceComboBox inputDeviceComboBox;
     private final AudioDeviceComboBox outputDeviceComboBox;
     private final Slider inputVolumeSlider;
+    private final Slider inputSensitivitySlider;
     private final Slider outputVolumeSlider;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
     private final ViewLoader viewLoader;
@@ -67,6 +72,8 @@ public class SettingsModal extends AbstractModal {
     private final HBox integrationContainer;
     private final IntegrationService integrationService;
     private final IntegrationButton.IntegrationButtonFactory integrationButtonFactory;
+
+    private boolean microphoneTestRunning = false;
 
     private String currentLanguage;
     private String currentNotificationSoundFile;
@@ -101,6 +108,7 @@ public class SettingsModal extends AbstractModal {
 
         applyButton = (JFXButton) view.lookup(SETTINGS_APPLY_BUTTON);
         cancelButton = (JFXButton) view.lookup(SETTINGS_CANCEL_BUTTON);
+        testMicrophoneButton = (JFXButton) view.lookup(SETTINGS_MICROPHONE_TEST_BUTTON);
         integrationContainer = (HBox) view.lookup(SETTINGS_INTEGRATION_CONTAINER);
 
         languageComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_LANGUAGE);
@@ -134,15 +142,41 @@ public class SettingsModal extends AbstractModal {
         currentOutputVolume = voiceChatService.getOutputVolume();
         outputVolumeSlider.setValue(currentOutputVolume);
 
+        inputSensitivitySlider = (Slider) view.lookup(SETTINGS_SLIDER_INPUT_SENSITIVITY);
+
+
         applyButton.setOnAction(this::onApplyButtonClicked);
         applyButton.setDefaultButton(true);  // use Enter in order to press button
 
         cancelButton.setOnAction(this::onCancelButtonClicked);
         cancelButton.setCancelButton(true);  // use Escape in order to press button
 
+        testMicrophoneButton.setOnAction(this::onTestMicrophoneButtonClicked);
+
         //integration buttons
         addIntegrationButtons();
 
+    }
+
+    private void onTestMicrophoneButtonClicked(ActionEvent actionEvent) {
+        log.debug("Starting microphone test.");
+        String nextButtonActionText;
+        boolean sliderDisable;
+
+        if (microphoneTestRunning) {
+            // stop test
+            sliderDisable = true;
+            voiceChatService.stopMicrophoneTest();
+            nextButtonActionText = viewLoader.loadLabel(Constants.LBL_MICROPHONE_TEST_START);
+        } else {
+            // start test
+            sliderDisable = false;
+            voiceChatService.startMicrophoneTest(inputVolumeSlider, outputVolumeSlider, inputSensitivitySlider);
+            nextButtonActionText = viewLoader.loadLabel(Constants.LBL_MICROPHONE_TEST_STOP);
+        }
+        microphoneTestRunning = !microphoneTestRunning;
+        testMicrophoneButton.setText(nextButtonActionText);
+        inputSensitivitySlider.setDisable(sliderDisable);
     }
 
     private void addIntegrationButtons() {
@@ -260,6 +294,10 @@ public class SettingsModal extends AbstractModal {
     public void close() {
         applyButton.setOnAction(null);
         cancelButton.setOnAction(null);
+        testMicrophoneButton.setOnAction(null);
+        if (microphoneTestRunning) {
+            voiceChatService.stopMicrophoneTest();
+        }
         super.close();
     }
 
