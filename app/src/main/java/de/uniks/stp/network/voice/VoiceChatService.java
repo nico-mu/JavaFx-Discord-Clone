@@ -39,6 +39,7 @@ public class VoiceChatService {
     private VoiceChatClient voiceChatClient;
 
     private int inputVolume;
+    private int inputSensitivity;
     private int outputVolume;
     private ExecutorService executorService;
     private boolean microphoneTestRunning = false;
@@ -89,16 +90,23 @@ public class VoiceChatService {
         }
 
         // get audio out volume value
-        AccordSettingDTO volumeOutSettings = databaseService.getAccordSetting(AccordSettingKey.AUDIO_IN_VOLUME);
-        if (Objects.nonNull(volumeOutSettings)) {
-            this.inputVolume = Integer.parseInt(volumeOutSettings.getValue());
+        final AccordSettingDTO volumeInSettings = databaseService.getAccordSetting(AccordSettingKey.AUDIO_IN_VOLUME);
+        if (Objects.nonNull(volumeInSettings)) {
+            this.inputVolume = Integer.parseInt(volumeInSettings.getValue());
         } else {
             this.inputVolume = 100;
         }
+        // get audio in sensitivity value
+        final AccordSettingDTO sensitivityInSettings = databaseService.getAccordSetting(AccordSettingKey.AUDIO_IN_SENSITIVITY);
+        if (Objects.nonNull(sensitivityInSettings)) {
+            this.inputSensitivity = Integer.parseInt(sensitivityInSettings.getValue());
+        } else {
+            this.inputSensitivity = -85;
+        }
         // get audio out volume value
-        AccordSettingDTO volumeInSettings = databaseService.getAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME);
+        final AccordSettingDTO volumeOutSettings = databaseService.getAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME);
         if (Objects.nonNull(volumeOutSettings)) {
-            this.outputVolume = Integer.parseInt(volumeInSettings.getValue());
+            this.outputVolume = Integer.parseInt(volumeOutSettings.getValue());
         } else {
             this.outputVolume = 100;
         }
@@ -222,6 +230,15 @@ public class VoiceChatService {
         databaseService.saveAccordSetting(AccordSettingKey.AUDIO_IN_VOLUME, String.valueOf(newInputVolume));
     }
 
+    public int getInputSensitivity() {
+        return inputSensitivity;
+    }
+
+    public void setInputSensitivity(int newInputSensitivity) {
+        this.inputSensitivity = newInputSensitivity;
+        databaseService.saveAccordSetting(AccordSettingKey.AUDIO_IN_SENSITIVITY, String.valueOf(newInputSensitivity));
+    }
+
     public int getOutputVolume() {
         return outputVolume;
     }
@@ -259,8 +276,8 @@ public class VoiceChatService {
 
                             volume = inputVolume;
                             adjustedAudioBuf = adjustVolume(volume, audioBuf, metadataSize);
-                            final double decibel = calculateDecibel(adjustedAudioBuf, metadataSize);
-                            Platform.runLater(() -> inputSensitivityBar.setProgress((decibel+100)/100));
+                            final int decibel = calculateDecibel(adjustedAudioBuf, metadataSize);
+                            Platform.runLater(() -> inputSensitivityBar.setProgress((decibel+100)/100d));
                         }
                     }
                 }
@@ -279,11 +296,11 @@ public class VoiceChatService {
      * @param audioBuf the sample
      * @return the decibel value
      */
-    public double calculateDecibel(byte[] audioBuf) {
+    public int calculateDecibel(byte[] audioBuf) {
         return calculateDecibel(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE);
     }
 
-    private double calculateDecibel(byte[] audioBuf, int metadataSize) {
+    private int calculateDecibel(byte[] audioBuf, int metadataSize) {
         final ByteBuffer wrap = ByteBuffer.wrap(audioBuf).order(ByteOrder.LITTLE_ENDIAN);
         // Skip metadata
         for (int i = 0; i < metadataSize; i++) {
@@ -298,7 +315,7 @@ public class VoiceChatService {
             samplesAmount++;
         }
 
-        return 10*Math.log10(sumOfSampleSq / samplesAmount);
+        return (int) (10*Math.log10(sumOfSampleSq / samplesAmount));
     }
 
     public void stopMicrophoneTest() {

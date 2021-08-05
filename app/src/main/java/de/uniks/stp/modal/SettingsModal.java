@@ -87,6 +87,7 @@ public class SettingsModal extends AbstractModal {
     private Mixer currentMicrophone;
     private Mixer currentSpeaker;
     private int currentInputVolume;
+    private int currentInputSensitivity;
     private int currentOutputVolume;
     private IntegrationButton spotifyIntegrationButton;
 
@@ -148,6 +149,7 @@ public class SettingsModal extends AbstractModal {
         currentOutputVolume = voiceChatService.getOutputVolume();
         outputVolumeSlider.setValue(currentOutputVolume);
 
+        // init sensitivity slider
         inputSensitivitySlider = (Slider) view.lookup(SETTINGS_SLIDER_INPUT_SENSITIVITY);
         inputSensitivityBar = (ProgressBar) view.lookup(SETTINGS_PROGRESS_BAR_INPUT_SENSITIVITY);
         inputSensitivityContainer = (StackPane) view.lookup(SETTINGS_INPUT_SENSITIVITY_CONTAINER);
@@ -275,6 +277,12 @@ public class SettingsModal extends AbstractModal {
             voiceChatService.setOutputVolume(newOutputVolume);
             currentOutputVolume = newOutputVolume;
         }
+        final int newInputSensitivity = (int) inputSensitivitySlider.getValue()-100; // same as discord from -100db to 0db
+        if(currentInputSensitivity != newInputSensitivity){
+            voiceChatService.setInputSensitivity(newInputSensitivity);
+            currentInputSensitivity = newInputSensitivity;
+        }
+
 
         this.close();
     }
