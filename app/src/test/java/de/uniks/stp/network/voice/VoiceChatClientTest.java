@@ -48,12 +48,6 @@ public class VoiceChatClientTest {
     }
 
     @Test
-    public void changeVolumeTest() {
-        voiceChatClient.setInputVolume(50);
-        voiceChatClient.setOutputVolume(50);
-    }
-
-    @Test
     public void changeDevicesTest() {
         voiceChatClient.changeSpeaker(speaker2);
         voiceChatClient.changeMicrophone(microphone2);
