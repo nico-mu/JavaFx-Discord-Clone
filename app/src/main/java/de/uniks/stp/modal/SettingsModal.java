@@ -76,6 +76,7 @@ public class SettingsModal extends AbstractModal {
     private int currentInputVolume;
     private int currentOutputVolume;
     private IntegrationButton spotifyIntegrationButton;
+    private IntegrationButton githubIntegrationButton;
 
     @AssistedInject
     public SettingsModal(ViewLoader viewLoader,
@@ -150,8 +151,34 @@ public class SettingsModal extends AbstractModal {
         spotifyIntegrationButton.setOnMouseClicked(this::onSpotifyIntegrationButton);
         integrationContainer.getChildren().add(spotifyIntegrationButton);
 
+        githubIntegrationButton = integrationButtonFactory.create(viewLoader.loadImage("github_button.png"));
+        githubIntegrationButton.setOnMouseClicked(this::onGithubIntegrationButton);
+        integrationContainer.getChildren().add(githubIntegrationButton);
+
         if(integrationService.isServiceConnected(Integrations.SPOTIFY.key)) {
             spotifyIntegrationButton.setSuccessMode();
+        }
+        else if(integrationService.isServiceConnected(Integrations.GITHUB.key)) {
+            githubIntegrationButton.setSuccessMode();
+        }
+    }
+
+    private void onGithubIntegrationButton(MouseEvent mouseEvent) {
+        AbstractAuthorizationClient authorizationClient = integrationService.getAuthorizationClient(Integrations.GITHUB.key);
+
+        if(Objects.nonNull(authorizationClient)) {
+            authorizationClient.authorize(new AuthorizationCallback() {
+                @Override
+                public void onSuccess(Credentials credentials) {
+                    integrationService.startService(Integrations.GITHUB.key, credentials);
+                    githubIntegrationButton.setSuccessMode();
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    githubIntegrationButton.setErrorMode();
+                }
+            });
         }
     }
 

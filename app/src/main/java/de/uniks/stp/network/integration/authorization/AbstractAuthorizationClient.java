@@ -48,6 +48,11 @@ public abstract class AbstractAuthorizationClient implements HttpHandler {
         }
     }
 
+    protected String getRedirectUri() {
+        return "http://" +
+            IntegrationConstants.TEMP_SERVER_HOST + ":" + IntegrationConstants.TEMP_SERVER_PORT + serverPath;
+    }
+
     protected static Map<String, String> splitQuery(String queryString) {
         Map<String, String> queryPairs = new LinkedHashMap<>();
         String[] pairs = queryString.split("&");

@@ -56,11 +56,6 @@ public class SpotifyAuthorizationClient extends AbstractAuthorizationClient {
         this.spotifyApi = spotifyApi;
     }
 
-    private String getRedirectUri() {
-        return "http://" +
-            IntegrationConstants.TEMP_SERVER_HOST + ":" + IntegrationConstants.TEMP_SERVER_PORT + serverPath;
-    }
-
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         String response;
