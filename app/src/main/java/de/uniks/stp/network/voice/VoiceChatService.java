@@ -349,4 +349,10 @@ public class VoiceChatService {
         dataLine.start();
         return dataLine;
     }
+
+    public boolean isInMicrophoneSensitivity(byte[] audioBuf) {
+        final int sampleDecibel = calculateDecibel(audioBuf);
+        final int minDecibel = getInputSensitivity();
+        return sampleDecibel >= minDecibel;
+    }
 }

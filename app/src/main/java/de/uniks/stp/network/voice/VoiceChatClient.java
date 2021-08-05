@@ -182,11 +182,14 @@ public class VoiceChatClient {
             }
             audioInDataLine.read(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
             audioBuf = voiceChatService.adjustVolume(voiceChatService.getInputVolume(), audioBuf);
-            final DatagramPacket audioInDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length, address, Constants.AUDIOSTREAM_PORT);
-            try {
-                datagramSocket.send(audioInDatagramPacket);
-            } catch (IOException e) {
-                log.error("Failed to send an audio packet.", e);
+            if (voiceChatService.isInMicrophoneSensitivity(audioBuf)) {
+                // send packet if sensitivity is met
+                final DatagramPacket audioInDatagramPacket = new DatagramPacket(audioBuf, audioBuf.length, address, Constants.AUDIOSTREAM_PORT);
+                try {
+                    datagramSocket.send(audioInDatagramPacket);
+                } catch (IOException e) {
+                    log.error("Failed to send an audio packet.", e);
+                }
             }
         }
     }
