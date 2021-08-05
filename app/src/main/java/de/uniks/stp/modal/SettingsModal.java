@@ -277,7 +277,7 @@ public class SettingsModal extends AbstractModal {
             voiceChatService.setOutputVolume(newOutputVolume);
             currentOutputVolume = newOutputVolume;
         }
-        final int newInputSensitivity = (int) inputSensitivitySlider.getValue()-100; // same as discord from -100db to 0db
+        final int newInputSensitivity = (int) inputSensitivitySlider.getValue(); // same as discord from -100db to 0db
         if(currentInputSensitivity != newInputSensitivity){
             voiceChatService.setInputSensitivity(newInputSensitivity);
             currentInputSensitivity = newInputSensitivity;
