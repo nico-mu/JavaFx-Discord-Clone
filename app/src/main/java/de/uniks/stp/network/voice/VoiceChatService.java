@@ -21,7 +21,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class VoiceChatService {
-    private static final Logger log = LoggerFactory.getLogger(VoiceChatService.class);
     private final AudioFormat audioFormat = new AudioFormat(
         Constants.AUDIOSTREAM_SAMPLE_RATE,
         Constants.AUDIOSTREAM_SAMPLE_SIZE_BITS,
