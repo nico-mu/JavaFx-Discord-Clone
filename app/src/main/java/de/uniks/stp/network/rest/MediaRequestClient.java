@@ -82,11 +82,10 @@ public class MediaRequestClient {
         loadImage(html, messageNode, url);
     }
 
-    private void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
+    protected void sendRequest(HttpRequest<?> req, Callback<JsonNode> callback) {
         try {
             executor.execute(() -> req.asJsonAsync(callback));
-        } catch (IllegalArgumentException ignore) {
-        }
+        } catch (IllegalArgumentException ignore) {}
     }
 
     private boolean isImageURL(String url) {
