@@ -52,7 +52,7 @@
                </VBox.margin>
             </Label>
             <Slider id="slider-input-volume" maxWidth="165.0" />
-            <Label styleClass="label-usual" text="%LBL_MICROPHONE_TEST">
+            <Label styleClass="label-usual" text="%LBL_INPUT_SENSITIVITY">
                <VBox.margin>
                   <Insets bottom="5.0" top="10.0" />
                </VBox.margin>
