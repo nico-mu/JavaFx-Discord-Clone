@@ -168,11 +168,11 @@ public class VoiceChatService {
     }
 
     public void setSelectedMicrophone(Mixer selectedMicrophone) {
-        if (!this.selectedMicrophone.equals(selectedMicrophone)) {
+        if (Objects.isNull(this.selectedMicrophone) || !this.selectedMicrophone.equals(selectedMicrophone)) {
+            this.selectedMicrophone = selectedMicrophone;
             if (Objects.nonNull(voiceChatClient)) {
                 voiceChatClient.onMicrophoneChanged();
             }
-            this.selectedMicrophone = selectedMicrophone;
             databaseService.saveAccordSetting(AccordSettingKey.AUDIO_IN_DEVICE, persistenceString(selectedMicrophone));
         }
     }
@@ -182,11 +182,11 @@ public class VoiceChatService {
     }
 
     public void setSelectedSpeaker(Mixer selectedSpeaker) {
-        if (!this.selectedSpeaker.equals(selectedSpeaker)) {
+        if (Objects.isNull(this.selectedSpeaker) || !this.selectedSpeaker.equals(selectedSpeaker)) {
+            this.selectedSpeaker = selectedSpeaker;
             if (Objects.nonNull(voiceChatClient)) {
                 voiceChatClient.onSpeakerChanged();
             }
-            this.selectedSpeaker = selectedSpeaker;
             databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_DEVICE, persistenceString(selectedSpeaker));
         }
     }
