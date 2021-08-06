@@ -15,7 +15,7 @@ public class VoiceChatClientFactoryImpl implements VoiceChatClientFactory {
     }
 
     @Override
-    public VoiceChatClient create(VoiceChatService voiceChatService, final Channel channel, Mixer speaker, Mixer microphone) {
-        return new VoiceChatClient(voiceChatService, channel, currentUser, speaker, microphone);
+    public VoiceChatClient create(VoiceChatService voiceChatService, final Channel channel) {
+        return new VoiceChatClient(voiceChatService, channel, currentUser);
     }
 }
