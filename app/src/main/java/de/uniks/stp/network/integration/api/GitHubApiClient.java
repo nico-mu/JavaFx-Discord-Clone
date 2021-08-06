@@ -30,7 +30,7 @@ public class GitHubApiClient implements IntegrationApiClient {
     private final User currentUser;
     private final SessionDatabaseService databaseService;
     private final SessionRestClient restClient;
-    private final UnirestInstance instance;
+    private UnirestInstance instance;
     private final PropertyChangeListener currentUserDescriptionChangeListener;
 
     @Inject
@@ -60,7 +60,7 @@ public class GitHubApiClient implements IntegrationApiClient {
             JSONObject jsonBody = response.getBody().getObject();
             if(response.isSuccess()) {
                 String name = jsonBody.getString("name");
-                if(Objects.isNull(name) || name.isEmpty() || !name.isBlank()) {
+                if(Objects.isNull(name) || name.isEmpty() || name.isBlank()) {
                     name = jsonBody.getString("login");
                     //TODO: insert graphql query here
                 }

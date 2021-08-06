@@ -46,6 +46,7 @@ public abstract class AbstractAuthorizationClient implements HttpHandler {
             e.printStackTrace();
             authorizationCallback.onFailure(e.getMessage());
         }
+        stopServerAfterTimeout();
     }
 
     protected String getRedirectUri() {

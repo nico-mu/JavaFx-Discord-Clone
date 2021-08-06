@@ -19,7 +19,7 @@ import java.util.Objects;
 
 public class GitHubAuthorizationClient extends AbstractAuthorizationClient {
 
-    private final UnirestInstance instance;
+    private UnirestInstance instance;
 
     @Inject
     public GitHubAuthorizationClient(AccordApp app) {

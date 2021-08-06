@@ -49,7 +49,6 @@ public class SpotifyAuthorizationClient extends AbstractAuthorizationClient {
 
         //open browser with spotify url, client id and redirectUri
         app.showUriInBrowser(authorizationCodeUriRequest.execute().toString());
-        stopServerAfterTimeout();
     }
 
     public void setSpotifyApi(SpotifyApi spotifyApi) {

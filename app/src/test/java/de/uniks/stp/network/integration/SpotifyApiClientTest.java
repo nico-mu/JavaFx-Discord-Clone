@@ -167,5 +167,10 @@ public class SpotifyApiClientTest {
         currentUser = null;
         databaseService = null;
         spotifyApiClientSpy = null;
+        scheduledExecutorService = null;
+        scheduledFutureMock = null;
+        runnableArgumentCaptor = null;
+        scheduledRunnableArgumentCaptor = null;
+        httpResponseMock = null;
     }
 }

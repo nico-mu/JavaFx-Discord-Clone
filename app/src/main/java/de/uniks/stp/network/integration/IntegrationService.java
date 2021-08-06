@@ -1,4 +1,5 @@
 package de.uniks.stp.network.integration;
+import dagger.Lazy;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.integration.api.GitHubApiClient;
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 import javax.inject.Provider;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.Objects;
 
 
