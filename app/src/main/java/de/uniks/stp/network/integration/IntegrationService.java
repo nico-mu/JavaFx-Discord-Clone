@@ -1,5 +1,4 @@
 package de.uniks.stp.network.integration;
-import dagger.Lazy;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.integration.api.GitHubApiClient;

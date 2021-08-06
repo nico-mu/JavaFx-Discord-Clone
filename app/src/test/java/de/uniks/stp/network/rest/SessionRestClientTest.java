@@ -15,8 +15,7 @@ import org.mockito.*;
 import java.util.ArrayList;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class SessionRestClientTest {
 
@@ -30,6 +29,7 @@ public class SessionRestClientTest {
         MockitoAnnotations.initMocks(this);
         sessionRestClientSpy = Mockito.spy(new SessionRestClient(new HttpRequestInterceptor("123")));
         doNothing().when(sessionRestClientSpy).sendRequest(any(), any());
+        doReturn(null).when(sessionRestClientSpy).sendSyncRequest(any());
     }
 
     @Test
@@ -434,6 +434,60 @@ public class SessionRestClientTest {
         Assertions.assertEquals(expectedUrl, request.getUrl());
         Assertions.assertEquals(HttpMethod.DELETE, request.getHttpMethod());
         Assertions.assertFalse(request.getBody().isPresent());
+    }
+
+    @Test
+    public void testGetCategories() {
+        String serverId = "123";
+        sessionRestClientSpy.getCategories(serverId, null);
+
+        verify(sessionRestClientSpy).sendRequest(httpRequestArgumentCaptor.capture(), any());
+        HttpRequest<?> request = httpRequestArgumentCaptor.getValue();
+
+        String expectedUrl = Constants.REST_SERVER_BASE_URL +
+            Constants.SERVERS_PATH + "/" + serverId +
+            Constants.REST_CATEGORY_PATH;
+
+        Assertions.assertEquals(expectedUrl, request.getUrl());
+        Assertions.assertEquals(HttpMethod.GET, request.getHttpMethod());
+        Assertions.assertFalse(request.getBody().isPresent());
+    }
+
+    @Test
+    public void testGetChannels() {
+        String serverId = "123";
+        String categoryId = "1234";
+        sessionRestClientSpy.getChannels(serverId, categoryId, null);
+
+        verify(sessionRestClientSpy).sendRequest(httpRequestArgumentCaptor.capture(), any());
+        HttpRequest<?> request = httpRequestArgumentCaptor.getValue();
+
+        String expectedUrl = Constants.REST_SERVER_BASE_URL +
+            Constants.SERVERS_PATH + "/" + serverId +
+            Constants.REST_CATEGORY_PATH + "/" + categoryId +
+            Constants.REST_CHANNEL_PATH;
+
+        Assertions.assertEquals(expectedUrl, request.getUrl());
+        Assertions.assertEquals(HttpMethod.GET, request.getHttpMethod());
+        Assertions.assertFalse(request.getBody().isPresent());
+    }
+
+    @Test
+    public void testUpdateDescription() {
+        String userId = "123";
+        String description = "1234";
+        sessionRestClientSpy.updateDescription(userId, description);
+
+        verify(sessionRestClientSpy).sendSyncRequest(httpRequestArgumentCaptor.capture());
+        HttpRequest<?> request = httpRequestArgumentCaptor.getValue();
+
+        String expectedUrl = Constants.REST_SERVER_BASE_URL +
+            Constants.REST_USERS_PATH + "/" + userId +
+            Constants.REST_DESCRIPTION_PATH;
+
+        Assertions.assertEquals(expectedUrl, request.getUrl());
+        Assertions.assertEquals(HttpMethod.POST, request.getHttpMethod());
+        Assertions.assertTrue(request.getBody().isPresent());
     }
 
 
