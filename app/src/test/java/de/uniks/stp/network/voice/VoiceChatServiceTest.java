@@ -13,19 +13,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import javax.sound.sampled.Mixer;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.TargetDataLine;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
@@ -127,29 +123,6 @@ public class VoiceChatServiceTest {
 
         Assertions.assertEquals(inputVolume / 2, voiceChatService.getInputVolume());
         Assertions.assertEquals(outputVolume / 2, voiceChatService.getOutputVolume());
-    }
-
-    @Test
-    public void dataLineCreationTest() {
-        final AtomicReference<SourceDataLine> sourceDataLineRef = new AtomicReference<>();
-        final AtomicReference<TargetDataLine> targetDataLineRef = new AtomicReference<>();
-        final Executable sourceLineExecutable = () -> {
-            sourceDataLineRef.set(voiceChatService.createUsableSourceDataLine());
-        };final Executable targetLineExecutable = () -> {
-            targetDataLineRef.set(voiceChatService.createUsableTargetDataLine());
-        };
-        if (voiceChatService.isSpeakerAvailable()) {
-            Assertions.assertDoesNotThrow(sourceLineExecutable);
-        } else {
-            Assertions.assertThrows(NullPointerException.class, sourceLineExecutable);
-        }
-        if (voiceChatService.isMicrophoneAvailable()) {
-            Assertions.assertDoesNotThrow(targetLineExecutable);
-        } else {
-            Assertions.assertThrows(NullPointerException.class, targetLineExecutable);
-        }
-        voiceChatService.stopDataLine(sourceDataLineRef.get());
-        voiceChatService.stopDataLine(targetDataLineRef.get());
     }
 
     @Test
