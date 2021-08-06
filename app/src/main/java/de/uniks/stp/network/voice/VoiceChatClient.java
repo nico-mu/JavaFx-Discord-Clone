@@ -7,9 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
+import javax.json.JsonException;
 import javax.json.JsonObject;
-import javax.json.stream.JsonParsingException;
-import javax.sound.sampled.*;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.TargetDataLine;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -17,7 +19,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -139,7 +144,7 @@ public class VoiceChatClient {
                     audioBuf = voiceChatService.adjustVolume(voiceChatService.getOutputVolume(), audioBuf);
                     audioOutDataLine.write(audioBuf, Constants.AUDIOSTREAM_METADATA_BUFFER_SIZE, Constants.AUDIOSTREAM_AUDIO_BUFFER_SIZE);
                 }
-            } catch (SocketException | JsonParsingException ignored) {
+            } catch (JsonException | SocketException ignored) {
             } catch (IOException e) {
                 log.error("Failed to receive an audio packet.", e);
             }
