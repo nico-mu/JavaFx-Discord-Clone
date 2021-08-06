@@ -285,8 +285,8 @@ public class VoiceChatService {
                 // Clean up
                 stopDataLine(audioInDataLine);
                 stopDataLine(audioOutDataLine);
+                Platform.runLater(() -> inputSensitivityBar.setProgress(0d));
             }
-            inputSensitivityBar.setProgress(0d);
         });
     }
 
