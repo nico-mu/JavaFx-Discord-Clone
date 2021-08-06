@@ -2,6 +2,8 @@ package de.uniks.stp.network.rest;
 
 import de.uniks.stp.component.ChatMessage;
 import de.uniks.stp.model.Message;
+import kong.unirest.Callback;
+import kong.unirest.HttpRequest;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
@@ -9,15 +11,12 @@ import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import org.mockito.*;
 
 import javax.inject.Inject;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MediaRequestClientTest {
 
@@ -40,20 +39,25 @@ public class MediaRequestClientTest {
 
     @Test
     public void httpTest() {
-        Message message = new Message().setMessage("http://www.youtube.com/watch?v=1IkXwOOgN8U");
+        String url = "http://www.youtube.com/watch?v=1IkXwOOgN8U";
+        Message message = new Message().setMessage(url);
         mediaRequestClientSpy.addMedia(message, chatMessage);
     }
 
     @Test
     public void youtubeTest() {
-        Message message = new Message().setMessage("https://www.youtube.com/watch?v=1IkXwOOgN8U");
+        String url = "https://www.youtube.com/watch?v=1IkXwOOgN8U";
+        Message message = new Message().setMessage(url);
         mediaRequestClientSpy.addMedia(message, chatMessage);
+        verify(mediaRequestClientSpy).getMediaInformation(any(), any());
     }
 
     @Test
     public void imgurTest() {
-        Message message = new Message().setMessage("https://imgur.com/gallery/BMSSPFJ");
+        String url = "https://imgur.com/gallery/BMSSPFJ";
+        Message message = new Message().setMessage(url);
         mediaRequestClientSpy.addMedia(message, chatMessage);
+        verify(mediaRequestClientSpy).getMediaInformation(any(), any());
     }
 
     @Test
@@ -63,13 +67,8 @@ public class MediaRequestClientTest {
             .put("html", "testHtml");
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
-
         mediaRequestClientSpy.handleImgurGiphyResponse(res, chatMessage);
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        verify(mediaRequestClientSpy).loadImage(any(), any(), any());
     }
 
     @Test
@@ -79,8 +78,8 @@ public class MediaRequestClientTest {
             .put("html", "testHtml");
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
-
         mediaRequestClientSpy.handleMediaInformation(res, chatMessage);
+        verify(mediaRequestClientSpy).loadImage(any(), any(), any());
     }
 
     @Test
@@ -90,8 +89,8 @@ public class MediaRequestClientTest {
             .put("html", "testHtml");
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
-
         mediaRequestClientSpy.handleMediaInformation(res, chatMessage);
+        verify(mediaRequestClientSpy).loadVideo(any(), any(), any());
     }
 
     @Test
@@ -103,8 +102,8 @@ public class MediaRequestClientTest {
                     .put("type", "image/png"))));
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
-
         mediaRequestClientSpy.handleMediaInformation(res, chatMessage);
+        verify(mediaRequestClientSpy).loadImage(any(), any(), any());
     }
 
     @Test
@@ -116,8 +115,8 @@ public class MediaRequestClientTest {
                     .put("type", "video/mp4"))));
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
-
         mediaRequestClientSpy.handleMediaInformation(res, chatMessage);
+        verify(mediaRequestClientSpy).loadVideo(any(), any(), any());
     }
 
     @AfterEach
