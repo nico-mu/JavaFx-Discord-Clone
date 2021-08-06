@@ -30,3 +30,34 @@
   -fx-border-color: transparent transparent $button-color transparent;
   -fx-border-width: 2px;
 }
+
+/* Styling the slider track */
+.jfx-slider > .track {
+  -fx-background-color: $primary-text-fill;
+}
+
+/* Styling the slider thumb */
+.jfx-slider > .thumb {
+  -fx-background-color: $primary-color;
+}
+
+/* Styling the filled track */
+.jfx-slider > .colored-track {
+  -fx-background-color: $primary-color;
+}
+
+/* Styling the filled track */
+.slider-input-sensitivity > .colored-track {
+  -fx-background-color: transparent;
+}
+
+/* Styling the animated thumb */
+.jfx-slider > .animated-thumb {
+  -fx-background-color: $primary-color;
+}
+
+/* Styling the slider value text inside animated thumb */
+.jfx-slider .slider-value {
+  -fx-fill: $primary-text-fill;
+  -fx-stroke: $primary-text-fill;
+}

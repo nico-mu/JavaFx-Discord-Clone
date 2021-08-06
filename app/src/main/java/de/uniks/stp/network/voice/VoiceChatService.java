@@ -1,5 +1,6 @@
 package de.uniks.stp.network.voice;
 
+import com.jfoenix.controls.JFXSlider;
 import de.uniks.stp.Constants;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.AppDatabaseService;
@@ -7,9 +8,6 @@ import de.uniks.stp.jpa.model.AccordSettingDTO;
 import de.uniks.stp.model.Channel;
 import javafx.application.Platform;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Slider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.*;
 import java.nio.ByteBuffer;
@@ -247,7 +245,7 @@ public class VoiceChatService {
         databaseService.saveAccordSetting(AccordSettingKey.AUDIO_OUT_VOLUME, String.valueOf(newOutputVolume));
     }
 
-    public void startMicrophoneTest(Slider inputVolumeSlider, Slider outputVolumeSlider, ProgressBar inputSensitivityBar) {
+    public void startMicrophoneTest(JFXSlider inputVolumeSlider, JFXSlider outputVolumeSlider, ProgressBar inputSensitivityBar) {
         if (Objects.isNull(executorService)) {
             executorService = Executors.newCachedThreadPool();
         }
