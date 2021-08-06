@@ -1,6 +1,7 @@
 package de.uniks.stp.modal;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXToggleButton;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
@@ -25,11 +26,11 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,11 +63,11 @@ public class SettingsModal extends AbstractModal {
     private final KeyBasedComboBox notificationComboBox;
     private final AudioDeviceComboBox inputDeviceComboBox;
     private final AudioDeviceComboBox outputDeviceComboBox;
-    private final Slider inputVolumeSlider;
-    private final Slider inputSensitivitySlider;
+    private final JFXSlider inputVolumeSlider;
+    private final JFXSlider inputSensitivitySlider;
     private final ProgressBar inputSensitivityBar;
     private final StackPane inputSensitivityContainer;
-    private final Slider outputVolumeSlider;
+    private final JFXSlider outputVolumeSlider;
     private static final Logger log = LoggerFactory.getLogger(SettingsModal.class);
     private final ViewLoader viewLoader;
     private final Router router;
@@ -141,18 +142,31 @@ public class SettingsModal extends AbstractModal {
         outputDeviceComboBox.setSelection(currentSpeaker);
 
         // init volume slider
-        inputVolumeSlider = (Slider) view.lookup(SETTINGS_SLIDER_INPUT_VOLUME);
+        inputVolumeSlider = (JFXSlider) view.lookup(SETTINGS_SLIDER_INPUT_VOLUME);
         currentInputVolume = voiceChatService.getInputVolume();
         inputVolumeSlider.setValue(currentInputVolume);
 
-        outputVolumeSlider = (Slider) view.lookup(SETTINGS_SLIDER_OUTPUT_VOLUME);
+        outputVolumeSlider = (JFXSlider) view.lookup(SETTINGS_SLIDER_OUTPUT_VOLUME);
         currentOutputVolume = voiceChatService.getOutputVolume();
         outputVolumeSlider.setValue(currentOutputVolume);
 
         // init sensitivity slider
-        inputSensitivitySlider = (Slider) view.lookup(SETTINGS_SLIDER_INPUT_SENSITIVITY);
+        inputSensitivitySlider = (JFXSlider) view.lookup(SETTINGS_SLIDER_INPUT_SENSITIVITY);
         currentInputSensitivity = voiceChatService.getInputSensitivity();
         inputSensitivitySlider.setValue(currentInputSensitivity);
+        inputSensitivitySlider.setLabelFormatter(new StringConverter<>() {
+            private final String unit = "db";
+
+            @Override
+            public String toString(Double value) {
+                return ((int) Math.floor(value)) + unit;
+            }
+
+            @Override
+            public Double fromString(String value) {
+                return Double.parseDouble(value.replaceFirst(unit, ""));
+            }
+        });
         inputSensitivityBar = (ProgressBar) view.lookup(SETTINGS_PROGRESS_BAR_INPUT_SENSITIVITY);
         inputSensitivityContainer = (StackPane) view.lookup(SETTINGS_INPUT_SENSITIVITY_CONTAINER);
 
