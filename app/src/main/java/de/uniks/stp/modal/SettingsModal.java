@@ -12,23 +12,21 @@ import de.uniks.stp.component.IntegrationButton;
 import de.uniks.stp.component.KeyBasedComboBox;
 import de.uniks.stp.jpa.AccordSettingKey;
 import de.uniks.stp.jpa.SessionDatabaseService;
+import de.uniks.stp.network.integration.Credentials;
 import de.uniks.stp.network.integration.IntegrationService;
+import de.uniks.stp.network.integration.Integrations;
 import de.uniks.stp.network.integration.authorization.AbstractAuthorizationClient;
 import de.uniks.stp.network.integration.authorization.AuthorizationCallback;
-import de.uniks.stp.network.integration.Credentials;
-import de.uniks.stp.network.integration.Integrations;
-import de.uniks.stp.network.integration.authorization.SpotifyAuthorizationClient;
 import de.uniks.stp.network.voice.VoiceChatService;
 import de.uniks.stp.router.Router;
-import de.uniks.stp.util.IntegrationUtil;
 import de.uniks.stp.view.Languages;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.control.Slider;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -173,7 +171,6 @@ public class SettingsModal extends AbstractModal {
         log.debug("Starting microphone test.");
         String nextButtonActionText;
 
-        inputSensitivityBar.setProgress(0d);
         if (microphoneTestRunning) {
             // stop test
             voiceChatService.stopMicrophoneTest();

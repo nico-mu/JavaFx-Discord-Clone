@@ -287,6 +287,7 @@ public class VoiceChatService {
                 stopDataLine(audioInDataLine);
                 stopDataLine(audioOutDataLine);
             }
+            inputSensitivityBar.setProgress(0d);
         });
     }
 
