@@ -1,6 +1,7 @@
 package de.uniks.stp.modal;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXToggleButton;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -26,8 +27,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,7 @@ public class SettingsModal extends AbstractModal {
     private final AudioService audioService;
     private final VoiceChatService voiceChatService;
     private final Stage primaryStage;
-    private final HBox integrationContainer;
+    private final VBox integrationContainer;
     private final IntegrationService integrationService;
     private final IntegrationButton.IntegrationButtonFactory integrationButtonFactory;
 
@@ -115,7 +116,7 @@ public class SettingsModal extends AbstractModal {
         applyButton = (JFXButton) view.lookup(SETTINGS_APPLY_BUTTON);
         cancelButton = (JFXButton) view.lookup(SETTINGS_CANCEL_BUTTON);
         testMicrophoneButton = (JFXButton) view.lookup(SETTINGS_MICROPHONE_TEST_BUTTON);
-        integrationContainer = (HBox) view.lookup(SETTINGS_INTEGRATION_CONTAINER);
+        integrationContainer = (VBox) view.lookup(SETTINGS_INTEGRATION_CONTAINER);
 
         languageComboBox = (KeyBasedComboBox) view.lookup(SETTINGS_COMBO_SELECT_LANGUAGE);
         languageComboBox.addOptions(getLanguages());
@@ -187,11 +188,15 @@ public class SettingsModal extends AbstractModal {
 
     private void addIntegrationButtons() {
         spotifyIntegrationButton = integrationButtonFactory.create(viewLoader.loadImage("spotify_button.png"));
-        spotifyIntegrationButton.setOnMouseClicked(this::onSpotifyIntegrationButton);
+        spotifyIntegrationButton.setOnButtonClicked(this::onSpotifyIntegrationButton);
+        spotifyIntegrationButton.setOnRemoveClicked((MouseEvent event) -> onRemoveClicked(Integrations.SPOTIFY.key));
+        spotifyIntegrationButton.setOnToggleClicked(this::onShowInProfileToggleClicked);
         integrationContainer.getChildren().add(spotifyIntegrationButton);
 
         githubIntegrationButton = integrationButtonFactory.create(viewLoader.loadImage("github_button.png"));
-        githubIntegrationButton.setOnMouseClicked(this::onGithubIntegrationButton);
+        githubIntegrationButton.setOnButtonClicked(this::onGithubIntegrationButton);
+        githubIntegrationButton.setOnRemoveClicked((MouseEvent event) -> onRemoveClicked(Integrations.GITHUB.key));
+        githubIntegrationButton.setOnToggleClicked(this::onShowInProfileToggleClicked);
         integrationContainer.getChildren().add(githubIntegrationButton);
 
         if(integrationService.isServiceConnected(Integrations.SPOTIFY.key)) {
@@ -199,6 +204,20 @@ public class SettingsModal extends AbstractModal {
         }
         else if(integrationService.isServiceConnected(Integrations.GITHUB.key)) {
             githubIntegrationButton.setSuccessMode();
+        }
+    }
+
+    private void onRemoveClicked(String serviceName) {
+        integrationService.removeService(serviceName);
+    }
+
+    private void onShowInProfileToggleClicked(MouseEvent event) {
+        JFXToggleButton source = (JFXToggleButton) event.getSource();
+        if(source.isSelected()) {
+            log.debug("selected");
+        }
+        else {
+            log.debug("not selected");
         }
     }
 

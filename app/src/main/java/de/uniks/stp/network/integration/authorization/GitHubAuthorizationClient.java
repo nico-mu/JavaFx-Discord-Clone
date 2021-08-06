@@ -96,7 +96,7 @@ public class GitHubAuthorizationClient extends AbstractAuthorizationClient {
     }
 
     @Override
-    protected void stopServer() {
+    public void stopServer() {
         super.stopServer();
         instance.shutDown();
     }

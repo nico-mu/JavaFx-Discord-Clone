@@ -3,6 +3,7 @@ import dagger.Lazy;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.integration.api.GitHubApiClient;
+import de.uniks.stp.network.integration.api.IntegrationApiClient;
 import de.uniks.stp.network.integration.api.SpotifyApiClient;
 import de.uniks.stp.network.integration.authorization.AbstractAuthorizationClient;
 import de.uniks.stp.network.integration.authorization.GitHubAuthorizationClient;
@@ -29,6 +30,7 @@ public class IntegrationService {
     private final Lazy<GitHubApiClient> gitHubApiClientLazy;
     private final User currentUser;
     private final SessionRestClient restClient;
+    private AbstractAuthorizationClient authorizationClient;
 
     public IntegrationService(Lazy<SpotifyApiClient> spotifyApiClientLazy,
                               Lazy<GitHubApiClient> gitHubApiClientLazy,
@@ -56,29 +58,61 @@ public class IntegrationService {
     }
 
     public void startService(String serviceName, Credentials credentials) {
-        if(serviceName.equals(Integrations.SPOTIFY.key)) {
-            spotifyApiClientLazy.get().stop();
-            spotifyApiClientLazy.get().start(credentials);
-        }
-        else if(serviceName.equals(Integrations.GITHUB.key)) {
-            gitHubApiClientLazy.get().stop();
-            gitHubApiClientLazy.get().start(credentials);
-        }
-        else {
-            log.warn("Unknown service integration {}", serviceName);
+        IntegrationApiClient apiClient = getServiceByName(serviceName);
+
+        if(Objects.nonNull(apiClient)) {
+            apiClient.stop();
+            apiClient.start(credentials);
         }
     }
 
-    public AbstractAuthorizationClient getAuthorizationClient(String serviceName) {
+    public void stopService(String serviceName) {
+        IntegrationApiClient apiClient = getServiceByName(serviceName);
+
+        if(Objects.nonNull(apiClient)) {
+            apiClient.stop();
+        }
+    }
+
+    public void removeService(String serviceName) {
+        IntegrationApiClient apiClient = getServiceByName(serviceName);
+
+        if(Objects.nonNull(apiClient)) {
+            apiClient.shutdown();
+            databaseService.deleteApiIntegrationSetting(serviceName);
+        }
+    }
+
+    private IntegrationApiClient getServiceByName(String serviceName) {
         if(serviceName.equals(Integrations.SPOTIFY.key)) {
-           return spotifyAuthorizationClientProvider.get();
+            return spotifyApiClientLazy.get();
         }
         else if(serviceName.equals(Integrations.GITHUB.key)) {
-            return gitHubAuthorizationClientProvider.get();
+           return gitHubApiClientLazy.get();
+        }
+
+        log.warn("Unknown service integration {}", serviceName);
+        return null;
+    }
+
+    public AbstractAuthorizationClient getAuthorizationClient(String serviceName) {
+        stopAuthorizationClientServer();
+
+        if(serviceName.equals(Integrations.SPOTIFY.key)) {
+           return authorizationClient = spotifyAuthorizationClientProvider.get();
+        }
+        else if(serviceName.equals(Integrations.GITHUB.key)) {
+            return authorizationClient = gitHubAuthorizationClientProvider.get();
         }
         else {
             log.warn("Unknown service integration {}", serviceName);
             return null;
+        }
+    }
+
+    private void stopAuthorizationClientServer() {
+        if(Objects.nonNull(authorizationClient) && !authorizationClient.isServerStopped()) {
+            authorizationClient.stopServer();
         }
     }
 
@@ -96,6 +130,7 @@ public class IntegrationService {
     }
 
     public void stop() {
+        stopAuthorizationClientServer();
         spotifyApiClientLazy.get().shutdown();
         gitHubApiClientLazy.get().shutdown();
         currentUserDescriptionCallback(restClient.updateDescription(currentUser.getId(), " "));

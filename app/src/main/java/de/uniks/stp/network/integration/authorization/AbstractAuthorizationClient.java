@@ -25,6 +25,8 @@ public abstract class AbstractAuthorizationClient implements HttpHandler {
     protected String serverPath;
     protected AuthorizationCallback authorizationCallback;
 
+    protected boolean serverStopped;
+
     public AbstractAuthorizationClient(AccordApp app) {
         this.app = app;
         this.serverPath = IntegrationConstants.TEMP_SERVER_INTEGRATION_PATH;
@@ -71,9 +73,14 @@ public abstract class AbstractAuthorizationClient implements HttpHandler {
     }
 
 
-    protected void stopServer() {
+    public void stopServer() {
+        serverStopped = true;
         server.stop(0);
         executorService.shutdown();
+    }
+
+    public boolean isServerStopped() {
+        return serverStopped;
     }
 
     protected void stopServerAfterTimeout() {
