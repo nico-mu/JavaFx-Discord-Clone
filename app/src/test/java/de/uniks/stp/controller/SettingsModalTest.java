@@ -1,6 +1,7 @@
 package de.uniks.stp.controller;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXSlider;
 import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
@@ -256,8 +257,8 @@ public class SettingsModalTest {
         robot.clickOn(button);
         Assertions.assertNotEquals(oldButtonText, button.getText());
 
-        final Slider outputVolumeSlider = robot.lookup(SettingsModal.SETTINGS_SLIDER_OUTPUT_VOLUME).query();
-        final Slider inputVolumeSlider = robot.lookup(SettingsModal.SETTINGS_SLIDER_INPUT_VOLUME).query();
+        final JFXSlider outputVolumeSlider = robot.lookup(SettingsModal.SETTINGS_SLIDER_OUTPUT_VOLUME).query();
+        final JFXSlider inputVolumeSlider = robot.lookup(SettingsModal.SETTINGS_SLIDER_INPUT_VOLUME).query();
         voiceChatService.startMicrophoneTest(inputVolumeSlider, outputVolumeSlider, bar);
         voiceChatService.stopMicrophoneTest();
 

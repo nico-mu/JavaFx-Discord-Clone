@@ -1,5 +1,6 @@
 /* base colors */
-$button-color: #4059a9;  //#7289da
+$primary-color: #4059a9;
+$button-color: $primary-color; //#7289da
 $main-background-color: #23272a;
 $secondary-background-color: #2c2f33;
 $primary-text-fill: white;
