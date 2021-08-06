@@ -24,6 +24,8 @@ import java.util.concurrent.Executors;
 
 public class VoiceChatClient {
     private static final Logger log = LoggerFactory.getLogger(VoiceChatClient.class);
+
+    private final int MAX_LOCK_TIME_MILLIS = 10000;
     private final Object audioInLock = new Object();
     private final Object audioOutLock = new Object();
     private final Map<String, SourceDataLine> userSourceDataLineMap = new ConcurrentHashMap<>();
@@ -115,7 +117,7 @@ public class VoiceChatClient {
             if (currentUser.isAudioOff()) {
                 try {
                     synchronized (audioOutLock) {
-                        audioOutLock.wait(60000);
+                        audioOutLock.wait(MAX_LOCK_TIME_MILLIS);
                     }
                 } catch (InterruptedException e) {
                     log.error("Thread interrupted while sleeping", e);
@@ -183,7 +185,7 @@ public class VoiceChatClient {
             if (currentUser.isMute()) {
                 try {
                     synchronized (audioInLock) {
-                        audioInLock.wait(60000);
+                        audioInLock.wait(MAX_LOCK_TIME_MILLIS);
                     }
                 } catch (InterruptedException e) {
                     log.error("Thread interrupted while sleeping", e);
