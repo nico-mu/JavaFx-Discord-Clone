@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Mixer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -137,6 +138,12 @@ public class VoiceChatServiceTest {
         voiceChatService.setSelectedMicrophone(microphone2);
         Assertions.assertNotEquals(speaker1, voiceChatService.getSelectedSpeaker());
         Assertions.assertNotEquals(microphone1, voiceChatService.getSelectedMicrophone());
+    }
+
+    @Test
+    public void stopDataLineTest() {
+        DataLine dataLineMock = Mockito.mock(DataLine.class);
+        voiceChatService.stopDataLine(dataLineMock);
     }
 
     @AfterEach
