@@ -10,7 +10,7 @@ import javax.sound.sampled.Mixer;
 
 public class VoiceChatClientTestFactory implements VoiceChatClientFactory {
     @Override
-    public VoiceChatClient create(VoiceChatService voiceChatService, Channel channel, Mixer speaker, Mixer microphone) {
+    public VoiceChatClient create(VoiceChatService voiceChatService, Channel channel) {
         return Mockito.mock(VoiceChatClient.class);
     }
 }
