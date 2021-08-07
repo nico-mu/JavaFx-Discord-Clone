@@ -59,7 +59,9 @@ public class EasterEggModal extends AbstractModal {
         paperButton = (Button) view.lookup(PAPER_BUTTON);
         cancelButton = (JFXButton) view.lookup(CANCEL_BUTTON);
 
-        cancelButton.setOnAction(closeHandler);
+        cancelButton.setOnAction((event) -> {
+            this.close();
+        });
     }
 
     public void setOnRockButtonClicked(EventHandler<ActionEvent> onRockButtonClicked) {

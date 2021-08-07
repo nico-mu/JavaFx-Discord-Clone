@@ -6,7 +6,7 @@ public class GameInvitation {
     public enum State {
         PENDING,
         SENT,
-        RECEIVED
+        RECEIVED,
     }
 
     public static final int TIMEOUT = 30 * 1000; // 30 seconds

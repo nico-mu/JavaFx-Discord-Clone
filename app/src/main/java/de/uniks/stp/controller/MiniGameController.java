@@ -22,11 +22,10 @@ import java.util.*;
 import java.util.function.BiConsumer;
 
 public class MiniGameController implements ControllerInterface {
-    private static final Logger log = LoggerFactory.getLogger(MiniGameController.class);
     private final GameInvitation invitation = new GameInvitation();
     private final HashMap<String, BiConsumer<String, Long>> incomingCommandHandler = new HashMap<>();
     private final ViewLoader viewLoader;
-    private EasterEggModal easterEggModal;
+    private EasterEggModal easterEggModal = null;
     private final User chatPartner;
     private final GameMatcher gameMatcher = new GameMatcher();
     private final GameScore gameScore = new GameScore();
@@ -64,7 +63,11 @@ public class MiniGameController implements ControllerInterface {
             GameCommand.LEAVE.command,
             (messageText, timestamp) -> {
                 gameMatcher.setOpponentCommand(GameCommand.LEAVE);
-                easterEggModal.setActionText(viewLoader.loadLabel(Constants.LBL_GAME_LEFT));
+                if (Objects.nonNull(easterEggModal)) {
+                    easterEggModal.setActionText(viewLoader.loadLabel(Constants.LBL_GAME_LEFT));
+                }
+                // When the opponent leaves the private chat
+                invitation.setState(GameInvitation.State.PENDING);
                 gameScore.recycle();
             }
         );
@@ -74,6 +77,9 @@ public class MiniGameController implements ControllerInterface {
     public void stop() {
         incomingCommandHandler.clear();
         easterEggModal = null;
+        invitation.recycle();
+        gameScore.recycle();
+        gameMatcher.recycle();
     }
 
     public static boolean isPlayMessage(String message) {
@@ -208,10 +214,9 @@ public class MiniGameController implements ControllerInterface {
 
     private void closeEasterEggModal(ActionEvent actionEvent) {
         if (Objects.nonNull(easterEggModal)) {
-            webSocketService.sendPrivateMessage(chatPartner.getName(), GameCommand.LEAVE.command);
             gameMatcher.setOwnCommand(GameCommand.LEAVE);
-            easterEggModal.close();
             easterEggModal = null;
+            webSocketService.sendPrivateMessage(chatPartner.getName(), GameCommand.LEAVE.command);
         }
     }
 
