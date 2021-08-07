@@ -6,6 +6,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import de.uniks.stp.Constants;
 import de.uniks.stp.ViewLoader;
+import de.uniks.stp.minigame.GameAction;
 import de.uniks.stp.minigame.GameCommand;
 import de.uniks.stp.minigame.GameInfo;
 import de.uniks.stp.model.User;
@@ -26,12 +27,12 @@ public class EasterEggModal extends AbstractModal {
     public static final String LOSS_COLOR = "red";
     public static final String DRAW_COLOR = "yellow";
     public static final String SELECTED_ACTION_COLOR = "white";
-    public final String ACTION_LABEL = "#action-label";
-    public final String REVANCHE_BUTTON = "#revanche-button";
-    public final String ROCK_BUTTON = "#rock-button";
-    public final String PAPER_BUTTON = "#paper-button";
-    public final String SCISSORS_BUTTON = "#scissors-button";
-    public final String CANCEL_BUTTON = "#cancel-button";
+    public static final String ACTION_LABEL = "#action-label";
+    public static final String REVANCHE_BUTTON = "#revanche-button";
+    public static final String ROCK_BUTTON = "#rock-button";
+    public static final String PAPER_BUTTON = "#paper-button";
+    public static  final String SCISSORS_BUTTON = "#scissors-button";
+    public static final String CANCEL_BUTTON = "#cancel-button";
 
     private final Label actionLabel;
     private final JFXButton revancheButton;
@@ -80,7 +81,7 @@ public class EasterEggModal extends AbstractModal {
         revancheButton.setOnAction(onRevancheButtonClicked);
     }
 
-    public void setButtonColor(GameInfo.Action action, String color) {
+    public void setButtonColor(GameAction action, String color) {
         final String COLORED_BG = "-fx-background-color: " + color + ";";
         resetButtonColor();
         Platform.runLater(() -> {
@@ -105,11 +106,10 @@ public class EasterEggModal extends AbstractModal {
         });
     }
 
-    public void playAgain() {
+    public void playAgain(String playAgainMessage) {
         Platform.runLater(() -> {
             revancheButton.setVisible(false);
-            // TODO: remove dependency for Constants here
-            actionLabel.setText(viewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION));
+            actionLabel.setText(playAgainMessage);
             resetButtonColor();
             rockButton.setDisable(false);
             paperButton.setDisable(false);

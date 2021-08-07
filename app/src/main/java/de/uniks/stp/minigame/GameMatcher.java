@@ -61,7 +61,7 @@ public class GameMatcher {
         ).orElse(false);
     }
 
-    public GameMatcher ifActionMatch(BiConsumer<GameInfo.Action, GameInfo.Action> matchFn) {
+    public GameMatcher ifActionMatch(BiConsumer<GameAction, GameAction> matchFn) {
         return getOwnCommand().flatMap(GameInfo::castCommand).flatMap(
             (ownAction) ->
                 getOpponentCommand().flatMap(GameInfo::castCommand).flatMap(

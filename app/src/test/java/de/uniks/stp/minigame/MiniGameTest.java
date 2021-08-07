@@ -10,7 +10,7 @@ public class MiniGameTest {
     @Test
     public void testMiniGame() {
         String action = "rock";
-        Optional<GameInfo.Action> castedAction = GameInfo.castAction(action);
+        Optional<GameAction> castedAction = GameInfo.castAction(action);
 
         Assertions.assertTrue(castedAction.isPresent());
     }
@@ -24,8 +24,8 @@ public class MiniGameTest {
 
         matcher.ifActionMatch(((ownAction, opponentAction) -> {
             lambdaCalled.set(true);
-            Assertions.assertEquals(GameInfo.Action.SCISSORS, ownAction);
-            Assertions.assertEquals(GameInfo.Action.ROCK, opponentAction);
+            Assertions.assertEquals(GameAction.SCISSORS, ownAction);
+            Assertions.assertEquals(GameAction.ROCK, opponentAction);
         }));
         Assertions.assertTrue(lambdaCalled.get());
         lambdaCalled.set(false);
@@ -33,8 +33,8 @@ public class MiniGameTest {
         matcher.setOwnCommand(GameCommand.CHOOSE_ROCK);
         matcher.ifActionMatch(((ownAction, opponentAction) -> {
             lambdaCalled.set(true);
-            Assertions.assertEquals(GameInfo.Action.ROCK, ownAction);
-            Assertions.assertEquals(GameInfo.Action.ROCK, opponentAction);
+            Assertions.assertEquals(GameAction.ROCK, ownAction);
+            Assertions.assertEquals(GameAction.ROCK, opponentAction);
         }));
         Assertions.assertTrue(lambdaCalled.get());
         lambdaCalled.set(false);

@@ -3,9 +3,9 @@ package de.uniks.stp.minigame;
 
 public enum GameCommand {
     PLAY("!play :handshake:"),
-    CHOOSE_ROCK("!choose rock"),
-    CHOOSE_PAPER("!choose paper"),
-    CHOOSE_SCISSOR("!choose scissors"),
+    CHOOSE_ROCK("!choose " + GameAction.ROCK),
+    CHOOSE_PAPER("!choose " + GameAction.PAPER),
+    CHOOSE_SCISSOR("!choose " + GameAction.SCISSORS),
     REVANCHE("!revanche"),
     LEAVE("!play quit");
 
