@@ -36,14 +36,13 @@ public class GameInfo {
     }
 
     public static Optional<GameAction> castCommand(GameCommand command) {
-        if (command.equals(GameCommand.CHOOSE_PAPER)) {
-            return Optional.of(GameAction.PAPER);
-        }
-        if (command.equals(GameCommand.CHOOSE_ROCK)) {
-            return Optional.of(GameAction.ROCK);
-        }
-        if (command.equals(GameCommand.CHOOSE_SCISSOR)) {
-            return Optional.of(GameAction.SCISSORS);
+        switch (command) {
+            case CHOOSE_PAPER:
+                return Optional.of(GameAction.PAPER);
+            case CHOOSE_ROCK:
+                return Optional.of(GameAction.ROCK);
+            case CHOOSE_SCISSOR:
+                return Optional.of(GameAction.SCISSORS);
         }
 
         return Optional.empty();
