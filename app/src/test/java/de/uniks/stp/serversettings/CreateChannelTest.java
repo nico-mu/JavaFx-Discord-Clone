@@ -125,9 +125,25 @@ public class CreateChannelTest {
 
         robot.clickOn("#" + categoryId + "-ServerCategoryElementLabel");
         robot.clickOn("#add-channel-plus");
+
         robot.clickOn("#add-channel-create-button");
 
         JSONObject j = new JSONObject()
+            .put("status", "failure")
+            .put("message", "Unhandled response")
+            .put("data", new JSONObject());
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(false);
+
+        verify(restMock)
+            .createChannel(eq(serverId), eq(categoryId), eq(""), eq("text"), eq(false), eq(new ArrayList<>()), callbackCaptor.capture());
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        robot.clickOn("#add-channel-create-button");
+
+        j = new JSONObject()
             .put("status", "failure")
             .put("message", "Missing name")
             .put("data", new JSONObject());
@@ -136,7 +152,7 @@ public class CreateChannelTest {
 
         verify(restMock)
             .createChannel(eq(serverId), eq(categoryId), eq(""), eq("text"), eq(false), eq(new ArrayList<>()), callbackCaptor.capture());
-        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
 
