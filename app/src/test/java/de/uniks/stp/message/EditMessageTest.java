@@ -1,10 +1,13 @@
 package de.uniks.stp.message;
 
+import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.modal.ConfirmationModal;
+import de.uniks.stp.modal.EditMessageModal;
 import de.uniks.stp.model.*;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.websocket.WSCallback;
@@ -197,13 +200,38 @@ public class EditMessageTest {
         ImageView button = robot.lookup("#edit-message-" + messageId).query();
         button.setVisible(true);
         robot.clickOn("#edit-message-" + messageId);
-        String newMessage = "edited";
+        robot.clickOn(EditMessageModal.CANCEL_BUTTON);
+        button.setVisible(true);
+        robot.clickOn("#edit-message-" + messageId);
+        JFXTextField messageTextField = robot.lookup(EditMessageModal.ENTER_MESSAGE_TEXT_FIELD).query();
+        messageTextField.clear();
+        robot.clickOn("#save-button");
+        WaitForAsyncUtils.waitForFxEvents();
+        String newMessage = "bla";
+        robot.clickOn("#message-text-field");
+        robot.write(newMessage);
+        robot.clickOn("#save-button");
+        WaitForAsyncUtils.waitForFxEvents();
+
+        JSONObject j = new JSONObject().put("status", "failure").put("message", "")
+            .put("data", new JSONObject());
+
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(false);
+
+        verify(restMock)
+            .updateMessage(eq(serverId), eq(categoryId), eq(channelOneId), eq(messageId), eq(newMessage), callbackCaptor.capture());
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        newMessage = "edited";
         robot.doubleClickOn("#message-text-field");
         robot.write(newMessage);
         robot.clickOn("#save-button");
         WaitForAsyncUtils.waitForFxEvents();
 
-        JSONObject j = new JSONObject().put("status", "success").put("message", "")
+        j = new JSONObject().put("status", "success").put("message", "")
             .put("data", new JSONObject());
 
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
@@ -211,7 +239,7 @@ public class EditMessageTest {
 
         verify(restMock)
             .updateMessage(eq(serverId), eq(categoryId), eq(channelOneId), eq(messageId), eq(newMessage), callbackCaptor.capture());
-        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
 
