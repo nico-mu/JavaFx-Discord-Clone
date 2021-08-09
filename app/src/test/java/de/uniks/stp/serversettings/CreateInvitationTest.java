@@ -222,7 +222,7 @@ public class CreateInvitationTest {
         robot.clickOn("#invites-create");
         robot.clickOn("#create-invide-max");
         robot.clickOn("#create-invite-max-textfield");
-        robot.write("15");
+        robot.write("1a5");
         robot.clickOn("#create-invite-create");
 
         JSONObject j4 = new JSONObject().put("status", "success").put("message", "")
