@@ -67,7 +67,7 @@ public class IntegrationService {
         }
     }
 
-    public void restartService(String serviceName, Credentials credentials) {
+    public void startService(String serviceName, Credentials credentials) {
         IntegrationApiClient apiClient = getServiceByName(serviceName);
 
         if(Objects.nonNull(apiClient)) {

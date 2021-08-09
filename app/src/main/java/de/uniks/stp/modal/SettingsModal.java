@@ -263,7 +263,7 @@ public class SettingsModal extends AbstractModal {
                 public void onSuccess(Credentials credentials) {
                     Platform.runLater(() -> {
                         stopOtherService(serviceName);
-                        integrationService.restartService(serviceName, credentials);
+                        integrationService.startService(serviceName, credentials);
                         button.setSuccessMode();
                         button.setActive();
                     });
