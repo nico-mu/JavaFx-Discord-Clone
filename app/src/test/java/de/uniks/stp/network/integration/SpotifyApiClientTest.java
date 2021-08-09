@@ -81,7 +81,7 @@ public class SpotifyApiClientTest {
         doReturn(currentlyPlayingTrackRequestMock).when(spotifyApiClientSpy).getUsersCurrentlyPlayingTrackRequest();
         when(currentlyPlayingTrackRequestMock.execute()).thenReturn(playing);
         when(playing.getIs_playing()).thenReturn(true);
-        when(sessionRestClient.updateDescription(eq("123"), anyString())).thenReturn(httpResponseMock);
+        when(sessionRestClient.updateDescriptionSync(eq("123"), anyString())).thenReturn(httpResponseMock);
 
         spotifyApiClientSpy.start(credentials);
 

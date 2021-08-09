@@ -26,7 +26,7 @@
       </AnchorPane>
       <AnchorPane>
          <HBox alignment="CENTER" layoutX="294.0" prefHeight="35.0" prefWidth="32.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0">
-            <ImageView id="integration-close-image" fx:id="integrationCloseImage" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" styleClass="integration-close-image" visible="false" managed="false">
+            <ImageView id="integration-close-image" fx:id="integrationCloseImage" fitHeight="16.0" fitWidth="16.0" managed="false" pickOnBounds="true" preserveRatio="true" styleClass="integration-close-image" visible="false">
                <image>
                   <Image url="@../img/close.png" />
                </image>

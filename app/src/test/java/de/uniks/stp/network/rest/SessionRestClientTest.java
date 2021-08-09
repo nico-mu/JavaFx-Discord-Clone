@@ -476,7 +476,7 @@ public class SessionRestClientTest {
     public void testUpdateDescription() {
         String userId = "123";
         String description = "1234";
-        sessionRestClientSpy.updateDescription(userId, description);
+        sessionRestClientSpy.updateDescriptionSync(userId, description);
 
         verify(sessionRestClientSpy).sendSyncRequest(httpRequestArgumentCaptor.capture());
         HttpRequest<?> request = httpRequestArgumentCaptor.getValue();

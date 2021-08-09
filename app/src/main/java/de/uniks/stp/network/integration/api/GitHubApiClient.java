@@ -91,7 +91,7 @@ public class GitHubApiClient implements IntegrationApiClient {
         String newValue = (String) propertyChangeEvent.getNewValue();
         //make rest call with new description
         // note that is a synchronous call here, because we are already in another thread
-        currentUserDescriptionCallback(restClient.updateDescription(currentUser.getId(), newValue));
+        currentUserDescriptionCallback(restClient.updateDescriptionSync(currentUser.getId(), newValue));
     }
 
     private void currentUserDescriptionCallback(HttpResponse<JsonNode> response) {

@@ -49,20 +49,31 @@ public class IntegrationService {
     }
 
     public void init() {
-        if(isServiceConnected(Integrations.SPOTIFY.key)) {
+        if(isServiceConnected(Integrations.SPOTIFY.key) && isServiceActive(Integrations.SPOTIFY.key)) {
             spotifyApiClientLazy.get().refresh();
         }
-        else if(isServiceConnected(Integrations.GITHUB.key)){
+        else if(isServiceConnected(Integrations.GITHUB.key) && isServiceActive(Integrations.GITHUB.key)){
             gitHubApiClientLazy.get().refresh();
         }
     }
 
-    public void startService(String serviceName, Credentials credentials) {
+    public void restartService(String serviceName) {
+        IntegrationApiClient apiClient = getServiceByName(serviceName);
+
+        if(Objects.nonNull(apiClient)) {
+            apiClient.stop();
+            apiClient.refresh();
+            databaseService.setIntegrationMode(serviceName, true);
+        }
+    }
+
+    public void restartService(String serviceName, Credentials credentials) {
         IntegrationApiClient apiClient = getServiceByName(serviceName);
 
         if(Objects.nonNull(apiClient)) {
             apiClient.stop();
             apiClient.start(credentials);
+            databaseService.setIntegrationMode(serviceName, true);
         }
     }
 
@@ -71,6 +82,8 @@ public class IntegrationService {
 
         if(Objects.nonNull(apiClient)) {
             apiClient.stop();
+            restClient.updateDescriptionAsync(currentUser.getId(), " ", this::currentUserDescriptionCallback);
+            databaseService.setIntegrationMode(serviceName, false);
         }
     }
 
@@ -120,6 +133,10 @@ public class IntegrationService {
         return Objects.nonNull(databaseService.getApiIntegrationSetting(serviceName));
     }
 
+    public boolean isServiceActive(String serviceName) {
+        return databaseService.isIntegrationActive(serviceName);
+    }
+
     private void currentUserDescriptionCallback(HttpResponse<JsonNode> response) {
         if(response.isSuccess()) {
             log.debug("description for user {} changed successfully", currentUser.getName());
@@ -133,6 +150,6 @@ public class IntegrationService {
         stopAuthorizationClientServer();
         spotifyApiClientLazy.get().shutdown();
         gitHubApiClientLazy.get().shutdown();
-        currentUserDescriptionCallback(restClient.updateDescription(currentUser.getId(), " "));
+        currentUserDescriptionCallback(restClient.updateDescriptionSync(currentUser.getId(), " "));
     }
 }

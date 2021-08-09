@@ -71,6 +71,14 @@ public class IntegrationButton extends VBox {
         integrationToggleButton.setOnMouseClicked(value);
     }
 
+    public void setInactive() {
+        integrationToggleButton.setSelected(false);
+    }
+
+    public void setActive() {
+        integrationToggleButton.setSelected(true);
+    }
+
     private void hideActiveContainer() {
         integrationActiveContainer.setManaged(false);
         integrationActiveContainer.setVisible(false);
@@ -79,9 +87,14 @@ public class IntegrationButton extends VBox {
         integrationBadge.setStyle("-fx-background-color: #4059a9");
     }
 
+    public void setNormalMode() {
+        integrationBadge.setStyle("-fx-background-color: #4059a9");
+        integrationButtonContainer.setDisable(false);
+    }
+
     public void setErrorMode() {
         integrationBadge.setStyle("-fx-background-color: red");
-        this.setDisable(false);
+        integrationButtonContainer.setDisable(false);
     }
 
     public void setSuccessMode() {
@@ -90,7 +103,6 @@ public class IntegrationButton extends VBox {
         integrationActiveContainer.setVisible(true);
         integrationCloseImage.setManaged(true);
         integrationCloseImage.setVisible(true);
-        integrationToggleButton.setSelected(true);
         integrationButtonContainer.setDisable(true);
     }
 

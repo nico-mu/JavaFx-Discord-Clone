@@ -74,6 +74,7 @@ public abstract class AbstractAuthorizationClient implements HttpHandler {
 
 
     public void stopServer() {
+        noTimeout();
         serverStopped = true;
         server.stop(0);
         executorService.shutdown();

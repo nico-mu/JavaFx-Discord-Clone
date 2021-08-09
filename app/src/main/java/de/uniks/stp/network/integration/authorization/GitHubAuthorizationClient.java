@@ -71,7 +71,6 @@ public class GitHubAuthorizationClient extends AbstractAuthorizationClient {
 
         os.write(response.getBytes());
         os.close();
-        noTimeout();
         stopServer();
     }
 

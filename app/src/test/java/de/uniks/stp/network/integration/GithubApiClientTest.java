@@ -85,7 +85,7 @@ public class GithubApiClientTest {
         when(getRequestMock.asJson()).thenReturn(gitHubApiResponseMock);
         when(gitHubApiResponseMock.isSuccess()).thenReturn(true);
         when(gitHubApiResponseMock.getBody()).thenReturn(new JsonNode(jsonResponse));
-        when(sessionRestClient.updateDescription(eq("123"), anyString())).thenReturn(changeDescriptionResponseMock);
+        when(sessionRestClient.updateDescriptionSync(eq("123"), anyString())).thenReturn(changeDescriptionResponseMock);
 
         githubApiClientSpy.start(credentials);
 

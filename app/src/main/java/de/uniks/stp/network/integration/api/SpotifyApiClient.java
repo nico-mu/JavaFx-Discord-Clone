@@ -6,8 +6,6 @@ import com.wrapper.spotify.exceptions.detailed.BadRequestException;
 import com.wrapper.spotify.exceptions.detailed.UnauthorizedException;
 import com.wrapper.spotify.model_objects.credentials.AuthorizationCodeCredentials;
 import com.wrapper.spotify.model_objects.miscellaneous.CurrentlyPlaying;
-import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
-import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.authorization.authorization_code.pkce.AuthorizationCodePKCERefreshRequest;
 import com.wrapper.spotify.requests.data.player.GetUsersCurrentlyPlayingTrackRequest;
 import de.uniks.stp.ViewLoader;
@@ -144,7 +142,7 @@ public class SpotifyApiClient implements IntegrationApiClient {
         }
         //make rest call with new description
         // note that is a synchronous call here, because we are already in another thread
-        currentUserDescriptionCallback(restClient.updateDescription(currentUser.getId(), currentUser.getDescription()));
+        currentUserDescriptionCallback(restClient.updateDescriptionSync(currentUser.getId(), currentUser.getDescription()));
     }
 
     private void currentUserDescriptionCallback(HttpResponse<JsonNode> response) {

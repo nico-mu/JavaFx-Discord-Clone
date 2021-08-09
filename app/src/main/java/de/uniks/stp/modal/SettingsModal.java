@@ -91,6 +91,7 @@ public class SettingsModal extends AbstractModal {
     private int currentOutputVolume;
     private IntegrationButton spotifyIntegrationButton;
     private IntegrationButton githubIntegrationButton;
+    private HashMap<String, IntegrationButton> integrationButtonHashMap;
 
     @AssistedInject
     public SettingsModal(ViewLoader viewLoader,
@@ -111,6 +112,7 @@ public class SettingsModal extends AbstractModal {
         this.voiceChatService = voiceChatService;
         this.integrationService = integrationService;
         this.integrationButtonFactory = integrationButtonFactory;
+        this.integrationButtonHashMap = new HashMap<>();
 
         setTitle(viewLoader.loadLabel(Constants.LBL_SELECT_LANGUAGE_TITLE));
 
@@ -202,72 +204,74 @@ public class SettingsModal extends AbstractModal {
 
     private void addIntegrationButtons() {
         spotifyIntegrationButton = integrationButtonFactory.create(viewLoader.loadImage("spotify_button.png"));
-        spotifyIntegrationButton.setOnButtonClicked(this::onSpotifyIntegrationButton);
+        spotifyIntegrationButton.setOnButtonClicked((MouseEvent event) -> onIntegrationButtonClicked(spotifyIntegrationButton, Integrations.SPOTIFY.key));
         spotifyIntegrationButton.setOnRemoveClicked((MouseEvent event) -> onRemoveClicked(Integrations.SPOTIFY.key));
-        spotifyIntegrationButton.setOnToggleClicked(this::onShowInProfileToggleClicked);
+        spotifyIntegrationButton.setOnToggleClicked((MouseEvent event) -> onShowInProfileToggleClicked(event, Integrations.SPOTIFY.key));
         integrationContainer.getChildren().add(spotifyIntegrationButton);
+        integrationButtonHashMap.put(Integrations.SPOTIFY.key, spotifyIntegrationButton);
 
         githubIntegrationButton = integrationButtonFactory.create(viewLoader.loadImage("github_button.png"));
-        githubIntegrationButton.setOnButtonClicked(this::onGithubIntegrationButton);
+        githubIntegrationButton.setOnButtonClicked((MouseEvent event) -> onIntegrationButtonClicked(githubIntegrationButton, Integrations.GITHUB.key));
         githubIntegrationButton.setOnRemoveClicked((MouseEvent event) -> onRemoveClicked(Integrations.GITHUB.key));
-        githubIntegrationButton.setOnToggleClicked(this::onShowInProfileToggleClicked);
+        githubIntegrationButton.setOnToggleClicked((MouseEvent event) -> onShowInProfileToggleClicked(event, Integrations.GITHUB.key));
         integrationContainer.getChildren().add(githubIntegrationButton);
+        integrationButtonHashMap.put(Integrations.GITHUB.key, githubIntegrationButton);
 
-        if(integrationService.isServiceConnected(Integrations.SPOTIFY.key)) {
-            spotifyIntegrationButton.setSuccessMode();
-        }
-        else if(integrationService.isServiceConnected(Integrations.GITHUB.key)) {
-            githubIntegrationButton.setSuccessMode();
+        for (String serviceName : integrationButtonHashMap.keySet()) {
+            if(integrationService.isServiceConnected(serviceName)) {
+                IntegrationButton button = integrationButtonHashMap.get(serviceName);
+                button.setSuccessMode();
+                if(integrationService.isServiceActive(serviceName)) {
+                    button.setActive();
+                }
+            }
         }
     }
 
     private void onRemoveClicked(String serviceName) {
         integrationService.removeService(serviceName);
+        integrationButtonHashMap.get(serviceName).setNormalMode();
     }
 
-    private void onShowInProfileToggleClicked(MouseEvent event) {
+    private void onShowInProfileToggleClicked(MouseEvent event, String serviceName) {
         JFXToggleButton source = (JFXToggleButton) event.getSource();
         if(source.isSelected()) {
-            log.debug("selected");
+            stopOtherService(serviceName);
+            //start selected service
+            integrationService.restartService(serviceName);
         }
         else {
-            log.debug("not selected");
+            integrationService.stopService(serviceName);
         }
     }
 
-    private void onGithubIntegrationButton(MouseEvent mouseEvent) {
-        AbstractAuthorizationClient authorizationClient = integrationService.getAuthorizationClient(Integrations.GITHUB.key);
+    private void stopOtherService(String serviceToActivate) {
+        for (String serviceName : integrationButtonHashMap.keySet()) {
+            if(!serviceName.equals(serviceToActivate) && integrationService.isServiceActive(serviceName)) {
+                integrationService.stopService(serviceName);
+                integrationButtonHashMap.get(serviceName).setInactive();
+            }
+        }
+    }
+
+    private void onIntegrationButtonClicked(IntegrationButton button, String serviceName) {
+        AbstractAuthorizationClient authorizationClient = integrationService.getAuthorizationClient(serviceName);
 
         if(Objects.nonNull(authorizationClient)) {
             authorizationClient.authorize(new AuthorizationCallback() {
                 @Override
                 public void onSuccess(Credentials credentials) {
-                    integrationService.startService(Integrations.GITHUB.key, credentials);
-                    githubIntegrationButton.setSuccessMode();
+                    Platform.runLater(() -> {
+                        stopOtherService(serviceName);
+                        integrationService.restartService(serviceName, credentials);
+                        button.setSuccessMode();
+                        button.setActive();
+                    });
                 }
 
                 @Override
                 public void onFailure(String errorMessage) {
-                    githubIntegrationButton.setErrorMode();
-                }
-            });
-        }
-    }
-
-    private void onSpotifyIntegrationButton(MouseEvent mouseEvent) {
-        AbstractAuthorizationClient authorizationClient = integrationService.getAuthorizationClient(Integrations.SPOTIFY.key);
-
-        if(Objects.nonNull(authorizationClient)) {
-            authorizationClient.authorize(new AuthorizationCallback() {
-                @Override
-                public void onSuccess(Credentials credentials) {
-                    integrationService.startService(Integrations.SPOTIFY.key, credentials);
-                    spotifyIntegrationButton.setSuccessMode();
-                }
-
-                @Override
-                public void onFailure(String errorMessage) {
-                    spotifyIntegrationButton.setErrorMode();
+                    button.setErrorMode();
                 }
             });
         }
