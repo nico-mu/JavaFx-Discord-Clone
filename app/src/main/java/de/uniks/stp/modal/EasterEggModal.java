@@ -86,9 +86,15 @@ public class EasterEggModal extends AbstractModal {
         resetButtonColor();
         Platform.runLater(() -> {
             switch (action) {
-                case ROCK: rockButton.setStyle(COLORED_BG);
-                case PAPER: paperButton.setStyle(COLORED_BG);
-                case SCISSORS: scissorsButton.setStyle(COLORED_BG);
+                case ROCK:
+                    rockButton.setStyle(COLORED_BG);
+                    break;
+                case PAPER:
+                    paperButton.setStyle(COLORED_BG);
+                    break;
+                case SCISSORS:
+                    scissorsButton.setStyle(COLORED_BG);
+                    break;
             }
         });
     }
