@@ -5,6 +5,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.modal.ConfirmationModal;
 import de.uniks.stp.model.*;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.websocket.WSCallback;
@@ -199,6 +200,9 @@ public class DeleteMessageTest {
         robot.point("#message-text-" + messageId);
         robot.point("#delete-message-" + messageId);
         ImageView button = robot.lookup("#delete-message-" + messageId).query();
+        button.setVisible(true);
+        robot.clickOn("#delete-message-" + messageId);
+        robot.clickOn(ConfirmationModal.NO_BUTTON);
         button.setVisible(true);
         robot.clickOn("#delete-message-" + messageId);
         robot.clickOn("#yes-button");
