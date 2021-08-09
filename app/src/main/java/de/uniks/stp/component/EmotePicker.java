@@ -48,6 +48,7 @@ public class EmotePicker extends ScrollPane {
 
     public void render() {
         FlowPane result = new FlowPane();
+        result.setId("emote-container");
         result.setOrientation(Orientation.HORIZONTAL);
         result.setAlignment(Pos.TOP_CENTER);
         EmoteRenderer renderer = new EmoteRenderer().setSize(30);

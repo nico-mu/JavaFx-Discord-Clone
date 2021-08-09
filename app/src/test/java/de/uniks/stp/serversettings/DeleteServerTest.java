@@ -7,6 +7,7 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.modal.ConfirmationModal;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.SessionRestClient;
@@ -130,6 +131,8 @@ public class DeleteServerTest {
         Label confiModalTitleLabel = robot.lookup("#title-label").query();
         Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_DELETE_SERVER), confiModalTitleLabel.getText());
 
+        robot.clickOn(ConfirmationModal.NO_BUTTON);
+        robot.clickOn("#delete-button");
         robot.clickOn("#yes-button");
 
         // check that ConfirmationModal is no longer shown

@@ -50,6 +50,7 @@ public class ChatMessageInput extends HBox {
 
         this.emotePickerButton = emotePickerButton;
         this.emoteTextArea = emoteTextArea;
+        this.emoteTextArea.setId("message-input-area");
         emoteTextArea.setOnKeyPressed(this::checkForEnter);
 
         VirtualizedScrollPane<EmoteTextArea> scroll = new VirtualizedScrollPane<>(emoteTextArea);
