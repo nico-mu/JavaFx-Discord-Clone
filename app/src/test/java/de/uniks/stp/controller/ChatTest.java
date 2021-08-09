@@ -6,7 +6,10 @@ import de.uniks.stp.Editor;
 import de.uniks.stp.component.EmoteTextArea;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
-import de.uniks.stp.model.*;
+import de.uniks.stp.model.Category;
+import de.uniks.stp.model.Channel;
+import de.uniks.stp.model.Server;
+import de.uniks.stp.model.User;
 import de.uniks.stp.network.websocket.WSCallback;
 import de.uniks.stp.network.websocket.WebSocketClientFactory;
 import de.uniks.stp.network.websocket.WebSocketService;
@@ -14,12 +17,8 @@ import de.uniks.stp.notification.NotificationService;
 import de.uniks.stp.router.RouteArgs;
 import de.uniks.stp.router.Router;
 import javafx.application.Platform;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -34,36 +33,21 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-
-import static org.mockito.Mockito.*;
 
 @ExtendWith(ApplicationExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class ChatTest {
 
-    @Captor
-    private ArgumentCaptor<String> stringArgumentCaptor;
-
-    @Captor
-    private ArgumentCaptor<WSCallback> wsCallbackArgumentCaptor;
-
-    private HashMap<String, WSCallback> endpointCallbackHashmap;
     private AccordApp app;
     private Router router;
     private Editor editor;
     private User currentUser;
     private NotificationService notificationService;
-    private WebSocketClientFactory webSocketClientFactoryMock;
     private WebSocketService webSocketService;
 
     @Start
     public void start(Stage stage) {
-        endpointCallbackHashmap = new HashMap<>();
         MockitoAnnotations.initMocks(this);
         app = new AccordApp();
         app.setTestMode(true);
@@ -83,7 +67,6 @@ public class ChatTest {
         app.setSessionComponent(sessionTestComponent);
 
         notificationService = sessionTestComponent.getNotificationService();
-        webSocketClientFactoryMock = sessionTestComponent.getWebSocketClientFactory();
         webSocketService = sessionTestComponent.getWebsocketService();
         webSocketService.init();
     }
@@ -143,7 +126,6 @@ public class ChatTest {
         Assertions.assertTrue(inputText.startsWith(":"));
         Assertions.assertTrue(inputText.endsWith("test"));
         Assertions.assertTrue(inputText.contains("::"));
-        robot.sleep(5000);
         for (int i = 0; i<6; i++) {
             robot.press(KeyCode.BACK_SPACE);
             robot.release(KeyCode.BACK_SPACE);
@@ -153,15 +135,11 @@ public class ChatTest {
 
     @AfterEach
     void tear() {
-        webSocketClientFactoryMock = null;
         router = null;
         editor = null;
         currentUser = null;
         notificationService = null;
-        stringArgumentCaptor = null;
-        wsCallbackArgumentCaptor = null;
         webSocketService = null;
-        endpointCallbackHashmap = null;
         Platform.runLater(app::stop);
         WaitForAsyncUtils.waitForFxEvents();
         app = null;
