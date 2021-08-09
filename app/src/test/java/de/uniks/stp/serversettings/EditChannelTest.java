@@ -315,6 +315,39 @@ public class EditChannelTest {
         robot.point("#edit-channel");
         robot.clickOn("#edit-channel");
         robot.clickOn(EditChannelModal.EDIT_CHANNEL_EDIT_BUTTON);
+
+        String newChannelName = "newName";
+
+        webSocketService.addServerWebSocket(serverId);
+
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
+
+        for (int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
+
+        JsonObject jsonObject = Json.createObjectBuilder()
+            .add("action", "channelUpdated")
+            .add("data",
+                Json.createObjectBuilder()
+                    .add("id", voiceChannelId)
+                    .add("name", newChannelName)
+                    .add("type", "text")
+                    .add("privileged", true)
+                    .add("category", categoryId)
+                    .add("members", Json.createArrayBuilder().add("1").add("2").build())
+                    .build()
+            )
+            .build();
+        systemCallback.handleMessage(jsonObject);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(newChannelName, testServer.getChannels().get(0).getName());
     }
 
     @Test
