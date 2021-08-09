@@ -1,10 +1,12 @@
 package de.uniks.stp.serversettings;
 
+import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.modal.ServerSettingsModal;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.SessionRestClient;
@@ -119,20 +121,42 @@ public class ChangeServerNameTest {
         // prepare changing server name
         robot.clickOn("#settings-label");
         robot.clickOn("#edit-menu-item");
+        robot.clickOn("#save-button");
+        robot.clickOn("#settings-label");
+        robot.clickOn("#edit-menu-item");
 
         // change name
-        String newName = "Nice Name";
+        JFXTextField nameTextField = robot.lookup("#servername-text-field").query();
+        Platform.runLater(nameTextField::clear);
+        robot.clickOn("#save-button");
+        String newName = "bla";
         robot.doubleClickOn("#servername-text-field");
         robot.write(newName);
         robot.clickOn("#save-button");
 
-        JSONObject j = new JSONObject().put("status", "success").put("message", "")
+        JSONObject j = new JSONObject().put("status", "failure").put("message", "")
+            .put("data", new JSONObject().put("id", serverId).put("name", newName));
+        when(res.getBody()).thenReturn(new JsonNode(j.toString()));
+        when(res.isSuccess()).thenReturn(false);
+
+        verify(restMock).renameServer(eq(serverId), eq(newName), callbackCaptor.capture());
+        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback.completed(res);
+
+        WaitForAsyncUtils.waitForFxEvents();
+
+        newName = "NiceName";
+        robot.doubleClickOn("#servername-text-field");
+        robot.write(newName);
+        robot.clickOn("#save-button");
+
+        j = new JSONObject().put("status", "success").put("message", "")
             .put("data", new JSONObject().put("id", serverId).put("name", newName));
         when(res.getBody()).thenReturn(new JsonNode(j.toString()));
         when(res.isSuccess()).thenReturn(true);
 
         verify(restMock).renameServer(eq(serverId), eq(newName), callbackCaptor.capture());
-        Callback<JsonNode> callback = callbackCaptor.getValue();
+        callback = callbackCaptor.getValue();
         callback.completed(res);
 
         WaitForAsyncUtils.waitForFxEvents();
