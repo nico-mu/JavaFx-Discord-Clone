@@ -5,6 +5,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.modal.CreateInviteModal;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.SessionRestClient;
@@ -221,6 +222,9 @@ public class CreateInvitationTest {
 
         robot.clickOn("#invites-create");
         robot.clickOn("#create-invide-max");
+        robot.clickOn(CreateInviteModal.TIME_CHECKBOX);
+        robot.clickOn(CreateInviteModal.MAX_CHECKBOX);
+        robot.clickOn("#create-invite-create");
         robot.clickOn("#create-invite-max-textfield");
         robot.write("1a5");
         robot.clickOn("#create-invite-create");
