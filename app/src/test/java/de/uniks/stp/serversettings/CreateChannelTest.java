@@ -1,11 +1,13 @@
 package de.uniks.stp.serversettings;
 
+import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.modal.CreateChannelModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
@@ -126,6 +128,9 @@ public class CreateChannelTest {
         robot.clickOn("#" + categoryId + "-ServerCategoryElementLabel");
         robot.clickOn("#add-channel-plus");
 
+        JFXTextField chNameTextField = robot.lookup(CreateChannelModal.ADD_CHANNEL_NAME_TEXTFIELD).query();
+        chNameTextField.setText("abc");
+
         robot.clickOn("#add-channel-create-button");
 
         JSONObject j = new JSONObject()
@@ -136,10 +141,12 @@ public class CreateChannelTest {
         when(res.isSuccess()).thenReturn(false);
 
         verify(restMock)
-            .createChannel(eq(serverId), eq(categoryId), eq(""), eq("text"), eq(false), eq(new ArrayList<>()), callbackCaptor.capture());
+            .createChannel(eq(serverId), eq(categoryId), eq("abc"), eq("text"), eq(false), eq(new ArrayList<>()), callbackCaptor.capture());
         Callback<JsonNode> callback = callbackCaptor.getValue();
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
+
+        chNameTextField.clear();
 
         robot.clickOn("#add-channel-create-button");
 
