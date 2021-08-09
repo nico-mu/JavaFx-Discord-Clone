@@ -183,6 +183,7 @@ public class CreateCategoryTest {
         robot.clickOn("#create-menu-item");
 
         // insert name
+        robot.clickOn("#create-button");
         String categoryName = "useful category";
         robot.clickOn("#category-name-text-field");
         robot.write(categoryName);
