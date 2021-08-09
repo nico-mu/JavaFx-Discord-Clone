@@ -109,6 +109,10 @@ public class HomeScreenController implements ControllerInterface {
                 }
             }
             directMessageListController.addUserToSidebar(user);
+            // Stop the old controller
+            if (Objects.nonNull(privateChatController)) {
+                privateChatController.stop();
+            }
             privateChatController = privateChatControllerFactory.create(view, user);
             privateChatController.init();
             return privateChatController;

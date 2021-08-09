@@ -123,6 +123,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
             user.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, statusChangeListener);
         }
         chatMessageInput.setOnMessageSubmit(null);
+        miniGameController.stop();
     }
 
     @Override
@@ -139,7 +140,7 @@ public class PrivateChatController extends ChatController<DirectMessage> impleme
             if(MiniGameController.isPlayMessage(messageText) && message.getTimestamp() > timestampBefore){
                 if(message.getSender().getName().equals(currentUser.getName())){
                     message.setMessage(viewLoader.loadLabel(Constants.LBL_GAME_WAIT));
-                } else{
+                } else {
                     message.setMessage(viewLoader.loadLabel(Constants.LBL_GAME_CHALLENGE));
                 }
             } else {

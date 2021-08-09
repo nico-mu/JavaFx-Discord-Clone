@@ -6,6 +6,7 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.modal.EditChannelModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Channel;
 import de.uniks.stp.model.Server;
@@ -182,17 +183,22 @@ public class EditChannelTest {
         String channelId = "chId1234";
         String channelName = "testChannel";
         Channel channel = new Channel().setName(channelName).setId(channelId).setPrivileged(false).setType("text");
-        category.withChannels(channel);
-        testServer.withChannels(channel);
+        String voiceChannelId = "voiceChannelId";
+        String voiceChannelName = "voiceChannelName";
+        Channel voiceChannel = new Channel().setName(voiceChannelName).setId(voiceChannelId).setPrivileged(false).setType("audio");
+        category.withChannels(channel, voiceChannel);
+        testServer.withChannels(channel, voiceChannel);
         WaitForAsyncUtils.waitForFxEvents();
 
-        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+        Assertions.assertEquals(2, editor.getServer(serverId).getCategories().get(0).getChannels().size());
 
         robot.clickOn("#channel-container");
         robot.point("#channel-container");
         robot.point("#edit-channel");
         robot.clickOn("#edit-channel");
 
+        robot.clickOn(EditChannelModal.NOTIFICATIONS_TOGGLE_BUTTON);
+        robot.clickOn(EditChannelModal.NOTIFICATIONS_TOGGLE_BUTTON);
         String newChannelName = "edited";
         robot.doubleClickOn("#edit-channel-name-textfield");
         robot.write(newChannelName);
@@ -273,6 +279,75 @@ public class EditChannelTest {
         String channelNameId = "#" + channelId + "-ChannelElementText";
         TextFlow channelNameText = robot.lookup(channelNameId).query();
         Assertions.assertEquals(newChannelName, ((Text) channelNameText.getChildren().get(0)).getText());
+    }
+
+    @Test
+    public void editVoiceChannelTest(FxRobot robot) {
+        String serverName = "TestServer";
+        String serverId = "12345678";
+        Server testServer = new Server().setName(serverName).setId(serverId);
+        editor.getOrCreateAccord()
+            .getCurrentUser()
+            .withAvailableServers(testServer);
+
+        User testUser1 = new User().setName("TestUser2").setId("2").withAvailableServers(testServer);
+        User testUser2 = new User().setName("TestUser3").setId("3").withAvailableServers(testServer);
+
+        String categoryName = "TestCategory";
+        String categoryId = "catId123";
+
+        RouteArgs args = new RouteArgs().addArgument(":id", serverId);
+        Platform.runLater(() -> router.route(Constants.ROUTE_MAIN + Constants.ROUTE_SERVER, args));
+        WaitForAsyncUtils.waitForFxEvents();
+        Category category = new Category().setName(categoryName).setId(categoryId).setServer(testServer);
+
+        String voiceChannelId = "voiceChannelId";
+        String voiceChannelName = "voiceChannelName";
+        Channel voiceChannel = new Channel().setName(voiceChannelName).setId(voiceChannelId).setPrivileged(false).setType("audio");
+        category.withChannels(voiceChannel);
+        testServer.withChannels(voiceChannel);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(1, editor.getServer(serverId).getCategories().get(0).getChannels().size());
+
+        robot.clickOn("#channel-container");
+        robot.point("#channel-container");
+        robot.point("#edit-channel");
+        robot.clickOn("#edit-channel");
+        robot.clickOn(EditChannelModal.EDIT_CHANNEL_EDIT_BUTTON);
+
+        String newChannelName = "newName";
+
+        webSocketService.addServerWebSocket(serverId);
+
+        verify(webSocketClientFactoryMock, times(4))
+            .create(stringArgumentCaptor.capture(), wsCallbackArgumentCaptor.capture());
+
+        List<WSCallback> wsCallbacks = wsCallbackArgumentCaptor.getAllValues();
+        List<String> endpoints = stringArgumentCaptor.getAllValues();
+
+        for (int i = 0; i < endpoints.size(); i++) {
+            endpointCallbackHashmap.putIfAbsent(endpoints.get(i), wsCallbacks.get(i));
+        }
+        WSCallback systemCallback = endpointCallbackHashmap.get(Constants.WS_SYSTEM_PATH + Constants.WS_SERVER_SYSTEM_PATH + serverId);
+
+        JsonObject jsonObject = Json.createObjectBuilder()
+            .add("action", "channelUpdated")
+            .add("data",
+                Json.createObjectBuilder()
+                    .add("id", voiceChannelId)
+                    .add("name", newChannelName)
+                    .add("type", "text")
+                    .add("privileged", true)
+                    .add("category", categoryId)
+                    .add("members", Json.createArrayBuilder().add("1").add("2").build())
+                    .build()
+            )
+            .build();
+        systemCallback.handleMessage(jsonObject);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Assertions.assertEquals(newChannelName, testServer.getChannels().get(0).getName());
     }
 
     @Test

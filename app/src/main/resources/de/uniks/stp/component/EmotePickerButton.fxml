@@ -2,7 +2,7 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<fx:root type="VBox" alignment="CENTER" minWidth="30.0" prefHeight="100.0" prefWidth="40.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+<fx:root id="emote-picker-button" type="VBox" alignment="CENTER" minWidth="30.0" prefHeight="100.0" prefWidth="40.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
          styleClass="emote-button" stylesheets="@../style/css/component/emote-picker-button.css">
     <HBox.margin>
         <Insets left="-3.0" right="10.0"/>

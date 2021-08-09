@@ -5,7 +5,9 @@ import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.modal.CreateInviteModal;
 import de.uniks.stp.model.Server;
+import de.uniks.stp.model.ServerInvitation;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.network.websocket.WSCallback;
@@ -102,6 +104,7 @@ public class CreateInvitationTest {
         String serverName = "TestServer";
         String serverId = "12345678";
         Server testServer = new Server().setName(serverName).setId(serverId);
+        testServer.withInvitations(new ServerInvitation().setLink("niceInvitationLink").setType("temporal"));
         editor.getOrCreateAccord()
             .getCurrentUser()
             .withAvailableServers(testServer);
@@ -111,7 +114,7 @@ public class CreateInvitationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         // assert correct start situation
-        Assertions.assertEquals(0, testServer.getInvitations().size());
+        Assertions.assertEquals(1, testServer.getInvitations().size());
 
         robot.clickOn("#settings-gear");
         robot.point("#invite-menu-item");
@@ -127,7 +130,7 @@ public class CreateInvitationTest {
         callback.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
 
-        Assertions.assertEquals(0, testServer.getInvitations().size());
+        Assertions.assertEquals(1, testServer.getInvitations().size());
         Label invitesError = robot.lookup("#invites-error").query();
         Assertions.assertNotEquals("", invitesError.getText());
 
@@ -139,7 +142,7 @@ public class CreateInvitationTest {
         when(res.getBody()).thenReturn(new JsonNode(j2.toString()));
         when(res.isSuccess()).thenReturn(false);
 
-        verify(restMock).getServerInvitations(eq(serverId), callbackCaptor.capture());
+        verify(restMock).createServerInvitation(eq(serverId), eq("temporal"), eq(-1), callbackCaptor.capture());
         Callback<JsonNode> callback2 = callbackCaptor.getValue();
         callback2.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
@@ -221,8 +224,11 @@ public class CreateInvitationTest {
 
         robot.clickOn("#invites-create");
         robot.clickOn("#create-invide-max");
+        robot.clickOn(CreateInviteModal.TIME_CHECKBOX);
+        robot.clickOn(CreateInviteModal.MAX_CHECKBOX);
+        robot.clickOn("#create-invite-create");
         robot.clickOn("#create-invite-max-textfield");
-        robot.write("15");
+        robot.write("1a5");
         robot.clickOn("#create-invite-create");
 
         JSONObject j4 = new JSONObject().put("status", "success").put("message", "")
@@ -268,6 +274,24 @@ public class CreateInvitationTest {
         verify(restMock).deleteServerInvitation(eq(serverId), eq("invId1"), callbackCaptor.capture());
         Callback<JsonNode> callback5 = callbackCaptor.getValue();
         callback5.completed(res);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        robot.clickOn("#delete-invite");
+
+        JSONObject j6 = new JSONObject().put("status", "failure").put("message", "")
+            .put("data", new JSONObject()
+                .put("id", "invId1")
+                .put("link", "a123456789101112131415")
+                .put("type", "count")
+                .put("max", 15)
+                .put("current", 0)
+                .put("server", serverId));
+        when(res.getBody()).thenReturn(new JsonNode(j6.toString()));
+        when(res.isSuccess()).thenReturn(false);
+
+        verify(restMock).deleteServerInvitation(eq(serverId), eq("invId2"), callbackCaptor.capture());
+        Callback<JsonNode> callback6 = callbackCaptor.getValue();
+        callback6.completed(res);
         WaitForAsyncUtils.waitForFxEvents();
 
         Assertions.assertEquals(3, testServer.getInvitations().size());

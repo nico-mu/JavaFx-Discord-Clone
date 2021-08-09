@@ -2,8 +2,6 @@ package de.uniks.stp.network.rest;
 
 import de.uniks.stp.component.ChatMessage;
 import de.uniks.stp.model.Message;
-import kong.unirest.Callback;
-import kong.unirest.HttpRequest;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.json.JSONArray;
@@ -11,7 +9,9 @@ import kong.unirest.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 import javax.inject.Inject;
 

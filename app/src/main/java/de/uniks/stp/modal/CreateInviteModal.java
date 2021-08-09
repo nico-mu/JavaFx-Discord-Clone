@@ -122,7 +122,7 @@ public class CreateInviteModal extends AbstractModal {
 
             Platform.runLater(this::close);
         } else {
-            log.error("Create server failed: " + jsonNodeHttpResponse.getBody().toPrettyString());
+            log.error("Create invitation failed: " + jsonNodeHttpResponse.getBody().toPrettyString());
             setErrorMessage(Constants.LBL_NOT_SERVER_OWNER);
         }
     }

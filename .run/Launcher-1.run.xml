@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Launcher-1" type="Application" factoryName="Application">
+  <configuration default="false" name="Launcher-1" type="Application" factoryName="Application" singleton="false">
     <option name="MAIN_CLASS_NAME" value="de.uniks.stp.Launcher" />
     <module name="AccordTeamG.app.main" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wd-launch-1" />
