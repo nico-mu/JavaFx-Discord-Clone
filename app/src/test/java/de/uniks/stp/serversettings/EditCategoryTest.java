@@ -1,11 +1,13 @@
 package de.uniks.stp.serversettings;
 
+import com.jfoenix.controls.JFXTextField;
 import de.uniks.stp.AccordApp;
 import de.uniks.stp.Constants;
 import de.uniks.stp.Editor;
 import de.uniks.stp.ViewLoader;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.modal.EditCategoryModal;
 import de.uniks.stp.model.Category;
 import de.uniks.stp.model.Server;
 import de.uniks.stp.model.User;
@@ -149,6 +151,9 @@ public class EditCategoryTest {
         Assertions.assertEquals("Name", modalNameLabel.getText());
 
         // create category
+        JFXTextField nameTextField = robot.lookup(EditCategoryModal.NAME_FIELD).query();
+        Platform.runLater(nameTextField::clear);
+        robot.clickOn("#save-button");
         String categoryName = "useful category";
         robot.doubleClickOn("#category-name-text-field");
         robot.write(categoryName);
