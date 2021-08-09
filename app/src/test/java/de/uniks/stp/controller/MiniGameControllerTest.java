@@ -7,7 +7,9 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.component.EmoteTextArea;
 import de.uniks.stp.dagger.components.test.AppTestComponent;
 import de.uniks.stp.dagger.components.test.SessionTestComponent;
+import de.uniks.stp.minigame.GameAction;
 import de.uniks.stp.minigame.GameCommand;
+import de.uniks.stp.modal.EasterEggModal;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.websocket.WSCallback;
 import de.uniks.stp.network.websocket.WebSocketClientFactory;
@@ -18,6 +20,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.junit.jupiter.api.AfterEach;
@@ -96,6 +99,17 @@ public class MiniGameControllerTest {
         return UUID.randomUUID().toString();
     }
 
+    private JsonObject buildOpponentCommand(User otherUser, GameCommand action) {
+        // get choose message of opponent
+        return Json.createObjectBuilder()
+            .add("channel", "private")
+            .add("timestamp", new Date().getTime())
+            .add("message", action.command)
+            .add("from", otherUser.getName())
+            .add("to", currentUser.getName())
+            .build();
+    }
+
     @Test
     public void testMiniGameStart(FxRobot robot) {
         User otherUser = new User().setName(generateRandomString()).setId(generateRandomString());
@@ -118,14 +132,7 @@ public class MiniGameControllerTest {
         WSCallback currentUserCallback = endpointCallbackHashmap.get(Constants.WS_USER_PATH + currentUser.getName());
 
         // Other user initializes the game
-        JsonObject message = Json.createObjectBuilder()
-            .add("channel", "private")
-            .add("timestamp", new Date().getTime())
-            .add("message", GameCommand.PLAY.command)
-            .add("from", otherUser.getName())
-            .add("to", currentUser.getName())
-            .build();
-        currentUserCallback.handleMessage(message);
+        currentUserCallback.handleMessage(buildOpponentCommand(otherUser, GameCommand.PLAY));
         WaitForAsyncUtils.waitForFxEvents();
 
         VBox chatViewMessageInput = robot.lookup("#chatViewMessageInput").query();
@@ -140,48 +147,43 @@ public class MiniGameControllerTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         // MiniGame should open
-        Label actionLabel = robot.lookup("#action-label").query();
+        Label actionLabel = robot.lookup(EasterEggModal.ACTION_LABEL).query();
         Assertions.assertNotNull(actionLabel);
         Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION), actionLabel.getText());
 
-        Button paperButton = robot.lookup("#paper-button").query();
+        Button paperButton = robot.lookup(EasterEggModal.PAPER_BUTTON).query();
+        Button scissorsButton = robot.lookup(EasterEggModal.SCISSORS_BUTTON).query();
         robot.clickOn(paperButton);
 
         // Check for correct outgoing websocket message
         verify(webSocketServiceSpy).sendPrivateMessage(otherUser.getName(), GameCommand.CHOOSE_PAPER.command);
-        Assertions.assertEquals("-fx-background-color: green;", paperButton.getStyle());
+        Assertions.assertEquals("-fx-background-color: " + EasterEggModal.SELECTED_ACTION_COLOR + ";", paperButton.getStyle());
 
         // get choose message of opponent
-        message = Json.createObjectBuilder()
-            .add("channel", "private")
-            .add("timestamp", new Date().getTime())
-            .add("message", GameCommand.CHOOSE_SCISSOR.command)
-            .add("from", otherUser.getName())
-            .add("to", currentUser.getName())
-            .build();
-        currentUserCallback.handleMessage(message);
+        currentUserCallback.handleMessage(buildOpponentCommand(otherUser, GameCommand.CHOOSE_SCISSOR));
         WaitForAsyncUtils.waitForFxEvents();
 
         // check for correct result
-        Button scissorsButton = robot.lookup("#scissors-button").query();
-        Assertions.assertEquals("-fx-background-color: red;", scissorsButton.getStyle());
-        Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_RESULT_LOSS), actionLabel.getText());
+        Assertions.assertEquals("-fx-background-color: " + EasterEggModal.LOSS_COLOR + ";", paperButton.getStyle());
 
-        robot.clickOn("#revanche-button");
+        robot.clickOn(paperButton);
+        currentUserCallback.handleMessage(buildOpponentCommand(otherUser, GameCommand.CHOOSE_SCISSOR));
+        WaitForAsyncUtils.waitForFxEvents();
+        robot.clickOn(paperButton);
+        currentUserCallback.handleMessage(buildOpponentCommand(otherUser, GameCommand.CHOOSE_SCISSOR));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // check for loss
+        Assertions.assertEquals("0 : 3" + ", " + viewLoader.loadLabel(Constants.LBL_RESULT_LOSS),actionLabel.getText());
+
+        robot.clickOn(EasterEggModal.REVANCHE_BUTTON);
 
         // Check for correct outgoing websocket message
         verify(webSocketServiceSpy).sendPrivateMessage(otherUser.getName(), GameCommand.REVANCHE.command);
         Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_REVANCHE_WAIT), actionLabel.getText());
 
         // get revanche message of opponent
-        message = Json.createObjectBuilder()
-            .add("channel", "private")
-            .add("timestamp", new Date().getTime())
-            .add("message", GameCommand.REVANCHE.command)
-            .add("from", otherUser.getName())
-            .add("to", currentUser.getName())
-            .build();
-        currentUserCallback.handleMessage(message);
+        currentUserCallback.handleMessage(buildOpponentCommand(otherUser, GameCommand.REVANCHE));
         WaitForAsyncUtils.waitForFxEvents();
 
         // check for view reset
@@ -189,49 +191,34 @@ public class MiniGameControllerTest {
         Assertions.assertEquals("-fx-background-color: transparent;", paperButton.getStyle());
         Assertions.assertEquals("-fx-background-color: transparent;", scissorsButton.getStyle());
 
-        Button rockButton = robot.lookup("#rock-button").query();
+        Button rockButton = robot.lookup(EasterEggModal.ROCK_BUTTON).query();
         robot.clickOn(rockButton);
 
         // Check for correct outgoing websocket message
         verify(webSocketServiceSpy).sendPrivateMessage(otherUser.getName(), GameCommand.CHOOSE_ROCK.command);
-        Assertions.assertEquals("-fx-background-color: green;", rockButton.getStyle());
+        Assertions.assertEquals("-fx-background-color: " + EasterEggModal.SELECTED_ACTION_COLOR + ";", rockButton.getStyle());
 
         // get choose message of opponent
-        message = Json.createObjectBuilder()
-            .add("channel", "private")
-            .add("timestamp", new Date().getTime())
-            .add("message", GameCommand.CHOOSE_SCISSOR.command)
-            .add("from", otherUser.getName())
-            .add("to", currentUser.getName())
-            .build();
-        currentUserCallback.handleMessage(message);
+        currentUserCallback.handleMessage(buildOpponentCommand(otherUser, GameCommand.CHOOSE_SCISSOR));
         WaitForAsyncUtils.waitForFxEvents();
 
         // check for correct result
-        Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_RESULT_WIN), actionLabel.getText());
-        Assertions.assertEquals("-fx-background-color: red;", scissorsButton.getStyle());
+        Assertions.assertEquals("1 : 0" + ", " + viewLoader.loadLabel(Constants.LBL_CHOOSE_ACTION), actionLabel.getText());
 
         // get leave message of opponent
-        message = Json.createObjectBuilder()
-            .add("channel", "private")
-            .add("timestamp", new Date().getTime())
-            .add("message", GameCommand.LEAVE.command)
-            .add("from", otherUser.getName())
-            .add("to", currentUser.getName())
-            .build();
-        currentUserCallback.handleMessage(message);
+        currentUserCallback.handleMessage(buildOpponentCommand(otherUser, GameCommand.LEAVE));
         WaitForAsyncUtils.waitForFxEvents();
 
         Assertions.assertEquals(viewLoader.loadLabel(Constants.LBL_GAME_LEFT), actionLabel.getText());
 
         // Close mini game
-        robot.clickOn("#cancel-button");
+        robot.clickOn(EasterEggModal.CANCEL_BUTTON);
         // Check for correct outgoing websocket message
         verify(webSocketServiceSpy).sendPrivateMessage(otherUser.getName(), GameCommand.LEAVE.command);
 
         // Assert modal is closed
         Assertions.assertThrows(FxRobotException.class, () -> {
-            robot.clickOn("#cancel-button");
+            robot.clickOn(EasterEggModal.CANCEL_BUTTON);
         });
     }
 
