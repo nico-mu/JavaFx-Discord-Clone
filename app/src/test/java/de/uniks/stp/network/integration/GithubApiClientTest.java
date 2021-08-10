@@ -97,33 +97,7 @@ public class GithubApiClientTest {
 
         verify(currentUser).setDescription("%" + name);
     }
-
-//    @Test
-//    public void startGithubApiClientTestRefresh() throws IOException, ParseException, SpotifyWebApiException {
-//        GetUsersCurrentlyPlayingTrackRequest currentlyPlayingTrackRequestMock = Mockito.mock(GetUsersCurrentlyPlayingTrackRequest.class);
-//        AuthorizationCodePKCERefreshRequest authorizationCodePKCERefreshRequestMock = Mockito.mock(AuthorizationCodePKCERefreshRequest.class);
-//        AuthorizationCodeCredentials authorizationCodeCredentialsMock = Mockito.mock(AuthorizationCodeCredentials.class);
-//        Credentials credentials = new Credentials();
-//        credentials.setAccessToken("access_token");
-//        credentials.setRefreshToken("refresh_token");
-//
-//        doReturn(currentlyPlayingTrackRequestMock).when(githubApiClientSpy).getUsersCurrentlyPlayingTrackRequest();
-//        doReturn(authorizationCodePKCERefreshRequestMock).when(githubApiClientSpy).getAuthorizationCodePKCERefreshRequest();
-//        when(currentlyPlayingTrackRequestMock.execute()).thenThrow(new UnauthorizedException("The access token expired"));
-//        when(authorizationCodePKCERefreshRequestMock.execute()).thenReturn(authorizationCodeCredentialsMock);
-//        when(authorizationCodeCredentialsMock.getAccessToken()).thenReturn("access_token");
-//        when(authorizationCodeCredentialsMock.getRefreshToken()).thenReturn("refresh_token");
-//
-//        githubApiClientSpy.start(credentials);
-//        verify(scheduledExecutorService)
-//            .scheduleAtFixedRate(scheduledRunnableArgumentCaptor.capture(), eq(0L), anyLong(), eq(TimeUnit.MILLISECONDS));
-//
-//        Runnable scheduledRunnable = scheduledRunnableArgumentCaptor.getValue();
-//        scheduledRunnable.run();
-//
-//        verify(githubApiClientSpy).refresh();
-//    }
-//
+    
     @Test
     public void refreshGithubApiClientTestSuccess() {
         Credentials credentials = new Credentials();
