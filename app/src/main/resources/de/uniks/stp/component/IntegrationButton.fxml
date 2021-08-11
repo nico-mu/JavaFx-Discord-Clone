@@ -1,19 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.*?>
 <?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<fx:root alignment="CENTER" prefHeight="50.0" prefWidth="55.0" spacing="5.0" styleClass="integration-button-container"
-         stylesheets="@../style/css/component/integration-button.css" type="HBox"
-         xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
-    <padding>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-    </padding>
-    <ImageView fx:id="integrationImageView" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-        <HBox.margin>
-            <Insets/>
-        </HBox.margin>
-    </ImageView>
-    <Pane fx:id="integrationBadge" prefHeight="40.0" prefWidth="25.0" styleClass="integration-button-badge-default"/>
+<fx:root id="integration-container" fx:id="integrationContainer" styleClass="integration-container" stylesheets="@../style/css/component/integration-button.css" type="VBox" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <HBox prefHeight="65.0" prefWidth="320.0">
+      <padding>
+         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      </padding>
+      <AnchorPane>
+         <HBox id="integration-button-container" fx:id="integrationButtonContainer" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="50.0" prefWidth="55.0" spacing="5.0" styleClass="integration-button-container" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+            <ImageView fx:id="integrationImageView" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </ImageView>
+            <Pane fx:id="integrationBadge" prefHeight="40.0" prefWidth="25.0" styleClass="integration-button-badge-default" />
+         </HBox>
+      </AnchorPane>
+      <AnchorPane>
+         <HBox alignment="CENTER" layoutX="294.0" prefHeight="35.0" prefWidth="32.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0">
+            <ImageView id="integration-close-image" fx:id="integrationCloseImage" fitHeight="16.0" fitWidth="16.0" managed="false" pickOnBounds="true" preserveRatio="true" styleClass="integration-close-image" visible="false">
+               <image>
+                  <Image url="@../img/close.png" />
+               </image>
+            </ImageView>
+         </HBox>
+      </AnchorPane>
+   </HBox>
+   <HBox id="integration-active-container" fx:id="integrationActiveContainer" managed="false" prefHeight="40.0" prefWidth="377.0" styleClass="integration-active-container" visible="false">
+      <AnchorPane prefHeight="58.0" prefWidth="325.0">
+         <VBox alignment="CENTER_LEFT" layoutX="5.0" prefHeight="58.0" prefWidth="218.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <Label id="integration-active-label" styleClass="integration-active-label" text="%LBL_SHOW_INTEGRATION_IN_DESCRIPTION" />
+         </VBox>
+      </AnchorPane>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0">
+         <JFXToggleButton fx:id="integrationToggleButton" alignment="TOP_LEFT" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" AnchorPane.rightAnchor="5.0" />
+      </AnchorPane>
+   </HBox>
 </fx:root>

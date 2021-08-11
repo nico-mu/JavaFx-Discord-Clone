@@ -197,9 +197,15 @@ public class SessionRestClient extends AppRestClient {
         sendRequest(req, callback);
     }
 
-    public HttpResponse<JsonNode> updateDescription(String userId, String description) {
+    public HttpResponse<JsonNode> updateDescriptionSync(String userId, String description) {
         HttpRequest<?> req = instance.post(Constants.REST_USERS_PATH + "/" + userId + Constants.REST_DESCRIPTION_PATH)
             .body(Json.createObjectBuilder().add("text", description).build().toString());
         return sendSyncRequest(req);
+    }
+
+    public void updateDescriptionAsync(String userId, String description, Callback<JsonNode> callback) {
+        HttpRequest<?> req = instance.post(Constants.REST_USERS_PATH + "/" + userId + Constants.REST_DESCRIPTION_PATH)
+            .body(Json.createObjectBuilder().add("text", description).build().toString());
+        sendRequest(req, callback);
     }
 }

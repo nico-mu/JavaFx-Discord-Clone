@@ -28,6 +28,9 @@ public class ApiIntegrationSettingDTO {
     @Column(name = "REFRESH_TOKEN")
     private String refreshToken;
 
+    @Column(name = "ACTIVE")
+    private boolean active;
+
     public String getServiceName() {
         return serviceName;
     }
@@ -53,5 +56,13 @@ public class ApiIntegrationSettingDTO {
     public ApiIntegrationSettingDTO setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
         return this;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

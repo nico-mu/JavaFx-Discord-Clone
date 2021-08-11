@@ -47,6 +47,69 @@ public class SessionDatabaseService extends AppDatabaseService {
         entityManager.close();
     }
 
+    public void setIntegrationMode(String serviceName, boolean active) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ApiIntegrationSettingDTO> query = criteriaBuilder.createQuery(ApiIntegrationSettingDTO.class);
+        Root<ApiIntegrationSettingDTO> root = query.from(ApiIntegrationSettingDTO.class);
+
+        query.where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("username"), currentUser.getName()),
+                criteriaBuilder.equal(root.get("serviceName"), serviceName)
+            )
+        );
+
+        ApiIntegrationSettingDTO result = null;
+
+        try {
+            result = entityManager.createQuery(query).getSingleResult();
+        }
+        catch (NoResultException ignored) {}
+
+        if(Objects.nonNull(result)) {
+            result.setActive(active);
+            entityManager.merge(result);
+        }
+        transaction.commit();
+        entityManager.close();
+    }
+
+    public boolean isIntegrationActive(String serviceName) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ApiIntegrationSettingDTO> query = criteriaBuilder.createQuery(ApiIntegrationSettingDTO.class);
+        Root<ApiIntegrationSettingDTO> root = query.from(ApiIntegrationSettingDTO.class);
+
+        query.where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("username"), currentUser.getName()),
+                criteriaBuilder.equal(root.get("serviceName"), serviceName),
+                criteriaBuilder.isTrue(root.get("active"))
+            )
+        );
+
+        ApiIntegrationSettingDTO result = null;
+
+        try {
+            result = entityManager.createQuery(query).getSingleResult();
+        }
+        catch (NoResultException ignored) {}
+
+        transaction.commit();
+        entityManager.close();
+
+        return Objects.nonNull(result);
+    }
+
     public ApiIntegrationSettingDTO getApiIntegrationSetting(String serviceName) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();

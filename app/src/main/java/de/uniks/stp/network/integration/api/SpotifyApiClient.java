@@ -142,7 +142,7 @@ public class SpotifyApiClient implements IntegrationApiClient {
         }
         //make rest call with new description
         // note that is a synchronous call here, because we are already in another thread
-        currentUserDescriptionCallback(restClient.updateDescription(currentUser.getId(), currentUser.getDescription()));
+        currentUserDescriptionCallback(restClient.updateDescriptionSync(currentUser.getId(), currentUser.getDescription()));
     }
 
     private void currentUserDescriptionCallback(HttpResponse<JsonNode> response) {

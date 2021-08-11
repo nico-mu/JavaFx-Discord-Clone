@@ -48,12 +48,13 @@ public class AccordApp extends Application {
 
             if(Objects.nonNull(sessionComponent)) {
                 sessionComponent.getIntegrationService().stop();
-                sessionComponent.getSessionRestClient().sendLogoutRequest(response -> {});
-                sessionComponent.getSessionRestClient().stop();
-                sessionComponent.getWebsocketService().stop();
-                sessionComponent.getSessionDatabaseService().stop();
-                sessionComponent.getMediaRequestClient().stop();
-                sessionComponent = null;
+                sessionComponent.getSessionRestClient().sendLogoutRequest(response -> {
+                    sessionComponent.getSessionRestClient().stop();
+                    sessionComponent.getWebsocketService().stop();
+                    sessionComponent.getSessionDatabaseService().stop();
+                    sessionComponent.getMediaRequestClient().stop();
+                    sessionComponent = null;
+                });
             }
             appComponent.getAppRestClient().stop();
             appComponent = null;

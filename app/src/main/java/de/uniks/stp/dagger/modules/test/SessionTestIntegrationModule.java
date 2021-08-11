@@ -15,9 +15,7 @@ import javax.inject.Provider;
 public class SessionTestIntegrationModule {
     @Provides
     @SessionScope
-    static IntegrationService provideIntegrationService(SpotifyApiClient spotifyApiClient,
-                                                        SessionDatabaseService databaseService,
-                                                        Provider<SpotifyAuthorizationClient> spotifyAuthorizationClientProvider) {
+    static IntegrationService provideIntegrationService() {
         return Mockito.mock(IntegrationService.class);
     }
 }

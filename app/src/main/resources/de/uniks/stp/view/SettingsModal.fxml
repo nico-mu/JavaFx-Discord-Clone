@@ -7,7 +7,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox id="settings-container" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="625.0" prefWidth="650.0" spacing="10.0" styleClass="settings-modal" stylesheets="@../style/css/view/settings-modal.css" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.text.*?>
+
+<VBox id="settings-container" alignment="CENTER" prefHeight="850.0" prefWidth="650.0" spacing="10.0" styleClass="settings-modal" stylesheets="@../style/css/view/settings-modal.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <padding>
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
    </padding>
@@ -93,29 +95,28 @@
       </VBox.margin>
       <Label prefHeight="30.0" prefWidth="320.0" styleClass="label-settings-header" text="%LBL_INTEGRATION_SETTINGS" />
    </HBox>
-   <HBox id="integration-container" prefHeight="115.0" prefWidth="469.0" spacing="10.0">
-      <VBox.margin>
-         <Insets left="20.0" />
-      </VBox.margin>
+   <HBox prefHeight="93.0" prefWidth="468.0">
+      <VBox id="integration-container" prefHeight="85.0" prefWidth="400.0" spacing="10.0" />
       <padding>
-         <Insets bottom="10.0" top="10.0" />
+         <Insets left="20.0" />
       </padding>
    </HBox>
    <AnchorPane prefHeight="96.0" prefWidth="642.0">
-      <HBox alignment="TOP_CENTER" layoutY="54.0" prefHeight="46.0" prefWidth="578.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
-         <children>
-            <JFXButton id="settings-apply-button" prefHeight="40.0" prefWidth="115.0" styleClass="settings-apply-button" text="%LBL_APPLY">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </JFXButton>
-            <Pane prefHeight="46.0" prefWidth="54.0" />
-            <JFXButton id="settings-cancel-button" prefHeight="40.0" prefWidth="115.0" styleClass="settings-cancel-button" text="%LBL_CANCEL">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </JFXButton>
-         </children>
+      <HBox alignment="TOP_CENTER" layoutY="54.0" prefHeight="46.0" prefWidth="578.0" AnchorPane.bottomAnchor="0.0"
+            AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
+         <JFXButton id="settings-apply-button" prefHeight="40.0" prefWidth="115.0" styleClass="settings-apply-button"
+                    text="%LBL_APPLY">
+            <font>
+               <Font size="14.0"/>
+            </font>
+         </JFXButton>
+         <Pane prefHeight="46.0" prefWidth="54.0"/>
+         <JFXButton id="settings-cancel-button" prefHeight="40.0" prefWidth="115.0" styleClass="settings-cancel-button"
+                    text="%LBL_CANCEL">
+            <font>
+               <Font size="14.0"/>
+            </font>
+         </JFXButton>
       </HBox>
    </AnchorPane>
 </VBox>

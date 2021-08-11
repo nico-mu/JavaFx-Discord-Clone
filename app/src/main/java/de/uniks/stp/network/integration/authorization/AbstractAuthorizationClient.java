@@ -25,6 +25,8 @@ public abstract class AbstractAuthorizationClient implements HttpHandler {
     protected String serverPath;
     protected AuthorizationCallback authorizationCallback;
 
+    protected boolean serverStopped;
+
     public AbstractAuthorizationClient(AccordApp app) {
         this.app = app;
         this.serverPath = IntegrationConstants.TEMP_SERVER_INTEGRATION_PATH;
@@ -46,6 +48,12 @@ public abstract class AbstractAuthorizationClient implements HttpHandler {
             e.printStackTrace();
             authorizationCallback.onFailure(e.getMessage());
         }
+        stopServerAfterTimeout();
+    }
+
+    protected String getRedirectUri() {
+        return "http://" +
+            IntegrationConstants.TEMP_SERVER_HOST + ":" + IntegrationConstants.TEMP_SERVER_PORT + serverPath;
     }
 
     protected static Map<String, String> splitQuery(String queryString) {
@@ -65,9 +73,15 @@ public abstract class AbstractAuthorizationClient implements HttpHandler {
     }
 
 
-    protected void stopServer() {
+    public void stopServer() {
+        noTimeout();
+        serverStopped = true;
         server.stop(0);
         executorService.shutdown();
+    }
+
+    public boolean isServerStopped() {
+        return serverStopped;
     }
 
     protected void stopServerAfterTimeout() {

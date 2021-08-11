@@ -1,12 +1,15 @@
 package de.uniks.stp.dagger.modules.session;
 
+import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import de.uniks.stp.dagger.scope.SessionScope;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.integration.IntegrationService;
+import de.uniks.stp.network.integration.api.GitHubApiClient;
 import de.uniks.stp.network.integration.api.SpotifyApiClient;
+import de.uniks.stp.network.integration.authorization.GitHubAuthorizationClient;
 import de.uniks.stp.network.integration.authorization.SpotifyAuthorizationClient;
 import de.uniks.stp.network.rest.SessionRestClient;
 
@@ -17,11 +20,13 @@ import javax.inject.Provider;
 public class SessionIntegrationModule {
     @Provides
     @SessionScope
-    static IntegrationService provideIntegrationService(SpotifyApiClient spotifyApiClient,
+    static IntegrationService provideIntegrationService(Lazy<SpotifyApiClient> spotifyApiClientLazy,
+                                                        Lazy<GitHubApiClient> gitHubApiClientLazy,
                                                         SessionDatabaseService databaseService,
                                                         SessionRestClient restClient,
                                                         @Named("currentUser") User currentUser,
+                                                        Provider<GitHubAuthorizationClient> gitHubAuthorizationClientProvider,
                                                         Provider<SpotifyAuthorizationClient> spotifyAuthorizationClientProvider) {
-        return new IntegrationService(spotifyApiClient,currentUser, restClient, databaseService, spotifyAuthorizationClientProvider);
+        return new IntegrationService(spotifyApiClientLazy, gitHubApiClientLazy, currentUser, restClient, databaseService, gitHubAuthorizationClientProvider, spotifyAuthorizationClientProvider);
     }
 }
