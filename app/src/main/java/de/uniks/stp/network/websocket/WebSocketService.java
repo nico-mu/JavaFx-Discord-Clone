@@ -187,8 +187,18 @@ public class WebSocketService {
                     break;
                 case "userDescriptionChanged":
                     final String description = data.getString("description");
-                    User user = editor.getOtherUserById(userId);
-                    user.setDescription(description);
+                    if(!currentUser.getId().equals(userId)) {
+                        User user = editor.getOtherUserById(userId);
+                        user.setDescription(description);
+
+                        for (Server server : currentUser.getAvailableServers()) {
+                            for (User serverUser : server.getUsers()) {
+                                if(serverUser.getId().equals(userId)) {
+                                    serverUser.setDescription(description);
+                                }
+                            }
+                        }
+                    }
                 default:
                     break;
             }

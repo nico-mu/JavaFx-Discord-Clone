@@ -82,6 +82,7 @@ public class IntegrationService {
 
         if(Objects.nonNull(apiClient)) {
             apiClient.stop();
+            currentUser.setDescription(" ");
             restClient.updateDescriptionAsync(currentUser.getId(), " ", this::currentUserDescriptionCallback);
             databaseService.setIntegrationMode(serviceName, false);
         }
@@ -94,6 +95,7 @@ public class IntegrationService {
             apiClient.shutdown();
 
             if(isServiceActive(serviceName)) {
+                currentUser.setDescription(" ");
                 restClient.updateDescriptionAsync(currentUser.getId(), " ", this::currentUserDescriptionCallback);
             }
             databaseService.deleteApiIntegrationSetting(serviceName);
