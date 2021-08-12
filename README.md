@@ -31,12 +31,15 @@ There are a few things you need to know when using Accord.
 * Easter egg can be accessed by opening private chat, writing "!play :handshake:" and receiving the same message from the chat partner within 30 seconds.
 * In case there are any problems with running the same instance of Accord multiple times, try to wait until the program has started before you launch it again.
 * In case there are communication problems in an audio channel, make sure you selected the right default speaker/microphone in your system settings. 
+* Supported emoji aliases are ":D", ":*" and ":(". More aliases can be easily added if needed.
+* Supported 3rd party integrations are GitHub and Spotify which can be enabled in the settings menu.
 
 ### Server
 
 * [Release 1 documentation](https://seblog.cs.uni-kassel.de/wp-content/uploads/2021/04/ServerdokuR1.pdf)
 * [Release 2 documentation](https://seblog.cs.uni-kassel.de/wp-content/uploads/2021/05/ServerdokuR2.pdf)
 * [Release 3 documentation](https://seblog.cs.uni-kassel.de/wp-content/uploads/2021/06/ServerdokuR3.pdf)
+* [Release 4 documentation](https://seblog.cs.uni-kassel.de/wp-content/uploads/2021/07/ServerdokuR4.pdf)
 
 ### Branches
 
