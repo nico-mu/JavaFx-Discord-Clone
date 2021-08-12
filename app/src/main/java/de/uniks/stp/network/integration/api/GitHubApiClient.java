@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.json.Json;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Objects;
@@ -64,7 +65,9 @@ public class GitHubApiClient implements IntegrationApiClient {
                     name = jsonBody.getString("login");
                     //TODO: insert graphql query here
                 }
-                currentUser.setDescription("%" + name);
+                String jsonData = Json.createObjectBuilder()
+                    .add("desc", name).build().toString();
+                currentUser.setDescription("%" + jsonData);
             }
             else if(response.getStatus() == 401 && jsonBody.get("message").equals("Bad credentials")) {
                 databaseService.deleteApiIntegrationSetting(Integrations.GITHUB.key);
