@@ -11,6 +11,7 @@ import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.integration.api.SpotifyApiClient;
 import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.view.Languages;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.apache.hc.core5.http.ParseException;
@@ -57,7 +58,8 @@ public class SpotifyApiClientTest {
 
     @BeforeEach
     public void setUp() {
-        ViewLoader viewLoader = Mockito.mock(ViewLoader.class);
+        ViewLoader viewLoader = new ViewLoader();
+        viewLoader.changeLanguage(Languages.GERMAN);
         sessionRestClient = Mockito.mock(SessionRestClient.class);
         currentUser = Mockito.spy(new User().setName("test").setId("123"));
         databaseService =  Mockito.spy(new SessionDatabaseService(currentUser));
@@ -92,7 +94,6 @@ public class SpotifyApiClientTest {
         scheduledRunnable.run();
 
         verify(currentUser).setDescription(anyString());
-        Assertions.assertTrue(currentUser.isSpotifyPlaying());
     }
 
     @Test

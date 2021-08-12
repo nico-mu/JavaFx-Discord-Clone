@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.json.Json;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class SpotifyApiClient implements IntegrationApiClient {
     private final ViewLoader viewLoader;
     private final SessionRestClient restClient;
     private SpotifyApi spotifyApi;
-    private final PropertyChangeListener currentUserPlayingChangeListener;
+    private final PropertyChangeListener currentUserDescriptionChangeListener;
 
     @Inject
     public SpotifyApiClient(@Named("currentUser") User currentUser,
@@ -53,14 +54,14 @@ public class SpotifyApiClient implements IntegrationApiClient {
         this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         this.currentUser = currentUser;
         this.viewLoader = viewLoader;
-        this.currentUserPlayingChangeListener = this::onCurrentUserPlayingChanged;
+        this.currentUserDescriptionChangeListener = this::onCurrentUserDescriptionChanged;
         this.restClient = restClient;
     }
 
     @Override
     public void start(Credentials credentials) {
         currentUser.listeners()
-            .addPropertyChangeListener(User.PROPERTY_SPOTIFY_PLAYING, currentUserPlayingChangeListener);
+            .addPropertyChangeListener(User.PROPERTY_DESCRIPTION, currentUserDescriptionChangeListener);
 
         databaseService.addApiIntegrationSetting(Integrations.SPOTIFY.key, credentials.getRefreshToken());
         spotifyApi = new SpotifyApi.Builder()
@@ -73,7 +74,14 @@ public class SpotifyApiClient implements IntegrationApiClient {
 
             try {
                 CurrentlyPlaying playing = getUsersCurrentlyPlayingTrackRequest.execute();
-                currentUser.setSpotifyPlaying(Objects.nonNull(playing) && playing.getIs_playing());
+                if(Objects.nonNull(playing) && playing.getIs_playing()) {
+                    String jsonData = Json.createObjectBuilder()
+                        .add("desc", viewLoader.loadLabel("LBL_LISTENING_TO_SPOTIFY")).build().toString();
+                    currentUser.setDescription("#" + jsonData);
+                }
+                else {
+                    currentUser.setDescription(" ");
+                }
 
             } catch (IOException | SpotifyWebApiException | ParseException e) {
                 if(e instanceof UnauthorizedException && e.getMessage().equals("The access token expired")) {
@@ -131,18 +139,11 @@ public class SpotifyApiClient implements IntegrationApiClient {
         }
     }
 
-    private void onCurrentUserPlayingChanged(PropertyChangeEvent propertyChangeEvent) {
-        boolean newValue = (boolean)propertyChangeEvent.getNewValue();
-
-        if(newValue) {
-            currentUser.setDescription("#" + viewLoader.loadLabel("LBL_LISTENING_TO_SPOTIFY"));
-        }
-        else {
-            currentUser.setDescription(" ");
-        }
+    private void onCurrentUserDescriptionChanged(PropertyChangeEvent propertyChangeEvent) {
+        String newValue = (String)propertyChangeEvent.getNewValue();
         //make rest call with new description
         // note that is a synchronous call here, because we are already in another thread
-        currentUserDescriptionCallback(restClient.updateDescriptionSync(currentUser.getId(), currentUser.getDescription()));
+        currentUserDescriptionCallback(restClient.updateDescriptionSync(currentUser.getId(), newValue));
     }
 
     private void currentUserDescriptionCallback(HttpResponse<JsonNode> response) {
@@ -161,7 +162,7 @@ public class SpotifyApiClient implements IntegrationApiClient {
             scheduledFuture.cancel(true);
         }
         currentUser.listeners()
-            .removePropertyChangeListener(User.PROPERTY_SPOTIFY_PLAYING, currentUserPlayingChangeListener);
+            .removePropertyChangeListener(User.PROPERTY_DESCRIPTION, currentUserDescriptionChangeListener);
     }
 
     public void shutdown() {

@@ -7,12 +7,15 @@ import de.uniks.stp.ViewLoader;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.integration.Integrations;
 import de.uniks.stp.util.IntegrationUtil;
+import de.uniks.stp.util.JsonUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
+import javax.json.JsonObject;
+import javax.json.stream.JsonParsingException;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -62,21 +65,32 @@ public class UserListEntry extends VBox {
                 if(Objects.nonNull(integration)) {
                     String pictureName = IntegrationUtil.getPictureNameForIntegration(integration);
                     descriptionImageView.setImage(viewLoader.loadImage(pictureName));
+                    if(integration.key.equals(Integrations.SPOTIFY.key)) {
+                        try {
+                            JsonObject JsonObject = JsonUtil.parse(parsedDescription);
+                            parsedDescription = JsonObject.getString("desc");
+                        }
+                        catch (JsonParsingException ex) {
+                            setDescriptionVisible(false);
+                            return;
+                        }
+                    }
                 }
             }
 
-            descriptionLabel.setVisible(true);
-            descriptionLabel.setManaged(true);
-            descriptionImageView.setVisible(true);
-            descriptionImageView.setManaged(true);
+            setDescriptionVisible(true);
             descriptionLabel.setText(parsedDescription);
         }
         else {
-            descriptionLabel.setVisible(false);
-            descriptionLabel.setManaged(false);
-            descriptionImageView.setVisible(false);
-            descriptionImageView.setManaged(false);
+            setDescriptionVisible(false);
         }
+    }
+
+    public void setDescriptionVisible(boolean mode) {
+        descriptionLabel.setVisible(mode);
+        descriptionLabel.setManaged(mode);
+        descriptionImageView.setVisible(mode);
+        descriptionImageView.setManaged(mode);
     }
 
     public void setUserName(final String userName) {
