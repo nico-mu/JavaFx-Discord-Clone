@@ -65,7 +65,7 @@ public class UserListEntry extends VBox {
                 if(Objects.nonNull(integration)) {
                     String pictureName = IntegrationUtil.getPictureNameForIntegration(integration);
                     descriptionImageView.setImage(viewLoader.loadImage(pictureName));
-                    if(integration.key.equals(Integrations.SPOTIFY.key)) {
+                    if(integration.key.equals(Integrations.SPOTIFY.key) || integration.key.equals(Integrations.GITHUB.key)) {
                         try {
                             JsonObject JsonObject = JsonUtil.parse(parsedDescription);
                             parsedDescription = JsonObject.getString("desc");
