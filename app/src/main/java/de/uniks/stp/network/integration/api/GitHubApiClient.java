@@ -7,10 +7,8 @@ import de.uniks.stp.network.integration.Credentials;
 import de.uniks.stp.network.integration.IntegrationConstants;
 import de.uniks.stp.network.integration.Integrations;
 import de.uniks.stp.network.rest.SessionRestClient;
-import kong.unirest.Config;
-import kong.unirest.HttpResponse;
-import kong.unirest.JsonNode;
-import kong.unirest.UnirestInstance;
+import de.uniks.stp.util.IntegrationUtil;
+import kong.unirest.*;
 import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +64,7 @@ public class GitHubApiClient implements IntegrationApiClient {
                     //TODO: insert graphql query here
                 }
                 String jsonData = Json.createObjectBuilder()
-                    .add("desc", name).build().toString();
+                    .add("desc", IntegrationUtil.getTrimmedDescription(name)).build().toString();
                 currentUser.setDescription("%" + jsonData);
             }
             else if(response.getStatus() == 401 && jsonBody.get("message").equals("Bad credentials")) {

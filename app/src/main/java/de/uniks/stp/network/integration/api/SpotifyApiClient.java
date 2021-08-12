@@ -16,6 +16,7 @@ import de.uniks.stp.network.integration.Credentials;
 import de.uniks.stp.network.integration.IntegrationConstants;
 import de.uniks.stp.network.integration.Integrations;
 import de.uniks.stp.network.rest.SessionRestClient;
+import de.uniks.stp.util.IntegrationUtil;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.apache.hc.core5.http.ParseException;
@@ -76,7 +77,8 @@ public class SpotifyApiClient implements IntegrationApiClient {
                 CurrentlyPlaying playing = getUsersCurrentlyPlayingTrackRequest.execute();
                 if(Objects.nonNull(playing) && playing.getIs_playing()) {
                     String jsonData = Json.createObjectBuilder()
-                        .add("desc", viewLoader.loadLabel("LBL_LISTENING_TO_SPOTIFY")).build().toString();
+                        .add("desc", IntegrationUtil.getTrimmedDescription(viewLoader.loadLabel("LBL_LISTENING_TO_SPOTIFY")))
+                        .build().toString();
                     currentUser.setDescription("#" + jsonData);
                 }
                 else {
