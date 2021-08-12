@@ -23,6 +23,7 @@ public class ServerUserListController implements ControllerInterface {
 
     private final PropertyChangeListener availableUsersPropertyChangeListener = this::onAvailableUsersPropertyChange;
     private final PropertyChangeListener userStatusPropertyChangeListener = this::onUserStatusPropertyChange;
+    private final PropertyChangeListener userDescriptionPropertyChangeListener = this::onUserDescriptionPropertyChange;
 
     private final HashMap<User, PrivateChatNavUserListEntry> serverUserListEntryHashMap = new HashMap<>();
     private final Parent view;
@@ -51,7 +52,7 @@ public class ServerUserListController implements ControllerInterface {
 
         for(User user : model.getUsers()) {
             addUser(user);
-            addStatusPropertyChangeListener(user);
+            addUserPropertyChangeListeners(user);
         }
     }
 
@@ -60,13 +61,17 @@ public class ServerUserListController implements ControllerInterface {
             onlineUser(user);
         } else {
             offlineUser(user);
+            if(serverUserListEntryHashMap.containsKey(user)) {
+                Platform.runLater(() -> serverUserListEntryHashMap.get(user).setDescription(""));
+            }
         }
     }
 
-    private void addStatusPropertyChangeListener(User user) {
+    private void addUserPropertyChangeListeners(User user) {
         if (user.listeners().getPropertyChangeListeners(User.PROPERTY_STATUS).length == 0) {
             user.listeners().addPropertyChangeListener(User.PROPERTY_STATUS, userStatusPropertyChangeListener);
         }
+        user.listeners().addPropertyChangeListener(User.PROPERTY_DESCRIPTION, userDescriptionPropertyChangeListener);
     }
 
     private void onAvailableUsersPropertyChange(PropertyChangeEvent propertyChangeEvent) {
@@ -80,12 +85,20 @@ public class ServerUserListController implements ControllerInterface {
             return;
         }
         addUser(user);
-        addStatusPropertyChangeListener(user);
+        addUserPropertyChangeListeners(user);
     }
 
     private void onUserStatusPropertyChange(PropertyChangeEvent propertyChangeEvent) {
         User user = (User) propertyChangeEvent.getSource();
         addUser(user);
+    }
+
+    private void onUserDescriptionPropertyChange(PropertyChangeEvent propertyChangeEvent) {
+        User user = (User) propertyChangeEvent.getSource();
+        String newDescription = (String) propertyChangeEvent.getNewValue();
+        if(serverUserListEntryHashMap.containsKey(user)) {
+            Platform.runLater(() -> serverUserListEntryHashMap.get(user).setDescription(newDescription));
+        }
     }
 
     private void removeUser(User user) {
@@ -116,6 +129,7 @@ public class ServerUserListController implements ControllerInterface {
         model.listeners().removePropertyChangeListener(Server.PROPERTY_USERS, availableUsersPropertyChangeListener);
         for (User user : model.getUsers()) {
             user.listeners().removePropertyChangeListener(User.PROPERTY_STATUS, userStatusPropertyChangeListener);
+            user.listeners().removePropertyChangeListener(User.PROPERTY_DESCRIPTION, userDescriptionPropertyChangeListener);
         }
         serverUserListEntryHashMap.clear();
         onlineUserList.getChildren().clear();
