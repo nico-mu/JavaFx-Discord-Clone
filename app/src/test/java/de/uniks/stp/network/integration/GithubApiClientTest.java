@@ -95,7 +95,8 @@ public class GithubApiClientTest {
         Runnable scheduledRunnable = scheduledRunnableArgumentCaptor.getValue();
         scheduledRunnable.run();
 
-        verify(currentUser).setDescription("%" + name);
+        String wantedDescription = Json.createObjectBuilder().add("desc", name).build().toString();
+        verify(currentUser).setDescription("%" + wantedDescription);
     }
     
     @Test
