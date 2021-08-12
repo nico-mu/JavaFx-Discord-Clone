@@ -131,7 +131,7 @@ public class EmoteParser {
     public static String convertTextWithAliasToNames(String text) {
         for (String alias : getAllAlias()) {
             String aliasName = ":" + getEmoteNameByAlias(alias).toLowerCase() + ":";
-            text = text.replaceAll(alias, aliasName);
+            text = text.replace(alias, aliasName);
             // Ability to escape alias via \
             text = text.replaceAll("\\\\" + aliasName, alias);
         }
