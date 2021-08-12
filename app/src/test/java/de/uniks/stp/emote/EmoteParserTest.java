@@ -45,4 +45,12 @@ public class EmoteParserTest {
         String parsingResult = EmoteParser.convertTextWithUnicodeToNames("Hello World \uD83D\uDE00\uD83D\uDE04");
         Assertions.assertEquals("Hello World :grinning_face::smiling_face_with_open_mouth_and_smiling_eyes:", parsingResult);
     }
+
+    @Test
+    public void testEmoteAlias() {
+        String parsingResult = EmoteParser.convertTextWithAliasToNames("\\:D");
+        Assertions.assertEquals(":D", parsingResult);
+        parsingResult = EmoteParser.convertTextWithAliasToNames(":D");
+        Assertions.assertEquals(":" + EmoteAlias.SMILING_FACE_WITH_OPEN_MOUTH.toString().toLowerCase() + ":", parsingResult);
+    }
 }

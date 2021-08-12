@@ -14,9 +14,12 @@ import java.util.stream.Collectors;
 
 public class EmoteParser {
     private static final Map<String, String> emoteMapping = new HashMap<>();
+    private static final Map<String, String> emoteAliasMapping = new HashMap<>();
     private static final LinkedList<String> allEmoteNames;
+    private static final LinkedList<String> allAlias;
 
     static {
+        // Fill emote mapping
         InputStream inputStream = Objects.requireNonNull(ViewLoader.class.getResourceAsStream("emote/emote-list.json"));
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -30,12 +33,18 @@ public class EmoteParser {
         }
 
         JSONObject jsonObject = new JSONObject(text);
-        
+
         addEmotesFromJSONArray(jsonObject.getJSONArray("Smileys & People"));
         addEmotesFromJSONArray(jsonObject.getJSONArray("Objects"));
         addEmotesFromJSONArray(jsonObject.getJSONArray("Animals & Nature"));
         addEmotesFromJSONArray(jsonObject.getJSONArray("Flags"));
         allEmoteNames = new LinkedList<>(emoteMapping.keySet());
+
+        // Fill emote alias mapping
+        for (EmoteAlias alias : EmoteAlias.values()) {
+            emoteAliasMapping.put(alias.getAlias(), alias.toString());
+        }
+        allAlias = new LinkedList<>(emoteAliasMapping.keySet());
     }
 
     public static Map<String, String> getEmoteMapping() {
@@ -54,6 +63,18 @@ public class EmoteParser {
         return allEmoteNames;
     }
 
+    public static Map<String, String> getEmoteAliasMapping() {
+        return emoteAliasMapping;
+    }
+
+    public static LinkedList<String> getAllAlias() {
+        return allAlias;
+    }
+
+    public static String getEmoteNameByAlias(String alias) {
+        return getEmoteAliasMapping().get(alias);
+    }
+
     public static LinkedList<EmoteParserResult> parse(String input) {
         LinkedList<EmoteParserResult> parsingResult = new LinkedList<>();
 
@@ -66,7 +87,7 @@ public class EmoteParser {
             char character = input.charAt(index);
 
             if (character == ':') {
-                isCollectingEmoteName  = !isCollectingEmoteName;
+                isCollectingEmoteName = !isCollectingEmoteName;
                 if (isCollectingEmoteName) {
                     lastEmoteStart = index;
                 }
@@ -107,6 +128,17 @@ public class EmoteParser {
         return text;
     }
 
+    public static String convertTextWithAliasToNames(String text) {
+        for (String alias : getAllAlias()) {
+            String aliasName = ":" + getEmoteNameByAlias(alias).toLowerCase() + ":";
+            text = text.replace(alias, aliasName);
+            // Ability to escape alias via \
+            text = text.replaceAll("\\\\" + aliasName, alias);
+        }
+
+        return text;
+    }
+
     public static String toUnicodeString(String input) {
         StringBuilder renderResult = new StringBuilder();
         LinkedList<EmoteParserResult> parsingResult = EmoteParser.parse(input);
@@ -126,8 +158,7 @@ public class EmoteParser {
         return renderResult.toString();
     }
 
-    private static boolean isParsableEmoteName(String str)
-    {
+    private static boolean isParsableEmoteName(String str) {
         for (int i = 0; i < str.length(); i++) {
             if (!Character.isLetter(str.charAt(i)) && str.charAt(i) != '_' && str.charAt(i) != '-') {
                 return false;

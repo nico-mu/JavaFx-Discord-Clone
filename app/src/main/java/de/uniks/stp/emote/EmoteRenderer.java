@@ -58,6 +58,11 @@ public class EmoteRenderer {
 
     public LinkedList<Node> render(String input) {
         input = EmoteParser.convertTextWithUnicodeToNames(input);
+        /*
+         * Extra step so that we can split the conversion in the rendering process.
+         * We don't want to process the input for alias when sending the message. (?)
+         */
+        input = EmoteParser.convertTextWithAliasToNames(input);
         LinkedList<Node> renderResult = new LinkedList<>();
         LinkedList<EmoteParserResult> parsingResult = EmoteParser.parse(input);
         int from = 0;
