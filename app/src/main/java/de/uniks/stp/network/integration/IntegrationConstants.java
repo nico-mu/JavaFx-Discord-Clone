@@ -1,5 +1,7 @@
 package de.uniks.stp.network.integration;
 
+import javax.json.Json;
+
 public class IntegrationConstants {
 
     public static final String TEMP_SERVER_HOST = "localhost";
@@ -8,6 +10,9 @@ public class IntegrationConstants {
     public static final String TEMP_SERVER_INTEGRATION_PATH_GITHUB = "/github";
     public static final int TEMP_SERVER_PORT = 8001;
     public static final int AUTHORIZATION_TIMEOUT = 7200000;
+    public static final String EMPTY_DESCRIPTION_BODY = Json.createObjectBuilder().add("desc", "").build().toString();
+    public static final int DESCRIPTION_MAX_LENGTH = 120;
+    public static final String DESCRIPTION_SPOILER = "...";
 
     /*** SPOTIFY ***/
     public static final String SPOTIFY_CLIENT_ID = "53e68e034d0b4f3781483049367ca88c";
