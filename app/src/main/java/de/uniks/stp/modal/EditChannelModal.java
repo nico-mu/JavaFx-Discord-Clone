@@ -159,8 +159,6 @@ public class EditChannelModal extends AbstractModal {
             }
             selectUserList.addUserToChecklist(userCheckListEntry);
         }
-        System.out.println(channel.getChannelMembers());
-        System.out.println(channel.getServer().getUsers());
     }
 
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
