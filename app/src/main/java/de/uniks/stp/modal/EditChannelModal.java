@@ -27,8 +27,6 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
-import kong.unirest.json.JSONArray;
-import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -252,25 +250,6 @@ public class EditChannelModal extends AbstractModal {
         log.debug("Received edit channel response: " + jsonNodeHttpResponse.getBody().toPrettyString());
 
         if (jsonNodeHttpResponse.isSuccess()) {
-            JSONObject data = jsonNodeHttpResponse.getBody().getObject().getJSONObject("data");
-            JSONArray jsonMemberIds = data.getJSONArray("members");
-
-            for (User user : channel.getServer().getUsers()) {
-                boolean modified = false;
-                for (int i = 0; i < jsonMemberIds.length(); i++) {
-                    if (user.getId().equals(jsonMemberIds.get(i))) {
-                        channel.withChannelMembers(user);
-                        modified = true;
-                        break;
-                    }
-                }
-                if (!modified) {
-                    channel.withoutChannelMembers(user);
-                }
-            }
-
-            channel.setPrivileged(data.getBoolean("privileged"));
-
             Platform.runLater(this::close);
         } else {
             log.error("Edit server failed: " + jsonNodeHttpResponse.getBody().toPrettyString());
