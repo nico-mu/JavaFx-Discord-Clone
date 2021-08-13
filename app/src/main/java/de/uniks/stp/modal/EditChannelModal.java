@@ -27,6 +27,8 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import kong.unirest.json.JSONArray;
+import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,11 +124,12 @@ public class EditChannelModal extends AbstractModal {
         notificationsToggleButton.selectedProperty().addListener(((observable, oldValue, newValue) -> {
             notificationsLabel.setText(viewLoader.loadLabel(!notificationsToggleButton.isSelected() ? Constants.LBL_OFF : Constants.LBL_ON));
         }));
+
         privileged.setSelected(channel.isPrivileged());
 
         selectUserList = userCheckList;
         selectUserList.setMaxHeight(userCheckListContainer.getMaxHeight());
-        selectUserList.setDisable(true);
+        selectUserList.setDisable(!channel.isPrivileged());
         userCheckListContainer.getChildren().add(selectUserList);
 
         editButton.setOnAction(this::onEditButtonClicked);
@@ -157,6 +160,8 @@ public class EditChannelModal extends AbstractModal {
             }
             selectUserList.addUserToChecklist(userCheckListEntry);
         }
+        System.out.println(channel.getChannelMembers());
+        System.out.println(channel.getServer().getUsers());
     }
 
     private void onDeleteButtonClicked(ActionEvent actionEvent) {
@@ -250,6 +255,14 @@ public class EditChannelModal extends AbstractModal {
         log.debug("Received edit channel response: " + jsonNodeHttpResponse.getBody().toPrettyString());
 
         if (jsonNodeHttpResponse.isSuccess()) {
+            JSONObject data = jsonNodeHttpResponse.getBody().getObject().getJSONObject("data");
+            JSONArray jsonMemberIds = data.getJSONArray("members");
+            ArrayList<String> memberIds = (ArrayList<String>) jsonMemberIds.toList();
+            for (User user : channel.getChannelMembers()) {
+                if(! memberIds.contains(user.getId())) {
+                    channel.withoutChannelMembers(user);
+                }
+            }
             Platform.runLater(this::close);
         } else {
             log.error("Edit server failed: " + jsonNodeHttpResponse.getBody().toPrettyString());
