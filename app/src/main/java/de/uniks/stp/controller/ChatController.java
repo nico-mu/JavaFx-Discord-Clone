@@ -13,6 +13,7 @@ import de.uniks.stp.network.rest.ServerInformationHandler;
 import de.uniks.stp.network.rest.SessionRestClient;
 import de.uniks.stp.util.InviteInfo;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import org.slf4j.Logger;
@@ -46,6 +47,7 @@ abstract public class ChatController<T> extends BaseController {
         currentUser = editor.getOrCreateAccord().getCurrentUser();
         this.chatMessageInput = chatMessageInput;
         chatMessageList = new ListComponent<>(viewLoader, "message-list");
+        chatMessageList.setPadding(new Insets(0,4,0,0));
         chatMessageList.setIsScrollAware(true);
         chatMessageList.getStyleClass().add("message-list");
         chatMessageList.setPrefHeight(100);

@@ -7,7 +7,7 @@
 
 <fx:root fx:id="root" alignment="CENTER_RIGHT" maxHeight="100.0" prefHeight="40.0" prefWidth="200.0" type="HBox" VBox.vgrow="SOMETIMES" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <VBox.margin>
-        <Insets top="30.0" />
+        <Insets top="10.0" />
     </VBox.margin>
     <VBox fx:id="chatViewMessageInput" maxHeight="150.0" styleClass="message-input" HBox.hgrow="ALWAYS">
         <padding>
