@@ -1,5 +1,4 @@
 package de.uniks.stp.network.integration;
-import dagger.Lazy;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.integration.api.GitHubApiClient;
@@ -26,21 +25,23 @@ public class IntegrationService {
     private final SessionDatabaseService databaseService;
     private final Provider<SpotifyAuthorizationClient> spotifyAuthorizationClientProvider;
     private final Provider<GitHubAuthorizationClient> gitHubAuthorizationClientProvider;
-    private final Lazy<SpotifyApiClient> spotifyApiClientLazy;
-    private final Lazy<GitHubApiClient> gitHubApiClientLazy;
+    private final Provider<SpotifyApiClient> spotifyApiClientProvider;
+    private final Provider<GitHubApiClient> gitHubApiClientProvider;
     private final User currentUser;
     private final SessionRestClient restClient;
     private AbstractAuthorizationClient authorizationClient;
+    private SpotifyApiClient spotifyApiClient;
+    private GitHubApiClient gitHubApiClient;
 
-    public IntegrationService(Lazy<SpotifyApiClient> spotifyApiClientLazy,
-                              Lazy<GitHubApiClient> gitHubApiClientLazy,
+    public IntegrationService(Provider<SpotifyApiClient> spotifyApiClientProvider,
+                              Provider<GitHubApiClient> gitHubApiClientProvider,
                               @Named("currentUser") User currentUser,
                               SessionRestClient restClient,
                               SessionDatabaseService databaseService,
                               Provider<GitHubAuthorizationClient> gitHubAuthorizationClientProvider,
                               Provider<SpotifyAuthorizationClient> spotifyAuthorizationClientProvider) {
-        this.spotifyApiClientLazy = spotifyApiClientLazy;
-        this.gitHubApiClientLazy = gitHubApiClientLazy;
+        this.spotifyApiClientProvider = spotifyApiClientProvider;
+        this.gitHubApiClientProvider = gitHubApiClientProvider;
         this.databaseService = databaseService;
         this.spotifyAuthorizationClientProvider = spotifyAuthorizationClientProvider;
         this.gitHubAuthorizationClientProvider = gitHubAuthorizationClientProvider;
@@ -50,10 +51,16 @@ public class IntegrationService {
 
     public void init() {
         if(isServiceConnected(Integrations.SPOTIFY.key) && isServiceActive(Integrations.SPOTIFY.key)) {
-            spotifyApiClientLazy.get().refresh();
+            IntegrationApiClient apiClient = getServiceByName(Integrations.SPOTIFY.key);
+            if(Objects.nonNull(apiClient)) {
+                apiClient.refresh();
+            }
         }
         else if(isServiceConnected(Integrations.GITHUB.key) && isServiceActive(Integrations.GITHUB.key)){
-            gitHubApiClientLazy.get().refresh();
+            IntegrationApiClient apiClient = getServiceByName(Integrations.GITHUB.key);
+            if(Objects.nonNull(apiClient)) {
+                apiClient.refresh();
+            }
         }
     }
 
@@ -94,6 +101,13 @@ public class IntegrationService {
         if(Objects.nonNull(apiClient)) {
             apiClient.shutdown();
 
+            if(serviceName.equals(Integrations.SPOTIFY.key)) {
+                spotifyApiClient = null;
+            }
+            else if(serviceName.equals(Integrations.GITHUB.key)) {
+                gitHubApiClient = null;
+            }
+
             if(isServiceActive(serviceName)) {
                 currentUser.setDescription(" ");
                 restClient.updateDescriptionAsync(currentUser.getId(), " ", this::currentUserDescriptionCallback);
@@ -104,10 +118,16 @@ public class IntegrationService {
 
     private IntegrationApiClient getServiceByName(String serviceName) {
         if(serviceName.equals(Integrations.SPOTIFY.key)) {
-            return spotifyApiClientLazy.get();
+            if(Objects.isNull(spotifyApiClient)) {
+                spotifyApiClient = spotifyApiClientProvider.get();
+            }
+            return spotifyApiClient;
         }
         else if(serviceName.equals(Integrations.GITHUB.key)) {
-           return gitHubApiClientLazy.get();
+          if(Objects.isNull(gitHubApiClient)) {
+              gitHubApiClient = gitHubApiClientProvider.get();
+          }
+          return gitHubApiClient;
         }
 
         log.warn("Unknown service integration {}", serviceName);
@@ -154,8 +174,12 @@ public class IntegrationService {
 
     public void stop() {
         stopAuthorizationClientServer();
-        spotifyApiClientLazy.get().shutdown();
-        gitHubApiClientLazy.get().shutdown();
+        if(Objects.nonNull(spotifyApiClient)) {
+            spotifyApiClient.shutdown();
+        }
+        if(Objects.nonNull(gitHubApiClient)) {
+            gitHubApiClient.shutdown();
+        }
         currentUserDescriptionCallback(restClient.updateDescriptionSync(currentUser.getId(), " "));
     }
 }
