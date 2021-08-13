@@ -20,13 +20,13 @@ import javax.inject.Provider;
 public class SessionIntegrationModule {
     @Provides
     @SessionScope
-    static IntegrationService provideIntegrationService(Lazy<SpotifyApiClient> spotifyApiClientLazy,
-                                                        Lazy<GitHubApiClient> gitHubApiClientLazy,
+    static IntegrationService provideIntegrationService(Provider<SpotifyApiClient> spotifyApiClientProvider,
+                                                        Provider<GitHubApiClient> gitHubApiClientProvider,
                                                         SessionDatabaseService databaseService,
                                                         SessionRestClient restClient,
                                                         @Named("currentUser") User currentUser,
                                                         Provider<GitHubAuthorizationClient> gitHubAuthorizationClientProvider,
                                                         Provider<SpotifyAuthorizationClient> spotifyAuthorizationClientProvider) {
-        return new IntegrationService(spotifyApiClientLazy, gitHubApiClientLazy, currentUser, restClient, databaseService, gitHubAuthorizationClientProvider, spotifyAuthorizationClientProvider);
+        return new IntegrationService(spotifyApiClientProvider, gitHubApiClientProvider, currentUser, restClient, databaseService, gitHubAuthorizationClientProvider, spotifyAuthorizationClientProvider);
     }
 }

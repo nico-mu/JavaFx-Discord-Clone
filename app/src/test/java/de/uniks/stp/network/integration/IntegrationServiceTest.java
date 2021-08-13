@@ -1,6 +1,5 @@
 package de.uniks.stp.network.integration;
 
-import dagger.Lazy;
 import de.uniks.stp.jpa.SessionDatabaseService;
 import de.uniks.stp.model.User;
 import de.uniks.stp.network.integration.api.GitHubApiClient;
@@ -8,7 +7,6 @@ import de.uniks.stp.network.integration.api.SpotifyApiClient;
 import de.uniks.stp.network.integration.authorization.GitHubAuthorizationClient;
 import de.uniks.stp.network.integration.authorization.SpotifyAuthorizationClient;
 import de.uniks.stp.network.rest.SessionRestClient;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,10 +36,10 @@ public class IntegrationServiceTest {
     private GitHubAuthorizationClient gitHubAuthorizationClientMock;
 
     @Mock
-    private Lazy<SpotifyApiClient> spotifyApiClientLazyMock;
+    private Provider<SpotifyApiClient> spotifyApiClientProviderMock;
 
     @Mock
-    private Lazy<GitHubApiClient> gitHubApiClientLazyMock;
+    private Provider<GitHubApiClient> gitHubApiClientProviderMock;
 
     @Mock
     private SpotifyApiClient spotifyApiClient;
@@ -63,8 +61,8 @@ public class IntegrationServiceTest {
         User currentUser = new User().setId("123").setName("test");
         databaseServiceSpy = Mockito.spy(new SessionDatabaseService(currentUser));
         integrationServiceSpy = Mockito.spy(
-            new IntegrationService(spotifyApiClientLazyMock,
-                gitHubApiClientLazyMock,
+            new IntegrationService(spotifyApiClientProviderMock,
+                gitHubApiClientProviderMock,
             currentUser,
                 restClientMock,
                 databaseServiceSpy,
@@ -73,8 +71,8 @@ public class IntegrationServiceTest {
             )
         );
 
-        when(spotifyApiClientLazyMock.get()).thenReturn(spotifyApiClient);
-        when(gitHubApiClientLazyMock.get()).thenReturn(gitHubApiClient);
+        when(spotifyApiClientProviderMock.get()).thenReturn(spotifyApiClient);
+        when(gitHubApiClientProviderMock.get()).thenReturn(gitHubApiClient);
     }
 
     @Test
@@ -144,8 +142,8 @@ public class IntegrationServiceTest {
         databaseServiceSpy.deleteApiIntegrationSetting(Integrations.GITHUB.key);
         spotifyAuthorizationClientProviderMock = null;
         gitHubAuthorizationClientProviderMock = null;
-        spotifyApiClientLazyMock = null;
-        gitHubApiClientLazyMock = null;
+        spotifyApiClientProviderMock = null;
+        gitHubApiClientProviderMock = null;
         spotifyApiClient = null;
         gitHubApiClient = null;
         restClientMock = null;
