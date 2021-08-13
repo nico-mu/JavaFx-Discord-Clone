@@ -11,7 +11,6 @@ import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -147,7 +146,7 @@ public class WebSocketService {
         // store in database and activate notification only when message is not an ingame command
         List<String> ingameCommands = EnumSet.allOf(GameCommand.class).stream().map(e -> e.command).collect(Collectors.toList());
         ingameCommands.remove(GameCommand.PLAY.command);
-        if(! ingameCommands.contains(msgText)){
+        if (!ingameCommands.contains(msgText)) {
             databaseService.saveDirectMessage(msg);
             notificationService.register(chatPartner);
             notificationService.onPrivateMessage(chatPartner);
@@ -187,13 +186,13 @@ public class WebSocketService {
                     break;
                 case "userDescriptionChanged":
                     final String description = data.getString("description");
-                    if(!currentUser.getId().equals(userId)) {
+                    if (!currentUser.getId().equals(userId)) {
                         User user = editor.getOtherUserById(userId);
                         user.setDescription(description);
 
                         for (Server server : currentUser.getAvailableServers()) {
                             for (User serverUser : server.getUsers()) {
-                                if(serverUser.getId().equals(userId)) {
+                                if (serverUser.getId().equals(userId)) {
                                     serverUser.setDescription(description);
                                 }
                             }
@@ -256,10 +255,9 @@ public class WebSocketService {
 
         User sender = editor.getOtherUser(from);
         if (Objects.isNull(sender)) {
-            if(from.equals(currentUser.getName())) {
+            if (from.equals(currentUser.getName())) {
                 sender = currentUser;
-            }
-            else {
+            } else {
                 log.error("WebSocketService: Sender \"{}\" of received message is not in editor", from);
                 return;
             }
@@ -379,10 +377,10 @@ public class WebSocketService {
                     String chType = data.getString("type");
                     boolean priv = data.getBoolean("privileged");
                     String categId = data.getString("category");
-                    JsonArray jsonMembers = data.getJsonArray("members");
+                    JsonArray jsonMemberIds = data.getJsonArray("members");
 
                     Channel ch = editor.getChannelById(chId);
-                    if(Objects.isNull(ch)) {
+                    if (Objects.isNull(ch)) {
                         ch = new Channel().setId(chId);
                         ch.setName(chName);
                         ch.setType(chType);
@@ -398,19 +396,22 @@ public class WebSocketService {
                     ch.setName(chName);
                     ch.setType(chType);
                     ch.setPrivileged(priv);
-                    ch.withoutChannelMembers(ch.getChannelMembers());
 
-                    if (priv && Objects.nonNull(ch)) {
-                        ArrayList<String> membersList = new ArrayList<>();
-                        for (int i = 0; i < jsonMembers.size(); i++) {
-                            membersList.add(jsonMembers.getString(i));
-                        }
-                        for (User user : ch.getServer().getUsers()) {
-                            if (membersList.contains(user.getId())) {
+
+                    for (User user : ch.getServer().getUsers()) {
+                        boolean modified = false;
+                        for (int i = 0; i < jsonMemberIds.size(); i++) {
+                            if (user.getId().equals(jsonMemberIds.getString(i))) {
                                 ch.withChannelMembers(user);
+                                modified = true;
+                                break;
                             }
                         }
+                        if (!modified) {
+                            ch.withoutChannelMembers(user);
+                        }
                     }
+
                     break;
                 case "serverDeleted":
                     serverId = data.getString("id");
@@ -490,8 +491,7 @@ public class WebSocketService {
                     log.error("WebSocketService: can't process server system message with content: {}", jsonObject);
                     break;
             }
-        }
-        else {
+        } else {
             log.error("WebSocketService: can't process server system message with content: {}", jsonObject);
         }
 
