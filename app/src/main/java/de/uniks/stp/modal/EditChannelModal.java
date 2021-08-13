@@ -32,7 +32,6 @@ import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -99,7 +98,7 @@ public class EditChannelModal extends AbstractModal {
 
         setTitle(viewLoader.loadLabel(Constants.LBL_EDIT_CHANNEL));
         channelName = (JFXTextField) view.lookup(EDIT_CHANNEL_NAME_TEXTFIELD);
-        notificationAnchorPane = (AnchorPane)  view.lookup(NOTIFICATION_CONTAINER);
+        notificationAnchorPane = (AnchorPane) view.lookup(NOTIFICATION_CONTAINER);
         notificationsToggleButton = (JFXToggleButton) view.lookup(NOTIFICATIONS_TOGGLE_BUTTON);
         notificationsLabel = (Label) view.lookup(NOTIFICATIONS_ACTIVATED_LABEL);
         privileged = (JFXCheckBox) view.lookup(PRIVILEGED_CHECKBOX);
@@ -112,7 +111,7 @@ public class EditChannelModal extends AbstractModal {
 
         boolean muted = databaseService.isChannelMuted(channel.getId());
         boolean voice = channel.getType().equals("audio");
-        if(voice) {
+        if (voice) {
             notificationAnchorPane.getChildren().clear();
             notificationAnchorPane.setMinHeight(20);
         }
@@ -147,15 +146,15 @@ public class EditChannelModal extends AbstractModal {
         }));
 
         LinkedList<String> memberNames = new LinkedList<>();
-        for(User user : channel.getChannelMembers()) {
+        for (User user : channel.getChannelMembers()) {
             memberNames.add(user.getName());
         }
         for (User user : category.getServer().getUsers()) {
-            if(user.getName().equals(editor.getOrCreateAccord().getCurrentUser().getName())) {
+            if (user.getName().equals(editor.getOrCreateAccord().getCurrentUser().getName())) {
                 continue;
             }
             UserCheckListEntry userCheckListEntry = userCheckListEntryFactory.create(user);
-            if(memberNames.contains(user.getName())) {
+            if (memberNames.contains(user.getName())) {
                 userCheckListEntry.setSelected(true);
             }
             selectUserList.addUserToChecklist(userCheckListEntry);
@@ -200,7 +199,7 @@ public class EditChannelModal extends AbstractModal {
 
         if (jsonNodeHttpResponse.isSuccess()) {
             Platform.runLater(this::close);
-        }else {
+        } else {
             log.error("Unhandled create server response: " + jsonNodeHttpResponse.getBody().toPrettyString());
         }
     }
@@ -218,22 +217,22 @@ public class EditChannelModal extends AbstractModal {
         String channelId = channel.getId();
 
         boolean muted = !notificationsToggleButton.isSelected();
-        if(muted) {
+        if (muted) {
             databaseService.addMutedChannelId(channelId);
-        }else {
+        } else {
             databaseService.removeMutedChannelId(channelId);
         }
 
         ArrayList<String> privilegedUserIds = selectUserList.getSelectedUserIds();
-        if(priv) {
-            if(!privilegedUserIds.contains(editor.getOrCreateAccord().getCurrentUser().getId())) {
+        if (priv) {
+            if (!privilegedUserIds.contains(editor.getOrCreateAccord().getCurrentUser().getId())) {
                 privilegedUserIds.add(editor.getOrCreateAccord().getCurrentUser().getId());
             }
         }
 
-        if(hasRestChanges(chName, priv, privilegedUserIds)) {
+        if (hasRestChanges(chName, priv, privilegedUserIds)) {
             restClient.editTextChannel(serverId, categoryId, channelId, chName, priv, privilegedUserIds, this::handleEditChannelResponse);
-        }else {
+        } else {
             this.close();
         }
     }
@@ -257,12 +256,23 @@ public class EditChannelModal extends AbstractModal {
         if (jsonNodeHttpResponse.isSuccess()) {
             JSONObject data = jsonNodeHttpResponse.getBody().getObject().getJSONObject("data");
             JSONArray jsonMemberIds = data.getJSONArray("members");
-            ArrayList<String> memberIds = (ArrayList<String>) jsonMemberIds.toList();
-            for (User user : channel.getChannelMembers()) {
-                if(! memberIds.contains(user.getId())) {
+
+            for (User user : channel.getServer().getUsers()) {
+                boolean modified = false;
+                for (int i = 0; i < jsonMemberIds.length(); i++) {
+                    if (user.getId().equals(jsonMemberIds.get(i))) {
+                        channel.withChannelMembers(user);
+                        modified = true;
+                        break;
+                    }
+                }
+                if (!modified) {
                     channel.withoutChannelMembers(user);
                 }
             }
+
+            channel.setPrivileged(data.getBoolean("privileged"));
+
             Platform.runLater(this::close);
         } else {
             log.error("Edit server failed: " + jsonNodeHttpResponse.getBody().toPrettyString());
@@ -282,17 +292,17 @@ public class EditChannelModal extends AbstractModal {
     }
 
     private boolean hasRestChanges(String chName, boolean priv, ArrayList<String> selectedUsers) {
-        if(!chName.equals(channel.getName())) {
+        if (!chName.equals(channel.getName())) {
             return true;
         }
-        if(priv != channel.isPrivileged()) {
+        if (priv != channel.isPrivileged()) {
             return true;
         }
-        if(selectedUsers.size() != channel.getChannelMembers().size()) {
+        if (selectedUsers.size() != channel.getChannelMembers().size()) {
             return true;
         }
-        for(User user : channel.getChannelMembers()) {
-            if(!selectedUsers.contains(user.getId())) {
+        for (User user : channel.getChannelMembers()) {
+            if (!selectedUsers.contains(user.getId())) {
                 return true;
             }
         }
