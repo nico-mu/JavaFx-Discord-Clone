@@ -2,6 +2,7 @@
 
 .message:hover {
   -fx-background-color: $secondary-hover-color;
+  -fx-background-radius: 4px;
 }
 
 .message-text {
